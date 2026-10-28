@@ -140,7 +140,7 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
     <div class="tablewrap" id="table"><div class="empty">Cargando…</div></div>
     <div class="foot">
       <div class="pager"><button type="button" id="prev">Anterior</button><span class="hint" id="pinfo"></span><button type="button" id="next">Siguiente</button></div>
-      <div class="pager"><button type="button" id="refresh">Actualizar precios ahora</button><button type="button" id="full">Carga completa</button><button type="button" id="copy">Copiar tabla para Excel</button></div>
+      <div class="pager"><button type="button" id="refresh">Actualizar precios ahora</button><button type="button" id="full">Carga completa</button><button type="button" id="syncfav">Sincronizar favoritas</button><button type="button" id="copy">Copiar tabla para Excel</button></div>
     </div>
   </section>
 
@@ -179,7 +179,7 @@ const saveFavs=()=>{try{localStorage.setItem("favs",JSON.stringify([...favs]))}c
 // favOrder = favoritas con las que se ordena y filtra; se actualiza al cambiar filtros u orden, no al marcar,
 // así la fila que marcás no salta de lugar ni te cambia de página.
 let favOrder=new Set(favs);const syncFavs=()=>{favOrder=new Set(favs)};
-function toggleFav(t){favs.has(t)?favs.delete(t):favs.add(t);saveFavs();renderTable()}
+function toggleFav(t){favs.has(t)?favs.delete(t):favs.add(t);saveFavs();renderTable();scheduleFavPush()}
 let sortKey="pe", sortDir=1, page=0, kind="all", sector="", query="", onlyOk=true, selected=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -435,7 +435,7 @@ function say(msg){$("banner").textContent=msg;$("banner").hidden=false}
 async function dispatch(wf,btn,label){
   let t=tk();
   if(!t){
-    t=(prompt("Pegá tu token de GitHub (permiso Actions: lectura y escritura sobre Monitor-Acciones). Se guarda solo en este navegador.")||"").trim();
+    t=(prompt("Pegá tu token de GitHub (permisos Actions y Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.")||"").trim();
     if(!t)return;saveTk(t);
   }
   btn.disabled=true;btn.textContent="Lanzando…";
@@ -453,6 +453,59 @@ async function dispatch(wf,btn,label){
 }
 $("refresh").addEventListener("click",e=>dispatch("precios.yml",e.currentTarget,"Actualizar precios ahora"));
 $("full").addEventListener("click",e=>{if(confirm("La carga completa tarda unos 25 minutos. ¿Lanzarla?"))dispatch("datos.yml",e.currentTarget,"Carga completa")});
+
+
+// Favoritas sincronizadas entre dispositivos: se guardan en data/favoritas.json del repositorio.
+// Leer no necesita token (el repositorio es público); guardar sí.
+const FAV_API=`https://api.github.com/repos/${REPO}/contents/data/favoritas.json`;
+let favSha=null,favTimer=null;
+async function loadFavsRemote(){
+  try{
+    const r=await fetch(FAV_API+"?ref=main&t="+Date.now(),{headers:{Accept:"application/vnd.github+json"}});
+    if(r.status===404){favSha=null;return null}
+    if(!r.ok)return undefined;
+    const j=await r.json();favSha=j.sha;
+    const a=JSON.parse(atob(String(j.content).replace(/\n/g,"")));return Array.isArray(a)?a:undefined;
+  }catch(_){return undefined}
+}
+async function pushFavs(retry=true){
+  const t=tk();if(!t)return "sin-token";
+  const body={message:"Favoritas",branch:"main",content:btoa(JSON.stringify([...favs].sort()))};
+  if(favSha)body.sha=favSha;
+  try{
+    const r=await fetch(FAV_API,{method:"PUT",headers:{Authorization:"Bearer "+t,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"},body:JSON.stringify(body)});
+    if(r.ok){favSha=(await r.json()).content.sha;return "ok"}
+    if((r.status===409||r.status===422)&&retry){await loadFavsRemote();return pushFavs(false)}
+    if(r.status===401){saveTk(null);return "token"}
+    if(r.status===403||r.status===404)return "permiso";
+    return "error";
+  }catch(_){return "red"}
+}
+const favMsg={token:"GitHub rechazó el token. Tocá «Sincronizar favoritas» y pegá uno nuevo.",permiso:"El token no tiene permiso Contents (lectura y escritura) sobre Monitor-Acciones. Editalo en GitHub y probá de nuevo.",error:"No se pudieron guardar las favoritas en GitHub. Quedan en este dispositivo.",red:"Sin conexión con GitHub: las favoritas quedan en este dispositivo."};
+function scheduleFavPush(){
+  if(!tk())return;
+  clearTimeout(favTimer);
+  favTimer=setTimeout(async()=>{const s=await pushFavs();if(s!=="ok"&&favMsg[s])say(favMsg[s])},900);
+}
+async function adoptRemoteFavs(){
+  const remote=await loadFavsRemote();
+  if(Array.isArray(remote)){
+    if(tk()||favs.size===0){favs.clear();remote.forEach(x=>favs.add(x));saveFavs();syncFavs();renderTable()}
+  }else if(remote===null&&tk()&&favs.size)pushFavs();
+}
+$("syncfav").addEventListener("click",async e=>{
+  const btn=e.currentTarget;
+  if(!tk()){
+    const t=(prompt("Pegá tu token de GitHub (permisos Actions y Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.")||"").trim();
+    if(!t)return;saveTk(t);
+  }
+  btn.disabled=true;btn.textContent="Sincronizando…";
+  const remote=await loadFavsRemote();
+  let msg;
+  if(Array.isArray(remote)&&remote.length&&favs.size===0){remote.forEach(x=>favs.add(x));saveFavs();syncFavs();renderTable();msg="Favoritas traídas desde GitHub: "+remote.length+"."}
+  else{const s=await pushFavs();msg=s==="ok"?"Favoritas guardadas en GitHub ("+favs.size+"). Ya las ves en tus otros dispositivos.":(favMsg[s]||"No se pudo sincronizar.")}
+  say(msg);btn.disabled=false;btn.textContent="Sincronizar favoritas";
+});
 
 // Arranque: lee los archivos que genera GitHub Actions (datos completos una vez por día, precios cada 20 minutos con el mercado abierto)
 let datosAt=null,pricesAt=null;
@@ -488,7 +541,7 @@ async function loadPrices(){
     const [u,d]=await Promise.all([fetch("data/universe.json").then(r=>r.json()),fetch("data/datos.json?"+Date.now()).then(r=>r.json())]);
     universe=u.list;docs={__status:{perDay:0},...d.co};datosAt=d.updated;
     renderSectors();renderAll();
-    stamp();
+    stamp();adoptRemoteFavs();
     loadPrices();setInterval(loadPrices,5*60*1000);
   }catch(err){
     $("banner").textContent="No se pudieron leer los datos. Probá recargar la página en unos minutos.";$("banner").hidden=false;$("table").innerHTML=`<div class="empty">Sin datos.</div>`;
