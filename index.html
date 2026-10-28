@@ -135,7 +135,7 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
     <div class="tablewrap" id="table"><div class="empty">Cargando…</div></div>
     <div class="foot">
       <div class="pager"><button type="button" id="prev">Anterior</button><span class="hint" id="pinfo"></span><button type="button" id="next">Siguiente</button></div>
-      <div class="pager"><button type="button" id="copy">Copiar tabla para Excel</button></div>
+      <div class="pager"><button type="button" id="refresh">Actualizar precios ahora</button><button type="button" id="full">Carga completa</button><button type="button" id="copy">Copiar tabla para Excel</button></div>
     </div>
   </section>
 
@@ -410,6 +410,35 @@ $("copy").addEventListener("click",async e=>{
   try{await navigator.clipboard.writeText(lines.join("\n"));btn.textContent=`Copiadas ${lines.length-1} filas`}catch(_){btn.textContent="No se pudo copiar"}
   setTimeout(()=>btn.textContent="Copiar tabla para Excel",2000);
 });
+
+
+// Botones para lanzar las cargas de GitHub desde la página. Necesitan un token personal (solo permiso "Actions" de este repo),
+// que se pide una vez y queda guardado únicamente en este navegador; nunca se sube al repositorio.
+const REPO="pablonoli/Monitor-Acciones";
+const tk=()=>{try{return localStorage.getItem("gh_token")}catch(_){return null}};
+const saveTk=v=>{try{v?localStorage.setItem("gh_token",v):localStorage.removeItem("gh_token")}catch(_){}};
+function say(msg){$("banner").textContent=msg;$("banner").hidden=false}
+async function dispatch(wf,btn,label){
+  let t=tk();
+  if(!t){
+    t=(prompt("Pegá tu token de GitHub (permiso Actions: lectura y escritura sobre Monitor-Acciones). Se guarda solo en este navegador.")||"").trim();
+    if(!t)return;saveTk(t);
+  }
+  btn.disabled=true;btn.textContent="Lanzando…";
+  try{
+    const r=await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${wf}/dispatches`,{method:"POST",
+      headers:{Authorization:"Bearer "+t,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"},body:JSON.stringify({ref:"main"})});
+    if(r.status===204){
+      say(wf==="precios.yml"?"Lanzado. En 1 o 2 minutos aparecen los precios nuevos (se recarga solo).":"Lanzado. La carga completa tarda unos 25 minutos; después recargá la página.");
+      if(wf==="precios.yml"){[70000,110000,160000].forEach(ms=>setTimeout(loadPrices,ms))}
+    }else if(r.status===401||r.status===403||r.status===404){
+      saveTk(null);say("GitHub rechazó el token ("+r.status+"). Tocá el botón de nuevo y pegá un token con permiso Actions sobre Monitor-Acciones.");
+    }else say("GitHub respondió "+r.status+". Probá de nuevo en un rato.");
+  }catch(_){say("No se pudo contactar a GitHub. Revisá la conexión.")}
+  btn.disabled=false;btn.textContent=label;
+}
+$("refresh").addEventListener("click",e=>dispatch("precios.yml",e.currentTarget,"Actualizar precios ahora"));
+$("full").addEventListener("click",e=>{if(confirm("La carga completa tarda unos 25 minutos. ¿Lanzarla?"))dispatch("datos.yml",e.currentTarget,"Carga completa")});
 
 // Arranque: lee los archivos que genera GitHub Actions (datos completos una vez por día, precios cada 20 minutos con el mercado abierto)
 let datosAt=null,pricesAt=null;
