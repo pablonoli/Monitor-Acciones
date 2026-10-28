@@ -43,14 +43,25 @@ def row(df, *names):
             return df.loc[n]
     return None
 
+# ticker de Yahoo distinto del de la lista (la lista a veces trae el código del CEDEAR o el ticker viejo)
+ALT = {"BK": "BNY", "MMC": "MRSH", "ELP": "ELPC", "XROX": "XRX", "TRVV": "TRV"}
+
 def one(u):
     t = u["t"]
-    tk = yf.Ticker(t)
+    tk = yf.Ticker(ALT.get(t, t))
     info = tk.info or {}
     price = num(info.get("currentPrice") or info.get("regularMarketPrice"))
     mcap = num(info.get("marketCap"))
+    if not mcap and price:   # algunos ADRs vienen sin capitalización: se estima con las acciones en circulación
+        try:
+            mcap = num(tk.fast_info["marketCap"])
+        except Exception:
+            mcap = None
+        if not mcap:
+            sh = num(info.get("sharesOutstanding") or info.get("impliedSharesOutstanding"))
+            mcap = price * sh if sh else None
     if not price or not mcap:
-        return {"t": t, "status": "nodata", "note": "Sin datos en Yahoo"}
+        return {"t": t, "status": "nodata", "note": "Sin datos actuales en Yahoo"}
     cur = info.get("financialCurrency") or "USD"
     f = fx(cur)
     if not f:
@@ -119,8 +130,6 @@ def main():
         if r is None:
             fails.append((u["t"], err))
         else:
-            if r["status"] != "ok" and u["t"] in FALLBACK:   # sin datos en Yahoo: se usa la última carga de StockAnalysis
-                r = dict(FALLBACK[u["t"]], histNote=(FALLBACK[u["t"]].get("histNote") or "") + " · dato de StockAnalysis (27/10/26), no se actualiza")
             out[u["t"]] = r
         time.sleep(0.4)
     if ONLY:   # corrida parcial: se mezcla con el archivo existente y se deja un diagnóstico
