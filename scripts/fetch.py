@@ -165,6 +165,7 @@ def one(u):
                          "rev": rv / f if rv is not None else None, "ni": nv / f if nv is not None else None})
     except Exception as e:
         doc["histNote"] = f"Sin historial: {type(e).__name__}"
+    doc["divChk"] = True
     try:
         dv = divblock(tk, info, price)
         if dv:

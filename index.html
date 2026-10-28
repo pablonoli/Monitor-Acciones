@@ -142,7 +142,34 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 .mempty{color:var(--muted);font-size:13px;padding:40px 0;text-align:center}
 .notes{font-size:13px;color:var(--muted);max-width:85ch;display:grid;gap:4px}
 .notes b{color:var(--fg);font-weight:600}
-.main>*{min-width:0}
+.scope{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:-6px}
+.morehead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.mini{cursor:zoom-in}
+.mini:hover{border-color:var(--line2)}
+.mhead span{white-space:nowrap}
+.hit{fill:transparent;cursor:crosshair}
+circle.hit:hover{fill:var(--accent);fill-opacity:.22;stroke:var(--accent)}
+rect.hit:hover{fill:var(--fg);fill-opacity:.09}
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--surface);color:var(--fg);border:1px solid var(--line2);border-radius:6px;padding:8px 10px;box-shadow:0 6px 20px rgba(0,0,0,.35);display:grid;gap:2px;max-width:260px}
+.tip[hidden]{display:none}
+.tip b{font:600 12px var(--mono);color:var(--muted)}
+.tip span{font:600 16px var(--mono)}
+.tip small{font-size:12px;color:var(--muted)}
+.zoom{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:16px}
+.zoom[hidden]{display:none}
+.zbox{background:var(--surface);border:1px solid var(--line2);border-radius:10px;padding:16px 18px;width:min(940px,100%);max-height:100%;overflow:auto}
+.zbox svg{min-width:0}
+.zhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.zhead b{font:600 17px var(--body)}
+.divs{margin-top:18px}
+.divs h3{font:600 15px var(--body);margin:0 0 10px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.dcard{border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.dcard h4{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;margin:0 0 6px}
+.drow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.drow:first-of-type{border-top:0}
+.drow span{color:var(--muted)}
+.drow b{font:500 14px var(--mono);text-align:right}
 @media (max-width:960px){
   .app{flex-direction:column}
   .side{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line);align-self:stretch}
@@ -173,19 +200,12 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
   <div class="navg" role="group" aria-label="Tipo de empresa">
     <button type="button" class="navb" data-kind="fav" aria-pressed="false"><span>★ Favoritas</span><span class="n" id="n-fav"></span></button>
     <button type="button" class="navb" data-kind="all" aria-pressed="true"><span>Todas</span><span class="n" id="n-all"></span></button>
-    <button type="button" class="navb" data-kind="cedear" aria-pressed="false"><span>CEDEARs</span><span class="n" id="n-cedear"></span></button>
-    <button type="button" class="navb" data-kind="adr" aria-pressed="false"><span>ADRs argentinos</span><span class="n" id="n-adr"></span></button>
   </div>
   <details class="sectd" id="sectd" open>
     <summary class="sidehead">SECTORES</summary>
     <div class="navg sectors" id="sectors"></div>
   </details>
-  <label class="chk" style="padding:12px 12px 0"><input type="checkbox" id="onlyok" checked> Solo con datos</label>
   <div class="grow"></div>
-  <section class="progress" aria-label="Avance de la carga">
-    <div class="ptrack" id="ptrack"></div>
-    <div class="plegend" id="plegend">Cargando base de datos…</div>
-  </section>
 </aside>
 
 <main class="main">
@@ -195,18 +215,17 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
     <button type="button" id="refresh" class="btn-primary">Actualizar precios ahora</button>
     <button type="button" id="full">Carga completa</button>
     <button type="button" id="syncfav">Sincronizar favoritas</button>
-    <button type="button" id="copy">Copiar tabla para Excel</button>
     <button type="button" id="theme" aria-label="Cambiar entre tema claro y oscuro" title="Cambiar tema"></button>
   </div>
   <p id="stamp" class="hint" style="margin:-6px 0 0"></p>
 
   <div id="banner" class="banner" hidden></div>
 
+  <div class="scope" id="scope" hidden></div>
   <div class="kpis">
     <div class="kpi"><span>P/E mediano</span><b id="k-med">—</b><small id="k-med-s"></small></div>
     <div class="kpi g"><span>P/E menor a 15</span><b id="k-lo">—</b><small>relativamente baratas</small></div>
     <div class="kpi r"><span>P/E mayor a 40</span><b id="k-hi">—</b><small>caras o de alto crecimiento</small></div>
-    <div class="kpi"><span>Favoritas</span><b id="k-fav">—</b><small id="k-fav-s"></small></div>
   </div>
 
   <div class="cols">
@@ -228,8 +247,9 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
   </div>
 
   <section class="panel" id="more" hidden>
-    <h2 id="mtitle">Todos los gráficos</h2>
+    <div class="morehead"><h2 id="mtitle">Todos los gráficos</h2><button type="button" id="toTop">↑ Volver a la tabla</button></div>
     <div id="chart"></div>
+    <div id="divs" class="divs"></div>
     <div class="chart" id="series" style="margin-top:18px"></div>
   </section>
 
@@ -241,6 +261,11 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 </main>
 
 </div>
+
+<div id="zoom" class="zoom" hidden role="dialog" aria-modal="true" aria-labelledby="ztitle">
+  <div class="zbox"><div class="zhead"><b id="ztitle"></b><button type="button" id="zclose" aria-label="Cerrar">✕</button></div><div id="zbody"></div></div>
+</div>
+<div id="tip" class="tip" hidden></div>
 
 <script>
 const SERVER="FMP";
@@ -329,18 +354,8 @@ function rows(){
     if(x==null&&y==null)return a.u.t<b.u.t?-1:1;if(x==null)return 1;if(y==null)return -1;return (x-y)*sortDir});
 }
 
-function renderProgress(){
-  if(!universe)return;
-  const n=universe.length,ok=universe.filter(u=>docs[u.t]&&docs[u.t].status==="ok").length,
-    nd=universe.filter(u=>docs[u.t]&&docs[u.t].status!=="ok").length,q=n-ok-nd;
-  $("ptrack").innerHTML=`<i style="width:${ok/n*100}%;background:var(--accent)"></i><i style="width:${nd/n*100}%;background:var(--bad);opacity:.6"></i>`;
-  const meta=docs.__status||{};
-  const perDay=meta.perDay||12;
-  $("plegend").innerHTML=`<span><i class="dot" style="background:var(--accent)"></i><b>${ok}</b> de ${n} empresas con datos</span>${q?`<span><i class="dot" style="background:var(--line)"></i><b>${q}</b> en cola · faltan unos ${Math.ceil(q/perDay)} días</span>`:""}${nd?`<span><i class="dot" style="background:var(--bad)"></i><b>${nd}</b> sin datos disponibles</span>`:""}${meta.lastRun?`<span>Última carga: ${fdate(meta.lastRun)}</span>`:""}`;
-}
-
 function renderTable(){
-  renderNav();
+  renderNav();renderKpis();
   if(!universe){$("table").innerHTML=`<div class="empty">Cargando…</div>`;return}
   const all=rows(),pages=Math.max(1,Math.ceil(all.length/PAGE));if(page>=pages)page=pages-1;
   const slice=all.slice(page*PAGE,page*PAGE+PAGE);
@@ -367,17 +382,17 @@ function renderNav(){
   if(!universe)return;
   const ok=u=>docs[u.t]&&docs[u.t].status==="ok";
   $("n-all").textContent=universe.filter(ok).length;
-  $("n-cedear").textContent=universe.filter(u=>ok(u)&&u.k!=="ADR").length;
-  $("n-adr").textContent=universe.filter(u=>ok(u)&&isAdr(u)).length;
   $("n-fav").textContent=favs.size;
-  $("k-fav").textContent=favs.size;
-  $("k-fav-s").textContent=universe.length?`de ${universe.length} · el resto se ve tenue`:"";
 }
 function renderKpis(){
   if(!universe)return;
-  const pes=universe.map(u=>metrics(u.t)).filter(m=>m&&m.pe>0).map(m=>m.pe);
+  const scope=universe.filter(u=>(kind!=="fav"||favOrder.has(u.t))&&(!sector||sec(u.t,docs[u.t])===sector));
+  const ms=scope.map(u=>metrics(u.t)).filter(Boolean);
+  const pes=ms.filter(m=>m.pe>0).map(m=>m.pe);
+  const label=[kind==="fav"?"Favoritas":"",sector].filter(Boolean).join(" · ");
+  $("scope").hidden=!label;$("scope").textContent=label?`${label} · ${ms.length} empresas`:"";
   $("k-med").textContent=pes.length?num(median(pes),1)+"x":"—";
-  $("k-med-s").textContent=pes.length?`de ${pes.length} empresas con ganancias`:"";
+  $("k-med-s").textContent=pes.length?`de ${pes.length} empresas con ganancias${label?" · "+label:""}`:"";
   $("k-lo").textContent=pes.filter(v=>v<15).length;
   $("k-hi").textContent=pes.filter(v=>v>40).length;
 }
@@ -386,9 +401,8 @@ function renderDetail(){
   const more=$("more"),t=selected;
   if(!t||!universe){$("dbody").innerHTML=`<div class="empty">Elegí una empresa de la tabla.</div>`;more.hidden=true;return}
   const u=universe.find(x=>x.t===t),d=docs[t],m=metrics(t);
-  more.hidden=true;
-  if(!d){$("dbody").innerHTML=`<div class="dhead"><span class="dtick">${esc(t)}</span></div><div class="empty">Esta empresa todavía está en cola. Se carga en las próximas corridas diarias.</div>`;return}
-  if(d.status!=="ok"){$("dbody").innerHTML=`<div class="dhead"><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><div class="empty">${esc(d.note||"No hay datos disponibles para esta empresa en las fuentes gratuitas.")}</div>`;return}
+  if(!d){more.hidden=true;$("dbody").innerHTML=`<div class="dhead"><span class="dtick">${esc(t)}</span></div><div class="empty">Esta empresa todavía está en cola. Se carga en las próximas corridas diarias.</div>`;return}
+  if(d.status!=="ok"){more.hidden=true;$("dbody").innerHTML=`<div class="dhead"><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><div class="empty">${esc(d.note||"No hay datos disponibles para esta empresa en las fuentes gratuitas.")}</div>`;return}
   const sub=[u&&(u.b!==u.t?"CEDEAR "+u.b:u.k==="ADR"?"ADR argentino":"CEDEAR"),sec(t,d)].filter(Boolean).join(" · ");
   const st=(l,v)=>`<div><span>${l}</span><b>${v}</b></div>`;
   let sum="El P/E no se puede calcular o todavía no hay historial suficiente para compararlo con sus años anteriores.";
@@ -399,37 +413,13 @@ function renderDetail(){
       :`Hoy cotiza a ${num(m.pe,1)}x, entre su mínimo (${num(m.rlo,1)}x) y su máximo (${num(m.rhi,1)}x) de los últimos ${m.rn} ejercicios: ${rel} (${num(m.rmed,1)}x).`}
   $("dbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${m.price?num(m.price,2):"—"}</span></div>
   <div class="hint">${esc(sub)}</div>
-  <div class="dlabel">P/E · últimos ejercicios</div>
-  <div class="bigpe">${bigPE(d,m)}</div>
   <div class="stats">${st("Ingresos 12m",money(m.rev))}${st("Ganancia neta",money(m.ni))}${st("Cap. bursátil",money(m.mcap))}${st("Dividendo",m.dy==null?"—":num(m.dy*100,2)+"%")}${st("P/E est. "+esc(d.fyCur||""),mult(m.fpe))}${st("Crec. EPS esperado",m.g==null?"—":num(m.g,1)+"%")}</div>
   <p class="dsum">${sum}</p>
   <p class="hint" style="margin:10px 0 0">Fundamentales cargados el ${fdate(d.fundAt)} desde ${d.src==="YF"?"Yahoo Finance":d.src==="SA"?"StockAnalysis":d.src==="FMP"?"Financial Modeling Prep":"Alpha Vantage"}${d.cur&&d.cur!=="USD"?`, convertidos de ${esc(d.cur)} a dólares`:""}. Precio ${m.liveAt?"en vivo":"del "+fdate(d.priceAt)}.</p>`;
   more.hidden=false;$("mtitle").textContent=`Todos los gráficos · ${t}`;
-  drawSeries(d);
+  drawSeries(d);drawDivs(d,m);
   if(!fullHist(d)&&d.src!=="FMP"){$("chart").innerHTML=`<div class="empty">Los gráficos de 5 años de esta empresa se guardan automáticamente con la carga diaria.</div>`;return}
   drawPanels(t,m);
-}
-
-// Gráfico grande del P/E del panel: línea por ejercicio + hoy, con la mediana punteada
-function bigPE(d,m){
-  const P=(fullHist(d)||[]).map(h=>({l:"FY"+String(h.fy).slice(-2),v:pos(h.pe)}));
-  P.push({l:"Hoy",v:m.pe,now:true});
-  const vals=P.map(p=>p.v).filter(v=>v!=null);
-  if(vals.length<2)return `<div class="empty">Sin historial de P/E suficiente.</div>`;
-  const W=380,H=170,L=34,R=16,T=14,B=26;
-  let lo=Math.min(...vals),hi=Math.max(...vals);const pad=Math.max((hi-lo)*.18,1);lo=Math.max(0,lo-pad);hi+=pad;
-  const n=P.length,x=i=>L+(W-L-R)*(n===1?0:i/(n-1)),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
-  const col=m.rpos==null?"var(--fg)":m.rpos>=.9?"var(--bad)":m.rpos<=.2?"var(--good)":"var(--fg)";
-  let g="";
-  for(let k=0;k<=2;k++){const v=lo+(hi-lo)*k/2;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${num(v,0)}</text>`}
-  const med=median(vals);
-  g+=`<line x1="${L}" x2="${W-R}" y1="${y(med)}" y2="${y(med)}" stroke="var(--accent)" stroke-dasharray="4 4"/><text x="${L+4}" y="${y(med)-5}" style="fill:var(--accent)">mediana ${num(med,1)}</text>`;
-  let prev=-1;P.forEach((p,i)=>{if(p.v==null)return;if(prev>=0&&i-prev>1)g+=`<path d="M${x(prev).toFixed(1)} ${y(P[prev].v).toFixed(1)}L${x(i).toFixed(1)} ${y(p.v).toFixed(1)}" fill="none" stroke="var(--muted)" stroke-dasharray="4 4"/>`;prev=i});
-  let path="",pen=false;P.forEach((p,i)=>{if(p.v==null){pen=false;return}path+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1);pen=true});
-  g+=`<path d="${path}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round"/>`;
-  P.forEach((p,i)=>{g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" style="${p.now?"fill:var(--fg);font-weight:600":""}">${p.l}</text>`;
-    if(p.v!=null)g+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="${p.now?4.5:3}" fill="${col}"><title>${p.l}: ${num(p.v,1)}x</title></circle>`});
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="P/E por ejercicio y hoy, con su mediana">${g}</svg>`;
 }
 
 // un historial guardado está completo si tiene los campos de todos los gráficos
@@ -462,24 +452,38 @@ async function loadHist(t){
   if(selected===t)renderDetail();
 }
 
-// Gráfico chico: líneas para múltiplos, barras para montos
-function mini(title,pts,fmt,opts={}){
+// Gráficos: líneas para múltiplos, barras para montos. Cada uno se puede agrandar y muestra el dato al pasar el mouse o tocar.
+let CH={};
+function mini(id){
+  const sp=CH[id];
+  return `<div class="mini" data-zoom="${id}" tabindex="0" role="button" aria-label="Agrandar gráfico: ${esc(sp.title)}"><div class="mhead"><b>${esc(sp.title)}</b><span>${sp.opts.sub?esc(sp.opts.sub)+" · ":""}⤢</span></div>${chartSvg(sp,null)}</div>`;
+}
+function chartSvg(sp,big){
+  const {title,pts,fmt,opts}=sp;
   const vals=pts.map(p=>p.v).filter(v=>v!=null);
-  const head=`<div class="mhead"><b>${title}</b>${opts.sub?`<span>${opts.sub}</span>`:""}</div>`;
-  if(!vals.length)return `<div class="mini">${head}<div class="mempty">Sin datos significativos en el período.</div></div>`;
-  const W=420,H=190,L=56,R=12,T=22,B=26;
+  if(!vals.length)return `<div class="mempty">Sin datos significativos en el período.</div>`;
+  const W=big?big.W:420,H=big?big.H:190,L=big?72:66,R=big?22:12,T=big?36:22,B=big?34:26;
   let hi=Math.max(...vals,0),lo=Math.min(...vals,0);if(hi===lo)hi=lo+1;
   const span=hi-lo;hi+=span*.12;if(lo<0)lo-=span*.12;
   const n=pts.length,bw=(W-L-R)/n;
   const x=i=>L+bw*i+bw/2,y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  const med=opts.median&&vals.length>=3?median(vals):null;
+  const hit=(p,i)=>{
+    const ex=[];let pv=null;for(let k=i-1;k>=0;k--)if(pts[k].v!=null){pv=pts[k];break}
+    if(pv&&pv.v!==0){const c=(p.v-pv.v)/Math.abs(pv.v)*100;ex.push(`${c>=0?"+":"−"}${num(Math.abs(c),1)}% vs ${pv.l}`)}
+    if(med!=null&&med!==0){const c=(p.v/med-1)*100;ex.push(`${c>=0?"+":"−"}${num(Math.abs(c),0)}% vs mediana`)}
+    return `class="hit" data-tl="${esc(p.l+(p.est?" (estimado)":""))}" data-tv="${esc(fmt(p.v))}" data-tx="${esc(ex.join(" · "))}"`;
+  };
   let g="";
   for(let k=0;k<=3;k++){const v=lo+(hi-lo)*k/3;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmt(v,true)}</text>`}
   if(lo<0)g+=`<line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)"/>`;
-  pts.forEach((p,i)=>g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" style="${p.now?"fill:var(--fg);font-weight:600":""}">${p.l}</text>`);
+  if(med!=null)g+=`<line x1="${L}" x2="${W-R}" y1="${y(med)}" y2="${y(med)}" stroke="var(--accent)" stroke-dasharray="5 4"/><text x="${L+6}" y="${y(med)-5}" style="fill:var(--accent)">mediana ${fmt(med)}</text>`;
+  pts.forEach((p,i)=>g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" style="${p.now?"fill:var(--fg);font-weight:600":""}">${esc(p.l)}</text>`);
   if(opts.bars){
     pts.forEach((p,i)=>{if(p.v==null)return;const y0=y(0),yv=y(p.v),top=Math.min(y0,yv),hgt=Math.max(Math.abs(yv-y0),1);
-      const col=p.v<0?"var(--bad)":"var(--accent)";
-      g+=`<rect x="${x(i)-bw*.32}" y="${top}" width="${bw*.64}" height="${hgt}" rx="2" fill="${col}" opacity="${p.est?.35:p.now?.65:1}" ${p.est?`stroke="${col}" stroke-dasharray="3 2"`:""}><title>${p.l}: ${fmt(p.v)}</title></rect>`});
+      const col=opts.signed?(p.v<0?"var(--bad)":"var(--good)"):"var(--accent)";
+      g+=`<rect x="${x(i)-bw*.32}" y="${top}" width="${bw*.64}" height="${hgt}" rx="2" fill="${col}" opacity="${p.est?.4:p.now?.7:1}" ${p.est?`stroke="${col}" stroke-dasharray="3 2"`:""}/>`;
+      if(big)g+=`<text x="${x(i)}" y="${p.v<0?yv+14:yv-6}" text-anchor="middle" style="fill:var(--fg)">${esc(fmt(p.v,true))}</text>`});
   }else{
     let path="",pen=false;
     pts.forEach((p,i)=>{if(p.v==null){pen=false;return}path+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1);pen=true});
@@ -487,12 +491,41 @@ function mini(title,pts,fmt,opts={}){
     let prev=-1;pts.forEach((p,i)=>{if(p.v==null)return;if(prev>=0&&i-prev>1)g+=`<path d="M${x(prev).toFixed(1)} ${y(pts[prev].v).toFixed(1)}L${x(i).toFixed(1)} ${y(p.v).toFixed(1)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>`;prev=i});
     pts.forEach((p,i)=>{if(p.v==null&&!p.now)g+=`<text x="${x(i)}" y="${H-B-6}" text-anchor="middle" style="fill:var(--muted);font-size:10px">s/d</text>`});
     g+=`<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.25" stroke-linejoin="round"/>`;
-    pts.forEach((p,i)=>{if(p.v!=null)g+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="${p.now?4.5:3}" fill="${p.now?"var(--surface)":"var(--accent)"}" stroke="var(--accent)" stroke-width="2"><title>${p.l}: ${fmt(p.v)}</title></circle>`});
+    pts.forEach((p,i)=>{if(p.v==null)return;g+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="${p.now?4.5:3}" fill="${p.now?"var(--surface)":"var(--accent)"}" stroke="var(--accent)" stroke-width="2"/>`;
+      if(big)g+=`<text x="${x(i)}" y="${y(p.v)-10}" text-anchor="middle" style="fill:var(--fg)">${esc(fmt(p.v,true))}</text>`});
   }
   const last=[...pts].reverse().find(p=>p.v!=null);
-  if(last)g+=`<text x="${W-R}" y="${T-8}" text-anchor="end" style="fill:var(--fg);font-weight:600">${last.l}: ${fmt(last.v)}</text>`;
-  return `<div class="mini">${head}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">${g}</svg></div>`;
+  if(last)g+=`<text x="${W-R}" y="${T-(big?14:8)}" text-anchor="end" style="fill:var(--fg);font-weight:600">${esc(last.l)}: ${esc(fmt(last.v))}</text>`;
+  // zonas sensibles al mouse/dedo: columna entera en barras, círculo grande en líneas
+  pts.forEach((p,i)=>{if(p.v==null)return;
+    g+=opts.bars?`<rect ${hit(p,i)} x="${L+bw*i}" y="${T}" width="${bw}" height="${H-T-B}"/>`:`<circle ${hit(p,i)} cx="${x(i)}" cy="${y(p.v)}" r="${big?18:14}"/>`});
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${g}</svg>`;
 }
+function openZoom(id){
+  const sp=CH[id];if(!sp)return;
+  const W=Math.max(340,Math.min(860,innerWidth-72)),H=W<520?320:400;
+  $("ztitle").textContent=`${sp.title}${selected?" · "+selected:""}`;
+  $("zbody").innerHTML=chartSvg(sp,{W,H})+`<p class="hint" style="margin:8px 0 0">Pasá el mouse o tocá un punto para ver el detalle.${sp.opts.median?" La línea punteada es la mediana del período.":""}</p>`;
+  $("zoom").hidden=false;$("zclose").focus();
+}
+function closeZoom(){$("zoom").hidden=true;$("tip").hidden=true}
+const tipEl=$("tip");
+function showTip(h,x,y){
+  tipEl.innerHTML=`<b>${esc(h.dataset.tl)}</b><span>${esc(h.dataset.tv)}</span>${h.dataset.tx?`<small>${esc(h.dataset.tx)}</small>`:""}`;
+  tipEl.hidden=false;const r=tipEl.getBoundingClientRect();
+  let l=x+14,t=y+14;if(l+r.width>innerWidth-8)l=x-r.width-14;if(t+r.height>innerHeight-8)t=y-r.height-14;
+  tipEl.style.left=Math.max(8,l)+"px";tipEl.style.top=Math.max(8,t)+"px";
+}
+document.addEventListener("pointermove",e=>{if(e.pointerType==="touch")return;const h=e.target.closest&&e.target.closest(".hit");if(h)showTip(h,e.clientX,e.clientY);else tipEl.hidden=true});
+document.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch")return;const h=e.target.closest&&e.target.closest("#zoom .hit");if(h)showTip(h,e.clientX,e.clientY);else tipEl.hidden=true});
+document.addEventListener("click",e=>{
+  if(e.target===$("zoom")||e.target.closest("#zclose")){closeZoom();return}
+  const z=e.target.closest&&e.target.closest("[data-zoom]");if(z)openZoom(z.dataset.zoom);
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&!$("zoom").hidden){closeZoom();return}
+  if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches("[data-zoom]")){e.preventDefault();openZoom(e.target.dataset.zoom)}
+});
 
 function drawPanels(t,m){
   const d=docs[t];
@@ -509,17 +542,52 @@ function drawPanels(t,m){
   const eps=P.map(h=>({l:fy(h),v:h.eps??null}));
   if(d.epsCur!=null)eps.push({l:"E"+String(d.fyCur||"").slice(-2),v:d.epsCur,est:true});
   if(d.epsNext!=null)eps.push({l:"E"+String(d.fyNext||"").slice(-2),v:d.epsNext,est:true});
-  $("chart").innerHTML=`<p class="sub" style="margin:0 0 10px">Últimos 5 ejercicios fiscales y el valor actual. Pasá el dedo o el mouse sobre un punto para ver el número.</p>
+  CH={};
+  const add=(id,title,pts,fmt,opts)=>{CH[id]={title,pts,fmt,opts:opts||{}};return mini(id)};
+  let dps="";const v=d.div;
+  if(v&&Array.isArray(v.ann)&&v.ann.length>=2){
+    const pts=v.ann.map(([y,x])=>({l:String(y),v:x}));pts.push({l:"12m",v:v.ttm??null,now:true});
+    dps=add("dps","Dividendo por acción",pts,(x,ax)=>x==null?"—":"US$ "+num(x,ax?2:3),{bars:true,sub:"por año"});
+  }
+  $("chart").innerHTML=`<p class="sub" style="margin:0 0 10px">Últimos ejercicios fiscales y el valor actual. Tocá un gráfico para agrandarlo; pasá el mouse o el dedo sobre un punto para ver el número. La línea punteada es la mediana del período.</p>
   <div class="minis">
-    ${mini("P/E",series("pe",m.pe),mx,{sub:"precio / ganancia"})}
-    ${mini("PEG",series("peg",m.peg),(v,ax)=>v==null?"—":num(v,ax?1:2),{sub:"P/E / crecimiento"})}
-    ${mini("Precio / Ventas",series("ps",m.ps),mx)}
-    ${mini("Dividend yield",series("dy",m.dy),pc)}
-    ${mini("Ingresos",series("rev",m.rev),mo,{bars:true,sub:"US$"})}
-    ${mini("Ganancia neta",series("ni",m.ni),mo,{bars:true,sub:"US$"})}
-    ${mini("Ganancia por acción",eps,(v,ax)=>v==null?"—":(ax?num(v,1):"US$ "+num(v,2)),{bars:true,sub:"real y estimada (E)"})}
+    ${add("pe","P/E",series("pe",m.pe),mx,{sub:"precio / ganancia",median:true})}
+    ${add("ps","Precio / Ventas",series("ps",m.ps),mx,{median:true})}
+    ${add("rev","Ingresos",series("rev",m.rev),mo,{bars:true,sub:"US$"})}
+    ${add("ni","Ganancia neta",series("ni",m.ni),mo,{bars:true,signed:true,sub:"US$"})}
+    ${add("eps","Ganancia por acción",eps,(x,ax)=>x==null?"—":(ax?num(x,1):"US$ "+num(x,2)),{bars:true,signed:true,sub:"real y estimada (E)"})}
+    ${add("dy","Dividend yield",series("dy",m.dy),pc,{median:true})}
+    ${dps}
   </div>
-  <p class="hint" style="margin:10px 0 0">“s/d” = sin dato ese año: en P/E y PEG suele ser un año con pérdidas, donde el múltiplo no se puede calcular. El P/E estimado no tiene historial en las fuentes gratuitas: el último gráfico muestra en su lugar la ganancia por acción real de cada ejercicio y la que esperan los analistas (barras claras), que es la base de ese múltiplo.${d.histNote?" "+esc(d.histNote)+".":""}</p>`;
+  <p class="hint" style="margin:10px 0 0">“s/d” = sin dato ese año: en P/E suele ser un año con pérdidas, donde el múltiplo no se puede calcular. En ganancia neta y por acción, verde = positiva y rojo = negativa. El P/E estimado no tiene historial en las fuentes gratuitas: el gráfico de ganancia por acción muestra la real de cada ejercicio y la que esperan los analistas (barras claras).${d.histNote?" "+esc(d.histNote)+".":""}</p>`;
+}
+
+// Resumen de dividendos de la empresa elegida
+const fdate4=s=>{if(!s)return "—";const x=/^\d{4}-\d\d-\d\d$/.test(s)?new Date(s+"T12:00:00"):new Date(s);return isNaN(x)?"—":x.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit",year:"numeric"})};
+function drawDivs(d,m){
+  const el=$("divs"),v=d.div;
+  if(!v){el.innerHTML=`<h3>Dividendos</h3><p class="hint" style="margin:0">${d.divChk?"Esta empresa no paga dividendos.":(m.dy>0?"El detalle de dividendos se completa con la próxima carga completa.":"Esta empresa no paga dividendos.")}</p>`;return}
+  const row=(l,val)=>`<div class="drow"><span>${l}</span><b>${val}</b></div>`;
+  const usd=x=>x==null?"—":"US$ "+num(x,2);
+  if(!v.rate&&!v.ttm){el.innerHTML=`<h3>Dividendos</h3><p class="hint" style="margin:0">Hoy no paga dividendos.${v.lastEx?" Su último pago fue el "+fdate4(v.lastEx)+" ("+usd(v.last)+").":""}</p>`;return}
+  const hoy=new Date().toISOString().slice(0,10);
+  const nextEx=v.exNext&&v.exNext>(v.lastEx||"")?v.exNext:null;
+  el.innerHTML=`<h3>Dividendos</h3><div class="dgrid">
+  <div class="dcard"><h4>Resumen de dividendos</h4>
+    ${row("Rendimiento actual",m.dy==null?"—":num(m.dy*100,2)+"%")}
+    ${row("Pago anual",v.rate?usd(v.rate):"—")}
+    ${row("Ratio de reparto",v.payout!=null?num(v.payout*100,1)+"%":"—")}
+    ${row("Crecimiento anual, 5 años",v.g5!=null?num(v.g5*100,2)+"%":"—")}
+    ${row("Años seguidos de aumento",v.yrs!=null?v.yrs+(v.yrs===1?" año":" años"):"—")}
+  </div>
+  <div class="dcard"><h4>Último dividendo</h4>
+    ${row("Importe",usd(v.last))}
+    ${row("Fecha ex-dividendo",fdate4(v.lastEx))}
+    ${nextEx?row("Próxima ex-dividendo",fdate4(nextEx)):""}
+    ${v.pay?row(v.pay>hoy?"Próximo pago":"Último pago",fdate4(v.pay)):""}
+    ${row("Frecuencia",v.freq||"—")}
+    ${row("Pagado en 12 meses",v.ttm!=null?usd(v.ttm):"—")}
+  </div></div>`;
 }
 
 // P/E registrado en cada carga diaria: se va acumulando con el tiempo
@@ -537,14 +605,14 @@ function drawSeries(d){
   $("series").innerHTML=`<p class="sub" style="margin:0 0 6px">P/E registrado en cada carga (${s.length} registros).</p><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="P/E diario registrado">${g}</svg>`;
 }
 
-function renderAll(){renderProgress();renderKpis();renderNav();renderTable();if(selected)renderDetail()}
+function renderAll(){renderTable();if(selected)renderDetail()}
 
 // Eventos
 $("q").addEventListener("input",e=>{query=e.target.value;page=0;syncFavs();renderTable()});
 $("sectors").addEventListener("click",e=>{const b=e.target.closest("[data-sector]");if(!b)return;sector=b.dataset.sector;page=0;syncFavs();renderSectors();renderTable()});
-$("onlyok").addEventListener("change",e=>{onlyOk=e.target.checked;page=0;syncFavs();renderTable()});
 document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;syncFavs();
   document.querySelectorAll("[data-kind]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderTable()}));
+$("toTop").addEventListener("click",()=>scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}));
 $("morecols").checked=showMore;
 $("morecols").addEventListener("change",e=>{showMore=e.target.checked;try{localStorage.setItem("cols",showMore?"1":"0")}catch(_){}renderTable()});
 $("prev").addEventListener("click",()=>{page--;renderTable()});
@@ -553,7 +621,7 @@ $("table").addEventListener("click",e=>{
   const st=e.target.closest("[data-star]");if(st){toggleFav(st.dataset.star);return}
   const th=e.target.closest("th[data-k]");if(th){const k=th.dataset.k;syncFavs();if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="name"?1:(["dy","rev","ni","price"].includes(k)?-1:1)}renderTable();return}
   const tr=e.target.closest("tr[data-t]");if(tr){selected=tr.dataset.t;if(hist[selected]&&hist[selected].retry)delete hist[selected];renderTable();renderDetail();
-    if(matchMedia("(max-width:960px)").matches)$("detail").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
+    if(!$("more").hidden)$("more").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
 });
 if($("live"))$("live").addEventListener("click",async e=>{
   if(!mcp){$("banner").textContent="Los precios en vivo necesitan la conexión con FMP. Abrí la página en claude.ai con el conector activo.";$("banner").hidden=false;return}
@@ -568,16 +636,6 @@ if($("live"))$("live").addEventListener("click",async e=>{
   if(fail){$("banner").textContent=`No se pudo actualizar el precio de ${fail} empresas. Se muestran con el precio de la última carga.`;$("banner").hidden=false}
   renderAll();
 });
-$("copy").addEventListener("click",async e=>{
-  const n=v=>v==null||!isFinite(v)?"":String(Math.round(v*100)/100).replace(".",",");
-  const lines=[["Ticker","CEDEAR","Empresa","Sector","Precio US$","P/E","P/E est.","PEG","P/Ventas","Ingresos 12m US$","Ganancia 12m US$","Div. yield %"].join("\t")];
-  rows().forEach(({u,d,m})=>{if(!m)return;lines.push([u.t,u.b,d.name||"",sec(u.t,d),n(m.price),n(m.pe),n(m.fpe),n(m.peg),n(m.ps),m.rev!=null?Math.round(m.rev):"",m.ni!=null?Math.round(m.ni):"",m.dy!=null?n(m.dy*100):""].join("\t"))});
-  const btn=e.currentTarget;
-  try{await navigator.clipboard.writeText(lines.join("\n"));btn.textContent=`Copiadas ${lines.length-1} filas`}catch(_){btn.textContent="No se pudo copiar"}
-  setTimeout(()=>btn.textContent="Copiar tabla para Excel",2000);
-});
-
-
 // Botones para lanzar las cargas de GitHub desde la página. Necesitan un token personal (solo permiso "Actions" de este repo),
 // que se pide una vez y queda guardado únicamente en este navegador; nunca se sube al repositorio.
 const REPO="pablonoli/Monitor-Acciones";
@@ -670,7 +728,7 @@ pintaTema();
 let datosAt=null,pricesAt=null;
 function stamp(){
   let el=document.getElementById("stamp");
-  if(!el){el=document.createElement("p");el.id="stamp";el.className="hint";el.style.margin="6px 0 0";$("plegend").insertAdjacentElement("afterend",el)}
+  if(!el)return;
   el.textContent=(datosAt?"Datos completos del "+hhmm(datosAt):"")+(pricesAt?" · Precios de las "+hhmm(pricesAt):"");
 }
 const hhmm=iso=>new Date(iso).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
