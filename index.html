@@ -176,7 +176,10 @@ const sec=(t,d)=>SECT[t]||(d&&d.sector)||"";
 let db=null, mcp=null, universe=null, docs={}, live={}, hist={};
 const favs=new Set((()=>{try{return JSON.parse(localStorage.getItem("favs")||"[]")}catch(_){return []}})());
 const saveFavs=()=>{try{localStorage.setItem("favs",JSON.stringify([...favs]))}catch(_){}};
-function toggleFav(t){favs.has(t)?favs.delete(t):favs.add(t);saveFavs();page=0;renderTable()}
+// favOrder = favoritas con las que se ordena y filtra; se actualiza al cambiar filtros u orden, no al marcar,
+// así la fila que marcás no salta de lugar ni te cambia de página.
+let favOrder=new Set(favs);const syncFavs=()=>{favOrder=new Set(favs)};
+function toggleFav(t){favs.has(t)?favs.delete(t):favs.add(t);saveFavs();renderTable()}
 let sortKey="pe", sortDir=1, page=0, kind="all", sector="", query="", onlyOk=true, selected=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -213,13 +216,13 @@ function rows(){
     const d=docs[u.t];
     if(kind==="adr"&&!isAdr(u))return false;
     if(kind==="cedear"&&u.k==="ADR")return false;
-    if(kind==="fav"&&!favs.has(u.t))return false;
+    if(kind==="fav"&&!favOrder.has(u.t))return false;
     if(sector&&sec(u.t,d)!==sector)return false;
     if(onlyOk&&(!d||d.status!=="ok"))return false;
     if(q&&!(u.t.includes(q)||u.b.toUpperCase().includes(q)||String(d&&d.name||"").toUpperCase().includes(q)))return false;
     return true;
   }).map(u=>({u,d:docs[u.t],m:metrics(u.t)})).sort((a,b)=>{
-    if(favs.size&&kind!=="fav"){const fa=favs.has(a.u.t),fb=favs.has(b.u.t);if(fa!==fb)return fa?-1:1}
+    if(favOrder.size&&kind!=="fav"){const fa=favOrder.has(a.u.t),fb=favOrder.has(b.u.t);if(fa!==fb)return fa?-1:1}
     if(sortKey==="name")return a.u.t<b.u.t?-sortDir:sortDir;
     const x=a.m&&a.m[sortKey],y=b.m&&b.m[sortKey];
     if(x==null&&y==null)return a.u.t<b.u.t?-1:1;if(x==null)return 1;if(y==null)return -1;return (x-y)*sortDir});
@@ -387,16 +390,16 @@ function drawSeries(d){
 function renderAll(){renderProgress();renderTable();if(selected)renderDetail()}
 
 // Eventos
-$("q").addEventListener("input",e=>{query=e.target.value;page=0;renderTable()});
-$("sector").addEventListener("change",e=>{sector=e.target.value;page=0;renderTable()});
-$("onlyok").addEventListener("change",e=>{onlyOk=e.target.checked;page=0;renderTable()});
-document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;
+$("q").addEventListener("input",e=>{query=e.target.value;page=0;syncFavs();renderTable()});
+$("sector").addEventListener("change",e=>{sector=e.target.value;page=0;syncFavs();renderTable()});
+$("onlyok").addEventListener("change",e=>{onlyOk=e.target.checked;page=0;syncFavs();renderTable()});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;syncFavs();
   document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderTable()}));
 $("prev").addEventListener("click",()=>{page--;renderTable()});
 $("next").addEventListener("click",()=>{page++;renderTable()});
 $("table").addEventListener("click",e=>{
   const st=e.target.closest("[data-star]");if(st){toggleFav(st.dataset.star);return}
-  const th=e.target.closest("th[data-k]");if(th){const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="name"?1:(["dy","rev","ni","price"].includes(k)?-1:1)}renderTable();return}
+  const th=e.target.closest("th[data-k]");if(th){const k=th.dataset.k;syncFavs();if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="name"?1:(["dy","rev","ni","price"].includes(k)?-1:1)}renderTable();return}
   const tr=e.target.closest("tr[data-t]");if(tr){selected=tr.dataset.t;if(hist[selected]&&hist[selected].retry)delete hist[selected];renderTable();renderDetail();
     $("detail").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"})}
 });
