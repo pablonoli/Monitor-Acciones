@@ -136,6 +136,8 @@ def one(u):
         "peg": pos(info.get("trailingPegRatio")), "dy": dy,
         "lastDiv": num(info.get("dividendRate")),
         "sector": info.get("sector"), "industry": info.get("industry"),
+        # múltiplos tal como los publica Yahoo (con el precio de este momento); para empresas que reportan en otra moneda evitan conversiones propias
+        "pe0": pos(info.get("trailingPE")), "ps0": pos(info.get("priceToSalesTrailing12Months")), "fpe0": pos(info.get("forwardPE")), "p0": price,
         "fundAt": dt.datetime.utcnow().isoformat() + "Z", "priceAt": dt.datetime.utcnow().isoformat() + "Z",
     }
     # historial anual: ingresos, ganancia y EPS de Yahoo; P/E, P/S y yield con el precio al cierre de cada ejercicio
