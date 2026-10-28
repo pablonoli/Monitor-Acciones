@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <title>Monitor P/E S&amp;P 500</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,7 +108,7 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 <body>
 
 <div class="wrap">
-  <header>
+  <header style="position:relative"><button type="button" id="theme" aria-label="Cambiar entre tema claro y oscuro" title="Cambiar tema" style="position:absolute;top:0;right:0;padding:7px 11px;font-size:16px;line-height:1"></button>
     <div class="eyebrow">CEDEARs y ADRs argentinos · múltiplos en dólares</div>
     <h1>Monitor P/E S&amp;P 500</h1>
     <p>Valuación de todas las empresas que se pueden comprar desde Argentina. Los datos se actualizan solos cada día hábil; tocá una fila para ver el detalle.</p>
@@ -506,6 +507,13 @@ $("syncfav").addEventListener("click",async e=>{
   else{const s=await pushFavs();msg=s==="ok"?"Favoritas guardadas en GitHub ("+favs.size+"). Ya las ves en tus otros dispositivos.":(favMsg[s]||"No se pudo sincronizar.")}
   say(msg);btn.disabled=false;btn.textContent="Sincronizar favoritas";
 });
+
+
+// Tema claro/oscuro: por defecto sigue el del dispositivo; el botón lo fija y se recuerda en este navegador
+function temaActual(){const f=document.documentElement.getAttribute("data-theme");return f||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
+function pintaTema(){$("theme").textContent=temaActual()==="dark"?"☀️":"🌙";$("theme").title=temaActual()==="dark"?"Pasar a tema claro":"Pasar a tema oscuro"}
+$("theme").addEventListener("click",()=>{const n=temaActual()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("tema",n)}catch(_){}pintaTema()});
+pintaTema();
 
 // Arranque: lee los archivos que genera GitHub Actions (datos completos una vez por día, precios cada 20 minutos con el mercado abierto)
 let datosAt=null,pricesAt=null;
