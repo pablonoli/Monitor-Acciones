@@ -1,16 +1,16 @@
 # Prueba Yahoo Finance (2026-10-28)
-Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
+Empresas probadas: 343 · con datos: 343 · sin datos: 0 · errores: 0
 
 | Campo | Empresas con valor |
 |---|---|
-| price | 326 / 326 |
-| mcap | 326 / 326 |
-| rev | 319 / 326 |
-| ni | 323 / 326 |
-| epsCur | 300 / 326 |
-| peg | 212 / 326 |
-| dy | 223 / 326 |
-| hist | 326 / 326 |
+| price | 343 / 343 |
+| mcap | 343 / 343 |
+| rev | 335 / 343 |
+| ni | 339 / 343 |
+| epsCur | 315 / 343 |
+| peg | 217 / 343 |
+| dy | 238 / 343 |
+| hist | 341 / 343 |
 
 | Ticker | Moneda | P/E (mcap/ni) | Años de historial |
 |---|---|---|---|
@@ -42,6 +42,7 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | ARCO | USD | 5.7 | 5 |
 | ARM | USD | 231.8 | 5 |
 | ASML | EUR | 42.1 | 5 |
+| ASR | MXN | 13.9 | 5 |
 | ASTS | USD | None | 5 |
 | AVGO | USD | 42.7 | 5 |
 | AVY | USD | 19.5 | 5 |
@@ -59,8 +60,10 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | BCS | GBP | 8.0 | 5 |
 | BG | USD | 19.3 | 5 |
 | BHP | USD | 21.3 | 5 |
+| BIB | USD | None | 0 |
 | BIDU | CNY | None | 4 |
 | BIOX | USD | None | 5 |
+| BK | USD | 16.3 | 5 |
 | BKNG | USD | 15.6 | 5 |
 | BKR | USD | 18.9 | 5 |
 | BMA | ARS | 15.9 | 5 |
@@ -99,6 +102,7 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | DECK | USD | 10.3 | 4 |
 | DELL | USD | 28.0 | 5 |
 | DEO | USD | 29.8 | 5 |
+| DESP | USD | None | 5 |
 | DHR | USD | 38.0 | 5 |
 | DIS | USD | 22.1 | 4 |
 | DOCU | USD | 46.5 | 4 |
@@ -107,10 +111,14 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | E | EUR | 11.0 | 5 |
 | EA | USD | 48.9 | 4 |
 | EBAY | USD | 23.9 | 4 |
+| EBR | BRL | 7.0 | 5 |
 | ECL | USD | 38.6 | 5 |
+| EDN | ARS | 5.7 | 5 |
 | EFX | USD | 27.8 | 4 |
+| ELP | BRL | 14.4 | 5 |
 | EQNR | USD | 12.3 | 4 |
 | ERIC | SEK | None | 5 |
+| ERJ | BRL | 29.7 | 5 |
 | ETSY | USD | 21.7 | 4 |
 | F | USD | None | 5 |
 | FCX | USD | 32.3 | 5 |
@@ -176,11 +184,13 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | KLAC | USD | 41.5 | 4 |
 | KMB | USD | 21.5 | 4 |
 | KO | USD | 27.4 | 5 |
+| KOF | MXN | 18.6 | 5 |
 | LAC | USD | None | 5 |
 | LAR | USD | None | 5 |
 | LIN | USD | 32.4 | 5 |
 | LLY | USD | 42.8 | 5 |
 | LMT | USD | 22.1 | 5 |
+| LND | BRL | None | 5 |
 | LOMA | ARS | 38.0 | 5 |
 | LRCX | USD | 35.7 | 4 |
 | LVS | USD | 14.5 | 5 |
@@ -191,6 +201,7 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | MELI | USD | 45.7 | 5 |
 | META | USD | 21.1 | 5 |
 | MFG | JPY | 13.4 | 4 |
+| MMC | USD | 22.8 | 5 |
 | MMM | USD | 25.0 | 5 |
 | MO | USD | 15.4 | 5 |
 | MOS | USD | None | 5 |
@@ -240,6 +251,7 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | PBI | USD | 12.7 | 5 |
 | PBR | BRL | 5.8 | 5 |
 | PCAR | USD | 21.8 | 5 |
+| PCRFY | USD | 11.3 | 0 |
 | PDD | CNY | 8.1 | 4 |
 | PEP | USD | 16.7 | 5 |
 | PFE | USD | 39.1 | 5 |
@@ -295,7 +307,9 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | T | USD | 10.8 | 5 |
 | TCOM | CNY | 6.9 | 5 |
 | TEAM | USD | None | 5 |
+| TEF | EUR | None | 5 |
 | TEM | USD | None | 5 |
+| TEO | ARS | 10.0 | 5 |
 | TGS | ARS | 11.3 | 5 |
 | TGT | USD | 15.3 | 5 |
 | TIMB | BRL | 10.5 | 5 |
@@ -305,12 +319,14 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | TMO | USD | 36.2 | 4 |
 | TMUS | USD | 14.9 | 5 |
 | TRIP | USD | None | 5 |
+| TRVV | USD | 10.4 | 5 |
 | TS | USD | 15.9 | 5 |
 | TSLA | USD | 500.2 | 5 |
 | TSM | TWD | 29.0 | 5 |
 | TTE | USD | 11.4 | 4 |
 | TV | MXN | None | 5 |
 | TWLO | USD | 34.0 | 4 |
+| TX | USD | 15.7 | 5 |
 | TXN | USD | 39.9 | 5 |
 | UAL | USD | 9.5 | 5 |
 | UBER | USD | 14.0 | 5 |
@@ -336,6 +352,7 @@ Empresas probadas: 343 · con datos: 326 · sin datos: 17 · errores: 0
 | XOM | USD | 22.6 | 5 |
 | XP | BRL | 8.2 | 5 |
 | XPEV | CNY | None | 5 |
+| XROX | USD | None | 5 |
 | XYZ | USD | 125.9 | 5 |
 | YELP | USD | 8.0 | 5 |
 | YPF | ARS | 25.0 | 5 |
