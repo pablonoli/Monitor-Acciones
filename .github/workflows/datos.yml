@@ -7,6 +7,9 @@ on:
       cantidad:
         description: "Cuántas empresas procesar (vacío = todas)"
         required: false
+      tickers:
+        description: "Solo estos tickers, separados por espacio (vacío = todos)"
+        required: false
 permissions:
   contents: write
 jobs:
@@ -19,10 +22,12 @@ jobs:
         with: { python-version: "3.12" }
       - run: pip install yfinance
       - run: python scripts/fetch.py ${{ github.event.inputs.cantidad }}
+        env:
+          TICKERS: ${{ github.event.inputs.tickers }}
       - name: Guardar resultado
         run: |
           git config user.name "datos-bot"
           git config user.email "datos-bot@users.noreply.github.com"
-          git add data/datos.json data/reporte.md
+          git add -A data
           git commit -m "Datos $(date -u +%F)" || echo "sin cambios"
           git push

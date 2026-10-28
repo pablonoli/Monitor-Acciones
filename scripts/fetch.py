@@ -1,6 +1,6 @@
 """Baja fundamentales de Yahoo Finance (yfinance) para el universo y arma data/datos.json.
 Uso: python scripts/fetch.py [cantidad_maxima]"""
-import json, sys, time, math, datetime as dt
+import json, os, sys, time, math, datetime as dt
 import yfinance as yf
 
 UNI = json.load(open("data/universe.json"))["list"]
@@ -8,7 +8,10 @@ try:
     FALLBACK = json.load(open("data/fallback.json"))
 except Exception:
     FALLBACK = {}
-LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else len(UNI)
+ONLY = [x for x in os.environ.get("TICKERS", "").replace(",", " ").split() if x]
+if ONLY:
+    UNI = [u for u in UNI if u["t"] in ONLY]
+LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1] else len(UNI)
 TODAY = dt.date.today().isoformat()
 _fx = {}
 
@@ -120,6 +123,27 @@ def main():
                 r = dict(FALLBACK[u["t"]], histNote=(FALLBACK[u["t"]].get("histNote") or "") + " · dato de StockAnalysis (27/10/26), no se actualiza")
             out[u["t"]] = r
         time.sleep(0.4)
+    if ONLY:   # corrida parcial: se mezcla con el archivo existente y se deja un diagnóstico
+        previo = json.load(open("data/datos.json"))
+        previo["co"].update(out)
+        previo["updated"] = dt.datetime.utcnow().isoformat() + "Z"
+        json.dump(previo, open("data/datos.json", "w"), ensure_ascii=False)
+        diag = ["# Diagnóstico de empresas puntuales", ""]
+        for u in UNI:
+            d = out.get(u["t"], {})
+            linea = f"- {u['t']}: {'OK Yahoo' if d.get('src') == 'YF' else 'sigue sin datos'}"
+            if d.get("src") != "YF":
+                try:
+                    inf = yf.Ticker(u["t"]).info or {}
+                    linea += f" · tipo={inf.get('quoteType')} precio={inf.get('currentPrice') or inf.get('regularMarketPrice')} mcap={inf.get('marketCap')} nombre={inf.get('longName') or inf.get('shortName')}"
+                    q = yf.Search(u["t"], max_results=4).quotes
+                    linea += " · búsqueda=" + ", ".join(f"{x.get('symbol')}({x.get('shortname')})" for x in q)
+                except Exception as e:
+                    linea += f" · error={type(e).__name__}: {str(e)[:100]}"
+            diag.append(linea)
+        open("data/diagnostico.md", "w").write("\n".join(diag))
+        print("\n".join(diag))
+        return
     json.dump({"updated": dt.datetime.utcnow().isoformat() + "Z", "co": out}, open("data/datos.json", "w"), ensure_ascii=False)
     ok = [d for d in out.values() if d["status"] == "ok"]
     campos = ["price", "mcap", "rev", "ni", "epsCur", "peg", "dy", "hist"]
