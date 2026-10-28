@@ -52,9 +52,8 @@ def one(u):
     ni = num(info.get("netIncomeToCommon"))
     rev = rev / f if rev is not None else None
     ni = ni / f if ni is not None else None
-    dy = num(info.get("dividendYield"))
-    if dy is not None and dy > 0.5:   # algunas versiones lo devuelven en %
-        dy = dy / 100
+    rate = num(info.get("dividendRate"))
+    dy = rate / price if rate and price else None   # dividendYield de Yahoo viene en % y a veces mal escalado
     doc = {
         "t": t, "name": info.get("shortName") or info.get("longName"), "status": "ok", "src": "YF",
         "price": price, "mcap": mcap, "cur": cur, "fx": f, "rev": rev, "ni": ni,
