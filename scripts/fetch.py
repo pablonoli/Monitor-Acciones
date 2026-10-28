@@ -160,7 +160,7 @@ def one(u):
             y0 = col - dt.timedelta(days=365)
             d_ = divs[(divs.index.tz_localize(None) > y0) & (divs.index.tz_localize(None) <= col)].sum() if len(divs) else 0
             dyh = (num(d_) / p) if p and d_ else None
-            hist.append({"fy": str(col.year), "pe": pos(pe), "peg": None, "ps": pos(ps), "dy": dyh,
+            hist.append({"fy": str(col.year), "end": col.date().isoformat(), "pe": pos(pe), "peg": None, "ps": pos(ps), "dy": dyh,
                          "eps": (ev / f) if ev is not None else None,
                          "rev": rv / f if rv is not None else None, "ni": nv / f if nv is not None else None})
     except Exception as e:

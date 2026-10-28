@@ -566,7 +566,8 @@ function chartSvg(sp,big){
     const ex=[];let pv=null;for(let k=i-1;k>=0;k--)if(pts[k].v!=null){pv=pts[k];break}
     if(pv&&pv.v!==0){const c=(p.v-pv.v)/Math.abs(pv.v)*100;ex.push(`${c>=0?"+":"−"}${num(Math.abs(c),1)}% vs ${pv.l}`)}
     if(med!=null&&med!==0){const c=(p.v/med-1)*100;ex.push(`${c>=0?"+":"−"}${num(Math.abs(c),0)}% vs mediana`)}
-    return `class="hit" data-tl="${esc(p.l+(p.est?" (estimado)":""))}" data-tv="${esc(fmt(p.v))}" data-tx="${esc(ex.join(" · "))}"`;
+    if(p.note)ex.unshift(p.note);
+    return `class="hit" data-tl="${esc((p.tl||p.l)+(p.est?" (estimado)":""))}" data-tv="${esc(fmt(p.v))}" data-tx="${esc(ex.join(" · "))}"`;
   };
   let g="";
   for(let k=0;k<=3;k++){const v=lo+(hi-lo)*k/3;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmt(v,true)}</text>`}
@@ -629,12 +630,16 @@ function drawPanels(t,m){
   if(!H0){loadHist(t);$("chart").innerHTML=`<div class="empty">Cargando historial…</div>`;return}
   if(H0.loading){$("chart").innerHTML=`<div class="empty">Cargando historial…</div>`;return}
   if(H0.err){$("chart").innerHTML=`<div class="empty">${H0.err}</div>`;return}
-  const P=H0.pts,fy=h=>"FY"+String(h.fy).slice(-2);
-  const series=(k,now)=>{const a=P.map(h=>({l:fy(h),v:h[k]??null}));if(now!==undefined)a.push({l:k==="rev"||k==="ni"?"12m":"Hoy",v:now??null,now:true});return a};
+  const P=H0.pts,MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  const fy=h=>{const m=/^(\d{4})-(\d\d)-\d\d$/.exec(h.end||"");return m?MES[+m[2]-1]+"-"+m[1].slice(2):"FY"+String(h.fy).slice(-2)};
+  const fyTl=h=>h.end?"Ejercicio cerrado el "+fdate4(h.end):"Ejercicio fiscal "+h.fy+" (el mes de cierre depende de la empresa)";
+  const priced=k=>k==="pe"||k==="ps"||k==="dy";
+  const series=(k,now)=>{const a=P.map(h=>({l:fy(h),tl:fyTl(h),note:priced(k)?"con el precio de esa fecha":"",v:h[k]??null}));
+    if(now!==undefined){const flow=k==="rev"||k==="ni";a.push({l:flow?"12m":"Hoy",tl:flow?"Últimos 12 meses":"Hoy",note:priced(k)?"precio de hoy y ganancia de los últimos 12 meses":"",v:now??null,now:true})}return a};
   const mx=(v,ax)=>v==null?"—":num(v,ax?0:1)+"x";
   const pc=(v,ax)=>v==null?"—":num(v*100,ax?1:2)+"%";
   const mo=(v,ax)=>{if(v==null)return "—";const a=Math.abs(v),s=v<0?"−":"";return ax?(a>=1e9?s+num(a/1e9,0)+" mil M":s+num(a/1e6,0)+" M"):money(v)};
-  const eps=P.map(h=>({l:fy(h),v:h.eps??null}));
+  const eps=P.map(h=>({l:fy(h),tl:fyTl(h),v:h.eps??null}));
   if(d.epsCur!=null)eps.push({l:"E"+String(d.fyCur||"").slice(-2),v:d.epsCur,est:true});
   if(d.epsNext!=null)eps.push({l:"E"+String(d.fyNext||"").slice(-2),v:d.epsNext,est:true});
   CH={};
@@ -644,7 +649,7 @@ function drawPanels(t,m){
     const pts=v.ann.map(([y,x])=>({l:String(y),v:x}));pts.push({l:"12m",v:v.ttm??null,now:true});
     dps=add("dps","Dividendo por acción",pts,(x,ax)=>x==null?"—":"US$ "+num(x,ax?2:3),{bars:true,sub:"por año"});
   }
-  $("chart").innerHTML=`<p class="sub" style="margin:0 0 10px">Últimos ejercicios fiscales y el valor actual. Tocá un gráfico para agrandarlo; pasá el mouse o el dedo sobre un punto para ver el número. La línea punteada es la mediana del período.</p>
+  $("chart").innerHTML=`<p class="sub" style="margin:0 0 10px">Cada punto es el cierre de un ejercicio fiscal (el mes depende de la empresa: «jun-26» = ejercicio cerrado en junio de 2026), con el precio de esa fecha. «Hoy» usa el precio de hoy y la ganancia de los últimos 12 meses. Tocá un gráfico para agrandarlo; pasá el mouse o el dedo sobre un punto para ver el número. La línea punteada es la mediana del período.</p>
   <div class="minis">
     ${add("pe","P/E",series("pe",m.pe),mx,{sub:"precio / ganancia",median:true})}
     ${add("ps","Precio / Ventas",series("ps",m.ps),mx,{median:true})}
