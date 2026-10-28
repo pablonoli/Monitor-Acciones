@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Monitor P/E S&amp;P 500</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;700;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: barra de progreso de carga, filtros, tabla ordenable de todas las empresas, detalle de la empresa elegida */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --fg:#17211f; --muted:#5d6b67; --line:#dbe2df;
+  --accent:#0f6b5c; --accent-soft:#e1efeb; --warn:#a4560c; --bad:#b3261e; --row:#f7faf9;
+  --display:"Schibsted Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101614; --surface:#18201e; --fg:#e4ebe8; --muted:#94a39e; --line:#2a3532;
+  --accent:#4fc4ac; --accent-soft:#1d332e; --warn:#f0a35a; --bad:#ff8a80; --row:#1c2522;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101614; --surface:#18201e; --fg:#e4ebe8; --muted:#94a39e; --line:#2a3532;
+  --accent:#4fc4ac; --accent-soft:#1d332e; --warn:#f0a35a; --bad:#ff8a80; --row:#1c2522;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:grid;gap:18px}
+header h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,36px);letter-spacing:-.02em;margin:0;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);max-width:72ch}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.progress{display:grid;gap:8px}
+.ptrack{height:10px;border-radius:999px;background:var(--line);overflow:hidden;display:flex}
+.ptrack i{display:block;height:100%}
+.plegend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--muted)}
+.plegend b{font-family:var(--mono);color:var(--fg)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input,select{font:500 14px var(--body);padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg)}
+#q{flex:1 1 240px;min-width:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;border-radius:0;padding:9px 12px;background:transparent}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+button{font:600 14px var(--body);border-radius:8px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+button:hover{filter:brightness(1.06)}
+button:disabled{opacity:.5;cursor:default}
+label.chk{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.panel h2{font-family:var(--display);font-size:17px;font-weight:700;margin:0 0 2px}
+.panel .sub{font-size:13px;color:var(--muted);margin:0 0 12px}
+.tablewrap{overflow-x:auto;margin-inline:-18px;padding-inline:18px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:1040px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none;vertical-align:bottom}
+th:hover{color:var(--fg)}
+th.sorted{color:var(--accent)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+td{font-family:var(--mono);font-size:13.5px}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--row)}
+tbody tr.sel td{background:var(--accent-soft)}
+td.name{font-family:var(--body);font-size:14px;max-width:280px;overflow:hidden;text-overflow:ellipsis}
+td.name b{font-family:var(--mono);margin-right:6px}
+td.name span{color:var(--muted);font-size:12.5px}
+td.na{color:var(--muted)}
+td.x{color:var(--bad)}
+.tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font:600 11px var(--body);vertical-align:1px}
+.tag.adr{background:var(--accent-soft);color:var(--accent)}
+.tag.q{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
+.tag.err{background:color-mix(in srgb,var(--bad) 13%,transparent);color:var(--bad)}
+.tag.cur{background:var(--line);color:var(--muted)}
+.foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:12px}
+.pager{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.wrap>*{min-width:0}
+.seg{flex-wrap:wrap;max-width:100%}
+.panel{min-width:0;overflow:hidden}
+.empty,.hint{overflow-wrap:anywhere}
+@media (max-width:520px){.seg button{padding:8px 10px}.foot .pager button{flex:1 1 auto}}
+.banner{padding:12px 14px;border-radius:8px;border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 9%,var(--surface))}
+.chart{overflow-x:auto}
+svg{display:block;width:100%;min-width:480px;height:auto}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:8px 0 14px}
+.fact{display:grid;gap:2px}
+.fact span{font-size:12px;color:var(--muted)}
+.fact b{font:600 16px var(--mono)}
+.detailhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.notes{font-size:13px;color:var(--muted);max-width:85ch;display:grid;gap:4px}
+.notes b{color:var(--fg);font-weight:600}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+.minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.mini{border:1px solid var(--line);border-radius:10px;padding:10px 10px 4px;min-width:0}
+.mini svg{min-width:0}
+.mhead{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13.5px}
+.mhead span{color:var(--muted);font-size:12px}
+.mempty{color:var(--muted);font-size:13px;padding:40px 0;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">CEDEARs y ADRs argentinos · múltiplos en dólares</div>
+    <h1>Monitor P/E S&amp;P 500</h1>
+    <p>Valuación de todas las empresas que se pueden comprar desde Argentina. Los datos se actualizan solos cada día hábil; tocá una fila para ver el detalle.</p>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <section class="progress" aria-label="Avance de la carga">
+    <div class="ptrack" id="ptrack"></div>
+    <div class="plegend" id="plegend">Cargando base de datos…</div>
+  </section>
+
+  <div class="filters">
+    <label for="q" hidden>Buscar</label>
+    <input id="q" type="search" placeholder="Buscar por ticker o nombre" autocomplete="off">
+    <div class="seg" role="group" aria-label="Tipo">
+      <button type="button" data-kind="all" aria-pressed="true">Todas</button>
+      <button type="button" data-kind="cedear" aria-pressed="false">CEDEARs</button>
+      <button type="button" data-kind="adr" aria-pressed="false">ADRs argentinos</button>
+    </div>
+    <label for="sector" hidden>Sector</label>
+    <select id="sector"><option value="">Todos los sectores</option></select>
+    <label class="chk"><input type="checkbox" id="onlyok" checked> Solo con datos</label>
+  </div>
+
+  <section class="panel">
+    <h2>Múltiplos y resultados</h2>
+    <p class="sub" id="tsub">Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses.</p>
+    <div class="tablewrap" id="table"><div class="empty">Cargando…</div></div>
+    <div class="foot">
+      <div class="pager"><button type="button" id="prev">Anterior</button><span class="hint" id="pinfo"></span><button type="button" id="next">Siguiente</button></div>
+      <div class="pager"><button type="button" id="copy">Copiar tabla para Excel</button></div>
+    </div>
+  </section>
+
+  <section class="panel" id="detail">
+    <div class="detailhead"><h2 id="dtitle">Detalle</h2><span class="hint" id="dsub"></span></div>
+    <div id="dbody"><div class="empty">Elegí una empresa de la tabla.</div></div>
+  </section>
+
+  <div class="notes">
+    <span><b>P/E</b>: capitalización ÷ ganancia neta de 12 meses. <b>P/E est.</b>: precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso. <b>PEG</b>: P/E ÷ crecimiento esperado de la ganancia por acción entre este ejercicio y el próximo (en %); cerca de 1 suele leerse como precio razonable para su crecimiento. <b>P/Ventas</b>: capitalización ÷ ingresos de 12 meses. <b>Div. yield</b>: dividendo anual ÷ precio.</span>
+    <span>Todo en dólares de la empresa original; el ratio de conversión del CEDEAR no cambia los múltiplos. Las empresas que reportan en otra moneda (por ejemplo, en pesos) se convierten a dólares al tipo de cambio del día de carga. n/s = no significativo (ganancias negativas).</span>
+    <span>Fuente: Yahoo Finance. Precios y fundamentales de la última actualización diaria.</span>
+  </div>
+</div>
+
+<script>
+const SERVER="FMP";
+const PAGE=50;
+const CACHE={cache:{staleTime:6*3600e3,gcTime:24*3600e3}};
+const COLS=[
+  {k:"price",label:"Precio US$",f:v=>num(v,2)},
+  {k:"pe",label:"P/E",f:v=>mult(v)},
+  {k:"fpe",label:"P/E est.",f:v=>mult(v)},
+  {k:"peg",label:"PEG",f:v=>v==null?"n/s":num(v,2)},
+  {k:"ps",label:"P/Ventas",f:v=>mult(v)},
+  {k:"rev",label:"Ingresos 12m",f:v=>money(v)},
+  {k:"ni",label:"Ganancia 12m",f:v=>money(v)},
+  {k:"dy",label:"Div. yield",f:v=>v==null?"—":num(v*100,2)+"%"},
+];
+const SECN={"T": "Tecnología", "C": "Comunicaciones", "D": "Consumo discrecional", "B": "Consumo básico", "S": "Salud", "F": "Finanzas", "I": "Industriales", "E": "Energía", "M": "Materiales", "U": "Servicios públicos", "R": "Inmobiliario"};
+const SECT=Object.fromEntries("AAL:I AAP:D AAPL:T ABBV:S ABEV:B ABNB:D ABT:S ACN:T ADBE:T ADI:T ADP:I AEG:F AEM:M AGRO:B AI:T AIG:F AKO-B:B ALAB:T AMAT:T AMD:T AMGN:S AMX:C AMZN:D ANET:T ANF:D ARCO:D ARM:T ASML:T ASR:I ASTS:C AVGO:T AVY:M AXP:F AZN:S B:M BA:I BABA:D BAC:F BAK:M BB:T BBAR:F BBD:F BBVA:F BCS:F BG:B BHP:M BIB:S BIDU:C BIOX:M BK:F BKNG:D BKR:E BMA:F BMNR:F BMY:S BP:E BRK-B:F BSBR:F BX:F C:F CAAP:I CAH:S CAR:I CAT:I CCJ:E CCL:D CDE:M CEG:U CEPU:U CL:B CLS:T COIN:F COP:E COST:B CRESY:R CRM:T CRWD:T CRWV:T CSCO:T CVS:S CVX:E CX:M DAL:I DD:M DE:I DECK:D DELL:T DEO:B DESP:D DHR:S DIS:C DOCU:T DOW:M DTEGY:C E:E EA:C EBAY:D EBR:U ECL:M EDN:U EFX:I ELP:U EQNR:E ERIC:T ERJ:I ETSY:D F:D FCX:M FDX:I FISV:F FMCC:F FMX:B FNMA:F FSLR:T GE:I GEV:I GFI:M GGAL:F GGB:M GILD:S GLNG:E GLOB:T GLW:T GM:D GOOGL:C GPRK:E GRMN:D GS:F GSK:S GT:D HAL:E HD:D HDB:F HIMS:S HL:M HMC:D HMY:M HOG:D HON:I HOOD:F HPQ:T HSBC:F HSY:B HUT:F HWM:I IBKR:F IBM:T IBN:F IFF:M INFY:T ING:F INTC:T IP:M IREN:T IRS:R ISRG:S ITUB:F JCI:I JD:D JMIA:D JNJ:S JOYY:C JPM:F KB:F KEEL:T KEP:U KGC:M KLAC:T KMB:B KO:B KOF:B LAC:M LAR:M LIN:M LLY:S LMT:I LND:B LOMA:M LRCX:T LVS:D MA:F MCD:D MDLZ:B MDT:S MELI:D META:C MFG:F MMC:F MMM:I MO:B MOS:M MP:M MRK:S MRNA:S MRVL:T MS:F MSFT:T MSI:T MSTR:T MU:T MUFG:F MUX:M NBIS:T NEE:U NEM:M NFLX:C NG:M NGG:U NIO:D NKE:D NMR:F NOK:T NOW:T NSANY:D NTES:C NTRA:S NU:F NUE:M NVDA:T NVO:S NVS:S NXE:E O:R OKLO:U ONDS:T ORCL:T ORLY:D OXY:E PAAS:M PAC:I PAGS:F PAM:U PANW:T PATH:T PBI:I PBR:E PCAR:I PCRFY:D PDD:D PEP:B PFE:S PG:B PHG:S PINS:C PKX:M PLD:R PLTR:T PM:B PSO:C PSX:E PYPL:F QCOM:T RACE:D RBLX:C RGTI:T RIO:M RIOT:F RKLB:I ROKU:C ROST:D RTX:I SAN:F SAP:T SATL:I SBS:U SBUX:D SCCO:M SCHW:F SDA:D SE:D SHEL:E SHOP:T SHW:M SID:M SIEGY:I SKHY:T SLB:E SNA:I SNAP:C SNDK:T SNOW:T SONY:D SPGI:F SPOT:C STLA:D STNE:F SUPV:F SUZ:M SWKS:T SYY:B T:C TCOM:D TEAM:T TEF:C TEM:S TEO:C TGS:E TGT:B TIMB:C TJX:D TLN:U TM:D TMO:S TMUS:C TRIP:C TRVV:F TS:E TSLA:D TSM:T TTE:E TV:C TWLO:T TX:M TXN:T UAL:I UBER:I UGP:E UL:B UNH:S UNP:I UPST:F URBN:D USB:F V:F VIST:E VIV:C VOD:C VRSN:T VRTX:S VST:U VZ:C WDC:T WELL:R WFC:F WMT:B XOM:E XP:F XPEV:D XROX:T XYZ:F YELP:C YPF:E ZM:T BRFS:B CAJ:T HNPIY:U LFC:F ORAN:C TILAY:S TTM:D WBA:B YZCAY:E".split(" ").map(x=>{const i=x.lastIndexOf(":");return [x.slice(0,i),SECN[x.slice(i+1)]]}));
+const sec=(t,d)=>SECT[t]||(d&&d.sector)||"";
+let db=null, mcp=null, universe=null, docs={}, live={}, hist={};
+let sortKey="pe", sortDir=1, page=0, kind="all", sector="", query="", onlyOk=true, selected=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf={};const fmtN=d=>nf[d]||(nf[d]=new Intl.NumberFormat("es-AR",{minimumFractionDigits:d,maximumFractionDigits:d}));
+const num=(v,d=1)=>v==null||!isFinite(v)?"—":fmtN(d).format(v);
+const mult=v=>v==null?"n/s":num(v,1);
+function money(v){if(v==null||!isFinite(v))return "—";const a=Math.abs(v),s=v<0?"−":"";
+  if(a>=1e12)return s+"US$ "+num(a/1e12,2)+" B";if(a>=1e9)return s+"US$ "+num(a/1e9,1)+" mil M";if(a>=1e6)return s+"US$ "+num(a/1e6,0)+" M";return s+"US$ "+num(a,0)}
+const fdate=s=>s?new Date(s).toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit",year:"2-digit"}):"—";
+const isAdr=u=>u.k==="ADR"||u.k==="ADR+CEDEAR";
+
+// Calcula los múltiplos a partir de lo guardado y, si existe, del precio en vivo
+function metrics(t){
+  const d=docs[t];if(!d||d.status!=="ok")return null;
+  const L=live[t];
+  const price=(L&&L.price)||d.price, shares=d.shares||(d.mcap&&d.price?d.mcap/d.price:null);
+  const mcap=price&&shares?price*shares:d.mcap;
+  const fx=d.fx||1; // ingresos y ganancias ya vienen en US$ desde la carga
+  const rev=d.rev!=null?d.rev:null, ni=d.ni!=null?d.ni:null;
+  const pe=ni>0&&mcap?mcap/ni:null;
+  const ps=rev>0&&mcap?mcap/rev:null;
+  const fpe=d.epsCur>0&&price?price/d.epsCur:null;
+  const g=d.epsCur>0&&d.epsNext>0?(d.epsNext/d.epsCur-1)*100:null;
+  const peg=pe&&g>0?pe/g:(d.peg>0?d.peg:null);
+  const div=(L&&L.lastDiv!=null)?L.lastDiv:d.lastDiv;
+  const dy=div>0&&price?div/price:(d.dy>0?d.dy:null);
+  return {price,mcap,rev,ni,pe,ps,fpe,peg,dy,g,liveAt:L&&L.at,fx};
+}
+
+function rows(){
+  if(!universe)return [];
+  const q=query.trim().toUpperCase();
+  return universe.filter(u=>{
+    const d=docs[u.t];
+    if(kind==="adr"&&!isAdr(u))return false;
+    if(kind==="cedear"&&u.k==="ADR")return false;
+    if(sector&&sec(u.t,d)!==sector)return false;
+    if(onlyOk&&(!d||d.status!=="ok"))return false;
+    if(q&&!(u.t.includes(q)||u.b.toUpperCase().includes(q)||String(d&&d.name||"").toUpperCase().includes(q)))return false;
+    return true;
+  }).map(u=>({u,d:docs[u.t],m:metrics(u.t)})).sort((a,b)=>{
+    if(sortKey==="name")return a.u.t<b.u.t?-sortDir:sortDir;
+    const x=a.m&&a.m[sortKey],y=b.m&&b.m[sortKey];
+    if(x==null&&y==null)return a.u.t<b.u.t?-1:1;if(x==null)return 1;if(y==null)return -1;return (x-y)*sortDir});
+}
+
+function renderProgress(){
+  if(!universe)return;
+  const n=universe.length,ok=universe.filter(u=>docs[u.t]&&docs[u.t].status==="ok").length,
+    nd=universe.filter(u=>docs[u.t]&&docs[u.t].status!=="ok").length,q=n-ok-nd;
+  $("ptrack").innerHTML=`<i style="width:${ok/n*100}%;background:var(--accent)"></i><i style="width:${nd/n*100}%;background:var(--bad);opacity:.6"></i>`;
+  const meta=docs.__status||{};
+  const perDay=meta.perDay||12;
+  $("plegend").innerHTML=`<span><i class="dot" style="background:var(--accent)"></i><b>${ok}</b> de ${n} empresas con datos</span>${q?`<span><i class="dot" style="background:var(--line)"></i><b>${q}</b> en cola · faltan unos ${Math.ceil(q/perDay)} días</span>`:""}${nd?`<span><i class="dot" style="background:var(--bad)"></i><b>${nd}</b> sin datos disponibles</span>`:""}${meta.lastRun?`<span>Última carga: ${fdate(meta.lastRun)}</span>`:""}`;
+}
+
+function renderTable(){
+  if(!universe){$("table").innerHTML=`<div class="empty">Cargando…</div>`;return}
+  const all=rows(),pages=Math.max(1,Math.ceil(all.length/PAGE));if(page>=pages)page=pages-1;
+  const slice=all.slice(page*PAGE,page*PAGE+PAGE);
+  $("pinfo").textContent=all.length?`${page*PAGE+1}–${page*PAGE+slice.length} de ${all.length}`:"0 resultados";
+  $("prev").disabled=page===0;$("next").disabled=page>=pages-1;
+  if(!slice.length){$("table").innerHTML=`<div class="empty">${onlyOk?"Todavía no hay empresas cargadas con estos filtros. Destildá \"Solo con datos\" para ver las que están en cola.":"Sin resultados."}</div>`;return}
+  let h=`<table><thead><tr><th data-k="name" class="${sortKey==="name"?"sorted":""}">Empresa</th>${COLS.map(c=>`<th data-k="${c.k}" class="${sortKey===c.k?"sorted":""}">${c.label}${sortKey===c.k?(sortDir<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead><tbody>`;
+  slice.forEach(({u,d,m})=>{
+    const tags=(isAdr(u)?`<span class="tag adr">ADR</span>`:"")+(d&&d.cur&&d.cur!=="USD"?`<span class="tag cur">${esc(d.cur)}</span>`:"")+
+      (!d?`<span class="tag q">En cola</span>`:d.status!=="ok"?`<span class="tag err">${esc(d.note||"Sin datos")}</span>`:"");
+    const nm=d&&d.name?`<span>${esc(d.name)}</span>`:(u.b!==u.t?`<span>CEDEAR ${esc(u.b)}</span>`:"");
+    h+=`<tr data-t="${esc(u.t)}" class="${selected===u.t?"sel":""}"><td class="name" title="${esc(d&&d.name||u.t)}"><b>${esc(u.t)}</b>${nm}${tags}</td>${COLS.map(c=>{
+      if(!m)return `<td class="na">—</td>`;const v=m[c.k];
+      return `<td class="${v==null?"na":(c.k==="ni"&&v<0?"x":"")}">${c.f(v)}</td>`}).join("")}</tr>`;
+  });
+  $("table").innerHTML=h+"</tbody></table>";
+  const liveN=slice.filter(r=>r.m&&r.m.liveAt).length;
+  $("tsub").textContent=`Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses.${liveN?` ${liveN} filas con precio en vivo.`:""}`;
+}
+
+function renderSectors(){
+  const s=new Set();Object.entries(docs).forEach(([t,d])=>{const x=sec(t,d);if(x)s.add(x)});
+  const cur=$("sector").value;
+  $("sector").innerHTML=`<option value="">Todos los sectores</option>`+[...s].sort().map(x=>`<option ${x===cur?"selected":""}>${esc(x)}</option>`).join("");
+}
+
+function renderDetail(){
+  const t=selected;if(!t){$("dtitle").textContent="Detalle";$("dsub").textContent="";$("dbody").innerHTML=`<div class="empty">Elegí una empresa de la tabla.</div>`;return}
+  const u=universe.find(x=>x.t===t),d=docs[t],m=metrics(t);
+  $("dtitle").textContent=`${t}${d&&d.name?" · "+d.name:""}`;
+  $("dsub").textContent=[u&&(u.b!==u.t?"CEDEAR "+u.b:u.k==="ADR"?"ADR argentino":"CEDEAR"),sec(t,d)].filter(Boolean).join(" · ");
+  if(!d){$("dbody").innerHTML=`<div class="empty">Esta empresa todavía está en cola. Se carga en las próximas corridas diarias.</div>`;return}
+  if(d.status!=="ok"){$("dbody").innerHTML=`<div class="empty">${esc(d.note||"No hay datos disponibles para esta empresa en las fuentes gratuitas.")}</div>`;return}
+  const f=(l,v)=>`<div class="fact"><span>${l}</span><b>${v}</b></div>`;
+  let h=`<div class="facts">${f("Precio",m.price?"US$ "+num(m.price,2):"—")}${f("Capitalización",money(m.mcap))}${f("P/E",mult(m.pe))}${f("P/E est. "+(d.fyCur||""),mult(m.fpe))}${f("Crec. EPS esperado",m.g==null?"—":num(m.g,1)+"%")}${f("Div. yield",m.dy==null?"—":num(m.dy*100,2)+"%")}</div>
+  <p class="hint">Fundamentales cargados el ${fdate(d.fundAt)} desde ${d.src==="YF"?"Yahoo Finance":d.src==="SA"?"StockAnalysis":d.src==="FMP"?"Financial Modeling Prep":"Alpha Vantage"}${d.cur&&d.cur!=="USD"?`, convertidos de ${esc(d.cur)} a dólares`:""}. Precio ${m.liveAt?"en vivo":"del "+fdate(d.priceAt)}.</p>
+  <div id="chart"></div><div class="chart" id="series" style="margin-top:18px"></div>`;
+  $("dbody").innerHTML=h;
+  drawSeries(d);
+  if(!fullHist(d)&&d.src!=="FMP"){$("chart").innerHTML=`<div class="empty">Los gráficos de 5 años de esta empresa se guardan automáticamente cuando termine la carga inicial del universo.</div>`;return}
+  drawPanels(t,m);
+}
+
+// un historial guardado está completo si tiene los campos de todos los gráficos
+const fullHist=d=>Array.isArray(d.hist)&&d.hist.length&&d.hist.some(h=>"rev" in h||"ps" in h)?d.hist:null;
+const pos=v=>typeof v==="number"&&isFinite(v)&&v>0?v:null;
+const fin=v=>typeof v==="number"&&isFinite(v)?v:null;
+
+async function loadHist(t){
+  if((hist[t]&&!hist[t].retry)||!mcp)return;
+  hist[t]={loading:true};
+  try{
+    const r=(await mcp.callTool(SERVER,"statements",{endpoint:"metrics-ratios",symbol:t,period:"annual",limit:5},CACHE)).payload;
+    let inc=null;try{inc=(await mcp.callTool(SERVER,"statements",{endpoint:"income-statement",symbol:t,period:"annual",limit:5},CACHE)).payload}catch(_){}
+    const byFy={};(Array.isArray(inc)?inc:[]).forEach(x=>byFy[x.fiscalYear||String(x.date).slice(0,4)]=x);
+    const d=docs[t]||{};const shares=d.shares||(d.mcap&&d.price?d.mcap/d.price:null);
+    const pts=(Array.isArray(r)?r:[]).map(x=>{const fy=x.fiscalYear||String(x.date).slice(0,4),i=byFy[fy];
+      return {fy,pe:pos(x.priceToEarningsRatio),peg:pos(x.priceToEarningsGrowthRatio),ps:pos(x.priceToSalesRatio),dy:fin(x.dividendYield),
+        eps:fin(i&&(i.epsDiluted??i.eps))??fin(x.netIncomePerShare),
+        rev:fin(i&&i.revenue)??(shares&&fin(x.revenuePerShare)!=null?x.revenuePerShare*shares:null),
+        ni:fin(i&&i.netIncome)??(shares&&fin(x.netIncomePerShare)!=null?x.netIncomePerShare*shares:null)}}).sort((a,b)=>a.fy<b.fy?-1:1);
+    hist[t]={pts};
+    // se guarda en la base para no volver a consultarlo
+    if(db&&pts.length&&docs[t]){try{await db.doc("co/"+t).update({hist:pts,histAt:new Date().toISOString()})}catch(_){}}}
+  catch(e){const msg=String(e&&e.message||"");
+    hist[t]={err:/limit reach|exceeded|rate limit/i.test(msg)?"Se agotó el cupo diario de consultas de tu plan gratuito de FMP. La carga diaria guarda estos gráficos mañana a la mañana."
+      :/higher plan|ACCESS DENIED/i.test(msg)?"Tu plan de FMP no incluye el historial de esta empresa. Se completa con la carga diaria."
+      :["needs_reauth","server_not_connected"].includes(e&&e.code)?"Reconectá FMP en claude.ai → Configuración → Conectores para ver el historial."
+      :["not_in_manifest","approval_required"].includes(e&&e.code)?"Esta página necesita tu permiso para usar FMP. Recargala y aceptá el pedido."
+      :"No se pudo cargar el historial. Volvé a tocar la fila para reintentar.",retry:true}}
+  if(selected===t)renderDetail();
+}
+
+// Gráfico chico: líneas para múltiplos, barras para montos
+function mini(title,pts,fmt,opts={}){
+  const vals=pts.map(p=>p.v).filter(v=>v!=null);
+  const head=`<div class="mhead"><b>${title}</b>${opts.sub?`<span>${opts.sub}</span>`:""}</div>`;
+  if(!vals.length)return `<div class="mini">${head}<div class="mempty">Sin datos significativos en el período.</div></div>`;
+  const W=420,H=190,L=56,R=12,T=22,B=26;
+  let hi=Math.max(...vals,0),lo=Math.min(...vals,0);if(hi===lo)hi=lo+1;
+  const span=hi-lo;hi+=span*.12;if(lo<0)lo-=span*.12;
+  const n=pts.length,bw=(W-L-R)/n;
+  const x=i=>L+bw*i+bw/2,y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  let g="";
+  for(let k=0;k<=3;k++){const v=lo+(hi-lo)*k/3;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmt(v,true)}</text>`}
+  if(lo<0)g+=`<line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)"/>`;
+  pts.forEach((p,i)=>g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" style="${p.now?"fill:var(--fg);font-weight:600":""}">${p.l}</text>`);
+  if(opts.bars){
+    pts.forEach((p,i)=>{if(p.v==null)return;const y0=y(0),yv=y(p.v),top=Math.min(y0,yv),hgt=Math.max(Math.abs(yv-y0),1);
+      const col=p.v<0?"var(--bad)":"var(--accent)";
+      g+=`<rect x="${x(i)-bw*.32}" y="${top}" width="${bw*.64}" height="${hgt}" rx="2" fill="${col}" opacity="${p.est?.35:p.now?.65:1}" ${p.est?`stroke="${col}" stroke-dasharray="3 2"`:""}><title>${p.l}: ${fmt(p.v)}</title></rect>`});
+  }else{
+    let path="",pen=false;
+    pts.forEach((p,i)=>{if(p.v==null){pen=false;return}path+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1);pen=true});
+    // tramo punteado que une los puntos a través de un año sin dato (p. ej. un año con pérdidas)
+    let prev=-1;pts.forEach((p,i)=>{if(p.v==null)return;if(prev>=0&&i-prev>1)g+=`<path d="M${x(prev).toFixed(1)} ${y(pts[prev].v).toFixed(1)}L${x(i).toFixed(1)} ${y(p.v).toFixed(1)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>`;prev=i});
+    pts.forEach((p,i)=>{if(p.v==null&&!p.now)g+=`<text x="${x(i)}" y="${H-B-6}" text-anchor="middle" style="fill:var(--muted);font-size:10px">s/d</text>`});
+    g+=`<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.25" stroke-linejoin="round"/>`;
+    pts.forEach((p,i)=>{if(p.v!=null)g+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="${p.now?4.5:3}" fill="${p.now?"var(--surface)":"var(--accent)"}" stroke="var(--accent)" stroke-width="2"><title>${p.l}: ${fmt(p.v)}</title></circle>`});
+  }
+  const last=[...pts].reverse().find(p=>p.v!=null);
+  if(last)g+=`<text x="${W-R}" y="${T-8}" text-anchor="end" style="fill:var(--fg);font-weight:600">${last.l}: ${fmt(last.v)}</text>`;
+  return `<div class="mini">${head}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">${g}</svg></div>`;
+}
+
+function drawPanels(t,m){
+  const d=docs[t];
+  const H0=fullHist(d)?{pts:d.hist}:hist[t];
+  if(!H0&&!mcp){$("chart").innerHTML=`<div class="empty">Los gráficos de 5 años todavía no están guardados y todavía no hay historial de esta empresa.</div>`;return}
+  if(!H0){loadHist(t);$("chart").innerHTML=`<div class="empty">Cargando historial…</div>`;return}
+  if(H0.loading){$("chart").innerHTML=`<div class="empty">Cargando historial…</div>`;return}
+  if(H0.err){$("chart").innerHTML=`<div class="empty">${H0.err}</div>`;return}
+  const P=H0.pts,fy=h=>"FY"+String(h.fy).slice(-2);
+  const series=(k,now)=>{const a=P.map(h=>({l:fy(h),v:h[k]??null}));if(now!==undefined)a.push({l:k==="rev"||k==="ni"?"12m":"Hoy",v:now??null,now:true});return a};
+  const mx=(v,ax)=>v==null?"—":num(v,ax?0:1)+"x";
+  const pc=(v,ax)=>v==null?"—":num(v*100,ax?1:2)+"%";
+  const mo=(v,ax)=>{if(v==null)return "—";const a=Math.abs(v),s=v<0?"−":"";return ax?(a>=1e9?s+num(a/1e9,0)+" mil M":s+num(a/1e6,0)+" M"):money(v)};
+  const eps=P.map(h=>({l:fy(h),v:h.eps??null}));
+  if(d.epsCur!=null)eps.push({l:"E"+String(d.fyCur||"").slice(-2),v:d.epsCur,est:true});
+  if(d.epsNext!=null)eps.push({l:"E"+String(d.fyNext||"").slice(-2),v:d.epsNext,est:true});
+  $("chart").innerHTML=`<p class="sub" style="margin:0 0 10px">Últimos 5 ejercicios fiscales y el valor actual. Pasá el dedo o el mouse sobre un punto para ver el número.</p>
+  <div class="minis">
+    ${mini("P/E",series("pe",m.pe),mx,{sub:"precio / ganancia"})}
+    ${mini("PEG",series("peg",m.peg),(v,ax)=>v==null?"—":num(v,ax?1:2),{sub:"P/E / crecimiento"})}
+    ${mini("Precio / Ventas",series("ps",m.ps),mx)}
+    ${mini("Dividend yield",series("dy",m.dy),pc)}
+    ${mini("Ingresos",series("rev",m.rev),mo,{bars:true,sub:"US$"})}
+    ${mini("Ganancia neta",series("ni",m.ni),mo,{bars:true,sub:"US$"})}
+    ${mini("Ganancia por acción",eps,(v,ax)=>v==null?"—":(ax?num(v,1):"US$ "+num(v,2)),{bars:true,sub:"real y estimada (E)"})}
+  </div>
+  <p class="hint" style="margin:10px 0 0">“s/d” = sin dato ese año: en P/E y PEG suele ser un año con pérdidas, donde el múltiplo no se puede calcular. El P/E estimado no tiene historial en las fuentes gratuitas: el último gráfico muestra en su lugar la ganancia por acción real de cada ejercicio y la que esperan los analistas (barras claras), que es la base de ese múltiplo.${d.histNote?" "+esc(d.histNote)+".":""}</p>`;
+}
+
+// P/E registrado en cada carga diaria: se va acumulando con el tiempo
+function drawSeries(d){
+  const s=(Array.isArray(d.series)?d.series:[]).filter(p=>p&&p.pe>0).sort((a,b)=>a.d<b.d?-1:1);
+  if(s.length<2){$("series").innerHTML=`<p class="hint" style="margin:0">Desde ahora, cada carga diaria guarda el P/E de esta empresa. Cuando haya al menos dos registros, acá vas a ver su evolución día a día${s.length?` (primer registro: ${fdate(s[0].d)})`:""}.</p>`;return}
+  const W=860,H=220,L=48,R=24,T=16,B=30;
+  const t0=Date.parse(s[0].d),t1=Date.parse(s[s.length-1].d)||t0+1;
+  let lo=Math.min(...s.map(p=>p.pe)),hi=Math.max(...s.map(p=>p.pe));const pad=Math.max((hi-lo)*.15,1);lo=Math.max(0,lo-pad);hi=hi+pad;
+  const x=v=>L+(W-L-R)*((Date.parse(v)-t0)/Math.max(t1-t0,1)),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  let g="";for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${num(v,1)}x</text>`}
+  g+=`<text x="${L}" y="${H-8}">${fdate(s[0].d)}</text><text x="${W-R}" y="${H-8}" text-anchor="end">${fdate(s[s.length-1].d)}</text>`;
+  g+=`<path d="${s.map((p,i)=>(i?"L":"M")+x(p.d).toFixed(1)+" "+y(p.pe).toFixed(1)).join("")}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+  const last=s[s.length-1];g+=`<circle cx="${x(last.d)}" cy="${y(last.pe)}" r="4" fill="var(--accent)"/>`;
+  $("series").innerHTML=`<p class="sub" style="margin:0 0 6px">P/E registrado en cada carga (${s.length} registros).</p><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="P/E diario registrado">${g}</svg>`;
+}
+
+function renderAll(){renderProgress();renderTable();if(selected)renderDetail()}
+
+// Eventos
+$("q").addEventListener("input",e=>{query=e.target.value;page=0;renderTable()});
+$("sector").addEventListener("change",e=>{sector=e.target.value;page=0;renderTable()});
+$("onlyok").addEventListener("change",e=>{onlyOk=e.target.checked;page=0;renderTable()});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;
+  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderTable()}));
+$("prev").addEventListener("click",()=>{page--;renderTable()});
+$("next").addEventListener("click",()=>{page++;renderTable()});
+$("table").addEventListener("click",e=>{
+  const th=e.target.closest("th[data-k]");if(th){const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="name"?1:(["dy","rev","ni","price"].includes(k)?-1:1)}renderTable();return}
+  const tr=e.target.closest("tr[data-t]");if(tr){selected=tr.dataset.t;if(hist[selected]&&hist[selected].retry)delete hist[selected];renderTable();renderDetail();
+    $("detail").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"})}
+});
+if($("live"))$("live").addEventListener("click",async e=>{
+  if(!mcp){$("banner").textContent="Los precios en vivo necesitan la conexión con FMP. Abrí la página en claude.ai con el conector activo.";$("banner").hidden=false;return}
+  const btn=e.currentTarget;btn.disabled=true;btn.textContent="Actualizando…";
+  const ts=rows().slice(page*PAGE,page*PAGE+PAGE).filter(r=>r.d&&r.d.status==="ok").map(r=>r.u.t);
+  let i=0,fail=0;
+  async function worker(){while(i<ts.length){const t=ts[i++];
+    try{const p=(await mcp.callTool(SERVER,"company",{endpoint:"profile-symbol",symbol:t},CACHE)).payload;const x=Array.isArray(p)&&p[0];
+      if(x&&x.price>0)live[t]={price:x.price,lastDiv:x.lastDividend,at:Date.now()}}catch(err){fail++;if(["needs_reauth","server_not_connected","not_in_manifest","approval_required"].includes(err&&err.code)){i=ts.length}}}}
+  await Promise.all([worker(),worker(),worker()]);
+  btn.disabled=false;btn.textContent="Precios en vivo de esta página";
+  if(fail){$("banner").textContent=`No se pudo actualizar el precio de ${fail} empresas. Se muestran con el precio de la última carga.`;$("banner").hidden=false}
+  renderAll();
+});
+$("copy").addEventListener("click",async e=>{
+  const n=v=>v==null||!isFinite(v)?"":String(Math.round(v*100)/100).replace(".",",");
+  const lines=[["Ticker","CEDEAR","Empresa","Sector","Precio US$","P/E","P/E est.","PEG","P/Ventas","Ingresos 12m US$","Ganancia 12m US$","Div. yield %"].join("\t")];
+  rows().forEach(({u,d,m})=>{if(!m)return;lines.push([u.t,u.b,d.name||"",sec(u.t,d),n(m.price),n(m.pe),n(m.fpe),n(m.peg),n(m.ps),m.rev!=null?Math.round(m.rev):"",m.ni!=null?Math.round(m.ni):"",m.dy!=null?n(m.dy*100):""].join("\t"))});
+  const btn=e.currentTarget;
+  try{await navigator.clipboard.writeText(lines.join("\n"));btn.textContent=`Copiadas ${lines.length-1} filas`}catch(_){btn.textContent="No se pudo copiar"}
+  setTimeout(()=>btn.textContent="Copiar tabla para Excel",2000);
+});
+
+// Arranque: lee los archivos que genera la tarea diaria de GitHub Actions
+(async()=>{
+  try{
+    const [u,d]=await Promise.all([fetch("data/universe.json").then(r=>r.json()),fetch("data/datos.json?"+Date.now()).then(r=>r.json())]);
+    universe=u.list;docs={__status:{perDay:0},...d.co};
+    const up=d.updated?new Date(d.updated).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+    renderSectors();renderAll();
+    if(up)$("plegend").insertAdjacentHTML("beforeend",`<span>Actualizado el ${up}</span>`);
+  }catch(err){
+    $("banner").textContent="No se pudieron leer los datos. Probá recargar la página en unos minutos.";$("banner").hidden=false;$("table").innerHTML=`<div class="empty">Sin datos.</div>`;
+  }
+})();
+</script>
+</body>
+</html>

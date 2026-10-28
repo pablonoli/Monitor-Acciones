@@ -4,6 +4,10 @@ import json, sys, time, math, datetime as dt
 import yfinance as yf
 
 UNI = json.load(open("data/universe.json"))["list"]
+try:
+    FALLBACK = json.load(open("data/fallback.json"))
+except Exception:
+    FALLBACK = {}
 LIMIT = int(sys.argv[1]) if len(sys.argv) > 1 else len(UNI)
 TODAY = dt.date.today().isoformat()
 _fx = {}
@@ -99,10 +103,22 @@ def one(u):
 def main():
     out, fails = {}, []
     for u in UNI[:LIMIT]:
-        try:
-            out[u["t"]] = one(u)
-        except Exception as e:
-            fails.append((u["t"], f"{type(e).__name__}: {e}"[:120]))
+        r = None
+        for intento in range(2):   # un reintento por si Yahoo falló de pasada
+            try:
+                r = one(u)
+                if r["status"] == "ok":
+                    break
+            except Exception as e:
+                r = None
+                err = f"{type(e).__name__}: {e}"[:120]
+            time.sleep(2)
+        if r is None:
+            fails.append((u["t"], err))
+        else:
+            if r["status"] != "ok" and u["t"] in FALLBACK:   # sin datos en Yahoo: se usa la última carga de StockAnalysis
+                r = dict(FALLBACK[u["t"]], histNote=(FALLBACK[u["t"]].get("histNote") or "") + " · dato de StockAnalysis (27/10/26), no se actualiza")
+            out[u["t"]] = r
         time.sleep(0.4)
     json.dump({"updated": dt.datetime.utcnow().isoformat() + "Z", "co": out}, open("data/datos.json", "w"), ensure_ascii=False)
     ok = [d for d in out.values() if d["status"] == "ok"]
