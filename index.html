@@ -7,147 +7,224 @@
 <title>Monitor P/E S&amp;P 500</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;700;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: barra de progreso de carga, filtros, tabla ordenable de todas las empresas, detalle de la empresa elegida */
+/* Diseño E2: menú lateral, resumen, tabla con barra de rango y panel de detalle. Paleta de la terminal oscura, con versión clara. */
 :root{
-  --bg:#f3f5f4; --surface:#ffffff; --fg:#17211f; --muted:#5d6b67; --line:#dbe2df;
-  --accent:#0f6b5c; --accent-soft:#e1efeb; --warn:#a4560c; --bad:#b3261e; --row:#f7faf9;
-  --display:"Schibsted Grotesk",ui-sans-serif,system-ui,sans-serif;
-  --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --bg:#f3f4f1; --side:#eceeea; --surface:#ffffff; --fg:#14201c; --muted:#5a6863; --line:#dce1dd; --line2:#c4cdc8;
+  --accent:#a85f00; --accent-soft:#fbebcc; --warn:#a85f00; --bad:#b4361b; --good:#0b7a55; --row:#f4f6f4; --sel:#fbf0da;
+  --good-bg:#dff2e8; --bad-bg:#fbe3da; --neutral-bg:#e8ece9; --track:#dce1dd; --bar-good:#7cc4a5; --bar-bad:#e9a592; --bar-mid:#b8c2bc;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#101614; --surface:#18201e; --fg:#e4ebe8; --muted:#94a39e; --line:#2a3532;
-  --accent:#4fc4ac; --accent-soft:#1d332e; --warn:#f0a35a; --bad:#ff8a80; --row:#1c2522;
+  --bg:#0a0e0d; --side:#0d1311; --surface:#111816; --fg:#e6ece9; --muted:#8fa09a; --line:#1e2926; --line2:#2c3a36;
+  --accent:#f5a524; --accent-soft:#2a2412; --warn:#f5a524; --bad:#ff9e85; --good:#6fd6a0; --row:#17211e; --sel:#1a2623;
+  --good-bg:#173326; --bad-bg:#4a2b22; --neutral-bg:#2a3330; --track:#26332f; --bar-good:#2f6b52; --bar-bad:#7a4435; --bar-mid:#3a4a44;
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#101614; --surface:#18201e; --fg:#e4ebe8; --muted:#94a39e; --line:#2a3532;
-  --accent:#4fc4ac; --accent-soft:#1d332e; --warn:#f0a35a; --bad:#ff8a80; --row:#1c2522;
+  --bg:#0a0e0d; --side:#0d1311; --surface:#111816; --fg:#e6ece9; --muted:#8fa09a; --line:#1e2926; --line2:#2c3a36;
+  --accent:#f5a524; --accent-soft:#2a2412; --warn:#f5a524; --bad:#ff9e85; --good:#6fd6a0; --row:#17211e; --sel:#1a2623;
+  --good-bg:#173326; --bad-bg:#4a2b22; --neutral-bg:#2a3330; --track:#26332f; --bar-good:#2f6b52; --bar-bad:#7a4435; --bar-mid:#3a4a44;
   color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
-.wrap{max-width:1240px;margin:0 auto;display:grid;gap:18px}
-header h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,36px);letter-spacing:-.02em;margin:0;text-wrap:balance}
-header p{margin:4px 0 0;color:var(--muted);max-width:72ch}
-.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.progress{display:grid;gap:8px}
-.ptrack{height:10px;border-radius:999px;background:var(--line);overflow:hidden;display:flex}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--body)}
+.app{display:flex;min-height:100vh}
+.side{flex:0 0 232px;background:var(--side);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto}
+.brand{font:600 17px var(--mono);color:var(--accent);letter-spacing:.04em;padding:0 10px 14px}
+.navg{display:flex;flex-direction:column;gap:4px}
+.navb{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;background:transparent;border-radius:6px;padding:9px 12px;min-height:40px;font:500 14px var(--body);color:var(--fg)}
+.navb:hover{background:var(--row);filter:none}
+.navb[aria-pressed="true"]{background:#f5a524;color:#0a0e0d;font-weight:600}
+.navb .n{font-family:var(--mono);font-size:12.5px;opacity:.75;font-weight:400}
+.sidehead{font:500 11px var(--mono);letter-spacing:.12em;color:var(--muted);padding:16px 12px 6px;cursor:pointer;list-style:none}
+.sidehead::-webkit-details-marker{display:none}
+.grow{flex:1}
+.progress{display:grid;gap:6px;padding:0 6px}
+.ptrack{height:4px;border-radius:999px;background:var(--line);overflow:hidden;display:flex}
 .ptrack i{display:block;height:100%}
-.plegend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--muted)}
-.plegend b{font-family:var(--mono);color:var(--fg)}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
-.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-input,select{font:500 14px var(--body);padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg)}
-#q{flex:1 1 240px;min-width:0}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
-.seg button{border:0;border-radius:0;padding:9px 12px;background:transparent}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
-button{font:600 14px var(--body);border-radius:8px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
-button:hover{filter:brightness(1.06)}
+.plegend{display:flex;flex-direction:column;gap:3px;font:12px/1.4 var(--mono);color:var(--muted)}
+.plegend b{color:var(--fg)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+#stamp{font:11.5px/1.5 var(--mono);color:var(--muted)}
+.main{flex:1 1 0;min-width:0;padding:22px 24px 40px;display:flex;flex-direction:column;gap:16px}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input,select{font:500 14px var(--body);padding:9px 12px;border:1px solid var(--line2);border-radius:6px;background:var(--surface);color:var(--fg)}
+#q{flex:1 1 220px;min-width:0;min-height:44px}
+button{font:600 14px var(--body);border-radius:6px;padding:9px 14px;cursor:pointer;border:1px solid var(--line2);background:transparent;color:var(--fg)}
+button:hover{filter:brightness(1.1)}
 button:disabled{opacity:.5;cursor:default}
-label.chk{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)}
+.topbar button{min-height:44px}
+.btn-primary{background:#f5a524;color:#0a0e0d;border-color:#f5a524}
+#theme{min-width:44px;font-size:16px;line-height:1;padding:9px 11px}
+label.chk{display:inline-flex;gap:6px;align-items:center;font-size:13.5px;color:var(--muted)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.hint{font-size:13px;color:var(--muted)}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
-.panel h2{font-family:var(--display);font-size:17px;font-weight:700;margin:0 0 2px}
-.panel .sub{font-size:13px;color:var(--muted);margin:0 0 12px}
-.tablewrap{overflow-x:auto;margin-inline:-18px;padding-inline:18px}
-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:1040px}
-th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none;vertical-align:bottom}
+.hint{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.banner{padding:12px 14px;border-radius:6px;border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 9%,var(--surface))}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+.kpi span{display:block;font:500 11px var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.kpi b{display:block;font:500 26px var(--mono);margin-top:2px}
+.kpi small{display:block;font-size:12px;color:var(--muted)}
+.kpi.g b{color:var(--good)}.kpi.r b{color:var(--bad)}
+.cols{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;min-width:0}
+.tablepanel{flex:999 1 560px;overflow:hidden}
+.tbar{padding:14px 16px 10px}
+.tbar h2{font:600 16px var(--body);margin:0}
+.tbar .sub{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.dpanel{flex:1 1 360px;min-width:300px;padding:18px 20px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:640px}
+table.wide{min-width:900px}
+th,td{padding:10px 6px;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
+th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none;vertical-align:bottom}
 th:hover{color:var(--fg)}
 th.sorted{color:var(--accent)}
-th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
-td{font-family:var(--mono);font-size:13.5px}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface);padding-left:14px}
+th.l,td.l{text-align:left}
+td{font:13px var(--mono)}
 tbody tr{cursor:pointer}
 tbody tr:hover td{background:var(--row)}
-tbody tr.sel td{background:var(--accent-soft)}
-td.name{font-family:var(--body);font-size:14px;max-width:280px;overflow:hidden;text-overflow:ellipsis}
-td.name b{font-family:var(--mono);margin-right:6px}
+tbody tr.sel td{background:var(--sel)}
+tbody tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+td.name{font:14px var(--body);max-width:190px;overflow:hidden;text-overflow:ellipsis}
+td.name b{font-family:var(--mono);font-weight:600;margin-right:6px}
 td.name span{color:var(--muted);font-size:12.5px}
 td.na{color:var(--muted)}
 td.x{color:var(--bad)}
+.pill{display:inline-block;padding:2px 8px;border-radius:4px;background:var(--neutral-bg)}
+.pill.lo{background:var(--good-bg);color:var(--good)}
+.pill.hi{background:var(--bad-bg);color:var(--bad)}
+.rbar{position:relative;display:inline-block;width:88px;height:6px;border-radius:3px;background:var(--track);vertical-align:middle}
+.rbar i{position:absolute;left:0;top:0;height:6px;border-radius:3px}
+.rbar u{position:absolute;top:-4px;width:3px;height:14px;margin-left:-2px;border-radius:2px;background:var(--fg)}
 button.star{border:0;background:transparent;padding:0 4px 0 0;margin:0 2px 0 -4px;font-size:17px;line-height:1;color:var(--muted);cursor:pointer;vertical-align:-1px;min-width:26px;min-height:26px}
 button.star.on{color:var(--warn)}
-tbody tr.dim td{opacity:.5}
+tbody tr.dim td{opacity:.45}
 tbody tr.dim:hover td,tbody tr.dim.sel td{opacity:1}
 .tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font:600 11px var(--body);vertical-align:1px}
 .tag.adr{background:var(--accent-soft);color:var(--accent)}
 .tag.q{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
 .tag.err{background:color-mix(in srgb,var(--bad) 13%,transparent);color:var(--bad)}
 .tag.cur{background:var(--line);color:var(--muted)}
-.foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:12px}
+.foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
 .pager{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.wrap>*{min-width:0}
-.seg{flex-wrap:wrap;max-width:100%}
-.panel{min-width:0;overflow:hidden}
-.empty,.hint{overflow-wrap:anywhere}
-@media (max-width:520px){.seg button{padding:8px 10px}.foot .pager button{flex:1 1 auto}}
-.banner{padding:12px 14px;border-radius:8px;border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 9%,var(--surface))}
+.empty{color:var(--muted);padding:24px 16px;text-align:center;overflow-wrap:anywhere}
+.dhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.dtick{font:600 22px var(--mono);color:var(--accent)}
+.dname{font-size:13px;color:var(--muted)}
+.dprice{font:18px var(--mono)}
+.dlabel{font:500 12px var(--mono);letter-spacing:.06em;color:var(--muted);margin-top:16px;text-transform:uppercase}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:16px}
+.stats div{background:var(--surface);padding:12px 14px;min-width:0}
+.stats span{display:block;font:500 11px var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.stats b{display:block;font:400 16px var(--mono);margin-top:2px;overflow-wrap:anywhere}
+.dsum{font-size:13px;color:var(--muted);margin:14px 0 0;line-height:1.5}
+#more{padding:18px 20px}
+#more h2{font:600 16px var(--body);margin:0 0 4px}
+.sub{font-size:13px;color:var(--muted)}
 .chart{overflow-x:auto}
 svg{display:block;width:100%;min-width:480px;height:auto}
+.bigpe svg{min-width:0}
 svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:8px 0 14px}
-.fact{display:grid;gap:2px}
-.fact span{font-size:12px;color:var(--muted)}
-.fact b{font:600 16px var(--mono)}
-.detailhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
-.notes{font-size:13px;color:var(--muted);max-width:85ch;display:grid;gap:4px}
-.notes b{color:var(--fg);font-weight:600}
-.empty{color:var(--muted);padding:24px 0;text-align:center}
 .minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
-.mini{border:1px solid var(--line);border-radius:10px;padding:10px 10px 4px;min-width:0}
+.mini{border:1px solid var(--line);border-radius:8px;padding:10px 10px 4px;min-width:0}
 .mini svg{min-width:0}
 .mhead{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13.5px}
 .mhead span{color:var(--muted);font-size:12px}
 .mempty{color:var(--muted);font-size:13px;padding:40px 0;text-align:center}
+.notes{font-size:13px;color:var(--muted);max-width:85ch;display:grid;gap:4px}
+.notes b{color:var(--fg);font-weight:600}
+.main>*{min-width:0}
+@media (max-width:960px){
+  .app{flex-direction:column}
+  .side{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line);align-self:stretch}
+  .navg,.navg.sectors{flex-direction:row;flex-wrap:wrap}
+  .navb{width:auto}
+  .dpanel{position:static;max-height:none;flex:1 1 100%}
+  .main{padding:16px 14px 32px}
+  .progress{display:none}
+  .kpi small{display:none}
+  .kpi{padding:10px 12px}
+  .kpi b{font-size:22px}
+  .topbar{gap:8px}
+  .topbar button{min-height:40px;padding:8px 12px;font-size:13px}
+  #q{flex-basis:100%}
+  .side{padding:14px 12px 10px}
+  .brand{padding-bottom:8px}
+  .navb{padding:8px 10px;min-height:36px}
+  .sidehead{padding-top:8px}
+}
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header style="position:relative"><button type="button" id="theme" aria-label="Cambiar entre tema claro y oscuro" title="Cambiar tema" style="position:absolute;top:0;right:0;padding:7px 11px;font-size:16px;line-height:1"></button>
-    <div class="eyebrow">CEDEARs y ADRs argentinos · múltiplos en dólares</div>
-    <h1>Monitor P/E S&amp;P 500</h1>
-    <p>Valuación de todas las empresas que se pueden comprar desde Argentina. Los datos se actualizan solos cada día hábil; tocá una fila para ver el detalle.</p>
-  </header>
+<div class="app">
 
-  <div id="banner" class="banner" hidden></div>
-
+<aside class="side">
+  <div class="brand">MONITOR P/E</div>
+  <div class="navg" role="group" aria-label="Tipo de empresa">
+    <button type="button" class="navb" data-kind="fav" aria-pressed="false"><span>★ Favoritas</span><span class="n" id="n-fav"></span></button>
+    <button type="button" class="navb" data-kind="all" aria-pressed="true"><span>Todas</span><span class="n" id="n-all"></span></button>
+    <button type="button" class="navb" data-kind="cedear" aria-pressed="false"><span>CEDEARs</span><span class="n" id="n-cedear"></span></button>
+    <button type="button" class="navb" data-kind="adr" aria-pressed="false"><span>ADRs argentinos</span><span class="n" id="n-adr"></span></button>
+  </div>
+  <details class="sectd" id="sectd" open>
+    <summary class="sidehead">SECTORES</summary>
+    <div class="navg sectors" id="sectors"></div>
+  </details>
+  <label class="chk" style="padding:12px 12px 0"><input type="checkbox" id="onlyok" checked> Solo con datos</label>
+  <div class="grow"></div>
   <section class="progress" aria-label="Avance de la carga">
     <div class="ptrack" id="ptrack"></div>
     <div class="plegend" id="plegend">Cargando base de datos…</div>
   </section>
+</aside>
 
-  <div class="filters">
+<main class="main">
+  <div class="topbar">
     <label for="q" hidden>Buscar</label>
     <input id="q" type="search" placeholder="Buscar por ticker o nombre" autocomplete="off">
-    <div class="seg" role="group" aria-label="Tipo">
-      <button type="button" data-kind="all" aria-pressed="true">Todas</button>
-      <button type="button" data-kind="cedear" aria-pressed="false">CEDEARs</button>
-      <button type="button" data-kind="adr" aria-pressed="false">ADRs argentinos</button>
-      <button type="button" data-kind="fav" aria-pressed="false">★ Favoritas</button>
-    </div>
-    <label for="sector" hidden>Sector</label>
-    <select id="sector"><option value="">Todos los sectores</option></select>
-    <label class="chk"><input type="checkbox" id="onlyok" checked> Solo con datos</label>
+    <button type="button" id="refresh" class="btn-primary">Actualizar precios ahora</button>
+    <button type="button" id="full">Carga completa</button>
+    <button type="button" id="syncfav">Sincronizar favoritas</button>
+    <button type="button" id="copy">Copiar tabla para Excel</button>
+    <button type="button" id="theme" aria-label="Cambiar entre tema claro y oscuro" title="Cambiar tema"></button>
+  </div>
+  <p id="stamp" class="hint" style="margin:-6px 0 0"></p>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <div class="kpis">
+    <div class="kpi"><span>P/E mediano</span><b id="k-med">—</b><small id="k-med-s"></small></div>
+    <div class="kpi g"><span>P/E menor a 15</span><b id="k-lo">—</b><small>relativamente baratas</small></div>
+    <div class="kpi r"><span>P/E mayor a 40</span><b id="k-hi">—</b><small>caras o de alto crecimiento</small></div>
+    <div class="kpi"><span>Favoritas</span><b id="k-fav">—</b><small id="k-fav-s"></small></div>
   </div>
 
-  <section class="panel">
-    <h2>Múltiplos y resultados</h2>
-    <p class="sub" id="tsub">Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses. Tocá la ☆ para marcar tus favoritas: quedan arriba y el resto se ve más tenue. Con el token cargado, se guardan en GitHub y las ves en todos tus dispositivos.</p>
-    <div class="tablewrap" id="table"><div class="empty">Cargando…</div></div>
-    <div class="foot">
-      <div class="pager"><button type="button" id="prev">Anterior</button><span class="hint" id="pinfo"></span><button type="button" id="next">Siguiente</button></div>
-      <div class="pager"><button type="button" id="refresh">Actualizar precios ahora</button><button type="button" id="full">Carga completa</button><button type="button" id="syncfav">Sincronizar favoritas</button><button type="button" id="copy">Copiar tabla para Excel</button></div>
-    </div>
-  </section>
+  <div class="cols">
+    <section class="panel tablepanel">
+      <div class="tbar">
+        <h2>Múltiplos y resultados</h2>
+        <p class="sub" id="tsub">Tocá un encabezado para ordenar y una fila para ver el detalle. La barra «Vs sus años» muestra dónde está el P/E de hoy entre el mínimo y el máximo de sus últimos ejercicios. Tocá la ☆ para marcar favoritas.</p>
+        <label class="chk"><input type="checkbox" id="morecols"> Mostrar ingresos y ganancia</label>
+      </div>
+      <div class="tablewrap" id="table"><div class="empty">Cargando…</div></div>
+      <div class="foot">
+        <div class="pager"><button type="button" id="prev">Anterior</button><span class="hint" id="pinfo"></span><button type="button" id="next">Siguiente</button></div>
+      </div>
+    </section>
 
-  <section class="panel" id="detail">
-    <div class="detailhead"><h2 id="dtitle">Detalle</h2><span class="hint" id="dsub"></span></div>
-    <div id="dbody"><div class="empty">Elegí una empresa de la tabla.</div></div>
+    <aside class="panel dpanel" id="detail" aria-label="Detalle de la empresa elegida">
+      <div id="dbody"><div class="empty">Elegí una empresa de la tabla.</div></div>
+    </aside>
+  </div>
+
+  <section class="panel" id="more" hidden>
+    <h2 id="mtitle">Todos los gráficos</h2>
+    <div id="chart"></div>
+    <div class="chart" id="series" style="margin-top:18px"></div>
   </section>
 
   <div class="notes">
@@ -155,6 +232,8 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
     <span>Todo en dólares de la empresa original; el ratio de conversión del CEDEAR no cambia los múltiplos. Las empresas que reportan en otra moneda (por ejemplo, en pesos) se convierten a dólares al tipo de cambio del día de carga. n/s = no significativo (ganancias negativas).</span>
     <span>Fuente: Yahoo Finance. Fundamentales una vez por día; precios cada 20 minutos con el mercado abierto.</span>
   </div>
+</main>
+
 </div>
 
 <script>
@@ -162,15 +241,25 @@ const SERVER="FMP";
 const PAGE=50;
 const CACHE={cache:{staleTime:6*3600e3,gcTime:24*3600e3}};
 const COLS=[
-  {k:"price",label:"Precio US$",f:v=>num(v,2)},
+  {k:"price",label:"Precio",f:v=>num(v,2)},
   {k:"pe",label:"P/E",f:v=>mult(v)},
+  {k:"rpos",label:"Vs sus años",bar:true},
   {k:"fpe",label:"P/E est.",f:v=>mult(v)},
   {k:"peg",label:"PEG",f:v=>v==null?"n/s":num(v,2)},
   {k:"ps",label:"P/Ventas",f:v=>mult(v)},
-  {k:"rev",label:"Ingresos 12m",f:v=>money(v)},
-  {k:"ni",label:"Ganancia 12m",f:v=>money(v)},
   {k:"dy",label:"Div. yield",f:v=>v==null?"—":num(v*100,2)+"%"},
+  {k:"rev",label:"Ingresos 12m",f:v=>money(v),opt:true},
+  {k:"ni",label:"Ganancia 12m",f:v=>money(v),opt:true},
 ];
+let showMore=false;try{showMore=localStorage.getItem("cols")==="1"}catch(_){}
+function cell(c,m){
+  if(!m)return `<td class="na${c.bar?" l":""}">—</td>`;
+  if(c.k==="pe"){const v=m.pe;return v==null?`<td class="na">n/s</td>`:`<td><span class="pill${v<15?" lo":v>40?" hi":""}">${num(v,1)}</span></td>`}
+  if(c.bar){if(m.rpos==null)return `<td class="na l">—</td>`;
+    const r=m.rpos,col=r>=.9?"var(--bar-bad)":r<=.2?"var(--bar-good)":"var(--bar-mid)";
+    return `<td class="l"><span class="rbar" title="Mínimo ${num(m.rlo,1)}x · máximo ${num(m.rhi,1)}x · mediana ${num(m.rmed,1)}x"><i style="width:${(r*100).toFixed(0)}%;background:${col}"></i><u style="left:${(r*100).toFixed(0)}%"></u></span></td>`}
+  const v=m[c.k];return `<td class="${v==null?"na":(c.k==="ni"&&v<0?"x":"")}">${c.f(v)}</td>`;
+}
 const SECN={"T": "Tecnología", "C": "Comunicaciones", "D": "Consumo discrecional", "B": "Consumo básico", "S": "Salud", "F": "Finanzas", "I": "Industriales", "E": "Energía", "M": "Materiales", "U": "Servicios públicos", "R": "Inmobiliario"};
 const SECT=Object.fromEntries("AAL:I AAP:D AAPL:T ABBV:S ABEV:B ABNB:D ABT:S ACN:T ADBE:T ADI:T ADP:I AEG:F AEM:M AGRO:B AI:T AIG:F AKO-B:B ALAB:T AMAT:T AMD:T AMGN:S AMX:C AMZN:D ANET:T ANF:D ARCO:D ARM:T ASML:T ASR:I ASTS:C AVGO:T AVY:M AXP:F AZN:S B:M BA:I BABA:D BAC:F BAK:M BB:T BBAR:F BBD:F BBVA:F BCS:F BG:B BHP:M BIB:S BIDU:C BIOX:M BK:F BKNG:D BKR:E BMA:F BMNR:F BMY:S BP:E BRK-B:F BSBR:F BX:F C:F CAAP:I CAH:S CAR:I CAT:I CCJ:E CCL:D CDE:M CEG:U CEPU:U CL:B CLS:T COIN:F COP:E COST:B CRESY:R CRM:T CRWD:T CRWV:T CSCO:T CVS:S CVX:E CX:M DAL:I DD:M DE:I DECK:D DELL:T DEO:B DESP:D DHR:S DIS:C DOCU:T DOW:M DTEGY:C E:E EA:C EBAY:D EBR:U ECL:M EDN:U EFX:I ELP:U EQNR:E ERIC:T ERJ:I ETSY:D F:D FCX:M FDX:I FISV:F FMCC:F FMX:B FNMA:F FSLR:T GE:I GEV:I GFI:M GGAL:F GGB:M GILD:S GLNG:E GLOB:T GLW:T GM:D GOOGL:C GPRK:E GRMN:D GS:F GSK:S GT:D HAL:E HD:D HDB:F HIMS:S HL:M HMC:D HMY:M HOG:D HON:I HOOD:F HPQ:T HSBC:F HSY:B HUT:F HWM:I IBKR:F IBM:T IBN:F IFF:M INFY:T ING:F INTC:T IP:M IREN:T IRS:R ISRG:S ITUB:F JCI:I JD:D JMIA:D JNJ:S JOYY:C JPM:F KB:F KEEL:T KEP:U KGC:M KLAC:T KMB:B KO:B KOF:B LAC:M LAR:M LIN:M LLY:S LMT:I LND:B LOMA:M LRCX:T LVS:D MA:F MCD:D MDLZ:B MDT:S MELI:D META:C MFG:F MMC:F MMM:I MO:B MOS:M MP:M MRK:S MRNA:S MRVL:T MS:F MSFT:T MSI:T MSTR:T MU:T MUFG:F MUX:M NBIS:T NEE:U NEM:M NFLX:C NG:M NGG:U NIO:D NKE:D NMR:F NOK:T NOW:T NSANY:D NTES:C NTRA:S NU:F NUE:M NVDA:T NVO:S NVS:S NXE:E O:R OKLO:U ONDS:T ORCL:T ORLY:D OXY:E PAAS:M PAC:I PAGS:F PAM:U PANW:T PATH:T PBI:I PBR:E PCAR:I PCRFY:D PDD:D PEP:B PFE:S PG:B PHG:S PINS:C PKX:M PLD:R PLTR:T PM:B PSO:C PSX:E PYPL:F QCOM:T RACE:D RBLX:C RGTI:T RIO:M RIOT:F RKLB:I ROKU:C ROST:D RTX:I SAN:F SAP:T SATL:I SBS:U SBUX:D SCCO:M SCHW:F SDA:D SE:D SHEL:E SHOP:T SHW:M SID:M SIEGY:I SKHY:T SLB:E SNA:I SNAP:C SNDK:T SNOW:T SONY:D SPGI:F SPOT:C STLA:D STNE:F SUPV:F SUZ:M SWKS:T SYY:B T:C TCOM:D TEAM:T TEF:C TEM:S TEO:C TGS:E TGT:B TIMB:C TJX:D TLN:U TM:D TMO:S TMUS:C TRIP:C TRVV:F TS:E TSLA:D TSM:T TTE:E TV:C TWLO:T TX:M TXN:T UAL:I UBER:I UGP:E UL:B UNH:S UNP:I UPST:F URBN:D USB:F V:F VIST:E VIV:C VOD:C VRSN:T VRTX:S VST:U VZ:C WDC:T WELL:R WFC:F WMT:B XOM:E XP:F XPEV:D XROX:T XYZ:F YELP:C YPF:E ZM:T BRFS:B CAJ:T HNPIY:U LFC:F ORAN:C TILAY:S TTM:D WBA:B YZCAY:E".split(" ").map(x=>{const i=x.lastIndexOf(":");return [x.slice(0,i),SECN[x.slice(i+1)]]}));
 const sec=(t,d)=>SECT[t]||(d&&d.sector)||"";
@@ -192,6 +281,7 @@ function money(v){if(v==null||!isFinite(v))return "—";const a=Math.abs(v),s=v<
 const fdate=s=>s?new Date(s).toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit",year:"2-digit"}):"—";
 const isAdr=u=>u.k==="ADR"||u.k==="ADR+CEDEAR";
 
+const median=a=>{const v=[...a].sort((x,y)=>x-y),n=v.length;return n%2?v[(n-1)/2]:(v[n/2-1]+v[n/2])/2};
 // Calcula los múltiplos a partir de lo guardado y, si existe, del precio en vivo
 function metrics(t){
   const d=docs[t];if(!d||d.status!=="ok")return null;
@@ -207,7 +297,11 @@ function metrics(t){
   const peg=pe&&g>0?pe/g:(d.peg>0?d.peg:null);
   const div=(L&&L.lastDiv!=null)?L.lastDiv:d.lastDiv;
   const dy=div>0&&price?div/price:(d.dy>0?d.dy:null);
-  return {price,mcap,rev,ni,pe,ps,fpe,peg,dy,g,liveAt:L&&L.at,fx};
+  // dónde está el P/E de hoy entre el mínimo y el máximo de sus ejercicios guardados (0 = mínimo, 1 = máximo)
+  let rpos=null,rlo=null,rhi=null,rmed=null,rn=0;
+  if(pe){const hv=(Array.isArray(d.hist)?d.hist:[]).map(h=>h.pe).filter(v=>typeof v==="number"&&v>0);
+    if(hv.length>=2){const v=[...hv,pe];rlo=Math.min(...v);rhi=Math.max(...v);rmed=median(v);rn=hv.length;rpos=rhi>rlo?(pe-rlo)/(rhi-rlo):null}}
+  return {price,mcap,rev,ni,pe,ps,fpe,peg,dy,g,rpos,rlo,rhi,rmed,rn,liveAt:L&&L.at,fx};
 }
 
 function rows(){
@@ -240,47 +334,96 @@ function renderProgress(){
 }
 
 function renderTable(){
+  renderNav();
   if(!universe){$("table").innerHTML=`<div class="empty">Cargando…</div>`;return}
   const all=rows(),pages=Math.max(1,Math.ceil(all.length/PAGE));if(page>=pages)page=pages-1;
   const slice=all.slice(page*PAGE,page*PAGE+PAGE);
   $("pinfo").textContent=all.length?`${page*PAGE+1}–${page*PAGE+slice.length} de ${all.length}`:"0 resultados";
   $("prev").disabled=page===0;$("next").disabled=page>=pages-1;
   if(!slice.length){$("table").innerHTML=`<div class="empty">${onlyOk?"Todavía no hay empresas cargadas con estos filtros. Destildá \"Solo con datos\" para ver las que están en cola.":"Sin resultados."}</div>`;return}
-  let h=`<table><thead><tr><th data-k="name" class="${sortKey==="name"?"sorted":""}">Empresa</th>${COLS.map(c=>`<th data-k="${c.k}" class="${sortKey===c.k?"sorted":""}">${c.label}${sortKey===c.k?(sortDir<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead><tbody>`;
+  const cols=COLS.filter(c=>!c.opt||showMore);
+  let h=`<table class="${showMore?"wide":""}"><thead><tr><th data-k="name" class="${sortKey==="name"?"sorted":""}">Empresa</th>${cols.map(c=>`<th data-k="${c.k}" class="${sortKey===c.k?"sorted":""}${c.bar?" l":""}">${c.label}${sortKey===c.k?(sortDir<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead><tbody>`;
   slice.forEach(({u,d,m})=>{
     const tags=(isAdr(u)?`<span class="tag adr">ADR</span>`:"")+(d&&d.cur&&d.cur!=="USD"?`<span class="tag cur">${esc(d.cur)}</span>`:"")+
       (!d?`<span class="tag q">En cola</span>`:d.status!=="ok"?`<span class="tag err">${esc(d.note||"Sin datos")}</span>`:"");
     const nm=d&&d.name?`<span>${esc(d.name)}</span>`:(u.b!==u.t?`<span>CEDEAR ${esc(u.b)}</span>`:"");
-    h+=`<tr data-t="${esc(u.t)}" class="${selected===u.t?"sel":""}${favs.size&&!favs.has(u.t)?" dim":""}"><td class="name" title="${esc(d&&d.name||u.t)}"><button type="button" class="star${favs.has(u.t)?" on":""}" data-star="${esc(u.t)}" aria-label="${favs.has(u.t)?"Quitar de favoritas":"Marcar como favorita"}">${favs.has(u.t)?"★":"☆"}</button><b>${esc(u.t)}</b>${nm}${tags}</td>${COLS.map(c=>{
-      if(!m)return `<td class="na">—</td>`;const v=m[c.k];
-      return `<td class="${v==null?"na":(c.k==="ni"&&v<0?"x":"")}">${c.f(v)}</td>`}).join("")}</tr>`;
+    h+=`<tr data-t="${esc(u.t)}" class="${selected===u.t?"sel":""}${favs.size&&!favs.has(u.t)?" dim":""}"><td class="name" title="${esc(d&&d.name||u.t)}"><button type="button" class="star${favs.has(u.t)?" on":""}" data-star="${esc(u.t)}" aria-label="${favs.has(u.t)?"Quitar de favoritas":"Marcar como favorita"}">${favs.has(u.t)?"★":"☆"}</button><b>${esc(u.t)}</b>${nm}${tags}</td>${cols.map(c=>cell(c,m)).join("")}</tr>`;
   });
   $("table").innerHTML=h+"</tbody></table>";
-  const liveN=slice.filter(r=>r.m&&r.m.liveAt).length;
-  $("tsub").textContent="Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses. Tocá la ☆ para marcar tus favoritas: quedan arriba y el resto se ve más tenue. Con el token cargado, se guardan en GitHub y las ves en todos tus dispositivos.";
 }
 
 function renderSectors(){
-  const s=new Set();Object.entries(docs).forEach(([t,d])=>{const x=sec(t,d);if(x)s.add(x)});
-  const cur=$("sector").value;
-  $("sector").innerHTML=`<option value="">Todos los sectores</option>`+[...s].sort().map(x=>`<option ${x===cur?"selected":""}>${esc(x)}</option>`).join("");
+  const c={};Object.entries(docs).forEach(([t,d])=>{if(!d||d.status!=="ok")return;const x=sec(t,d);if(x)c[x]=(c[x]||0)+1});
+  $("sectors").innerHTML=`<button type="button" class="navb" data-sector="" aria-pressed="${sector===""}"><span>Todos los sectores</span></button>`+
+    Object.keys(c).sort().map(x=>`<button type="button" class="navb" data-sector="${esc(x)}" aria-pressed="${x===sector}"><span>${esc(x)}</span><span class="n">${c[x]}</span></button>`).join("");
+}
+function renderNav(){
+  if(!universe)return;
+  const ok=u=>docs[u.t]&&docs[u.t].status==="ok";
+  $("n-all").textContent=universe.filter(ok).length;
+  $("n-cedear").textContent=universe.filter(u=>ok(u)&&u.k!=="ADR").length;
+  $("n-adr").textContent=universe.filter(u=>ok(u)&&isAdr(u)).length;
+  $("n-fav").textContent=favs.size;
+  $("k-fav").textContent=favs.size;
+  $("k-fav-s").textContent=universe.length?`de ${universe.length} · el resto se ve tenue`:"";
+}
+function renderKpis(){
+  if(!universe)return;
+  const pes=universe.map(u=>metrics(u.t)).filter(m=>m&&m.pe>0).map(m=>m.pe);
+  $("k-med").textContent=pes.length?num(median(pes),1)+"x":"—";
+  $("k-med-s").textContent=pes.length?`de ${pes.length} empresas con ganancias`:"";
+  $("k-lo").textContent=pes.filter(v=>v<15).length;
+  $("k-hi").textContent=pes.filter(v=>v>40).length;
 }
 
 function renderDetail(){
-  const t=selected;if(!t){$("dtitle").textContent="Detalle";$("dsub").textContent="";$("dbody").innerHTML=`<div class="empty">Elegí una empresa de la tabla.</div>`;return}
+  const more=$("more"),t=selected;
+  if(!t||!universe){$("dbody").innerHTML=`<div class="empty">Elegí una empresa de la tabla.</div>`;more.hidden=true;return}
   const u=universe.find(x=>x.t===t),d=docs[t],m=metrics(t);
-  $("dtitle").textContent=`${t}${d&&d.name?" · "+d.name:""}`;
-  $("dsub").textContent=[u&&(u.b!==u.t?"CEDEAR "+u.b:u.k==="ADR"?"ADR argentino":"CEDEAR"),sec(t,d)].filter(Boolean).join(" · ");
-  if(!d){$("dbody").innerHTML=`<div class="empty">Esta empresa todavía está en cola. Se carga en las próximas corridas diarias.</div>`;return}
-  if(d.status!=="ok"){$("dbody").innerHTML=`<div class="empty">${esc(d.note||"No hay datos disponibles para esta empresa en las fuentes gratuitas.")}</div>`;return}
-  const f=(l,v)=>`<div class="fact"><span>${l}</span><b>${v}</b></div>`;
-  let h=`<div class="facts">${f("Precio",m.price?"US$ "+num(m.price,2):"—")}${f("Capitalización",money(m.mcap))}${f("P/E",mult(m.pe))}${f("P/E est. "+(d.fyCur||""),mult(m.fpe))}${f("Crec. EPS esperado",m.g==null?"—":num(m.g,1)+"%")}${f("Div. yield",m.dy==null?"—":num(m.dy*100,2)+"%")}</div>
-  <p class="hint">Fundamentales cargados el ${fdate(d.fundAt)} desde ${d.src==="YF"?"Yahoo Finance":d.src==="SA"?"StockAnalysis":d.src==="FMP"?"Financial Modeling Prep":"Alpha Vantage"}${d.cur&&d.cur!=="USD"?`, convertidos de ${esc(d.cur)} a dólares`:""}. Precio ${m.liveAt?"en vivo":"del "+fdate(d.priceAt)}.</p>
-  <div id="chart"></div><div class="chart" id="series" style="margin-top:18px"></div>`;
-  $("dbody").innerHTML=h;
+  more.hidden=true;
+  if(!d){$("dbody").innerHTML=`<div class="dhead"><span class="dtick">${esc(t)}</span></div><div class="empty">Esta empresa todavía está en cola. Se carga en las próximas corridas diarias.</div>`;return}
+  if(d.status!=="ok"){$("dbody").innerHTML=`<div class="dhead"><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><div class="empty">${esc(d.note||"No hay datos disponibles para esta empresa en las fuentes gratuitas.")}</div>`;return}
+  const sub=[u&&(u.b!==u.t?"CEDEAR "+u.b:u.k==="ADR"?"ADR argentino":"CEDEAR"),sec(t,d)].filter(Boolean).join(" · ");
+  const st=(l,v)=>`<div><span>${l}</span><b>${v}</b></div>`;
+  let sum="El P/E no se puede calcular o todavía no hay historial suficiente para compararlo con sus años anteriores.";
+  if(m.rpos!=null){
+    const dv=(m.pe/m.rmed-1)*100,rel=`${num(Math.abs(dv),0)}% ${dv>=0?"por encima":"por debajo"} de su mediana`;
+    sum=m.rpos>=.98?`Hoy cotiza en el máximo de su P/E de los últimos ${m.rn} ejercicios, ${rel}.`
+      :m.rpos<=.02?`Hoy cotiza en el mínimo de su P/E de los últimos ${m.rn} ejercicios, ${rel}.`
+      :`Hoy cotiza a ${num(m.pe,1)}x, entre su mínimo (${num(m.rlo,1)}x) y su máximo (${num(m.rhi,1)}x) de los últimos ${m.rn} ejercicios: ${rel} (${num(m.rmed,1)}x).`}
+  $("dbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${m.price?num(m.price,2):"—"}</span></div>
+  <div class="hint">${esc(sub)}</div>
+  <div class="dlabel">P/E · últimos ejercicios</div>
+  <div class="bigpe">${bigPE(d,m)}</div>
+  <div class="stats">${st("Ingresos 12m",money(m.rev))}${st("Ganancia neta",money(m.ni))}${st("Cap. bursátil",money(m.mcap))}${st("Dividendo",m.dy==null?"—":num(m.dy*100,2)+"%")}${st("P/E est. "+esc(d.fyCur||""),mult(m.fpe))}${st("Crec. EPS esperado",m.g==null?"—":num(m.g,1)+"%")}</div>
+  <p class="dsum">${sum}</p>
+  <p class="hint" style="margin:10px 0 0">Fundamentales cargados el ${fdate(d.fundAt)} desde ${d.src==="YF"?"Yahoo Finance":d.src==="SA"?"StockAnalysis":d.src==="FMP"?"Financial Modeling Prep":"Alpha Vantage"}${d.cur&&d.cur!=="USD"?`, convertidos de ${esc(d.cur)} a dólares`:""}. Precio ${m.liveAt?"en vivo":"del "+fdate(d.priceAt)}.</p>`;
+  more.hidden=false;$("mtitle").textContent=`Todos los gráficos · ${t}`;
   drawSeries(d);
-  if(!fullHist(d)&&d.src!=="FMP"){$("chart").innerHTML=`<div class="empty">Los gráficos de 5 años de esta empresa se guardan automáticamente cuando termine la carga inicial del universo.</div>`;return}
+  if(!fullHist(d)&&d.src!=="FMP"){$("chart").innerHTML=`<div class="empty">Los gráficos de 5 años de esta empresa se guardan automáticamente con la carga diaria.</div>`;return}
   drawPanels(t,m);
+}
+
+// Gráfico grande del P/E del panel: línea por ejercicio + hoy, con la mediana punteada
+function bigPE(d,m){
+  const P=(fullHist(d)||[]).map(h=>({l:"FY"+String(h.fy).slice(-2),v:pos(h.pe)}));
+  P.push({l:"Hoy",v:m.pe,now:true});
+  const vals=P.map(p=>p.v).filter(v=>v!=null);
+  if(vals.length<2)return `<div class="empty">Sin historial de P/E suficiente.</div>`;
+  const W=380,H=170,L=34,R=16,T=14,B=26;
+  let lo=Math.min(...vals),hi=Math.max(...vals);const pad=Math.max((hi-lo)*.18,1);lo=Math.max(0,lo-pad);hi+=pad;
+  const n=P.length,x=i=>L+(W-L-R)*(n===1?0:i/(n-1)),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  const col=m.rpos==null?"var(--fg)":m.rpos>=.9?"var(--bad)":m.rpos<=.2?"var(--good)":"var(--fg)";
+  let g="";
+  for(let k=0;k<=2;k++){const v=lo+(hi-lo)*k/2;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${num(v,0)}</text>`}
+  const med=median(vals);
+  g+=`<line x1="${L}" x2="${W-R}" y1="${y(med)}" y2="${y(med)}" stroke="var(--accent)" stroke-dasharray="4 4"/><text x="${L+4}" y="${y(med)-5}" style="fill:var(--accent)">mediana ${num(med,1)}</text>`;
+  let prev=-1;P.forEach((p,i)=>{if(p.v==null)return;if(prev>=0&&i-prev>1)g+=`<path d="M${x(prev).toFixed(1)} ${y(P[prev].v).toFixed(1)}L${x(i).toFixed(1)} ${y(p.v).toFixed(1)}" fill="none" stroke="var(--muted)" stroke-dasharray="4 4"/>`;prev=i});
+  let path="",pen=false;P.forEach((p,i)=>{if(p.v==null){pen=false;return}path+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1);pen=true});
+  g+=`<path d="${path}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round"/>`;
+  P.forEach((p,i)=>{g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" style="${p.now?"fill:var(--fg);font-weight:600":""}">${p.l}</text>`;
+    if(p.v!=null)g+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="${p.now?4.5:3}" fill="${col}"><title>${p.l}: ${num(p.v,1)}x</title></circle>`});
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="P/E por ejercicio y hoy, con su mediana">${g}</svg>`;
 }
 
 // un historial guardado está completo si tiene los campos de todos los gráficos
@@ -388,21 +531,23 @@ function drawSeries(d){
   $("series").innerHTML=`<p class="sub" style="margin:0 0 6px">P/E registrado en cada carga (${s.length} registros).</p><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="P/E diario registrado">${g}</svg>`;
 }
 
-function renderAll(){renderProgress();renderTable();if(selected)renderDetail()}
+function renderAll(){renderProgress();renderKpis();renderNav();renderTable();if(selected)renderDetail()}
 
 // Eventos
 $("q").addEventListener("input",e=>{query=e.target.value;page=0;syncFavs();renderTable()});
-$("sector").addEventListener("change",e=>{sector=e.target.value;page=0;syncFavs();renderTable()});
+$("sectors").addEventListener("click",e=>{const b=e.target.closest("[data-sector]");if(!b)return;sector=b.dataset.sector;page=0;syncFavs();renderSectors();renderTable()});
 $("onlyok").addEventListener("change",e=>{onlyOk=e.target.checked;page=0;syncFavs();renderTable()});
-document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;syncFavs();
-  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderTable()}));
+document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;syncFavs();
+  document.querySelectorAll("[data-kind]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderTable()}));
+$("morecols").checked=showMore;
+$("morecols").addEventListener("change",e=>{showMore=e.target.checked;try{localStorage.setItem("cols",showMore?"1":"0")}catch(_){}renderTable()});
 $("prev").addEventListener("click",()=>{page--;renderTable()});
 $("next").addEventListener("click",()=>{page++;renderTable()});
 $("table").addEventListener("click",e=>{
   const st=e.target.closest("[data-star]");if(st){toggleFav(st.dataset.star);return}
   const th=e.target.closest("th[data-k]");if(th){const k=th.dataset.k;syncFavs();if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="name"?1:(["dy","rev","ni","price"].includes(k)?-1:1)}renderTable();return}
   const tr=e.target.closest("tr[data-t]");if(tr){selected=tr.dataset.t;if(hist[selected]&&hist[selected].retry)delete hist[selected];renderTable();renderDetail();
-    $("detail").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"})}
+    if(matchMedia("(max-width:960px)").matches)$("detail").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
 });
 if($("live"))$("live").addEventListener("click",async e=>{
   if(!mcp){$("banner").textContent="Los precios en vivo necesitan la conexión con FMP. Abrí la página en claude.ai con el conector activo.";$("banner").hidden=false;return}
@@ -549,6 +694,8 @@ async function loadPrices(){
     const [u,d]=await Promise.all([fetch("data/universe.json").then(r=>r.json()),fetch("data/datos.json?"+Date.now()).then(r=>r.json())]);
     universe=u.list;docs={__status:{perDay:0},...d.co};datosAt=d.updated;
     renderSectors();renderAll();
+    if(matchMedia("(max-width:960px)").matches)$("sectd").open=false;
+    const first=rows()[0];if(first){selected=first.u.t;renderTable();renderDetail()}
     stamp();adoptRemoteFavs();
     loadPrices();setInterval(loadPrices,5*60*1000);
   }catch(err){
