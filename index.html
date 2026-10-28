@@ -136,7 +136,7 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 
   <section class="panel">
     <h2>Múltiplos y resultados</h2>
-    <p class="sub" id="tsub">Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses. Tocá la ☆ para marcar tus favoritas: quedan arriba y el resto se ve más tenue (se guardan en este dispositivo).</p>
+    <p class="sub" id="tsub">Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses. Tocá la ☆ para marcar tus favoritas: quedan arriba y el resto se ve más tenue. Con el token cargado, se guardan en GitHub y las ves en todos tus dispositivos.</p>
     <div class="tablewrap" id="table"><div class="empty">Cargando…</div></div>
     <div class="foot">
       <div class="pager"><button type="button" id="prev">Anterior</button><span class="hint" id="pinfo"></span><button type="button" id="next">Siguiente</button></div>
@@ -256,7 +256,7 @@ function renderTable(){
   });
   $("table").innerHTML=h+"</tbody></table>";
   const liveN=slice.filter(r=>r.m&&r.m.liveAt).length;
-  $("tsub").textContent="Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses. Tocá la ☆ para marcar tus favoritas: quedan arriba y el resto se ve más tenue (se guardan en este dispositivo).";
+  $("tsub").textContent="Tocá un encabezado para ordenar. Ingresos y ganancias son de los últimos 12 meses. Tocá la ☆ para marcar tus favoritas: quedan arriba y el resto se ve más tenue. Con el token cargado, se guardan en GitHub y las ves en todos tus dispositivos.";
 }
 
 function renderSectors(){
