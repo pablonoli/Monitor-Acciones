@@ -147,7 +147,7 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
   <div class="notes">
     <span><b>P/E</b>: capitalización ÷ ganancia neta de 12 meses. <b>P/E est.</b>: precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso. <b>PEG</b>: P/E ÷ crecimiento esperado de la ganancia por acción entre este ejercicio y el próximo (en %); cerca de 1 suele leerse como precio razonable para su crecimiento. <b>P/Ventas</b>: capitalización ÷ ingresos de 12 meses. <b>Div. yield</b>: dividendo anual ÷ precio.</span>
     <span>Todo en dólares de la empresa original; el ratio de conversión del CEDEAR no cambia los múltiplos. Las empresas que reportan en otra moneda (por ejemplo, en pesos) se convierten a dólares al tipo de cambio del día de carga. n/s = no significativo (ganancias negativas).</span>
-    <span>Fuente: Yahoo Finance. Precios y fundamentales de la última actualización diaria.</span>
+    <span>Fuente: Yahoo Finance. Fundamentales una vez por día; precios cada 20 minutos con el mercado abierto.</span>
   </div>
 </div>
 
@@ -411,14 +411,42 @@ $("copy").addEventListener("click",async e=>{
   setTimeout(()=>btn.textContent="Copiar tabla para Excel",2000);
 });
 
-// Arranque: lee los archivos que genera la tarea diaria de GitHub Actions
+// Arranque: lee los archivos que genera GitHub Actions (datos completos una vez por día, precios cada 20 minutos con el mercado abierto)
+let datosAt=null,pricesAt=null;
+function stamp(){
+  let el=document.getElementById("stamp");
+  if(!el){el=document.createElement("p");el.id="stamp";el.className="hint";el.style.margin="6px 0 0";$("plegend").insertAdjacentElement("afterend",el)}
+  el.textContent=(datosAt?"Datos completos del "+hhmm(datosAt):"")+(pricesAt?" · Precios de las "+hhmm(pricesAt):"");
+}
+const hhmm=iso=>new Date(iso).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+function applyPrices(pr){
+  // el precio nuevo reemplaza al de la última carga y la capitalización se reescala con él: P/E, P/Ventas y yield se recalculan solos
+  if(!pr||!pr.p||!datosAt||pr.updated<=datosAt)return false;
+  let n=0;
+  for(const [t,p] of Object.entries(pr.p)){
+    const d=docs[t];if(!d||d.status!=="ok"||!(p>0))continue;
+    if(d._p0==null){d._p0=d.price;d._m0=d.mcap}
+    const r=p/d._p0;if(!(r>0.5&&r<2))continue;     // descarta saltos raros
+    d.price=p;d.mcap=d._m0*r;d.priceAt=pr.updated;n++;
+  }
+  return n>0;
+}
+async function loadPrices(){
+  try{
+    const pr=await fetch("data/precios.json?"+Date.now()).then(r=>r.json());
+    if(applyPrices(pr)){
+      renderAll();
+      pricesAt=pr.updated;stamp();
+    }
+  }catch(_){}
+}
 (async()=>{
   try{
     const [u,d]=await Promise.all([fetch("data/universe.json").then(r=>r.json()),fetch("data/datos.json?"+Date.now()).then(r=>r.json())]);
-    universe=u.list;docs={__status:{perDay:0},...d.co};
-    const up=d.updated?new Date(d.updated).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+    universe=u.list;docs={__status:{perDay:0},...d.co};datosAt=d.updated;
     renderSectors();renderAll();
-    if(up)$("plegend").insertAdjacentHTML("beforeend",`<span>Actualizado el ${up}</span>`);
+    stamp();
+    loadPrices();setInterval(loadPrices,5*60*1000);
   }catch(err){
     $("banner").textContent="No se pudieron leer los datos. Probá recargar la página en unos minutos.";$("banner").hidden=false;$("table").innerHTML=`<div class="empty">Sin datos.</div>`;
   }

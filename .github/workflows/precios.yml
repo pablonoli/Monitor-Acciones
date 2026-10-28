@@ -1,0 +1,28 @@
+name: Actualizar precios
+on:
+  schedule:
+    - cron: "*/20 13-20 * * 1-5"   # cada 20 minutos con el mercado de EE.UU. abierto (UTC)
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: datos
+  cancel-in-progress: false
+jobs:
+  precios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install yfinance
+      - run: python scripts/precios.py
+      - name: Guardar resultado
+        run: |
+          git config user.name "datos-bot"
+          git config user.email "datos-bot@users.noreply.github.com"
+          git add data/precios.json
+          git commit -m "Precios $(date -u +%F\ %H:%M)" || echo "sin cambios"
+          git pull --rebase origin main || true
+          git push
