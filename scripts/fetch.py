@@ -46,6 +46,63 @@ def row(df, *names):
 # ticker de Yahoo distinto del de la lista (la lista a veces trae el código del CEDEAR o el ticker viejo)
 ALT = {"BK": "BNY", "MMC": "MRSH", "ELP": "ELPC", "XROX": "XRX", "TRVV": "TRV"}
 
+FREQ = {12: "Mensual", 4: "Trimestral", 2: "Semestral", 1: "Anual"}
+
+def divblock(tk, info, price):
+    """Resumen de dividendos: tasa, payout, último pago, fechas, frecuencia, crecimiento y dividendo anual por año."""
+    rate = num(info.get("dividendRate"))
+    try:
+        s = tk.dividends
+    except Exception:
+        s = None
+    if (s is None or not len(s)) and not rate:
+        return None
+    out = {"rate": rate, "yld": rate / price if rate and price else None, "payout": num(info.get("payoutRatio"))}
+    if s is not None and len(s):
+        if getattr(s.index, "tz", None) is not None:
+            s = s.copy()
+            s.index = s.index.tz_localize(None)
+        out["last"] = num(s.iloc[-1])
+        out["lastEx"] = s.index[-1].date().isoformat()
+        hoy = dt.date.today()
+        ann = {}
+        for d_, v in s.items():
+            ann[d_.year] = ann.get(d_.year, 0) + float(v)
+        full = sorted((y, v) for y, v in ann.items() if y < hoy.year)
+        out["ann"] = [[y, round(v, 4)] for y, v in full[-8:]]
+        cut = dt.datetime.now() - dt.timedelta(days=365)
+        recent = s[s.index > cut]
+        n = len(recent)
+        out["ttm"] = round(float(recent.sum()), 4) if n else 0
+        out["freq"] = FREQ.get(n) or (f"{n} pagos por año" if n else None)
+        if len(full) >= 6 and full[-1][1] > 0 and full[-6][1] > 0:
+            out["g5"] = (full[-1][1] / full[-6][1]) ** (1 / 5) - 1
+        yrs = 0
+        for i in range(len(full) - 1, 0, -1):
+            if full[i][1] > full[i - 1][1] * 1.0001:
+                yrs += 1
+            else:
+                break
+        out["yrs"] = yrs
+    try:
+        ex = num(info.get("exDividendDate"))
+        if ex:
+            out["exInfo"] = dt.datetime.utcfromtimestamp(ex).date().isoformat()
+    except Exception:
+        pass
+    if rate:
+        try:
+            cal = tk.calendar or {}
+            pay = cal.get("Dividend Date")
+            if pay:
+                out["pay"] = pay.isoformat() if hasattr(pay, "isoformat") else str(pay)
+            exn = cal.get("Ex-Dividend Date")
+            if exn:
+                out["exNext"] = exn.isoformat() if hasattr(exn, "isoformat") else str(exn)
+        except Exception:
+            pass
+    return out
+
 def one(u):
     t = u["t"]
     tk = yf.Ticker(ALT.get(t, t))
@@ -108,6 +165,12 @@ def one(u):
                          "rev": rv / f if rv is not None else None, "ni": nv / f if nv is not None else None})
     except Exception as e:
         doc["histNote"] = f"Sin historial: {type(e).__name__}"
+    try:
+        dv = divblock(tk, info, price)
+        if dv:
+            doc["div"] = dv
+    except Exception as e:
+        doc["divNote"] = f"Sin dividendos: {type(e).__name__}"
     if hist:
         doc["hist"] = hist[-5:]
         doc["histAt"] = doc["fundAt"]
