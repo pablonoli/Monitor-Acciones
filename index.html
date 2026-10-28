@@ -164,18 +164,30 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 .navb.sub[aria-pressed="true"]{color:var(--fg)}
 .scbtn{margin-top:10px;padding:7px 12px;font-size:13px}
 .stable{border-top:1px solid var(--line2)}
-.srow{display:grid;grid-template-columns:minmax(0,1fr) 170px 64px 84px;gap:10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:13.5px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) 190px 96px;gap:14px;align-items:center;padding:11px 8px;border-bottom:1px solid var(--line);font-size:14px}
 .srow .r{text-align:right;font-family:var(--mono)}
-.srow.sh{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:10px}
-.srow.sg{background:var(--row);font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.srow i{font-style:normal;color:var(--muted);font-size:12px;margin-left:4px;font-family:var(--body)}
+.srow.sh{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:6px}
+.srow.sg{background:var(--row);font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:8px}
 .srow.it{cursor:pointer}.srow.it:hover{background:var(--row)}
-.srow small{display:block;font:12px var(--mono);color:var(--muted)}
-.srow .sb{display:flex;align-items:center;gap:8px}.srow .sb .gbar{flex:1}.srow .sb b{font:500 13px var(--mono);width:30px;text-align:right}
+.sn b{font-weight:600;display:block}.sn b u{text-decoration:none;display:inline-block;width:14px;color:var(--muted);font-size:11px;transition:transform .15s}
+.srow.it[aria-expanded="true"] .sn b u{transform:rotate(90deg)}
+.sn .sv{display:block;font:13px var(--mono);margin:2px 0 0 14px}
+.sn .sd{display:block;font-size:12.5px;color:var(--muted);margin:2px 0 0 14px}
+.df{font-weight:600}.df.ok{color:var(--good)}.df.mal{color:var(--bad)}
+.srow .sb{display:flex;align-items:center;gap:10px}.srow .sb .gbar{flex:1;height:8px}.srow .sb .gbar i{height:8px;margin:0}.srow .sb b{font:600 15px var(--mono);width:34px;text-align:right}
 .srow .sb em{color:var(--muted);font-size:12px}
-.srow.sx{display:block;background:var(--row);color:var(--fg);font-size:13px;line-height:1.5;padding:10px 12px}
+.srow .sp{font:600 15px var(--mono)}
+.srow.sx{display:block;background:var(--row);color:var(--fg);font-size:13px;line-height:1.55;padding:10px 12px 10px 30px}
+.srow.sx em{color:var(--muted);font-style:normal}
 .srow.sx[hidden]{display:none}
-.srow.stot{border-top:2px solid var(--fg);font-weight:600;font-size:15px}
-@media (max-width:640px){.srow{grid-template-columns:minmax(0,1fr) 110px 60px}.srow .sw{display:none}}
+.sum{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;padding:6px 0 2px}
+.sbig{font:600 56px/1 var(--mono);letter-spacing:-.03em}.sbig small{display:block;font:400 13px var(--body);color:var(--muted);letter-spacing:0;margin-top:4px}
+.sgs{display:grid;gap:6px}.sgr{display:grid;grid-template-columns:100px 1fr 34px;gap:10px;align-items:center;font-size:13px}.sgr .gbar{height:8px}.sgr .gbar i{height:8px}.sgr b{font:500 13px var(--mono);text-align:right}
+.lnk{border:0;background:none;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
+.stotbar{position:sticky;bottom:-16px;display:flex;justify-content:space-between;align-items:baseline;background:var(--surface);border-top:2px solid var(--fg);padding:12px 8px;margin-top:0;font-size:15px;font-weight:600}
+.stotbar b{font:600 20px var(--mono)}
+@media (max-width:640px){.srow{grid-template-columns:minmax(0,1fr) 120px 70px;gap:8px;padding:10px 4px}.sum{grid-template-columns:1fr}.srow .sb b{width:28px}}
 .cmp{margin:8px 0 0;font-size:12.5px;color:var(--muted)}
 .cmp b{color:var(--fg);font-weight:600}
 .schead{display:flex;align-items:center;gap:12px}
@@ -525,24 +537,30 @@ function explainItem(i,s){
 }
 function openScore(t){
   const s=SC[t];if(!s||s.score==null)return;
-  const col=v=>v>=.7?"var(--bar-good)":v<=.35?"var(--bar-bad)":"var(--bar-mid)";
-  const k=s.k||1;let tot=0;let rows="";
+  const cl=v=>v>=.7?"var(--good)":v<=.35?"var(--bad)":"var(--warn)";
+  const k=s.k||1;let tot=0,rows="";
   const grp={};s.items.forEach(i=>(grp[i.g]=grp[i.g]||[]).push(i));
+  const diffTxt=i=>{const x=i.x;if(!x||x.med==null)return "";
+    if(x.k==="pe"||x.k==="ps"){const d=(x.own/x.med-1)*100,ok=d<=0;return `<span class="df ${ok?"ok":"mal"}">${ok?"▼":"▲"} ${num(Math.abs(d),0)}% ${ok?"más barata":"más cara"}</span> que la mediana de sus pares (${num(x.med,1)}x)`}
+    if(x.k==="mg"){const d=(x.own-x.med)*100,ok=d>=0;return `<span class="df ${ok?"ok":"mal"}">${ok?"▲":"▼"} ${num(Math.abs(d),1)} pts ${ok?"más":"menos"}</span> que la mediana de sus pares (${num(x.med*100,1)}%)`}
+    return ""};
   Object.entries(grp).forEach(([g,it])=>{
     const gp=it.reduce((a,i)=>a+(i.s==null?0:i.w*i.s*k),0),gm=it.reduce((a,i)=>a+(i.s==null?0:i.w*k),0);tot+=gp;
-    rows+=`<div class="srow sg"><span>${g}</span><span></span><span class="sw"></span><span class="r">${num(gp,1)} / ${num(gm,0)}</span></div>`;
+    rows+=`<div class="srow sg"><span>${g}</span><span></span><span class="r">${num(gp,1)} <i>de ${num(gm,0)}</i></span></div>`;
     it.forEach(i=>{
-      const pts=i.s==null?0:i.w*i.s*k,ex=i.x&&i.x.med!=null&&(i.x.k==="pe"||i.x.k==="ps")?`<small>pares: ${num(i.x.med,1)}x · ${(i.x.own/i.x.med-1)>=0?"+":"−"}${num(Math.abs(i.x.own/i.x.med-1)*100,0)}%</small>`:
-        i.x&&i.x.med!=null&&i.x.k==="mg"?`<small>pares: ${num(i.x.med*100,1)}% · ${i.x.own>=i.x.med?"+":"−"}${num(Math.abs(i.x.own-i.x.med)*100,1)} pts</small>`:"";
-      rows+=`<div class="srow it" data-open tabindex="0" role="button" aria-expanded="false"><span class="sn">${esc(i.label)}<small>${esc(i.txt)}</small>${ex}</span>
-        <span class="sb">${i.s==null?`<em>sin dato</em>`:`<span class="gbar"><i style="width:${Math.round(i.s*100)}%;background:${col(i.s)}"></i></span><b>${Math.round(i.s*100)}</b>`}</span>
-        <span class="r sw">${i.s==null?"—":num(i.w*k,i.w*k%1?1:0)+"%"}</span><span class="r sp">${num(pts,1)}</span></div>
-        <div class="srow sx" hidden><span>${esc(explainItem(i,s))}</span></div>`})});
-  $("ztitle").textContent=`Cómo se calcula el puntaje · ${t}`;
-  $("zbody").innerHTML=`<p class="hint" style="margin:0 0 10px">Cada dato recibe una nota de 0 a 100 y se multiplica por su peso. La suma de los puntos es el puntaje. Tocá una fila para ver la explicación.</p>
-  <div class="stable"><div class="srow sh"><span>Dato</span><span>Nota (0–100)</span><span class="r sw">Peso</span><span class="r">Puntos</span></div>${rows}
-  <div class="srow stot"><span>Total</span><span></span><span class="sw"></span><span class="r">${num(tot,1)} → ${s.score}${s.capped?" (tope 45)":""}</span></div></div>
-  <p class="hint" style="margin:10px 0 0">Comparada con ${s.peer.kind==="mercado"?"todo el mercado":`su ${s.peer.kind}: ${esc(s.peer.name)}`} (${s.peer.n} empresas de tu lista). Los datos que faltan no suman ni restan: el resto se reparte hasta llegar a 100. Es una guía para comparar, no una recomendación de inversión.</p>`;
+      const pts=i.s==null?0:i.w*i.s*k,mx=i.s==null?0:i.w*k,nota=i.s==null?null:Math.round(i.s*100),dt=diffTxt(i);
+      rows+=`<div class="srow it" data-open tabindex="0" role="button" aria-expanded="false"><span class="sn"><b><u>▸</u>${esc(i.label)}</b><span class="sv">${esc(i.txt)}</span>${dt?`<span class="sd">${dt}</span>`:""}</span>
+        <span class="sb">${nota==null?`<em>sin dato</em>`:`<span class="gbar"><i style="width:${nota}%;background:${cl(i.s)}"></i></span><b style="color:${cl(i.s)}">${nota}</b>`}</span>
+        <span class="r sp">${num(pts,1)}<i>de ${num(mx,mx%1?1:0)}</i></span></div>
+        <div class="srow sx" hidden><span>${esc(explainItem(i,s))} <em>Pesa ${num(i.w*k,(i.w*k)%1?1:0)}% del total.</em></span></div>`})});
+  const grps=s.groups.map(g=>`<div class="sgr"><span>${g.n}</span><div class="gbar"><i style="width:${g.s==null?0:Math.round(g.s*100)}%;background:${g.s==null?"transparent":cl(g.s)}"></i></div><b>${g.s==null?"—":Math.round(g.s*100)}</b></div>`).join("");
+  $("ztitle").textContent=`Cómo se calcula el puntaje · ${t}${docs[t]&&docs[t].name?" · "+docs[t].name:""}`;
+  $("zbody").innerHTML=`<div class="sum"><div class="sbig" style="color:${cl(s.score/100)}">${s.score}<small>de 100</small></div><div class="sgs">${grps}</div></div>
+  <p class="hint" style="margin:10px 0 6px">Cada dato recibe una nota de 0 a 100 (verde = buena, amarillo = media, rojo = baja) y se multiplica por su peso. La suma de los puntos es el puntaje.
+  Comparada con ${s.peer.kind==="mercado"?"todo el mercado":`su ${s.peer.kind}: <b>${esc(s.peer.name)}</b>`} (${s.peer.n} empresas de tu lista). <button type="button" class="lnk" data-expand>Mostrar todas las explicaciones</button></p>
+  <div class="stable"><div class="srow sh"><span>Dato</span><span>Nota</span><span class="r">Puntos</span></div>${rows}</div>
+  <div class="stotbar"><span>Total</span><b>${num(tot,1)} → ${s.score}${s.capped?" (tope 45)":""}</b></div>
+  <p class="hint" style="margin:10px 0 0">Los datos que faltan no suman ni restan: el resto se reparte hasta llegar a 100. Es una guía para comparar, no una recomendación de inversión.</p>`;
   $("zoom").hidden=false;$("zclose").focus();
 }
 
@@ -714,6 +732,7 @@ document.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch")return;co
 document.addEventListener("click",e=>{
   if(e.target===$("zoom")||e.target.closest("#zclose")){closeZoom();return}
   const sb=e.target.closest&&e.target.closest("[data-score]");if(sb){openScore(sb.dataset.score);return}
+  const ex=e.target.closest&&e.target.closest("[data-expand]");if(ex){const open=ex.dataset.expand!=="1";document.querySelectorAll("#zbody .srow.sx").forEach(n=>{n.hidden=!open;const r=n.previousElementSibling;if(r)r.setAttribute("aria-expanded",String(open))});ex.dataset.expand=open?"1":"";ex.textContent=open?"Ocultar las explicaciones":"Mostrar todas las explicaciones";return}
   const so=e.target.closest&&e.target.closest("[data-open]");if(so){const nx=so.nextElementSibling;if(nx){nx.hidden=!nx.hidden;so.setAttribute("aria-expanded",String(!nx.hidden))}return}
   const z=e.target.closest&&e.target.closest("[data-zoom]");if(z)openZoom(z.dataset.zoom);
 });
