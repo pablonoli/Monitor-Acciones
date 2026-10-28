@@ -142,6 +142,30 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 .mempty{color:var(--muted);font-size:13px;padding:40px 0;text-align:center}
 .notes{font-size:13px;color:var(--muted);max-width:85ch;display:grid;gap:4px}
 .notes b{color:var(--fg);font-weight:600}
+.tt{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+#gbtn{padding:5px 10px;font-size:12.5px;font-weight:500;color:var(--muted)}
+#gbtn[aria-expanded="true"]{color:var(--fg);border-color:var(--accent)}
+.gloss{margin:0 16px 10px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.gloss dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-size:13px}
+.gloss dt{font:600 12px var(--mono);color:var(--accent)}
+.gloss dd{margin:0;color:var(--fg)}
+@media (max-width:640px){.gloss dl{grid-template-columns:1fr}.gloss dt{margin-top:6px}}
+.scblock{margin-top:14px;padding-top:2px}
+.schead{display:flex;align-items:center;gap:12px}
+.scnum{font:600 32px/1 var(--mono);padding:6px 12px;border-radius:6px;background:var(--neutral-bg)}
+.scnum.lo{background:var(--good-bg);color:var(--good)}
+.scnum.hi{background:var(--bad-bg);color:var(--bad)}
+.scsub{font-size:12.5px;color:var(--muted);line-height:1.35}
+.grp{display:grid;grid-template-columns:96px 1fr 34px;align-items:center;gap:10px;margin-top:10px;font-size:13px}
+.gbar{height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+.gbar i{display:block;height:6px;border-radius:3px}
+.grp b{font:500 12.5px var(--mono);text-align:right}
+.scblock details{margin-top:10px}
+.scblock summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.irow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px}
+.irow span{color:var(--muted)}
+.irow b{font:500 12.5px var(--mono);text-align:right}
+.irow .gbar{grid-column:1/-1}
 .scope{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:-6px}
 .morehead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
 .mini{cursor:zoom-in}
@@ -231,10 +255,23 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
   <div class="cols">
     <section class="panel tablepanel">
       <div class="tbar">
-        <h2>Múltiplos y resultados</h2>
+        <div class="tt"><h2>Múltiplos y resultados</h2><button type="button" id="gbtn" aria-expanded="false" aria-controls="gloss">ⓘ ¿Qué significa cada dato?</button></div>
         <p class="sub" id="tsub">Tocá un encabezado para ordenar y una fila para ver el detalle. La barra «Vs sus años» muestra dónde está el P/E de hoy entre el mínimo y el máximo de sus últimos ejercicios. Tocá la ☆ para marcar favoritas.</p>
         <label class="chk"><input type="checkbox" id="morecols"> Mostrar ingresos y ganancia</label>
       </div>
+      <div id="gloss" class="gloss" hidden>
+          <dl>
+            <dt>Puntaje</dt><dd>Nota de 0 a 100 para comparar empresas. Combina valuación (40%), crecimiento (25%), calidad (20%) y dividendos (15%, solo si la empresa paga). Compara cada empresa con las de su sector y con su propia historia. Es una guía para ordenar, no una recomendación de inversión. Tocá una empresa para ver el desglose.</dd>
+            <dt>P/E</dt><dd>Capitalización ÷ ganancia neta de 12 meses: cuántos dólares pagás por cada dólar de ganancia anual. Más bajo suele ser más barato, pero conviene comparar dentro del mismo sector.</dd>
+            <dt>Vs sus años</dt><dd>Dónde está el P/E de hoy entre el mínimo y el máximo de sus últimos ejercicios. Barra a la izquierda: barata respecto de sí misma; a la derecha: cara.</dd>
+            <dt>P/E est.</dt><dd>Precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso.</dd>
+            <dt>PEG</dt><dd>P/E ÷ crecimiento esperado de la ganancia por acción (en %). Cerca de 1 suele leerse como precio razonable para su crecimiento. «n/s» = no significativo o sin dato.</dd>
+            <dt>P/Ventas</dt><dd>Capitalización ÷ ingresos de 12 meses.</dd>
+            <dt>Div. yield</dt><dd>Dividendo anual ÷ precio.</dd>
+            <dt>Ingresos y ganancia 12m</dt><dd>Suma de los últimos 12 meses, en dólares.</dd>
+          </dl>
+          <p class="hint">Fuente: Yahoo Finance. Fundamentales una vez por día; precios cada 20 minutos con el mercado abierto.</p>
+        </div>
       <div class="tablewrap" id="table"><div class="empty">Cargando…</div></div>
       <div class="foot">
         <div class="pager"><button type="button" id="prev">Anterior</button><span class="hint" id="pinfo"></span><button type="button" id="next">Siguiente</button></div>
@@ -253,11 +290,6 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
     <div class="chart" id="series" style="margin-top:18px"></div>
   </section>
 
-  <div class="notes">
-    <span><b>P/E</b>: capitalización ÷ ganancia neta de 12 meses. <b>P/E est.</b>: precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso. <b>PEG</b>: P/E ÷ crecimiento esperado de la ganancia por acción entre este ejercicio y el próximo (en %); cerca de 1 suele leerse como precio razonable para su crecimiento. <b>P/Ventas</b>: capitalización ÷ ingresos de 12 meses. <b>Div. yield</b>: dividendo anual ÷ precio.</span>
-    <span>Todo en dólares de la empresa original; el ratio de conversión del CEDEAR no cambia los múltiplos. Las empresas que reportan en otra moneda (por ejemplo, en pesos) se convierten a dólares al tipo de cambio del día de carga. n/s = no significativo (ganancias negativas).</span>
-    <span>Fuente: Yahoo Finance. Fundamentales una vez por día; precios cada 20 minutos con el mercado abierto.</span>
-  </div>
 </main>
 
 </div>
@@ -272,19 +304,21 @@ const SERVER="FMP";
 const PAGE=50;
 const CACHE={cache:{staleTime:6*3600e3,gcTime:24*3600e3}};
 const COLS=[
-  {k:"price",label:"Precio",f:v=>num(v,2)},
-  {k:"pe",label:"P/E",f:v=>mult(v)},
-  {k:"rpos",label:"Vs sus años",bar:true},
-  {k:"fpe",label:"P/E est.",f:v=>mult(v)},
-  {k:"peg",label:"PEG",f:v=>v==null?"n/s":num(v,2)},
-  {k:"ps",label:"P/Ventas",f:v=>mult(v)},
-  {k:"dy",label:"Div. yield",f:v=>v==null?"—":num(v*100,2)+"%"},
-  {k:"rev",label:"Ingresos 12m",f:v=>money(v),opt:true},
-  {k:"ni",label:"Ganancia 12m",f:v=>money(v),opt:true},
+  {k:"score",label:"Puntaje",tip:"Nota de 0 a 100 para comparar empresas (valuación, crecimiento, calidad y dividendos). Tocá una empresa para ver el desglose."},
+  {k:"price",label:"Precio",f:v=>num(v,2),tip:"Precio en dólares"},
+  {k:"pe",label:"P/E",f:v=>mult(v),tip:"Capitalización ÷ ganancia neta de 12 meses"},
+  {k:"rpos",label:"Vs sus años",bar:true,tip:"Dónde está el P/E de hoy entre su mínimo y su máximo histórico. A la izquierda = barata respecto de sí misma"},
+  {k:"fpe",label:"P/E est.",f:v=>mult(v),tip:"Precio ÷ ganancia por acción estimada por analistas para este ejercicio"},
+  {k:"peg",label:"PEG",f:v=>v==null?"n/s":num(v,2),tip:"P/E ÷ crecimiento esperado de la ganancia. Cerca de 1 = razonable. n/s = sin dato"},
+  {k:"ps",label:"P/Ventas",f:v=>mult(v),tip:"Capitalización ÷ ingresos de 12 meses"},
+  {k:"dy",label:"Div. yield",f:v=>v==null?"—":num(v*100,2)+"%",tip:"Dividendo anual ÷ precio"},
+  {k:"rev",label:"Ingresos 12m",f:v=>money(v),opt:true,tip:"Ingresos de los últimos 12 meses"},
+  {k:"ni",label:"Ganancia 12m",f:v=>money(v),opt:true,tip:"Ganancia neta de los últimos 12 meses"},
 ];
 let showMore=false;try{showMore=localStorage.getItem("cols")==="1"}catch(_){}
 function cell(c,m){
   if(!m)return `<td class="na${c.bar?" l":""}">—</td>`;
+  if(c.k==="score"){const v=m.score;return v==null?`<td class="na">—</td>`:`<td><span class="pill${v>=70?" lo":v<=35?" hi":""}">${v}</span></td>`}
   if(c.k==="pe"){const v=m.pe;return v==null?`<td class="na">n/s</td>`:`<td><span class="pill${v<15?" lo":v>40?" hi":""}">${num(v,1)}</span></td>`}
   if(c.bar){if(m.rpos==null)return `<td class="na l">—</td>`;
     const r=m.rpos,col=r>=.9?"var(--bar-bad)":r<=.2?"var(--bar-good)":"var(--bar-mid)";
@@ -312,6 +346,8 @@ function money(v){if(v==null||!isFinite(v))return "—";const a=Math.abs(v),s=v<
 const fdate=s=>s?new Date(s).toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit",year:"2-digit"}):"—";
 const isAdr=u=>u.k==="ADR"||u.k==="ADR+CEDEAR";
 
+let SC={};   // puntaje por empresa, se recalcula al cargar datos y precios
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const median=a=>{const v=[...a].sort((x,y)=>x-y),n=v.length;return n%2?v[(n-1)/2]:(v[n/2-1]+v[n/2])/2};
 // Calcula los múltiplos a partir de lo guardado y, si existe, del precio en vivo
 function metrics(t){
@@ -332,7 +368,7 @@ function metrics(t){
   let rpos=null,rlo=null,rhi=null,rmed=null,rn=0;
   if(pe){const hv=(Array.isArray(d.hist)?d.hist:[]).map(h=>h.pe).filter(v=>typeof v==="number"&&v>0);
     if(hv.length>=2){const v=[...hv,pe];rlo=Math.min(...v);rhi=Math.max(...v);rmed=median(v);rn=hv.length;rpos=rhi>rlo?(pe-rlo)/(rhi-rlo):null}}
-  return {price,mcap,rev,ni,pe,ps,fpe,peg,dy,g,rpos,rlo,rhi,rmed,rn,liveAt:L&&L.at,fx};
+  return {price,mcap,rev,ni,pe,ps,fpe,peg,dy,g,rpos,rlo,rhi,rmed,rn,score:(SC[t]&&SC[t].score)??null,liveAt:L&&L.at,fx};
 }
 
 function rows(){
@@ -363,7 +399,7 @@ function renderTable(){
   $("prev").disabled=page===0;$("next").disabled=page>=pages-1;
   if(!slice.length){$("table").innerHTML=`<div class="empty">${onlyOk?"Todavía no hay empresas cargadas con estos filtros. Destildá \"Solo con datos\" para ver las que están en cola.":"Sin resultados."}</div>`;return}
   const cols=COLS.filter(c=>!c.opt||showMore);
-  let h=`<table class="${showMore?"wide":""}"><thead><tr><th data-k="name" class="${sortKey==="name"?"sorted":""}">Empresa</th>${cols.map(c=>`<th data-k="${c.k}" class="${sortKey===c.k?"sorted":""}${c.bar?" l":""}">${c.label}${sortKey===c.k?(sortDir<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead><tbody>`;
+  let h=`<table class="${showMore?"wide":""}"><thead><tr><th data-k="name" class="${sortKey==="name"?"sorted":""}">Empresa</th>${cols.map(c=>`<th data-k="${c.k}" title="${esc(c.tip||"")}" class="${sortKey===c.k?"sorted":""}${c.bar?" l":""}">${c.label}${sortKey===c.k?(sortDir<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead><tbody>`;
   slice.forEach(({u,d,m})=>{
     const tags=(isAdr(u)?`<span class="tag adr">ADR</span>`:"")+(d&&d.cur&&d.cur!=="USD"?`<span class="tag cur">${esc(d.cur)}</span>`:"")+
       (!d?`<span class="tag q">En cola</span>`:d.status!=="ok"?`<span class="tag err">${esc(d.note||"Sin datos")}</span>`:"");
@@ -371,6 +407,63 @@ function renderTable(){
     h+=`<tr data-t="${esc(u.t)}" class="${selected===u.t?"sel":""}${favs.size&&!favs.has(u.t)?" dim":""}"><td class="name" title="${esc(d&&d.name||u.t)}"><button type="button" class="star${favs.has(u.t)?" on":""}" data-star="${esc(u.t)}" aria-label="${favs.has(u.t)?"Quitar de favoritas":"Marcar como favorita"}">${favs.has(u.t)?"★":"☆"}</button><b>${esc(u.t)}</b>${nm}${tags}</td>${cols.map(c=>cell(c,m)).join("")}</tr>`;
   });
   $("table").innerHTML=h+"</tbody></table>";
+}
+
+// Puntaje 0-100: valuación 40, crecimiento 25, calidad 20, dividendos 15 (solo si paga). Los datos que faltan no suman ni restan:
+// el puntaje se calcula con los que hay (mínimo la mitad del peso). Los pares son las empresas del mismo sector (o todas si el sector tiene menos de 8).
+function computeScores(){
+  SC={};if(!universe)return;
+  const base={};
+  universe.forEach(u=>{const d=docs[u.t];if(!d||d.status!=="ok")return;const m=metrics(u.t);if(!m)return;
+    const H=Array.isArray(d.hist)?d.hist:[];
+    const hr=H.map(h=>h.rev).filter(v=>v>0);
+    const ny=H.map(h=>h.ni).filter(v=>v!=null);
+    base[u.t]={d,m,sector:sec(u.t,d),
+      rg:hr.length>=2?hr[hr.length-1]/hr[hr.length-2]-1:null,
+      margin:m.rev>0&&m.ni!=null?m.ni/m.rev:null,
+      posYrs:ny.length?ny.filter(v=>v>0).length/ny.length:null,
+      eg:m.pe>0&&m.fpe>0?m.pe/m.fpe-1:null}});
+  const all=Object.values(base),bySec={};
+  all.forEach(b=>(bySec[b.sector]=bySec[b.sector]||[]).push(b));
+  const peers=b=>{const g=bySec[b.sector];return g&&g.length>=8?g:all};
+  // proporción de pares que están peor que v (low = menor es mejor)
+  const better=(arr,v,low)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return null;return a.filter(x=>low?x>v:x<v).length/a.length};
+  Object.entries(base).forEach(([t,b])=>{
+    const P=peers(b),m=b.m,items=[];
+    const add=(g,label,w,sc,txt)=>items.push({g,label,w,s:sc,txt});
+    add("Valuación","P/E vs su sector",20,m.pe>0?better(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,true):null,m.pe>0?num(m.pe,1)+"x":"sin ganancias");
+    add("Valuación","P/E vs su propia historia",15,m.rpos!=null?1-m.rpos:null,m.rpos!=null?`${num(m.pe,1)}x · rango ${num(m.rlo,0)}–${num(m.rhi,0)}x`:"sin historial");
+    add("Valuación","Precio/Ventas vs su sector",5,m.ps>0?better(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,true):null,m.ps>0?num(m.ps,1)+"x":"—");
+    add("Crecimiento","Ganancia esperada vs actual",15,b.eg!=null?clamp((b.eg+.05)/.30):null,b.eg!=null?(b.eg>=0?"+":"−")+num(Math.abs(b.eg)*100,0)+"%":"—");
+    add("Crecimiento","Ingresos del último ejercicio",10,b.rg!=null?clamp((b.rg+.02)/.22):null,b.rg!=null?(b.rg>=0?"+":"−")+num(Math.abs(b.rg)*100,0)+"%":"—");
+    add("Calidad","Margen neto vs su sector",12,b.margin!=null?better(P.map(x=>x.margin),b.margin,false):null,b.margin!=null?num(b.margin*100,1)+"%":"—");
+    add("Calidad","Años con ganancia",8,b.posYrs,b.posYrs!=null?Math.round(b.posYrs*100)+"% de los años":"—");
+    const dv=b.d.div;
+    if(m.dy>0){
+      add("Dividendos","Rendimiento",5,clamp(m.dy/.05),num(m.dy*100,2)+"%");
+      const po=dv&&dv.payout!=null&&dv.payout>0?dv.payout:null;
+      add("Dividendos","Ratio de reparto",5,po!=null?(po<=.75?1:po<=1?.5:0):null,po!=null?num(po*100,0)+"%":"—");
+      add("Dividendos","Años seguidos de aumento",5,dv&&dv.yrs!=null?clamp(dv.yrs/20):null,dv&&dv.yrs!=null?dv.yrs+(dv.yrs===1?" año":" años"):"—");
+    }
+    const av=items.filter(i=>i.s!=null),W=av.reduce((a,i)=>a+i.w,0),Wall=items.reduce((a,i)=>a+i.w,0);
+    let score=av.length>=3&&W>=Wall*.5?Math.round(av.reduce((a,i)=>a+i.w*i.s,0)/W*100):null;
+    let capped=false;if(score!=null&&m.ni!=null&&m.ni<=0&&score>45){score=45;capped=true}
+    const groups={};
+    items.forEach(i=>{const g=groups[i.g]||(groups[i.g]={w:0,ws:0});if(i.s!=null){g.w+=i.w;g.ws+=i.w*i.s}});
+    SC[t]={score,items,capped,groups:Object.entries(groups).map(([n,g])=>({n,s:g.w?g.ws/g.w:null})),cov:`${av.length} de ${items.length}`};
+  });
+}
+
+function scoreHtml(t){
+  const s=SC[t];
+  if(!s||s.score==null)return `<div class="scblock"><div class="dlabel" style="margin-top:12px">Puntaje</div><p class="hint" style="margin:4px 0 0">No hay datos suficientes para calcular el puntaje de esta empresa.</p></div>`;
+  const col=v=>v>=.7?"var(--bar-good)":v<=.35?"var(--bar-bad)":"var(--bar-mid)";
+  const grp=s.groups.map(g=>`<div class="grp"><span>${g.n}</span><div class="gbar"><i style="width:${g.s==null?0:Math.round(g.s*100)}%;background:${g.s==null?"transparent":col(g.s)}"></i></div><b>${g.s==null?"—":Math.round(g.s*100)}</b></div>`).join("");
+  const items=s.items.map(i=>`<div class="irow"><span>${i.label}</span><b>${esc(i.txt)}</b><div class="gbar"><i style="width:${i.s==null?0:Math.round(i.s*100)}%;background:${i.s==null?"transparent":col(i.s)}"></i></div></div>`).join("");
+  return `<div class="scblock"><div class="dlabel" style="margin-top:12px">Puntaje</div>
+  <div class="schead" style="margin-top:6px"><div class="scnum${s.score>=70?" lo":s.score<=35?" hi":""}">${s.score}</div><div class="scsub">de 100 · con ${s.cov} datos${s.capped?"<br>Tope de 45 porque tuvo pérdidas en los últimos 12 meses":""}</div></div>
+  ${grp}
+  <details><summary>Ver cómo se calcula</summary>${items}<p class="hint" style="margin:8px 0 0">Cada dato va de 0 (peor) a 100 (mejor), comparado con las empresas de su sector. Los datos que faltan no suman ni restan. Es una guía para comparar, no una recomendación de inversión.</p></details></div>`;
 }
 
 function renderSectors(){
@@ -413,6 +506,7 @@ function renderDetail(){
       :`Hoy cotiza a ${num(m.pe,1)}x, entre su mínimo (${num(m.rlo,1)}x) y su máximo (${num(m.rhi,1)}x) de los últimos ${m.rn} ejercicios: ${rel} (${num(m.rmed,1)}x).`}
   $("dbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${m.price?num(m.price,2):"—"}</span></div>
   <div class="hint">${esc(sub)}</div>
+  ${scoreHtml(t)}
   <div class="stats">${st("Ingresos 12m",money(m.rev))}${st("Ganancia neta",money(m.ni))}${st("Cap. bursátil",money(m.mcap))}${st("Dividendo",m.dy==null?"—":num(m.dy*100,2)+"%")}${st("P/E est. "+esc(d.fyCur||""),mult(m.fpe))}${st("Crec. EPS esperado",m.g==null?"—":num(m.g,1)+"%")}</div>
   <p class="dsum">${sum}</p>
   <p class="hint" style="margin:10px 0 0">Fundamentales cargados el ${fdate(d.fundAt)} desde ${d.src==="YF"?"Yahoo Finance":d.src==="SA"?"StockAnalysis":d.src==="FMP"?"Financial Modeling Prep":"Alpha Vantage"}${d.cur&&d.cur!=="USD"?`, convertidos de ${esc(d.cur)} a dólares`:""}. Precio ${m.liveAt?"en vivo":"del "+fdate(d.priceAt)}.</p>`;
@@ -612,6 +706,7 @@ $("q").addEventListener("input",e=>{query=e.target.value;page=0;syncFavs();rende
 $("sectors").addEventListener("click",e=>{const b=e.target.closest("[data-sector]");if(!b)return;sector=b.dataset.sector;page=0;syncFavs();renderSectors();renderTable()});
 document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;syncFavs();
   document.querySelectorAll("[data-kind]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderTable()}));
+$("gbtn").addEventListener("click",()=>{const o=$("gloss").hidden;$("gloss").hidden=!o;$("gbtn").setAttribute("aria-expanded",String(o))});
 $("toTop").addEventListener("click",()=>scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}));
 $("morecols").checked=showMore;
 $("morecols").addEventListener("change",e=>{showMore=e.target.checked;try{localStorage.setItem("cols",showMore?"1":"0")}catch(_){}renderTable()});
@@ -619,7 +714,7 @@ $("prev").addEventListener("click",()=>{page--;renderTable()});
 $("next").addEventListener("click",()=>{page++;renderTable()});
 $("table").addEventListener("click",e=>{
   const st=e.target.closest("[data-star]");if(st){toggleFav(st.dataset.star);return}
-  const th=e.target.closest("th[data-k]");if(th){const k=th.dataset.k;syncFavs();if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="name"?1:(["dy","rev","ni","price"].includes(k)?-1:1)}renderTable();return}
+  const th=e.target.closest("th[data-k]");if(th){const k=th.dataset.k;syncFavs();if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="name"?1:(["dy","rev","ni","price","score"].includes(k)?-1:1)}renderTable();return}
   const tr=e.target.closest("tr[data-t]");if(tr){selected=tr.dataset.t;if(hist[selected]&&hist[selected].retry)delete hist[selected];renderTable();renderDetail();
     if(!$("more").hidden)$("more").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
 });
@@ -748,7 +843,7 @@ async function loadPrices(){
   try{
     const pr=await fetch("data/precios.json?"+Date.now()).then(r=>r.json());
     if(applyPrices(pr)){
-      renderAll();
+      computeScores();renderAll();
       pricesAt=pr.updated;stamp();
     }
   }catch(_){}
@@ -757,7 +852,7 @@ async function loadPrices(){
   try{
     const [u,d]=await Promise.all([fetch("data/universe.json").then(r=>r.json()),fetch("data/datos.json?"+Date.now()).then(r=>r.json())]);
     universe=u.list;docs={__status:{perDay:0},...d.co};datosAt=d.updated;
-    renderSectors();renderAll();
+    computeScores();renderSectors();renderAll();
     if(matchMedia("(max-width:960px)").matches)$("sectd").open=false;
     const first=rows()[0];if(first){selected=first.u.t;renderTable();renderDetail()}
     stamp();adoptRemoteFavs();
