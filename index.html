@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <title>Monitor P/E S&amp;P 500</title>
+<script>
+// Si algo falla al cargar, lo muestra en pantalla en vez de dejar la página en blanco
+(function(){function show(m){var b=document.getElementById("banner"),t=document.getElementById("table");var x="Error en la página: "+m;if(b){b.textContent=x;b.hidden=false}else if(document.body){var d=document.createElement("p");d.style.cssText="padding:12px;margin:12px;border:1px solid #f5a524";d.textContent=x;document.body.prepend(d)}}
+window.addEventListener("error",function(e){show((e.message||"")+(e.lineno?" (línea "+e.lineno+")":""))});
+window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
