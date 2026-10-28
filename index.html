@@ -160,6 +160,10 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 .gloss dd{margin:0;color:var(--fg)}
 @media (max-width:640px){.gloss dl{grid-template-columns:1fr}.gloss dt{margin-top:6px}}
 .scblock{margin-top:14px;padding-top:2px}
+.navb.sub{padding-left:26px;font-size:13px;min-height:34px;color:var(--muted)}
+.navb.sub[aria-pressed="true"]{color:var(--fg)}
+.cmp{margin:8px 0 0;font-size:12.5px;color:var(--muted)}
+.cmp b{color:var(--fg);font-weight:600}
 .schead{display:flex;align-items:center;gap:12px}
 .scnum{font:600 32px/1 var(--mono);padding:6px 12px;border-radius:6px;background:var(--neutral-bg)}
 .scnum.lo{background:var(--good-bg);color:var(--good)}
@@ -270,7 +274,7 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
       </div>
       <div id="gloss" class="gloss" hidden>
           <dl>
-            <dt>Puntaje</dt><dd>Nota de 0 a 100 para comparar empresas. Combina valuación (40%), crecimiento (25%), calidad (20%) y dividendos (15%, solo si la empresa paga). Compara cada empresa con las de su sector y con su propia historia. Es una guía para ordenar, no una recomendación de inversión. Tocá una empresa para ver el desglose.</dd>
+            <dt>Puntaje</dt><dd>Nota de 0 a 100 para comparar empresas. Combina valuación (40%), crecimiento (25%), calidad (20%) y dividendos (15%, solo si la empresa paga). Compara cada empresa con las de su misma industria (o de su sector si la industria tiene menos de 8) y con su propia historia. Es una guía para ordenar, no una recomendación de inversión. Tocá una empresa para ver el desglose.</dd>
             <dt>P/E</dt><dd>Capitalización ÷ ganancia neta de 12 meses: cuántos dólares pagás por cada dólar de ganancia anual. Más bajo suele ser más barato, pero conviene comparar dentro del mismo sector.</dd>
             <dt>Vs sus años</dt><dd>Dónde está el P/E de hoy entre el mínimo y el máximo de sus últimos ejercicios. Barra a la izquierda: barata respecto de sí misma; a la derecha: cara.</dd>
             <dt>P/E est.</dt><dd>Precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso.</dd>
@@ -336,7 +340,10 @@ function cell(c,m){
 }
 const SECN={"T": "Tecnología", "C": "Comunicaciones", "D": "Consumo discrecional", "B": "Consumo básico", "S": "Salud", "F": "Finanzas", "I": "Industriales", "E": "Energía", "M": "Materiales", "U": "Servicios públicos", "R": "Inmobiliario"};
 const SECT=Object.fromEntries("AAL:I AAP:D AAPL:T ABBV:S ABEV:B ABNB:D ABT:S ACN:T ADBE:T ADI:T ADP:I AEG:F AEM:M AGRO:B AI:T AIG:F AKO-B:B ALAB:T AMAT:T AMD:T AMGN:S AMX:C AMZN:D ANET:T ANF:D ARCO:D ARM:T ASML:T ASR:I ASTS:C AVGO:T AVY:M AXP:F AZN:S B:M BA:I BABA:D BAC:F BAK:M BB:T BBAR:F BBD:F BBVA:F BCS:F BG:B BHP:M BIB:S BIDU:C BIOX:M BK:F BKNG:D BKR:E BMA:F BMNR:F BMY:S BP:E BRK-B:F BSBR:F BX:F C:F CAAP:I CAH:S CAR:I CAT:I CCJ:E CCL:D CDE:M CEG:U CEPU:U CL:B CLS:T COIN:F COP:E COST:B CRESY:R CRM:T CRWD:T CRWV:T CSCO:T CVS:S CVX:E CX:M DAL:I DD:M DE:I DECK:D DELL:T DEO:B DESP:D DHR:S DIS:C DOCU:T DOW:M DTEGY:C E:E EA:C EBAY:D EBR:U ECL:M EDN:U EFX:I ELP:U EQNR:E ERIC:T ERJ:I ETSY:D F:D FCX:M FDX:I FISV:F FMCC:F FMX:B FNMA:F FSLR:T GE:I GEV:I GFI:M GGAL:F GGB:M GILD:S GLNG:E GLOB:T GLW:T GM:D GOOGL:C GPRK:E GRMN:D GS:F GSK:S GT:D HAL:E HD:D HDB:F HIMS:S HL:M HMC:D HMY:M HOG:D HON:I HOOD:F HPQ:T HSBC:F HSY:B HUT:F HWM:I IBKR:F IBM:T IBN:F IFF:M INFY:T ING:F INTC:T IP:M IREN:T IRS:R ISRG:S ITUB:F JCI:I JD:D JMIA:D JNJ:S JOYY:C JPM:F KB:F KEEL:T KEP:U KGC:M KLAC:T KMB:B KO:B KOF:B LAC:M LAR:M LIN:M LLY:S LMT:I LND:B LOMA:M LRCX:T LVS:D MA:F MCD:D MDLZ:B MDT:S MELI:D META:C MFG:F MMC:F MMM:I MO:B MOS:M MP:M MRK:S MRNA:S MRVL:T MS:F MSFT:T MSI:T MSTR:T MU:T MUFG:F MUX:M NBIS:T NEE:U NEM:M NFLX:C NG:M NGG:U NIO:D NKE:D NMR:F NOK:T NOW:T NSANY:D NTES:C NTRA:S NU:F NUE:M NVDA:T NVO:S NVS:S NXE:E O:R OKLO:U ONDS:T ORCL:T ORLY:D OXY:E PAAS:M PAC:I PAGS:F PAM:U PANW:T PATH:T PBI:I PBR:E PCAR:I PCRFY:D PDD:D PEP:B PFE:S PG:B PHG:S PINS:C PKX:M PLD:R PLTR:T PM:B PSO:C PSX:E PYPL:F QCOM:T RACE:D RBLX:C RGTI:T RIO:M RIOT:F RKLB:I ROKU:C ROST:D RTX:I SAN:F SAP:T SATL:I SBS:U SBUX:D SCCO:M SCHW:F SDA:D SE:D SHEL:E SHOP:T SHW:M SID:M SIEGY:I SKHY:T SLB:E SNA:I SNAP:C SNDK:T SNOW:T SONY:D SPGI:F SPOT:C STLA:D STNE:F SUPV:F SUZ:M SWKS:T SYY:B T:C TCOM:D TEAM:T TEF:C TEM:S TEO:C TGS:E TGT:B TIMB:C TJX:D TLN:U TM:D TMO:S TMUS:C TRIP:C TRVV:F TS:E TSLA:D TSM:T TTE:E TV:C TWLO:T TX:M TXN:T UAL:I UBER:I UGP:E UL:B UNH:S UNP:I UPST:F URBN:D USB:F V:F VIST:E VIV:C VOD:C VRSN:T VRTX:S VST:U VZ:C WDC:T WELL:R WFC:F WMT:B XOM:E XP:F XPEV:D XROX:T XYZ:F YELP:C YPF:E ZM:T BRFS:B CAJ:T HNPIY:U LFC:F ORAN:C TILAY:S TTM:D WBA:B YZCAY:E".split(" ").map(x=>{const i=x.lastIndexOf(":");return [x.slice(0,i),SECN[x.slice(i+1)]]}));
-const sec=(t,d)=>SECT[t]||(d&&d.sector)||"";
+const YS={"Technology": "Tecnología", "Communication Services": "Comunicaciones", "Consumer Cyclical": "Consumo discrecional", "Consumer Defensive": "Consumo básico", "Healthcare": "Salud", "Financial Services": "Finanzas", "Industrials": "Industriales", "Energy": "Energía", "Basic Materials": "Materiales", "Utilities": "Servicios públicos", "Real Estate": "Inmobiliario"};   // sectores de Yahoo (Morningstar) en castellano
+const YI={"Software - Infrastructure": "Software de infraestructura", "Software - Application": "Software de aplicaciones", "Semiconductors": "Semiconductores", "Semiconductor Equipment & Materials": "Equipos de semiconductores", "Information Technology Services": "Servicios de TI", "Consumer Electronics": "Electrónica de consumo", "Communication Equipment": "Equipos de comunicación", "Computer Hardware": "Hardware de computación", "Electronic Components": "Componentes electrónicos", "Scientific & Technical Instruments": "Instrumentos científicos", "Electronics & Computer Distribution": "Distribución de electrónica", "Solar": "Energía solar", "Telecom Services": "Telecomunicaciones", "Internet Content & Information": "Contenido de internet", "Entertainment": "Entretenimiento", "Electronic Gaming & Multimedia": "Videojuegos y multimedia", "Broadcasting": "Radiodifusión", "Advertising Agencies": "Publicidad", "Publishing": "Editoriales", "Internet Retail": "Comercio electrónico", "Specialty Retail": "Comercio especializado", "Auto Manufacturers": "Fabricantes de autos", "Auto Parts": "Autopartes", "Restaurants": "Restaurantes", "Apparel Retail": "Indumentaria (venta)", "Apparel Manufacturing": "Indumentaria (fabricación)", "Footwear & Accessories": "Calzado y accesorios", "Luxury Goods": "Artículos de lujo", "Home Improvement Retail": "Mejoras del hogar", "Travel Services": "Servicios de viaje", "Lodging": "Alojamiento", "Resorts & Casinos": "Resorts y casinos", "Gambling": "Juegos de azar", "Leisure": "Ocio", "Residential Construction": "Construcción residencial", "Packaging & Containers": "Envases", "Textile Manufacturing": "Textiles", "Department Stores": "Tiendas departamentales", "Furnishings, Fixtures & Appliances": "Muebles y electrodomésticos", "Auto & Truck Dealerships": "Concesionarias", "Recreational Vehicles": "Vehículos recreativos", "Personal Services": "Servicios personales", "Beverages - Non-Alcoholic": "Bebidas sin alcohol", "Beverages - Brewers": "Cervecerías", "Beverages - Wineries & Distilleries": "Vinos y destilados", "Packaged Foods": "Alimentos envasados", "Household & Personal Products": "Cuidado personal y del hogar", "Discount Stores": "Tiendas de descuento", "Grocery Stores": "Supermercados", "Tobacco": "Tabaco", "Confectioners": "Confitería", "Farm Products": "Productos agrícolas", "Education & Training Services": "Educación", "Food Distribution": "Distribución de alimentos", "Drug Manufacturers - General": "Farmacéuticas (grandes)", "Drug Manufacturers - Specialty & Generic": "Farmacéuticas (genéricos y especiales)", "Biotechnology": "Biotecnología", "Medical Devices": "Dispositivos médicos", "Medical Instruments & Supplies": "Instrumental médico", "Diagnostics & Research": "Diagnóstico e investigación", "Healthcare Plans": "Seguros de salud", "Medical Care Facilities": "Centros de salud", "Health Information Services": "Información de salud", "Medical Distribution": "Distribución médica", "Pharmaceutical Retailers": "Farmacias", "Banks - Diversified": "Bancos diversificados", "Banks - Regional": "Bancos regionales", "Asset Management": "Gestión de activos", "Capital Markets": "Mercado de capitales", "Credit Services": "Servicios de crédito", "Insurance - Diversified": "Seguros diversificados", "Insurance - Life": "Seguros de vida", "Insurance - Property & Casualty": "Seguros patrimoniales", "Insurance - Reinsurance": "Reaseguros", "Insurance - Specialty": "Seguros especializados", "Insurance Brokers": "Corredores de seguros", "Financial Data & Stock Exchanges": "Datos financieros y bolsas", "Financial Conglomerates": "Conglomerados financieros", "Mortgage Finance": "Finanzas hipotecarias", "Aerospace & Defense": "Aeroespacial y defensa", "Airlines": "Aerolíneas", "Railroads": "Ferrocarriles", "Trucking": "Transporte por camión", "Integrated Freight & Logistics": "Logística y carga", "Marine Shipping": "Transporte marítimo", "Specialty Industrial Machinery": "Maquinaria industrial", "Farm & Heavy Construction Machinery": "Maquinaria agrícola y pesada", "Engineering & Construction": "Ingeniería y construcción", "Electrical Equipment & Parts": "Equipos eléctricos", "Building Products & Equipment": "Productos de construcción", "Conglomerates": "Conglomerados", "Waste Management": "Gestión de residuos", "Specialty Business Services": "Servicios empresariales", "Staffing & Employment Services": "Empleo y personal", "Security & Protection Services": "Seguridad", "Rental & Leasing Services": "Alquiler y leasing", "Tools & Accessories": "Herramientas", "Industrial Distribution": "Distribución industrial", "Consulting Services": "Consultoría", "Airports & Air Services": "Aeropuertos", "Pollution & Treatment Controls": "Control de contaminación", "Metal Fabrication": "Metalurgia", "Oil & Gas Integrated": "Petróleo y gas integrado", "Oil & Gas E&P": "Petróleo y gas (exploración)", "Oil & Gas Midstream": "Petróleo y gas (transporte)", "Oil & Gas Refining & Marketing": "Refinación y comercialización", "Oil & Gas Equipment & Services": "Servicios petroleros", "Oil & Gas Drilling": "Perforación", "Thermal Coal": "Carbón", "Uranium": "Uranio", "Gold": "Oro", "Silver": "Plata", "Copper": "Cobre", "Steel": "Acero", "Aluminum": "Aluminio", "Specialty Chemicals": "Químicos especiales", "Chemicals": "Químicos", "Agricultural Inputs": "Insumos agrícolas", "Building Materials": "Materiales de construcción", "Other Industrial Metals & Mining": "Minería de metales", "Other Precious Metals & Mining": "Metales preciosos", "Lumber & Wood Production": "Madera", "Paper & Paper Products": "Papel", "Utilities - Regulated Electric": "Electricidad regulada", "Utilities - Regulated Gas": "Gas regulado", "Utilities - Diversified": "Servicios diversificados", "Utilities - Independent Power Producers": "Generadoras independientes", "Utilities - Renewable": "Renovables", "Utilities - Regulated Water": "Agua regulada", "REIT - Specialty": "REIT especializados", "REIT - Industrial": "REIT industriales", "REIT - Retail": "REIT comerciales", "REIT - Residential": "REIT residenciales", "REIT - Office": "REIT de oficinas", "REIT - Healthcare Facilities": "REIT de salud", "REIT - Diversified": "REIT diversificados", "REIT - Mortgage": "REIT hipotecarios", "REIT - Hotel & Motel": "REIT hoteleros", "Real Estate Services": "Servicios inmobiliarios", "Real Estate - Development": "Desarrollo inmobiliario", "Real Estate - Diversified": "Inmobiliaria diversificada"};   // industrias de Yahoo en castellano
+const sec=(t,d)=>(d&&d.sector&&YS[d.sector])||SECT[t]||"";
+const indOf=d=>{if(!d||!d.industry)return "";const k=String(d.industry).replace(/[–—]/g,"-").replace(/\s*-\s*/g," - ").trim();return YI[k]||k};
 let db=null, mcp=null, universe=null, docs={}, live={}, hist={};
 const favs=new Set((()=>{try{return JSON.parse(localStorage.getItem("favs")||"[]")}catch(_){return []}})());
 const saveFavs=()=>{try{localStorage.setItem("favs",JSON.stringify([...favs]))}catch(_){}};
@@ -344,7 +351,7 @@ const saveFavs=()=>{try{localStorage.setItem("favs",JSON.stringify([...favs]))}c
 // así la fila que marcás no salta de lugar ni te cambia de página.
 let favOrder=new Set(favs);const syncFavs=()=>{favOrder=new Set(favs)};
 function toggleFav(t){favs.has(t)?favs.delete(t):favs.add(t);saveFavs();renderTable();scheduleFavPush()}
-let sortKey="pe", sortDir=1, page=0, kind="all", sector="", query="", onlyOk=true, selected=null;
+let sortKey="pe", sortDir=1, page=0, kind="all", sector="", industry="", query="", onlyOk=true, selected=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const nf={};const fmtN=d=>nf[d]||(nf[d]=new Intl.NumberFormat("es-AR",{minimumFractionDigits:d,maximumFractionDigits:d}));
@@ -389,6 +396,7 @@ function rows(){
     if(kind==="cedear"&&u.k==="ADR")return false;
     if(kind==="fav"&&!favOrder.has(u.t))return false;
     if(sector&&sec(u.t,d)!==sector)return false;
+    if(industry&&indOf(d)!==industry)return false;
     if(onlyOk&&(!d||d.status!=="ok"))return false;
     if(q&&!(u.t.includes(q)||u.b.toUpperCase().includes(q)||String(d&&d.name||"").toUpperCase().includes(q)))return false;
     return true;
@@ -419,7 +427,7 @@ function renderTable(){
 }
 
 // Puntaje 0-100: valuación 40, crecimiento 25, calidad 20, dividendos 15 (solo si paga). Los datos que faltan no suman ni restan:
-// el puntaje se calcula con los que hay (mínimo la mitad del peso). Los pares son las empresas del mismo sector (o todas si el sector tiene menos de 8).
+// el puntaje se calcula con los que hay (mínimo la mitad del peso). Los pares son las de la misma industria (si hay 8 o más); si no, las del sector; si no, todas.
 function computeScores(){
   SC={};if(!universe)return;
   const base={};
@@ -427,25 +435,27 @@ function computeScores(){
     const H=Array.isArray(d.hist)?d.hist:[];
     const hr=H.map(h=>h.rev).filter(v=>v>0);
     const ny=H.map(h=>h.ni).filter(v=>v!=null);
-    base[u.t]={d,m,sector:sec(u.t,d),
+    base[u.t]={d,m,sector:sec(u.t,d),ind:indOf(d),
       rg:hr.length>=2?hr[hr.length-1]/hr[hr.length-2]-1:null,
       margin:m.rev>0&&m.ni!=null?m.ni/m.rev:null,
       posYrs:ny.length?ny.filter(v=>v>0).length/ny.length:null,
       eg:m.pe>0&&m.fpe>0?m.pe/m.fpe-1:null}});
   const all=Object.values(base),bySec={};
   all.forEach(b=>(bySec[b.sector]=bySec[b.sector]||[]).push(b));
-  const peers=b=>{const g=bySec[b.sector];return g&&g.length>=8?g:all};
+  const byInd={};all.forEach(b=>{if(b.ind)(byInd[b.sector+"|"+b.ind]=byInd[b.sector+"|"+b.ind]||[]).push(b)});
+  const peerInfo=b=>{const gi=b.ind?byInd[b.sector+"|"+b.ind]:null;if(gi&&gi.length>=8)return {arr:gi,kind:"industria",name:b.ind,n:gi.length};
+    const g=bySec[b.sector];if(g&&g.length>=8)return {arr:g,kind:"sector",name:b.sector,n:g.length};return {arr:all,kind:"mercado",name:"todas las empresas",n:all.length}};
   // proporción de pares que están peor que v (low = menor es mejor)
   const better=(arr,v,low)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return null;return a.filter(x=>low?x>v:x<v).length/a.length};
   Object.entries(base).forEach(([t,b])=>{
-    const P=peers(b),m=b.m,items=[];
+    const PI=peerInfo(b),P=PI.arr,m=b.m,items=[];
     const add=(g,label,w,sc,txt)=>items.push({g,label,w,s:sc,txt});
-    add("Valuación","P/E vs su sector",20,m.pe>0?better(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,true):null,m.pe>0?num(m.pe,1)+"x":"sin ganancias");
+    add("Valuación","P/E vs sus pares",20,m.pe>0?better(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,true):null,m.pe>0?num(m.pe,1)+"x":"sin ganancias");
     add("Valuación","P/E vs su propia historia",15,m.rpos!=null?1-m.rpos:null,m.rpos!=null?`${num(m.pe,1)}x · rango ${num(m.rlo,0)}–${num(m.rhi,0)}x`:"sin historial");
-    add("Valuación","Precio/Ventas vs su sector",5,m.ps>0?better(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,true):null,m.ps>0?num(m.ps,1)+"x":"—");
+    add("Valuación","Precio/Ventas vs sus pares",5,m.ps>0?better(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,true):null,m.ps>0?num(m.ps,1)+"x":"—");
     add("Crecimiento","Ganancia esperada vs actual",15,b.eg!=null?clamp((b.eg+.05)/.30):null,b.eg!=null?(b.eg>=0?"+":"−")+num(Math.abs(b.eg)*100,0)+"%":"—");
     add("Crecimiento","Ingresos del último ejercicio",10,b.rg!=null?clamp((b.rg+.02)/.22):null,b.rg!=null?(b.rg>=0?"+":"−")+num(Math.abs(b.rg)*100,0)+"%":"—");
-    add("Calidad","Margen neto vs su sector",12,b.margin!=null?better(P.map(x=>x.margin),b.margin,false):null,b.margin!=null?num(b.margin*100,1)+"%":"—");
+    add("Calidad","Margen neto vs sus pares",12,b.margin!=null?better(P.map(x=>x.margin),b.margin,false):null,b.margin!=null?num(b.margin*100,1)+"%":"—");
     add("Calidad","Años con ganancia",8,b.posYrs,b.posYrs!=null?Math.round(b.posYrs*100)+"% de los años":"—");
     const dv=b.d.div;
     if(m.dy>0){
@@ -459,7 +469,7 @@ function computeScores(){
     let capped=false;if(score!=null&&m.ni!=null&&m.ni<=0&&score>45){score=45;capped=true}
     const groups={};
     items.forEach(i=>{const g=groups[i.g]||(groups[i.g]={w:0,ws:0});if(i.s!=null){g.w+=i.w;g.ws+=i.w*i.s}});
-    SC[t]={score,items,capped,groups:Object.entries(groups).map(([n,g])=>({n,s:g.w?g.ws/g.w:null})),cov:`${av.length} de ${items.length}`};
+    SC[t]={score,items,capped,peer:PI,groups:Object.entries(groups).map(([n,g])=>({n,s:g.w?g.ws/g.w:null})),cov:`${av.length} de ${items.length}`};
   });
 }
 
@@ -472,13 +482,16 @@ function scoreHtml(t){
   return `<div class="scblock"><div class="dlabel" style="margin-top:12px">Puntaje</div>
   <div class="schead" style="margin-top:6px"><div class="scnum${s.score>=70?" lo":s.score<=35?" hi":""}">${s.score}</div><div class="scsub">de 100 · con ${s.cov} datos${s.capped?"<br>Tope de 45 porque tuvo pérdidas en los últimos 12 meses":""}</div></div>
   ${grp}
-  <details><summary>Ver cómo se calcula</summary>${items}<p class="hint" style="margin:8px 0 0">Cada dato va de 0 (peor) a 100 (mejor), comparado con las empresas de su sector. Los datos que faltan no suman ni restan. Es una guía para comparar, no una recomendación de inversión.</p></details></div>`;
+  <p class="cmp">Comparada con ${s.peer.kind==="mercado"?"todo el mercado":`su ${s.peer.kind}: <b>${esc(s.peer.name)}</b>`} (${s.peer.n} empresas de tu lista)</p>
+  <details><summary>Ver cómo se calcula</summary>${items}<p class="hint" style="margin:8px 0 0">Cada dato va de 0 (peor) a 100 (mejor), comparado con las empresas de su industria (o de su sector si la industria tiene menos de 8). Los datos que faltan no suman ni restan. Es una guía para comparar, no una recomendación de inversión.</p></details></div>`;
 }
 
 function renderSectors(){
-  const c={};Object.entries(docs).forEach(([t,d])=>{if(!d||d.status!=="ok")return;const x=sec(t,d);if(x)c[x]=(c[x]||0)+1});
+  const c={},ic={};Object.entries(docs).forEach(([t,d])=>{if(!d||d.status!=="ok")return;const x=sec(t,d);if(!x)return;c[x]=(c[x]||0)+1;
+    if(x===sector){const i=indOf(d);if(i)ic[i]=(ic[i]||0)+1}});
+  const sub=Object.entries(ic).sort((a,b)=>b[1]-a[1]||(a[0]<b[0]?-1:1)).map(([k,n])=>`<button type="button" class="navb sub" data-ind="${esc(k)}" aria-pressed="${k===industry}"><span>${esc(k)}</span><span class="n">${n}</span></button>`).join("");
   $("sectors").innerHTML=`<button type="button" class="navb" data-sector="" aria-pressed="${sector===""}"><span>Todos los sectores</span></button>`+
-    Object.keys(c).sort().map(x=>`<button type="button" class="navb" data-sector="${esc(x)}" aria-pressed="${x===sector}"><span>${esc(x)}</span><span class="n">${c[x]}</span></button>`).join("");
+    Object.keys(c).sort().map(x=>`<button type="button" class="navb" data-sector="${esc(x)}" aria-pressed="${x===sector&&!industry}"><span>${esc(x)}</span><span class="n">${c[x]}</span></button>`+(x===sector?sub:"")).join("");
 }
 function renderNav(){
   if(!universe)return;
@@ -488,10 +501,10 @@ function renderNav(){
 }
 function renderKpis(){
   if(!universe)return;
-  const scope=universe.filter(u=>(kind!=="fav"||favOrder.has(u.t))&&(!sector||sec(u.t,docs[u.t])===sector));
+  const scope=universe.filter(u=>(kind!=="fav"||favOrder.has(u.t))&&(!sector||sec(u.t,docs[u.t])===sector)&&(!industry||indOf(docs[u.t])===industry));
   const ms=scope.map(u=>metrics(u.t)).filter(Boolean);
   const pes=ms.filter(m=>m.pe>0).map(m=>m.pe);
-  const label=[kind==="fav"?"Favoritas":"",sector].filter(Boolean).join(" · ");
+  const label=[kind==="fav"?"Favoritas":"",sector,industry].filter(Boolean).join(" · ");
   $("scope").hidden=!label;$("scope").textContent=label?`${label} · ${ms.length} empresas`:"";
   $("k-med").textContent=pes.length?num(median(pes),1)+"x":"—";
   $("k-med-s").textContent=pes.length?`de ${pes.length} empresas con ganancias${label?" · "+label:""}`:"";
@@ -599,7 +612,7 @@ function chartSvg(sp,big){
     pts.forEach((p,i)=>{if(p.v==null)return;const y0=y(0),yv=y(p.v),top=Math.min(y0,yv),hgt=Math.max(Math.abs(yv-y0),1);
       const col=opts.signed?(p.v<0?"var(--bad)":"var(--good)"):"var(--accent)";
       g+=`<rect x="${x(i)-bw*.32}" y="${top}" width="${bw*.64}" height="${hgt}" rx="2" fill="${col}" opacity="${p.est?.4:p.now?.7:1}" ${p.est?`stroke="${col}" stroke-dasharray="3 2"`:""}/>`;
-      g+=`<text x="${x(i)}" y="${p.v<0?yv+14:yv-6}" text-anchor="middle" style="fill:${p.now||big?"var(--fg)":"var(--muted)"}">${esc(big?fmt(p.v,true):fmt(p.v).replace(/^US\$ /,""))}</text>`});
+      g+=`<text x="${x(i)}" y="${p.v<0?(big?yv+14:y0-6):yv-6}" text-anchor="middle" style="fill:${p.now||big?"var(--fg)":"var(--muted)"}">${esc(big?fmt(p.v,true):(opts.short?opts.short(p.v):fmt(p.v).replace(/^US\$ /,"")))}</text>`});
   }else{
     let path="",pen=false;
     pts.forEach((p,i)=>{if(p.v==null){pen=false;return}path+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1);pen=true});
@@ -662,6 +675,10 @@ function drawPanels(t,m){
   const mx=(v,ax)=>v==null?"—":num(v,ax?0:1)+"x";
   const pc=(v,ax)=>v==null?"—":num(v*100,ax?1:2)+"%";
   const mo=(v,ax)=>{if(v==null)return "—";const a=Math.abs(v),s=v<0?"−":"";return ax?(a>=1e9?s+num(a/1e9,0)+" mil M":s+num(a/1e6,0)+" M"):money(v)};
+  // en las barras chicas se escribe solo el número; la unidad (mil M o M) queda en el subtítulo de la tarjeta
+  const mxAbs=k=>Math.max(0,...P.map(h=>Math.abs(h[k]||0)),Math.abs((k==="rev"?m.rev:m.ni)||0));
+  const unit=k=>mxAbs(k)>=1e9?{div:1e9,txt:"US$ mil M"}:{div:1e6,txt:"US$ M"};
+  const sh=k=>{const u=unit(k);return v=>v==null?"—":(v<0?"−":"")+num(Math.abs(v)/u.div,Math.abs(v)/u.div<10?2:1)};
   const eps=P.map(h=>({l:fy(h),tl:fyTl(h),v:h.eps??null}));
   if(d.epsCur!=null)eps.push({l:"E"+String(d.fyCur||"").slice(-2),v:d.epsCur,est:true});
   if(d.epsNext!=null)eps.push({l:"E"+String(d.fyNext||"").slice(-2),v:d.epsNext,est:true});
@@ -676,8 +693,8 @@ function drawPanels(t,m){
   <div class="minis">
     ${add("pe","P/E",series("pe",m.pe),mx,{sub:"precio / ganancia",median:true})}
     ${add("ps","Precio / Ventas",series("ps",m.ps),mx,{median:true})}
-    ${add("rev","Ingresos",series("rev",m.rev),mo,{bars:true,sub:"US$"})}
-    ${add("ni","Ganancia neta",series("ni",m.ni),mo,{bars:true,signed:true,sub:"US$"})}
+    ${add("rev","Ingresos",series("rev",m.rev),mo,{bars:true,sub:unit("rev").txt,short:sh("rev")})}
+    ${add("ni","Ganancia neta",series("ni",m.ni),mo,{bars:true,signed:true,sub:unit("ni").txt,short:sh("ni")})}
     ${add("eps","Ganancia por acción",eps,(x,ax)=>x==null?"—":(ax?num(x,1):"US$ "+num(x,2)),{bars:true,signed:true,sub:"real y estimada (E)"})}
     ${add("dy","Dividend yield",series("dy",m.dy),pc,{median:true,sub:"+ detalle"})}
     ${dps}
@@ -734,7 +751,7 @@ function renderAll(){renderTable();if(selected)renderDetail()}
 
 // Eventos
 $("q").addEventListener("input",e=>{query=e.target.value;page=0;syncFavs();renderTable()});
-$("sectors").addEventListener("click",e=>{const b=e.target.closest("[data-sector]");if(!b)return;sector=b.dataset.sector;page=0;syncFavs();renderSectors();renderTable()});
+$("sectors").addEventListener("click",e=>{const bi=e.target.closest("[data-ind]");if(bi){industry=industry===bi.dataset.ind?"":bi.dataset.ind;page=0;syncFavs();renderSectors();renderTable();return}const b=e.target.closest("[data-sector]");if(!b)return;sector=b.dataset.sector;industry="";page=0;syncFavs();renderSectors();renderTable()});
 document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>{kind=b.dataset.kind;page=0;syncFavs();
   document.querySelectorAll("[data-kind]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderTable()}));
 $("gbtn").addEventListener("click",()=>{const o=$("gloss").hidden;$("gloss").hidden=!o;$("gbtn").setAttribute("aria-expanded",String(o))});

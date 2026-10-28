@@ -135,6 +135,7 @@ def one(u):
         "epsCur": pos(info.get("forwardEps")), "epsNext": None,
         "peg": pos(info.get("trailingPegRatio")), "dy": dy,
         "lastDiv": num(info.get("dividendRate")),
+        "sector": info.get("sector"), "industry": info.get("industry"),
         "fundAt": dt.datetime.utcnow().isoformat() + "Z", "priceAt": dt.datetime.utcnow().isoformat() + "Z",
     }
     # historial anual: ingresos, ganancia y EPS de Yahoo; P/E, P/S y yield con el precio al cierre de cada ejercicio
