@@ -261,7 +261,7 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
       </div>
       <div id="gloss" class="gloss" hidden>
           <dl>
-            <dt>Puntaje</dt><dd>Nota de 0 a 100 para comparar empresas. Combina valuación (40%), crecimiento (25%), calidad (20%) y dividendos (15%; si la empresa no reparte, esa parte suma 0, así que su máximo es 85). Compara cada empresa con las de su sector y con su propia historia. Es una guía para ordenar, no una recomendación de inversión. Tocá una empresa para ver el desglose.</dd>
+            <dt>Puntaje</dt><dd>Nota de 0 a 100 para comparar empresas. Combina valuación (40%), crecimiento (25%), calidad (20%) y dividendos (15%, solo si la empresa paga). Compara cada empresa con las de su sector y con su propia historia. Es una guía para ordenar, no una recomendación de inversión. Tocá una empresa para ver el desglose.</dd>
             <dt>P/E</dt><dd>Capitalización ÷ ganancia neta de 12 meses: cuántos dólares pagás por cada dólar de ganancia anual. Más bajo suele ser más barato, pero conviene comparar dentro del mismo sector.</dd>
             <dt>Vs sus años</dt><dd>Dónde está el P/E de hoy entre el mínimo y el máximo de sus últimos ejercicios. Barra a la izquierda: barata respecto de sí misma; a la derecha: cara.</dd>
             <dt>P/E est.</dt><dd>Precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso.</dd>
@@ -409,7 +409,7 @@ function renderTable(){
   $("table").innerHTML=h+"</tbody></table>";
 }
 
-// Puntaje 0-100: valuación 40, crecimiento 25, calidad 20, dividendos 15 (si no reparte, ese bloque suma 0). Los datos que faltan no suman ni restan:
+// Puntaje 0-100: valuación 40, crecimiento 25, calidad 20, dividendos 15 (solo si paga). Los datos que faltan no suman ni restan:
 // el puntaje se calcula con los que hay (mínimo la mitad del peso). Los pares son las empresas del mismo sector (o todas si el sector tiene menos de 8).
 function computeScores(){
   SC={};if(!universe)return;
@@ -444,10 +444,9 @@ function computeScores(){
       const po=dv&&dv.payout!=null&&dv.payout>0?dv.payout:null;
       add("Dividendos","Ratio de reparto",5,po!=null?(po<=.75?1:po<=1?.5:0):null,po!=null?num(po*100,0)+"%":"—");
       add("Dividendos","Años seguidos de aumento",5,dv&&dv.yrs!=null?clamp(dv.yrs/20):null,dv&&dv.yrs!=null?dv.yrs+(dv.yrs===1?" año":" años"):"—");
-    }else add("Dividendos","No reparte dividendos",15,0,"no paga");
+    }
     const av=items.filter(i=>i.s!=null),W=av.reduce((a,i)=>a+i.w,0),Wall=items.reduce((a,i)=>a+i.w,0);
-    const core=av.filter(i=>i.label!=="No reparte dividendos"),Wc=core.reduce((a,i)=>a+i.w,0),Wcall=items.filter(i=>i.label!=="No reparte dividendos").reduce((a,i)=>a+i.w,0);
-    let score=core.length>=3&&Wc>=Wcall*.5?Math.round(av.reduce((a,i)=>a+i.w*i.s,0)/W*100):null;
+    let score=av.length>=3&&W>=Wall*.5?Math.round(av.reduce((a,i)=>a+i.w*i.s,0)/W*100):null;
     let capped=false;if(score!=null&&m.ni!=null&&m.ni<=0&&score>45){score=45;capped=true}
     const groups={};
     items.forEach(i=>{const g=groups[i.g]||(groups[i.g]={w:0,ws:0});if(i.s!=null){g.w+=i.w;g.ws+=i.w*i.s}});
