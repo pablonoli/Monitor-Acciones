@@ -511,7 +511,7 @@ function renderDetail(){
   <p class="dsum">${sum}</p>
   <p class="hint" style="margin:10px 0 0">Fundamentales cargados el ${fdate(d.fundAt)} desde ${d.src==="YF"?"Yahoo Finance":d.src==="SA"?"StockAnalysis":d.src==="FMP"?"Financial Modeling Prep":"Alpha Vantage"}${d.cur&&d.cur!=="USD"?`, convertidos de ${esc(d.cur)} a dólares`:""}. Precio ${m.liveAt?"en vivo":"del "+fdate(d.priceAt)}.</p>`;
   more.hidden=false;$("mtitle").textContent=`Todos los gráficos · ${t}`;
-  drawSeries(d);drawDivs(d,m);
+  drawSeries(d);$("divs").innerHTML=divHtml(d,m);
   if(!fullHist(d)&&d.src!=="FMP"){$("chart").innerHTML=`<div class="empty">Los gráficos de 5 años de esta empresa se guardan automáticamente con la carga diaria.</div>`;return}
   drawPanels(t,m);
 }
@@ -600,6 +600,7 @@ function openZoom(id){
   const W=Math.max(340,Math.min(860,innerWidth-72)),H=W<520?320:400;
   $("ztitle").textContent=`${sp.title}${selected?" · "+selected:""}`;
   $("zbody").innerHTML=chartSvg(sp,{W,H})+`<p class="hint" style="margin:8px 0 0">Pasá el mouse o tocá un punto para ver el detalle.${sp.opts.median?" La línea punteada es la mediana del período.":""}</p>`;
+  if(id==="dy"&&selected&&docs[selected]&&docs[selected].status==="ok"){const m=metrics(selected);if(m)$("zbody").insertAdjacentHTML("beforeend",`<div class="divs">${divHtml(docs[selected],m)}</div>`)}
   $("zoom").hidden=false;$("zclose").focus();
 }
 function closeZoom(){$("zoom").hidden=true;$("tip").hidden=true}
@@ -650,16 +651,18 @@ function drawPanels(t,m){
     ${add("rev","Ingresos",series("rev",m.rev),mo,{bars:true,sub:"US$"})}
     ${add("ni","Ganancia neta",series("ni",m.ni),mo,{bars:true,signed:true,sub:"US$"})}
     ${add("eps","Ganancia por acción",eps,(x,ax)=>x==null?"—":(ax?num(x,1):"US$ "+num(x,2)),{bars:true,signed:true,sub:"real y estimada (E)"})}
-    ${add("dy","Dividend yield",series("dy",m.dy),pc,{median:true})}
+    ${add("dy","Dividend yield",series("dy",m.dy),pc,{median:true,sub:"+ detalle"})}
     ${dps}
   </div>
   <p class="hint" style="margin:10px 0 0">“s/d” = sin dato ese año: en P/E suele ser un año con pérdidas, donde el múltiplo no se puede calcular. En ganancia neta y por acción, verde = positiva y rojo = negativa. El P/E estimado no tiene historial en las fuentes gratuitas: el gráfico de ganancia por acción muestra la real de cada ejercicio y la que esperan los analistas (barras claras).${d.histNote?" "+esc(d.histNote)+".":""}</p>`;
+  $("divs").innerHTML="";
 }
 
 // Resumen de dividendos de la empresa elegida
 const fdate4=s=>{if(!s)return "—";const x=/^\d{4}-\d\d-\d\d$/.test(s)?new Date(s+"T12:00:00"):new Date(s);return isNaN(x)?"—":x.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit",year:"numeric"})};
-function drawDivs(d,m){
-  const el=$("divs"),v=d.div;
+function divHtml(d,m){let out="";drawDivsInto({set innerHTML(x){out=x}},d,m);return out}
+function drawDivsInto(el,d,m){
+  const v=d.div;
   if(!v){el.innerHTML=`<h3>Dividendos</h3><p class="hint" style="margin:0">${d.divChk?"Esta empresa no paga dividendos.":(m.dy>0?"El detalle de dividendos se completa con la próxima carga completa.":"Esta empresa no paga dividendos.")}</p>`;return}
   const row=(l,val)=>`<div class="drow"><span>${l}</span><b>${val}</b></div>`;
   const usd=x=>x==null?"—":"US$ "+num(x,2);
