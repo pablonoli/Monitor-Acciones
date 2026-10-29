@@ -405,7 +405,7 @@ function metrics(t){
   const pe0k=d.pe0>0?d.pe0*k0:null;
   const peOwn=ni>0&&mcap?mcap/ni:null;
   // si el P/E de Yahoo es absurdamente distinto del propio (más de 4 veces), se descarta: suele ser un error de moneda o de período
-  const pe=pe0k&&(!peOwn||(pe0k/peOwn<4&&pe0k/peOwn>.25))?pe0k:((d.pe0===undefined||usd)?peOwn:null);
+  const pe=pe0k&&(!peOwn||(pe0k/peOwn<4&&pe0k/peOwn>.25))?pe0k:peOwn;
   const ps=rev>0&&mcap?mcap/rev:null;
   const fpe=usd?(d.epsCur>0&&price?price/d.epsCur:null):(d.fpe0>0?d.fpe0*k0:null);
   const g=d.epsCur>0&&d.epsNext>0?(d.epsNext/d.epsCur-1)*100:null;
