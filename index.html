@@ -250,6 +250,7 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
 .tcard .th h3{margin:0}
 .marow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:13.5px}.marow:first-child{border-top:0}
 .marow span:first-child{color:var(--muted);min-width:0}
+.marow.sec{opacity:.6}
 .marow.lp{background:var(--accent-soft);border-radius:4px;padding:5px 6px;margin:2px 0;border-top:0}.marow.lp span{color:var(--fg)!important}
 .marow span:last-child{white-space:nowrap}
 .lv{color:var(--muted);font-size:11px;margin-right:5px}
@@ -384,14 +385,14 @@ td.tc small{font:500 11px var(--body);color:var(--muted);margin-left:6px}
         </div>
         <div id="tgloss" class="gloss" hidden>
           <dl>
-            <dt>Señal</dt><dd>Una sola etiqueta por empresa. Si el RSI es extremo manda él: <b>Sobrevendida</b> (RSI menor a 30) o <b>Sobrecomprada</b> (mayor a 70). Si no, depende de cuántas de las 4 medias tiene el precio por debajo: <b>Alcista</b> (precio sobre 3 o 4 de las 4), <b>Bajista</b> (sobre 0 o 1) o <b>Mixta</b> (sobre 2).</dd>
+            <dt>Señal</dt><dd>Una sola etiqueta por empresa. Si el RSI es extremo manda él: <b>Sobrevendida</b> (RSI menor a 30) o <b>Sobrecomprada</b> (mayor a 70). Si no, depende del precio contra las medias de 200 ruedas y de 200 semanas: <b>Alcista</b> (por encima de las dos), <b>Bajista</b> (por debajo de las dos) o <b>Mixta</b> (entre ellas).</dd>
             <dt>RSI</dt><dd>Fuerza de las subas contra las bajas de las últimas 14 ruedas diarias (unas 3 semanas), de 0 a 100. Más de 70: subió mucho y rápido. Menos de 30: cayó mucho y rápido. No dice qué pasará: en tendencias fuertes puede quedarse mucho tiempo en esas zonas.</dd>
             <dt>MACD</dt><dd>Impulso de corto plazo, con cierres diarios (12-26-9). ▲ la línea está por encima de su señal (impulso comprador); ▼ por debajo (impulso vendedor).</dd>
-            <dt>Soporte y resistencia</dt><dd>Se toman de 4 medias: <b>10s</b> (10 semanas), <b>50d</b> (50 ruedas), <b>200d</b> (200 ruedas) y <b>200s</b> (200 semanas, casi 4 años). <b>Soporte</b> es la media más cercana por <i>debajo</i> del precio y <b>Resistencia</b> la más cercana por <i>encima</i>, con la distancia: cuánto tendría que caer (o subir) el precio para tocarla. Resaltado = a 2% o menos. «—» = no hay ninguna media de ese lado, o no hay historia suficiente.</dd>
-            <dt>Vs máx. 52s</dt><dd>Cuánto está por debajo del precio máximo de las últimas 52 semanas. 0% = está en el máximo.</dd>
+            <dt>Media 200d y 200s</dt><dd>Distancia de la media de 200 ruedas diarias y de la de 200 semanas (casi 4 años) al precio de hoy. <span class="tp">Verde y negativo</span>: la media está por debajo del precio, así que funciona como <b>soporte</b>; <span class="tn">rojo y positivo</span>: está por encima, o sea <b>resistencia</b>. Resaltado = a 2% o menos. «—» = no hay historia suficiente.</dd>
+            <dt>Techo</dt><dd>El <b>máximo anterior</b> más cercano por encima del precio: un pico de los últimos 5 años donde el precio se dio vuelta (el más alto de las 8 semanas anteriores y posteriores). Se muestra el mes del pico y cuánto falta para tocarlo. Resaltado = a 3% o menos. «máximos» = no hay ningún pico por encima.</dd>
             <dt>Puntaje</dt><dd>El puntaje de fundamentos de la otra pestaña, para cruzar las dos miradas.</dd>
           </dl>
-          <p class="hint">Fuente: Yahoo Finance, precio en dólares del título original (ADR o acción) ajustado por dividendos y splits. Se actualiza una vez por día, después del cierre de EE.UU.</p>
+          <p class="hint">Fuente: Yahoo Finance, precio en dólares del título original (ADR o acción) ajustado por dividendos y splits. Los máximos usan el precio más alto de cada rueda. Se actualiza una vez por día, después del cierre de EE.UU.</p>
         </div>
         <div class="tablewrap" id="ttable"><div class="empty">Cargando…</div></div>
         <div class="foot">
@@ -950,25 +951,36 @@ function renderAll(){renderTable();if(selected)renderDetail()}
 let tab="fund",TEC={},tecAt=null,tsort="score",tdir=-1,tpage=0,tfilt="all",tsel=null,tecKey="",tecErr=false;
 const pct=(v,d=1)=>v==null||!isFinite(v)?"—":(v>=0?"+":"−")+num(Math.abs(v)*100,d)+"%";
 const sg=v=>v==null?"":v>=0?"tp":"tn";
-// las 4 medias: [campo, nombre, abreviatura]
-const MAS=[["s10w","Media de 10 semanas","10s"],["s50","Media de 50 ruedas (diaria)","50d"],["s200","Media de 200 ruedas (diaria)","200d"],["s200w","Media de 200 semanas","200s"]];
-const maAbove=x=>MAS.map(([k])=>x[k]==null?null:x.c>x[k]);
-function maRatio(x){const a=maAbove(x).filter(v=>v!=null);return a.length<2?null:a.filter(Boolean).length/a.length}
+// medias: [campo, nombre, abreviatura]. Las que más pesan son la de 200 ruedas (diaria) y la de 200 semanas.
+const MAS=[["s10w","Media 10s","10s"],["s50","Media 50d","50d"],["s200","Media 200d","200d"],["s200w","Media 200s","200s"]];
+const ymTxt=ym=>new Date(ym+"-15T12:00:00").toLocaleDateString("es-AR",{month:"short",year:"2-digit"}).replace(".","").replace(" ","-");
+const long=x=>[x.s200,x.s200w].map(v=>v==null?null:x.c>v);
+function maRatio(x){const a=long(x).filter(v=>v!=null);return a.length?a.filter(Boolean).length/a.length:null}
+// techo = el máximo anterior (pico donde el precio se dio vuelta) más cercano por encima del precio.
+// Si el dato es viejo y no trae picos, se usa el máximo de 52 semanas.
+function techos(x){
+  const L=Array.isArray(x.sw)?x.sw.map(([v,ym])=>({v,ym,a:ymTxt(ym),n:"Máx. de "+ymTxt(ym)})):(x.hi!=null&&x.hi>x.c*1.001?[{v:x.hi,ym:null,a:"52s",n:"Máx. 52 semanas"}]:[]);
+  return L.filter(l=>l.v>x.c*1.001).sort((p,q)=>p.v-q.v)}
+function techo(x){return techos(x)[0]||null}
+const dLvl=(x,k)=>x[k]==null?null:x[k]/x.c-1;   // distancia del nivel al precio: negativa = el nivel está abajo (soporte)
+function nearest(x){   // nivel más cercano (±2%) de las dos medias de 200
+  const c=[["s200","200d"],["s200w","200s"]].filter(([k])=>x[k]!=null&&Math.abs(x[k]/x.c-1)<=.02).sort((p,q)=>Math.abs(x[p[0]]/x.c-1)-Math.abs(x[q[0]]/x.c-1));
+  return c[0]?{a:c[0][1]}:null}
 function tsig(x){
   if(x.rsi!=null&&x.rsi<30)return ["Sobrevendida","lo"];
   if(x.rsi!=null&&x.rsi>70)return ["Sobrecomprada","hi"];
-  const r=maRatio(x);return r==null?["Sin dato",""]:r>=.75?["Alcista","lo"]:r<=.25?["Bajista","hi"]:["Mixta",""]}
+  const r=maRatio(x);return r==null?["Sin dato",""]:r===1?["Alcista","lo"]:r===0?["Bajista","hi"]:["Mixta",""]}
 const TF=[
   ["all","Todas",()=>true],
   ["sv","Sobrevendidas",x=>x.rsi!=null&&x.rsi<30],
   ["sc","Sobrecompradas",x=>x.rsi!=null&&x.rsi>70],
-  ["lo","Cerca de mínimos",x=>x.dlo!=null&&x.dlo<=.1],
-  ["nm","Cerca de una media (±2%)",x=>!!srLevels(x).near],
+  ["n2","Cerca de la 200 (±2%)",x=>!!nearest(x)],
+  ["nt","Cerca del techo (±3%)",x=>{const t=techo(x);return !!t&&t.v/x.c-1<=.03}],
   ["bq","Buen puntaje y cayendo",(x,t)=>SC[t]&&SC[t].score>=60&&x.dhi!=null&&x.dhi<=-.2]
 ];
-const TACC={name:r=>r.u.t,sig:r=>maRatio(r.x),rsi:r=>r.x.rsi,mh:r=>r.x.mh,sop:r=>{const l=srLevels(r.x).sup;return l?r.x.c/l.v-1:null},res:r=>{const l=srLevels(r.x).res;return l?l.v/r.x.c-1:null},dhi:r=>r.x.dhi,score:r=>r.sc};
-const TCOLS=[["sig","Señal"],["rsi","RSI"],["mh","MACD"],["sop","Soporte"],["res","Resistencia"],["dhi","Vs máx. 52s"],["score","Puntaje"]];
-const TTIP={sig:"Una sola etiqueta: RSI extremo primero; si no, cuántas medias tiene el precio por debajo",rsi:"RSI de 14 ruedas diarias. Menos de 30 = sobrevendida, más de 70 = sobrecomprada",mh:"MACD diario (12-26-9): ▲ impulso comprador, ▼ impulso vendedor",sop:"Media más cercana por debajo del precio (10s, 50d, 200d o 200s) y cuánto tendría que caer para tocarla. Resaltado = a 2% o menos",res:"Media más cercana por encima del precio y cuánto tendría que subir para tocarla. Resaltado = a 2% o menos",dhi:"Cuánto está por debajo de su máximo de 52 semanas",score:"Puntaje de fundamentos (pestaña Fundamentos)"};
+const TACC={name:r=>r.u.t,sig:r=>maRatio(r.x),rsi:r=>r.x.rsi,mh:r=>r.x.mh,d200:r=>{const v=dLvl(r.x,"s200");return v==null?null:Math.abs(v)},d200w:r=>{const v=dLvl(r.x,"s200w");return v==null?null:Math.abs(v)},techo:r=>{const t=techo(r.x);return t?t.v/r.x.c-1:null},score:r=>r.sc};
+const TCOLS=[["sig","Señal"],["rsi","RSI"],["mh","MACD"],["d200","Media 200d"],["d200w","Media 200s"],["techo","Techo"],["score","Puntaje"]];
+const TTIP={sig:"Una sola etiqueta: RSI extremo primero; si no, depende de si el precio está sobre las medias de 200 ruedas y de 200 semanas",rsi:"RSI de 14 ruedas diarias. Menos de 30 = sobrevendida, más de 70 = sobrecomprada",mh:"MACD diario (12-26-9): ▲ impulso comprador, ▼ impulso vendedor",d200:"Distancia de la media de 200 ruedas diarias al precio. Verde y negativo = la media está abajo (soporte); rojo y positivo = está arriba (resistencia). Resaltado = a 2% o menos",d200w:"Distancia de la media de 200 semanas (casi 4 años) al precio. Verde y negativo = soporte; rojo y positivo = resistencia. Resaltado = a 2% o menos",techo:"Máximo anterior (pico donde el precio se dio vuelta, de los últimos 5 años) más cercano por encima del precio, con su mes, y cuánto tendría que subir para tocarlo. Resaltado = a 3% o menos",score:"Puntaje de fundamentos (pestaña Fundamentos)"};
 function tecRows(){
   if(!universe)return [];
   const f=TF.find(x=>x[0]===tfilt)||TF[0];
@@ -978,26 +990,23 @@ function tecRows(){
     if(tsort==="name")return a.u.t<b.u.t?-tdir:tdir;
     const x=acc(a),y=acc(b);if(x==null&&y==null)return a.u.t<b.u.t?-1:1;if(x==null)return 1;if(y==null)return -1;return (x-y)*tdir||(a.u.t<b.u.t?-1:1)});
 }
-function srLevels(x){
-  const L=MAS.map(([k,n,a])=>x[k]==null?null:{k,n,a,v:x[k]}).filter(Boolean);
-  return {L,sup:L.filter(l=>l.v<x.c).sort((p,q)=>q.v-p.v)[0]||null,res:L.filter(l=>l.v>x.c).sort((p,q)=>p.v-q.v)[0]||null,near:L.filter(l=>Math.abs(x.c/l.v-1)<=.02).sort((p,q)=>Math.abs(x.c/p.v-1)-Math.abs(x.c/q.v-1))[0]||null}}
-function srCell(x,side){
-  const l=srLevels(x)[side];if(!l)return `<td class="na">—</td>`;
-  const d=l.v/x.c-1,near=Math.abs(d)<=.02;
-  return `<td class="${near?"nr":""}" title="${esc(l.n+": US$ "+num(l.v,2))}"><span class="lv">${l.a}</span><span class="v">${pct(d,1)}</span></td>`}
-function dotsHtml(x){
-  const ab=maAbove(x);
-  const tip=MAS.map(([k,n],i)=>`${n}: ${x[k]==null?"sin historia suficiente":(ab[i]?"precio por encima":"precio por debajo")+" ("+num(x[k],2)+")"}`).join("\n");
-  return `<span class="dots" title="${esc(tip)}">${ab.map(v=>v==null?`<span class="d0">○</span>`:`<span class="${v?"dg":"db"}">●</span>`).join("")}</span>`}
+function lvlCell(x,k,nm){
+  if(x[k]==null)return `<td class="na" title="Sin historia suficiente para esta media">—</td>`;
+  const d=dLvl(x,k),near=Math.abs(d)<=.02;
+  return `<td class="${near?"nr":""}" title="${esc(nm+": US$ "+num(x[k],2)+(d<0?" (soporte)":" (resistencia)"))}"><span class="v ${d<0?"tp":"tn"}">${pct(d,1)}</span></td>`}
+function techoCell(x){
+  const t=techo(x);if(!t)return `<td class="na" title="Sin un máximo anterior por encima: el precio está en máximos o cerca de ellos">máximos</td>`;
+  const d=t.v/x.c-1,near=d<=.03;
+  return `<td class="${near?"nr":""}" title="${esc(t.n+": US$ "+num(t.v,2))}"><span class="lv">${t.a}</span><span class="v">${pct(d,1)}</span></td>`}
 function tecCell(k,r){
   const x=r.x;
   switch(k){
     case "sig":{const L=tsig(x);return `<td style="text-align:left"><span class="pill ${L[1]}">${L[0]}</span></td>`}
     case "rsi":return x.rsi==null?`<td class="na">—</td>`:`<td><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">${num(x.rsi,0)}</span></td>`;
     case "mh":return x.mh==null?`<td class="na">—</td>`:`<td class="${sg(x.mh)}" title="${x.mh>=0?"MACD sobre su señal: impulso comprador":"MACD bajo su señal: impulso vendedor"}">${x.mh>=0?"▲":"▼"}</td>`;
-    case "sop":return srCell(x,"sup");
-    case "res":return srCell(x,"res");
-    case "dhi":return x.dhi==null?`<td class="na">—</td>`:`<td class="${x.dhi>-.05?"tp":""}">${Math.abs(x.dhi)<.005?"0%":pct(x.dhi,0)}</td>`;
+    case "d200":return lvlCell(x,"s200","Media de 200 ruedas");
+    case "d200w":return lvlCell(x,"s200w","Media de 200 semanas");
+    case "techo":return techoCell(x);
     case "score":return r.sc==null?`<td class="na">—</td>`:`<td><span class="pill${r.sc>=70?" lo":r.sc<=35?" hi":""}">${r.sc}</span></td>`;
   }
 }
@@ -1033,7 +1042,7 @@ const sma=(a,k)=>a.map((_,i)=>i<k-1?null:a.slice(i-k+1,i+1).reduce((p,q)=>p+q,0)
 function tecChart(t,x){
   const w=x.w,n=w.length;if(n<8)return "";
   const W=380,H=210,L=6,R=38,T=10,B=22,iw=W-L-R,ih=H-T-B;
-  const s10=sma(w,10),s40=sma(w,40);
+  const s40=sma(w,40),tc=techo(x);
   const vals=[...w];let lo=Math.min(...vals),hi=Math.max(...vals);const pad=(hi-lo)*.06||1;lo-=pad;hi+=pad;
   const X=i=>L+iw*i/(n-1),Y=v=>T+ih*(1-(v-lo)/(hi-lo));
   const path=a=>{let d="",on=false;a.forEach((v,i)=>{if(v==null){on=false;return}d+=(on?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);on=true});return d};
@@ -1041,42 +1050,48 @@ function tecChart(t,x){
   let ticks="",last=-1;
   for(let i=0;i<n;i++){const d=dt(i),m=d.getMonth()+d.getFullYear()*12;if(d.getMonth()%6===0&&m!==last&&i>2&&i<n-3){last=m;ticks+=`<line x1="${X(i).toFixed(1)}" x2="${X(i).toFixed(1)}" y1="${T}" y2="${T+ih}" stroke="var(--line)"/><text x="${X(i).toFixed(1)}" y="${H-6}" text-anchor="middle">${d.toLocaleDateString("es-AR",{month:"short",year:"2-digit"}).replace(".","")}</text>`}}
   const grid=[0,.25,.5,.75,1].map(f=>{const v=lo+(hi-lo)*f;return `<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)" stroke-dasharray="2 3"/><text x="${W-R+5}" y="${(Y(v)+4).toFixed(1)}">${num(v,v>=100?0:1)}</text>`}).join("");
-  // la media de 200 semanas necesita casi 4 años de historia: se dibuja como nivel actual, solo si cae dentro del rango del gráfico
-  const l200=x.s200w!=null&&x.s200w>lo&&x.s200w<hi?`<line x1="${L}" x2="${W-R}" y1="${Y(x.s200w).toFixed(1)}" y2="${Y(x.s200w).toFixed(1)}" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="1 4" stroke-linecap="round"/>`:"";
-  const hits=w.map((v,i)=>`<rect class="hit" x="${(X(i)-iw/n/2).toFixed(1)}" y="${T}" width="${(iw/n).toFixed(1)}" height="${ih}" data-tl="${esc(dt(i).toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"}))}" data-tv="US$ ${num(v,2)}" data-tx="${esc("Media 10 semanas: "+(s10[i]==null?"—":num(s10[i],2))+" · Media 40 semanas: "+(s40[i]==null?"—":num(s40[i],2)))}"/>`).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Precio semanal de ${esc(t)} con sus medias">${grid}${ticks}${l200}
-    <path d="${path(s40)}" fill="none" stroke="var(--muted)" stroke-width="1.8"/>
-    <path d="${path(s10)}" fill="none" stroke="var(--fg)" stroke-width="1.3" stroke-dasharray="5 3"/>
+  // niveles horizontales: media de 200 semanas (nivel actual) y techo; solo si caen dentro del rango del gráfico
+  const hl=(v,col,dash,wd)=>v!=null&&v>lo&&v<hi?`<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="${col}" stroke-width="${wd}" stroke-dasharray="${dash}" stroke-linecap="round"/>`:"";
+  const l200=hl(x.s200w,"var(--accent)","1 4",1.6),lt=tc?hl(tc.v,"var(--bad)","6 4",1.2):"";
+  const hits=w.map((v,i)=>`<rect class="hit" x="${(X(i)-iw/n/2).toFixed(1)}" y="${T}" width="${(iw/n).toFixed(1)}" height="${ih}" data-tl="${esc(dt(i).toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"}))}" data-tv="US$ ${num(v,2)}" data-tx="${esc("Media 40 semanas (≈ 200 ruedas): "+(s40[i]==null?"—":num(s40[i],2)))}"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Precio semanal de ${esc(t)} con su media de 200 ruedas, la de 200 semanas y su techo">${grid}${ticks}${l200}${lt}
+    <path d="${path(s40)}" fill="none" stroke="var(--fg)" stroke-width="1.6"/>
     <path d="${path(w)}" fill="none" stroke="var(--ch)" stroke-width="2"/>
     <circle cx="${X(n-1).toFixed(1)}" cy="${Y(w[n-1]).toFixed(1)}" r="4" fill="var(--ch)"/>${hits}</svg>
-    <div class="tleg"><span><i style="border-color:var(--ch)"></i>Precio (cierre semanal)</span><span><i style="border-color:var(--fg);border-top-style:dashed"></i>Media 10 semanas (≈ 50 ruedas)</span><span><i style="border-color:var(--muted)"></i>Media 40 semanas (≈ 200 ruedas)</span>${l200?`<span><i style="border-color:var(--accent);border-top-style:dotted"></i>Media 200 semanas (nivel actual)</span>`:""}</div>`;
+    <div class="tleg"><span><i style="border-color:var(--ch)"></i>Precio (cierre semanal)</span><span><i style="border-color:var(--fg)"></i>Media 200 ruedas (≈ 40 semanas)</span>${l200?`<span><i style="border-color:var(--accent);border-top-style:dotted"></i>Media 200 semanas (nivel actual)</span>`:""}${lt?`<span><i style="border-color:var(--bad);border-top-style:dashed"></i>Techo: ${tc.n.toLowerCase()}</span>`:""}</div>`;
 }
 function renderTecDetail(){
   const t=tsel&&TEC[tsel]?tsel:null;
   if(!t){const f=tecRows()[0];if(f){tsel=f.u.t;return renderTecDetail()}$("tdbody").innerHTML=`<div class="empty">Elegí una empresa de la tabla.</div>`;return}
   const x=TEC[t],d=docs[t]||{},sc=SC[t]&&SC[t].score,L=tsig(x);
   const us=v=>"US$ "+num(v,2);
-  const ab=maAbove(x),av=ab.filter(v=>v!=null),n=av.filter(Boolean).length;
+  const lg=long(x).filter(v=>v!=null),nlg=lg.filter(Boolean).length,tc=techo(x),nr=nearest(x);
   const zona=x.rsi==null?"":x.rsi<30?"sobrevendida":x.rsi>70?"sobrecomprada":"zona neutra";
-  const SR0=srLevels(x);
-  const frase=`${L[0]==="Sobrevendida"||L[0]==="Sobrecomprada"?`<b>${L[0]}</b>`:`<b>${L[0]==="Mixta"?"Sin tendencia clara":L[0]}</b>`}: el precio está por encima de ${n} de sus ${av.length} medias. Soporte más cercano: ${SR0.sup?`media ${SR0.sup.a} (${pct(SR0.sup.v/x.c-1,1)})`:"ninguna media por debajo"}; resistencia: ${SR0.res?`media ${SR0.res.a} (${pct(SR0.res.v/x.c-1,1)})`:"ninguna media por encima"}. RSI ${num(x.rsi,0)} (${zona}), a ${num(Math.abs(x.dhi)*100,0)}% de su máximo anual${sc!=null?`. Fundamentos: <b>${sc}</b>`:""}.`;
+  const lvTxt=(k,nm)=>x[k]==null?`${nm}: sin historia suficiente`:`${nm}: ${pct(dLvl(x,k),1)}`;
+  const frase=`<b>${L[0]==="Mixta"?"Sin tendencia clara":L[0]}</b>: el precio está por encima de ${nlg} de sus ${lg.length} medias largas. ${lvTxt("s200","Media 200d")}; ${lvTxt("s200w","media 200s")}; techo: ${tc?`${tc.n.replace("Máx.","máx.")} (${pct(tc.v/x.c-1,1)})`:"sin máximos anteriores por encima"}. RSI ${num(x.rsi,0)} (${zona})${sc!=null?`. Fundamentos: <b>${sc}</b>`:""}.`;
   const rsiTxt=x.rsi==null?"":x.rsi<30?"Sobrevendida: cayó mucho y rápido en las últimas semanas. A veces precede un rebote, pero en caídas fuertes puede seguir bajando."
     :x.rsi>70?"Sobrecomprada: subió mucho y rápido. A veces precede una pausa, pero en tendencias fuertes puede mantenerse arriba mucho tiempo."
     :"Zona neutra (entre 30 y 70): sin exceso de compras ni de ventas.";
   const pos=x.hi>x.lo?clamp((x.c-x.lo)/(x.hi-x.lo)):null;
-  const SR=srLevels(x);
-  const lv=[...SR.L.map(l=>({n:"Media "+l.a,v:l.v,t:"ma"})),{n:"Máx. 52 semanas",v:x.hi,t:"x"},{n:"Mín. 52 semanas",v:x.lo,t:"x"},{n:"Precio (cierre)",v:x.c,t:"p"}].filter(l=>l.v!=null).sort((a,b)=>b.v-a.v);
-  const ladder=lv.map(l=>l.t==="p"?`<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`:`<div class="marow"><span>${l.n}</span><span>${us(l.v)} · <span class="${l.v<x.c?"tp":"tn"}">${pct(l.v/x.c-1,1)}</span></span></div>`).join("");
-  const mrows_unused=MAS.map(([k,nm],i)=>`<div class="marow"><span>${nm.replace(" (diaria)","")}</span><span>${x[k]==null?"sin historia suficiente":`${us(x[k])} · <span class="${ab[i]?"tp":"tn"}">${pct(x.c/x[k]-1,1)}</span>`}</span></div>`).join("");
-  const cr=x.cruce?`<p style="margin:8px 0 0">Hace ${x.cruce.d} ${x.cruce.d===1?"rueda":"ruedas"} la media de 50 cruzó ${x.cruce.t==="dorada"?"por encima":"por debajo"} de la de 200: <b>${x.cruce.t==="dorada"?"cruz dorada":"cruz de la muerte"}</b>, que se suele leer como señal ${x.cruce.t==="dorada"?"alcista":"bajista"} de largo plazo.</p>`:"";
   const volTxt=x.rv==null?"":`<p style="margin:8px 0 0">El volumen de los últimos 5 días es ${num(x.rv,1)}x el promedio de 50 días${x.rv>=1.5?" (mucho más movimiento que lo habitual)":x.rv<=.7?" (poco movimiento)":""}.</p>`;
+  const cr=x.cruce?`<p style="margin:8px 0 0">Hace ${x.cruce.d} ${x.cruce.d===1?"rueda":"ruedas"} la media de 50 cruzó ${x.cruce.t==="dorada"?"por encima":"por debajo"} de la de 200: <b>${x.cruce.t==="dorada"?"cruz dorada":"cruz de la muerte"}</b>, que se suele leer como señal ${x.cruce.t==="dorada"?"alcista":"bajista"} de largo plazo.</p>`:"";
+  // escalera de niveles: de arriba (resistencias) a abajo (soportes); los máximos repetidos se muestran una sola vez
+  const seen=new Set(),lv=[];
+  techos(x).forEach(l=>{if(!seen.has(l.v)){seen.add(l.v);lv.push({n:l.n,v:l.v,t:"x"})}});
+  if(x.hi!=null&&!seen.has(x.hi)){seen.add(x.hi);lv.push({n:"Máx. 52 semanas",v:x.hi,t:"x"})}
+  MAS.forEach(([k,n],i)=>{if(x[k]!=null)lv.push({n,v:x[k],t:"m",sec:k==="s10w"||k==="s50"})});
+  if(x.lo!=null)lv.push({n:"Mín. 52 semanas",v:x.lo,t:"x"});
+  lv.push({n:"Precio (cierre)",v:x.c,t:"p"});
+  lv.sort((a,b)=>b.v-a.v);
+  const ladder=lv.map(l=>l.t==="p"?`<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`:`<div class="marow${l.sec?" sec":""}"><span>${l.n}</span><span>${us(l.v)} · <span class="${l.v<x.c?"tp":"tn"}">${pct(l.v/x.c-1,1)}</span></span></div>`).join("");
+  const tn=tc&&tc.v/x.c-1<=.03;
   $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>
   <div class="hint">Cierre del ${tecDate(x)} en dólares · ${esc(sec(t,d)||"")}</div>
   <div class="tfrase">${frase}</div>
   ${tecChart(t,x)}
-  <div class="tcard"><div class="th"><h3>Soportes y resist.</h3>${SR.near?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">Cerca de ${SR.near.a}</span>`:""}</div>
-    <div class="hint" style="margin:0 0 4px">Sobre el precio: resistencias · Bajo el precio: soportes. 10s = 10 semanas, 50d y 200d = ruedas diarias, 200s = 200 semanas.</div>${ladder}
-    <details><summary>Ver cruces y cómo leerlo</summary><div><p style="margin:0">Las medias actúan como soporte cuando el precio está por encima de ellas y como resistencia cuando está por debajo; cuanto más larga la media, más peso suele tener. Si el precio cruza una media, esta cambia de lado.</p>${cr}</div></details></div>
+  <div class="tcard"><div class="th"><h3>Soportes y techos</h3>${nr||tn?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">${nr?"Cerca de "+nr.a:"Cerca del techo"}</span>`:""}</div>
+    <div class="hint" style="margin:0 0 4px">Sobre el precio: techos y resistencias · Bajo el precio: soportes. En tenue, las medias cortas (10s = 10 semanas, 50d = 50 ruedas).</div>${ladder}
+    <details><summary>Cómo leerlo</summary><div><p style="margin:0">Las medias de 200 ruedas y de 200 semanas actúan como soporte cuando el precio está por encima de ellas y como resistencia cuando está por debajo. El techo es el máximo anterior más cercano por encima del precio (un pico de los últimos 5 años donde el precio se dio vuelta): si el precio lo supera, suele pasar a funcionar como soporte.</p>${cr}</div></details></div>
   <div class="tcard"><div class="th"><h3>Momento</h3><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">RSI ${num(x.rsi,0)}</span></div>
     <div>${x.mh==null?"":x.mh>=0?"MACD: impulso comprador":"MACD: impulso vendedor"}</div>
     <details><summary>Ver detalle</summary><div><p style="margin:0 0 4px">${rsiTxt}</p>
@@ -1085,7 +1100,7 @@ function renderTecDetail(){
   <div class="tcard"><div class="th"><h3>Rango del año</h3><span class="pill">${num(Math.abs(x.dhi)*100,0)}% bajo el máx.</span></div>
     ${pos==null?"":`<div class="tgauge" style="background:var(--track)"><u style="left:${pos*100}%"></u></div><div class="tgl"><span>mín. ${us(x.lo)}</span><span>máx. ${us(x.hi)}</span></div>`}
     <details><summary>Ver rendimientos y volumen</summary><div><div class="tret">${[["1 mes",x.r1],["3 meses",x.r3],["6 meses",x.r6],["12 meses",x.r12]].map(([l,v])=>`<div><span>${l}</span><b class="${sg(v)}">${pct(v,1)}</b></div>`).join("")}</div>${volTxt}</div></details></div>
-  <p class="hint" style="margin-top:12px">Lectura de contexto, no una recomendación. RSI, MACD y las medias de 50 y 200 ruedas se calculan con cierres diarios; las de 10 y 200 semanas, con cierres semanales. El gráfico es semanal: sus medias de 10 y 40 semanas equivalen aproximadamente a las de 50 y 200 ruedas.</p>`;
+  <p class="hint" style="margin-top:12px">Lectura de contexto, no una recomendación. RSI, MACD y las medias de 50 y 200 ruedas se calculan con cierres diarios; las de 10 y 200 semanas, con cierres semanales. Los máximos usan el precio más alto de cada rueda. El gráfico es semanal: su media de 40 semanas equivale aproximadamente a la de 200 ruedas.</p>`;
 }
 function setTab(n){
   tab=n;$("main").classList.toggle("tabtec",n==="tec");

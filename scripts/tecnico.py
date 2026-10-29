@@ -25,7 +25,7 @@ def r(v, n=4):
     return round(v, n) if math.isfinite(v) else None
 
 
-def calc(close, vol=None):
+def calc(close, vol=None, high=None, low=None):
     """close: pandas Series con fechas; devuelve el diccionario de indicadores o None si hay muy poco historial."""
     c = close.dropna()
     c = c[c > 0]
@@ -38,8 +38,25 @@ def calc(close, vol=None):
     m200 = float(s200.iloc[-1]) if len(c) >= 200 and math.isfinite(s200.iloc[-1]) else None
     macd = c.ewm(span=12, adjust=False).mean() - c.ewm(span=26, adjust=False).mean()
     sig = macd.ewm(span=9, adjust=False).mean()
-    y = c.iloc[-252:]
-    hi, lo = float(y.max()), float(y.min())
+    # máximos y mínimos con los extremos de cada rueda (High/Low); si no vienen, con los cierres
+    hh = high.dropna() if high is not None else c
+    ll = low.dropna() if low is not None else c
+    hh, ll = hh[hh > 0], ll[ll > 0]
+    hi, lo = float(max(hh.iloc[-252:].max(), last)), float(min(ll.iloc[-252:].min(), last))
+    # máximos anteriores (picos): máximos semanales que fueron el más alto de las 8 semanas anteriores y posteriores.
+    # Se quedan los que están por encima del precio y se agrupan los que están a menos de 1,5% entre sí (queda el más bajo, el primero que se encuentra al subir).
+    hw = hh.resample("W-FRI").max().dropna()
+    v = hw.values
+    picos = []
+    for i in range(len(v)):
+        if i <= len(v) - 3 and v[i] >= v[max(0, i - 8):i + 9].max() and v[i] > last * 1.001:   # se ignoran las 2 últimas semanas: son el precio de hoy, no un máximo anterior
+            picos.append((float(v[i]), hw.index[i].strftime("%Y-%m")))
+    picos.sort()
+    sw = []
+    for val, ym in picos:
+        if not sw or val > sw[-1][0] * 1.015:
+            sw.append([r(val, 2), ym])
+    sw = sw[:4]
     def ret(n):
         return r(last / float(c.iloc[-1 - n]) - 1) if len(c) > n else None
     # cruce de las medias de 50 y 200 ruedas en los últimos 60 días
@@ -69,7 +86,7 @@ def calc(close, vol=None):
         "s10w": r(s10w, 2), "s200w": r(s200w, 2) if s200w else None,
         "d50": r(last / m50 - 1), "d200": r(last / m200 - 1) if m200 else None,
         "rsi": r(rsi(c), 1), "macd": r(macd.iloc[-1], 3), "sig": r(sig.iloc[-1], 3), "mh": r(macd.iloc[-1] - sig.iloc[-1], 3),
-        "hi": r(hi, 2), "lo": r(lo, 2), "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
+        "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
         "r1": ret(21), "r3": ret(63), "r6": ret(126), "r12": ret(252),
         "cruce": cruce, "rv": rv,
         "wend": c.index[-1].date().isoformat(), "w": [r(x, 2) for x in w.values],
@@ -98,7 +115,7 @@ def main():
         for s in lote:
             try:
                 x = df[s] if len(lote) > 1 else df
-                res = calc(x["Close"], x["Volume"] if "Volume" in x else None)
+                res = calc(x["Close"], x["Volume"] if "Volume" in x else None, x["High"] if "High" in x else None, x["Low"] if "Low" in x else None)
                 if res:
                     out[inv[s]] = res
             except Exception:
@@ -107,7 +124,9 @@ def main():
     for t in faltan[:40]:   # los que no salieron en el pedido grande se piden de a uno
         try:
             x = yf.Ticker(sym[t]).history(period="5y", interval="1d", auto_adjust=True)
-            res = calc(x["Close"].tz_localize(None) if x.index.tz is not None else x["Close"], x.get("Volume"))
+            if x.index.tz is not None:
+                x.index = x.index.tz_localize(None)
+            res = calc(x["Close"], x.get("Volume"), x.get("High"), x.get("Low"))
             if res:
                 out[t] = res
         except Exception:
