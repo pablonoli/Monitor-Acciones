@@ -399,11 +399,14 @@ function metrics(t){
   const mcap=price&&shares?price*shares:d.mcap;
   const fx=d.fx||1; // ingresos y ganancias ya vienen en US$ desde la carga
   const rev=d.rev!=null?d.rev:null, ni=d.ni!=null?d.ni:null;
-  // P/E, P/Ventas y P/E estimado: se usan los de Yahoo (ajustados al precio de hoy) cuando existen; si no, se calculan.
-  // Para empresas que reportan en otra moneda (pesos, reales, etc.) el cálculo propio distorsiona, y el EPS estimado puede venir en esa moneda.
+  // P/E: el que informa Yahoo Finance (ajustado por el cambio de precio desde que se bajó el dato). P/Ventas: se calcula acá (capitalización / ventas), porque el de Yahoo viene mal escalado para empresas que reportan en otra moneda.
+  // El P/E estimado, si reporta en otra moneda, es el de Yahoo porque el EPS estimado viene en esa moneda.
   const k0=d.p0>0&&price>0?price/d.p0:1,usd=!d.cur||d.cur==="USD";
-  const pe=d.pe0>0?d.pe0*k0:((d.pe0===undefined||usd)&&ni>0&&mcap?mcap/ni:null);
-  const ps=d.ps0>0?d.ps0*k0:((d.ps0===undefined||usd)&&rev>0&&mcap?mcap/rev:null);
+  const pe0k=d.pe0>0?d.pe0*k0:null;
+  const peOwn=ni>0&&mcap?mcap/ni:null;
+  // si el P/E de Yahoo es absurdamente distinto del propio (más de 4 veces), se descarta: suele ser un error de moneda o de período
+  const pe=pe0k&&(!peOwn||(pe0k/peOwn<4&&pe0k/peOwn>.25))?pe0k:((d.pe0===undefined||usd)?peOwn:null);
+  const ps=rev>0&&mcap?mcap/rev:null;
   const fpe=usd?(d.epsCur>0&&price?price/d.epsCur:null):(d.fpe0>0?d.fpe0*k0:null);
   const g=d.epsCur>0&&d.epsNext>0?(d.epsNext/d.epsCur-1)*100:null;
   const peg=pe&&g>0?pe/g:(d.peg>0?d.peg:null);
@@ -621,6 +624,7 @@ function renderDetail(){
   ${scoreHtml(t)}
   <div class="stats">${st("Ingresos 12m",money(m.rev))}${st("Ganancia neta",money(m.ni))}${st("Cap. bursátil",money(m.mcap))}${st("Dividendo",m.dy==null?"—":num(m.dy*100,2)+"%")}${st("P/E est. "+esc(d.fyCur||""),mult(m.fpe))}${st("Crec. EPS esperado",m.g==null?"—":num(m.g,1)+"%")}</div>
   <p class="dsum">${sum}</p>
+  
   ${d.cur==="ARS"?`<p class="hint" style="margin:8px 0 0">Esta empresa reporta en pesos argentinos. Con la inflación y las devaluaciones, convertir sus resultados a dólares distorsiona, sobre todo en los años anteriores: tomá el historial como orientativo.</p>`:""}
   <p class="hint" style="margin:10px 0 0">Fundamentales cargados el ${fdate(d.fundAt)} desde ${d.src==="YF"?"Yahoo Finance":d.src==="SA"?"StockAnalysis":d.src==="FMP"?"Financial Modeling Prep":"Alpha Vantage"}${d.cur&&d.cur!=="USD"?`, convertidos de ${esc(d.cur)} a dólares`:""}. Precio ${m.liveAt?"en vivo":"del "+fdate(d.priceAt)}.</p>`;
   more.hidden=false;$("mtitle").textContent=`Todos los gráficos · ${t}`;
