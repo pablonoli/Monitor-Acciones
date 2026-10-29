@@ -233,11 +233,42 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
 .drow:first-of-type{border-top:0}
 .drow span{color:var(--muted)}
 .drow b{font:500 14px var(--mono);text-align:right}
+/* Pestaña Técnico */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 4px}
+.tabb{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;padding:10px 16px;font:600 14px var(--body);color:var(--muted);margin-bottom:-1px;min-height:44px}
+.tabb[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+#tecwrap{display:none;flex-direction:column;gap:16px}
+.main.tabtec #tecwrap{display:flex}
+.main.tabtec .fk,.main.tabtec .fc,.main.tabtec #more,.main.tabtec #scope{display:none!important}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
+.chipb{padding:6px 12px;border-radius:999px;font:500 13px var(--body);min-height:34px}
+.chipb[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
+.tp{color:var(--good)}.tn{color:var(--bad)}
+#ttable table{min-width:0}
+#ttable td,#ttable th{white-space:nowrap;padding-left:6px;padding-right:6px}
+#ttable td.name{max-width:104px}
+#ttable td.name span{overflow:hidden;text-overflow:ellipsis}
+td.tc small{font:500 11px var(--body);color:var(--muted);margin-left:6px}
+.tdet svg{min-width:0}
+.tdet h3{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 6px}
+.tdet p{margin:0 0 6px;font-size:14px}
+.tleg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin:2px 0 0}
+.tleg i{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
+.tret{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0}
+.tret div{border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.tret span{display:block;font:500 11px var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.tret b{display:block;font:600 16px var(--mono);margin-top:2px}
+.tgauge{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--bar-good) 0 30%,var(--bar-mid) 30% 70%,var(--bar-bad) 70% 100%);margin:10px 0 4px}
+.tgauge u{position:absolute;top:-5px;width:3px;height:18px;margin-left:-2px;border-radius:2px;background:var(--fg)}
+.tgl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.tcombo{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;padding:10px 12px;background:var(--row);font-size:14px;margin-top:6px}
 @media (max-width:960px){
   .app{flex-direction:column}
   .side{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line);align-self:stretch}
   .navg,.navg.sectors{flex-direction:row;flex-wrap:wrap}
   .navb{width:auto}
+  .tret{grid-template-columns:repeat(2,1fr)}
+  .tabb{flex:1}
   .dpanel{position:static;max-height:none;flex:1 1 100%}
   .main{padding:16px 14px 32px}
   .progress{display:none}
@@ -271,7 +302,11 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
   <div class="grow"></div>
 </aside>
 
-<main class="main">
+<main class="main" id="main">
+  <div class="tabs" role="tablist" aria-label="Sección">
+    <button type="button" class="tabb" role="tab" data-tab="fund" aria-selected="true">Fundamentos</button>
+    <button type="button" class="tabb" role="tab" data-tab="tec" aria-selected="false">Técnico</button>
+  </div>
   <div class="topbar">
     <label for="q" hidden>Buscar</label>
     <input id="q" type="search" placeholder="Buscar por ticker o nombre" autocomplete="off">
@@ -285,13 +320,13 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
   <div id="banner" class="banner" hidden></div>
 
   <div class="scope" id="scope" hidden></div>
-  <div class="kpis">
+  <div class="kpis fk">
     <div class="kpi"><span>P/E mediano</span><b id="k-med">—</b><small id="k-med-s"></small></div>
     <div class="kpi g"><span>P/E menor a 15</span><b id="k-lo">—</b><small>relativamente baratas</small></div>
     <div class="kpi r"><span>P/E mayor a 40</span><b id="k-hi">—</b><small>caras o de alto crecimiento</small></div>
   </div>
 
-  <div class="cols">
+  <div class="cols fc">
     <section class="panel tablepanel">
       <div class="tbar">
         <div class="tt"><h2>Múltiplos y resultados</h2><button type="button" id="gbtn" aria-expanded="false" aria-controls="gloss">ⓘ ¿Qué significa cada dato?</button></div>
@@ -319,6 +354,45 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
     <aside class="panel dpanel" id="detail" aria-label="Detalle de la empresa elegida">
       <div id="dbody"><div class="empty">Elegí una empresa de la tabla.</div></div>
     </aside>
+  </div>
+
+
+  <div id="tecwrap">
+    <div class="scope" id="tscope" hidden></div>
+    <div class="kpis">
+      <div class="kpi r"><span>Sobrecompradas</span><b id="tk-sc">—</b><small>RSI mayor a 70</small></div>
+      <div class="kpi g"><span>Sobrevendidas</span><b id="tk-sv">—</b><small>RSI menor a 30</small></div>
+      <div class="kpi"><span>En tendencia alcista</span><b id="tk-up">—</b><small id="tk-up-s"></small></div>
+    </div>
+    <div class="cols">
+      <section class="panel tablepanel">
+        <div class="tbar">
+          <div class="tt"><h2>Señales técnicas</h2><button type="button" id="tgbtn" aria-expanded="false" aria-controls="tgloss">ⓘ ¿Qué significa cada dato?</button><button type="button" id="trefresh">Actualizar indicadores</button></div>
+          <p class="sub" id="tsub">Indicadores calculados con el precio en dólares al cierre de la rueda. Son una lectura del momento del precio, no un consejo de compra o venta. Tocá un encabezado para ordenar y una fila para ver el gráfico y el cierre. ✚ = cruz dorada reciente, ✖ = cruz de la muerte.</p>
+          <div class="chips" id="tchips" role="group" aria-label="Filtros rápidos"></div>
+        </div>
+        <div id="tgloss" class="gloss" hidden>
+          <dl>
+            <dt>Tendencia</dt><dd>Compara el precio con su promedio de las últimas 50 ruedas (unos 2,5 meses) y de las últimas 200 (casi un año). Alcista: precio sobre la media de 50 y ésta sobre la de 200. Bajista: al revés. Mixta: las señales no coinciden.</dd>
+            <dt>Cruz dorada / de la muerte</dt><dd>Cuando la media de 50 ruedas cruza hacia arriba (dorada) o hacia abajo (de la muerte) a la de 200. Se muestra si ocurrió en las últimas 60 ruedas.</dd>
+            <dt>Vs media 50 / 200</dt><dd>A qué distancia está el precio de cada promedio. Muy positivo: se alejó hacia arriba y puede estar estirado. Negativo: está por debajo.</dd>
+            <dt>RSI 14</dt><dd>Fuerza de las subas contra las bajas de las últimas 14 ruedas, de 0 a 100. Más de 70: sobrecomprada (subió mucho y rápido). Menos de 30: sobrevendida (cayó mucho y rápido). No dice qué pasará: en tendencias fuertes puede quedarse mucho tiempo en esas zonas.</dd>
+            <dt>MACD</dt><dd>Mide el impulso de corto plazo. ▲ significa que su línea está por encima de su señal (impulso comprador); ▼, por debajo (impulso vendedor).</dd>
+            <dt>Vs máx. 52s</dt><dd>Cuánto está por debajo del precio máximo de las últimas 52 semanas. 0% = está en el máximo.</dd>
+            <dt>12M</dt><dd>Variación del precio en 12 meses (252 ruedas). Los rendimientos de 1, 3, 6 y 12 meses están en el panel de cada empresa.</dd>
+            <dt>Puntaje</dt><dd>El puntaje de fundamentos de la otra pestaña, para cruzar las dos miradas.</dd>
+          </dl>
+          <p class="hint">Fuente: Yahoo Finance, precio en dólares del título original (ADR o acción) ajustado por dividendos y splits. Se actualiza una vez por día, después del cierre de EE.UU.</p>
+        </div>
+        <div class="tablewrap" id="ttable"><div class="empty">Cargando…</div></div>
+        <div class="foot">
+          <div class="pager"><button type="button" id="tprev">Anterior</button><span class="hint" id="tpinfo"></span><button type="button" id="tnext">Siguiente</button></div>
+        </div>
+      </section>
+      <aside class="panel dpanel tdet" id="tdet" aria-label="Detalle técnico de la empresa elegida">
+        <div id="tdbody"><div class="empty">Elegí una empresa de la tabla.</div></div>
+      </aside>
+    </div>
   </div>
 
   <section class="panel" id="more" hidden>
@@ -416,10 +490,8 @@ function metrics(t){
   return {price,mcap,rev,ni,pe,ps,fpe,dy,g,rpos,rlo,rhi,rmed,rn,score:(SC[t]&&SC[t].score)??null,liveAt:L&&L.at,fx};
 }
 
-function rows(){
-  if(!universe)return [];
+function passes(u){
   const q=query.trim().toUpperCase();
-  return universe.filter(u=>{
     const d=docs[u.t];
     if(kind==="adr"&&!isAdr(u))return false;
     if(kind==="cedear"&&u.k==="ADR")return false;
@@ -429,7 +501,10 @@ function rows(){
     if(onlyOk&&(!d||d.status!=="ok"))return false;
     if(q&&!(u.t.includes(q)||u.b.toUpperCase().includes(q)||String(d&&d.name||"").toUpperCase().includes(q)))return false;
     return true;
-  }).map(u=>({u,d:docs[u.t],m:metrics(u.t)})).sort((a,b)=>{
+}
+function rows(){
+  if(!universe)return [];
+  return universe.filter(passes).map(u=>({u,d:docs[u.t],m:metrics(u.t)})).sort((a,b)=>{
     if(favOrder.size&&kind!=="fav"){const fa=favOrder.has(a.u.t),fb=favOrder.has(b.u.t);if(fa!==fb)return fa?-1:1}
     if(sortKey==="name")return a.u.t<b.u.t?-sortDir:sortDir;
     const x=a.m&&a.m[sortKey],y=b.m&&b.m[sortKey];
@@ -862,6 +937,152 @@ function drawSeries(d){
 
 function renderAll(){renderTable();if(selected)renderDetail()}
 
+// ---------- Pestaña Técnico ----------
+let tab="fund",TEC={},tecAt=null,tsort="score",tdir=-1,tpage=0,tfilt="all",tsel=null,tecKey="",tecErr=false;
+const pct=(v,d=1)=>v==null||!isFinite(v)?"—":(v>=0?"+":"−")+num(Math.abs(v)*100,d)+"%";
+const sg=v=>v==null?"":v>=0?"tp":"tn";
+const TF=[
+  ["all","Todas",()=>true],
+  ["sv","Sobrevendidas (RSI menor a 30)",x=>x.rsi!=null&&x.rsi<30],
+  ["sc","Sobrecompradas (RSI mayor a 70)",x=>x.rsi!=null&&x.rsi>70],
+  ["up","Tendencia alcista",x=>x.tr==="up"],
+  ["dn","Tendencia bajista",x=>x.tr==="down"],
+  ["gc","Cruz dorada reciente",x=>x.cruce&&x.cruce.t==="dorada"],
+  ["lo","Cerca del mínimo de 52 semanas",x=>x.dlo!=null&&x.dlo<=.1],
+  ["hi","Cerca del máximo de 52 semanas",x=>x.dhi!=null&&x.dhi>=-.05],
+  ["bq","Buen puntaje y cayendo",(x,t)=>SC[t]&&SC[t].score>=60&&x.dhi!=null&&x.dhi<=-.2]
+];
+const TACC={name:r=>r.u.t,c:r=>r.x.c,tr:r=>({up:2,mix:1,down:0})[r.x.tr],d50:r=>r.x.d50,d200:r=>r.x.d200,rsi:r=>r.x.rsi,mh:r=>r.x.mh,dhi:r=>r.x.dhi,r1:r=>r.x.r1,r3:r=>r.x.r3,r12:r=>r.x.r12,r3:r=>r.x.r3,score:r=>r.sc};
+const TCOLS=[["tr","Tendencia"],["d50","Vs media 50"],["d200","Vs media 200"],["rsi","RSI 14"],["mh","MACD"],["dhi","Vs máx. 52s"],["r12","12M"],["score","Puntaje"]];
+const TTIP={tr:"Precio contra sus medias de 50 y 200 ruedas",d50:"Distancia del precio a su media de 50 ruedas",d200:"Distancia del precio a su media de 200 ruedas",rsi:"Menos de 30 = sobrevendida, más de 70 = sobrecomprada",mh:"▲ impulso comprador, ▼ impulso vendedor",dhi:"Cuánto está por debajo de su máximo de 52 semanas",r12:"Variación en 12 meses",score:"Puntaje de fundamentos (pestaña Fundamentos)"};
+function tecRows(){
+  if(!universe)return [];
+  const f=TF.find(x=>x[0]===tfilt)||TF[0];
+  const out=universe.filter(passes).map(u=>({u,d:docs[u.t],x:TEC[u.t],sc:SC[u.t]&&SC[u.t].score!=null?SC[u.t].score:null})).filter(r=>r.x&&f[2](r.x,r.u.t));
+  const acc=TACC[tsort]||TACC.score;
+  return out.sort((a,b)=>{
+    if(tsort==="name")return a.u.t<b.u.t?-tdir:tdir;
+    const x=acc(a),y=acc(b);if(x==null&&y==null)return a.u.t<b.u.t?-1:1;if(x==null)return 1;if(y==null)return -1;return (x-y)*tdir||(a.u.t<b.u.t?-1:1)});
+}
+function tecCell(k,r){
+  const x=r.x;
+  switch(k){
+    case "tr":{const L={up:["Alcista","lo"],down:["Bajista","hi"],mix:["Mixta",""]}[x.tr];
+      const cr=x.cruce?`<small title="${x.cruce.t==="dorada"?"Cruz dorada":"Cruz de la muerte"} hace ${x.cruce.d} ruedas: la media de 50 cruzó ${x.cruce.t==="dorada"?"por encima":"por debajo"} de la de 200">${x.cruce.t==="dorada"?"✚":"✖"}</small>`:"";
+      return `<td class="tc"><span class="pill ${L[1]}">${L[0]}</span>${cr}</td>`}
+    case "rsi":return x.rsi==null?`<td class="na">—</td>`:`<td><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">${num(x.rsi,0)}</span></td>`;
+    case "mh":return x.mh==null?`<td class="na">—</td>`:`<td class="${sg(x.mh)}" title="${x.mh>=0?"MACD sobre su señal":"MACD bajo su señal"}">${x.mh>=0?"▲":"▼"}</td>`;
+    case "score":return r.sc==null?`<td class="na">—</td>`:`<td><span class="pill${r.sc>=70?" lo":r.sc<=35?" hi":""}">${r.sc}</span></td>`;
+    default:{const v=x[k];return v==null?`<td class="na">—</td>`:`<td class="${k==="dhi"?(v>-.05?"tp":""):sg(v)}">${pct(v,k==="dhi"||k.startsWith("r")?0:1)}</td>`}
+  }
+}
+function tecDate(x){return x&&x.wend?new Date(x.wend+"T12:00:00").toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"}):""}
+function renderTec(){
+  if(tab!=="tec"||!universe)return;
+  const tk=[kind,sector,industry,query,onlyOk].join("|");if(tk!==tecKey){tecKey=tk;tpage=0}
+  const has=Object.keys(TEC).length>0;
+  const label=[kind==="fav"?"Favoritas":"",sector,industry].filter(Boolean).join(" · ");
+  $("tchips").innerHTML=TF.map(f=>`<button type="button" class="chipb" data-tf="${f[0]}" aria-pressed="${f[0]===tfilt}">${f[1]}</button>`).join("");
+  if(!has){
+    $("ttable").innerHTML=`<div class="empty">${tecErr?"Todavía no hay indicadores técnicos calculados.":"Cargando…"}${tecErr?" Se generan una vez por día, después del cierre de EE.UU. Podés pedirlos ahora con «Actualizar indicadores» (tarda unos 5 minutos).":""}</div>`;
+    ["tk-sc","tk-sv","tk-up"].forEach(i=>$(i).textContent="—");$("tpinfo").textContent="";$("tprev").disabled=$("tnext").disabled=true;
+    $("tscope").hidden=true;$("tdbody").innerHTML=`<div class="empty">Sin datos todavía.</div>`;return}
+  // resumen del grupo elegido (con los filtros de la barra lateral y el buscador, sin el filtro rápido)
+  const base=universe.filter(passes).map(u=>TEC[u.t]).filter(Boolean);
+  $("tk-sc").textContent=base.filter(x=>x.rsi>70).length;$("tk-sv").textContent=base.filter(x=>x.rsi!=null&&x.rsi<30).length;
+  const nu=base.filter(x=>x.tr==="up").length;$("tk-up").textContent=base.length?Math.round(nu/base.length*100)+"%":"—";$("tk-up-s").textContent=`${nu} de ${base.length} empresas${label?" · "+label:""}`;
+  $("tscope").hidden=!label;$("tscope").textContent=label?`${label} · ${base.length} empresas`:"";
+  const all=tecRows(),pages=Math.max(1,Math.ceil(all.length/PAGE));if(tpage>=pages)tpage=pages-1;
+  const slice=all.slice(tpage*PAGE,tpage*PAGE+PAGE);
+  $("tpinfo").textContent=all.length?`${tpage*PAGE+1}–${tpage*PAGE+slice.length} de ${all.length}`:"0 resultados";$("tprev").disabled=tpage===0;$("tnext").disabled=tpage>=pages-1;
+  const any=Object.values(TEC)[0];
+  $("tsub").textContent=`Indicadores calculados con el precio en dólares al cierre del ${tecDate(any)}. Son una lectura del momento del precio, no un consejo de compra o venta. Tocá un encabezado para ordenar y una fila para ver el gráfico.`;
+  if(!slice.length){$("ttable").innerHTML=`<div class="empty">Ninguna empresa cumple este filtro con la selección actual.</div>`}
+  else{
+    let h=`<table><thead><tr><th data-tk="name" class="${tsort==="name"?"sorted":""}">Empresa</th>${TCOLS.map(([k,l])=>`<th data-tk="${k}" title="${esc(TTIP[k])}" class="${tsort===k?"sorted":""}">${l}${tsort===k?(tdir>0?" ↑":" ↓"):""}</th>`).join("")}</tr></thead><tbody>`;
+    slice.forEach(r=>{const {u,d,x}=r;
+      h+=`<tr data-t="${esc(u.t)}" class="${tsel===u.t?"sel":""}"><td class="name" title="${esc(d&&d.name||u.t)}"><b>${esc(u.t)}</b><span>${esc(d&&d.name||"")}</span></td>${TCOLS.map(([k])=>tecCell(k,r)).join("")}</tr>`});
+    $("ttable").innerHTML=h+"</tbody></table>"}
+  renderTecDetail();
+}
+const sma=(a,k)=>a.map((_,i)=>i<k-1?null:a.slice(i-k+1,i+1).reduce((p,q)=>p+q,0)/k);
+function tecChart(t,x){
+  const w=x.w,n=w.length;if(n<8)return "";
+  const W=380,H=220,L=6,R=38,T=10,B=22,iw=W-L-R,ih=H-T-B;
+  const s10=sma(w,10),s40=sma(w,40);
+  const vals=[...w,x.hi,x.lo].filter(v=>v!=null);let lo=Math.min(...vals),hi=Math.max(...vals);const pad=(hi-lo)*.06||1;lo-=pad;hi+=pad;
+  const X=i=>L+iw*i/(n-1),Y=v=>T+ih*(1-(v-lo)/(hi-lo));
+  const path=a=>{let d="",on=false;a.forEach((v,i)=>{if(v==null){on=false;return}d+=(on?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1);on=true});return d};
+  const dt=i=>{const d=new Date(x.wend+"T12:00:00");d.setDate(d.getDate()-(n-1-i)*7);return d};
+  let ticks="",last=-1;
+  for(let i=0;i<n;i++){const d=dt(i),m=d.getMonth()+d.getFullYear()*12;if(d.getMonth()%6===0&&m!==last&&i>2&&i<n-3){last=m;ticks+=`<line x1="${X(i).toFixed(1)}" x2="${X(i).toFixed(1)}" y1="${T}" y2="${T+ih}" stroke="var(--line)"/><text x="${X(i).toFixed(1)}" y="${H-6}" text-anchor="middle">${d.toLocaleDateString("es-AR",{month:"short",year:"2-digit"}).replace(".","")}</text>`}}
+  const grid=[0,.25,.5,.75,1].map(f=>{const v=lo+(hi-lo)*f;return `<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)" stroke-dasharray="2 3"/><text x="${W-R+5}" y="${(Y(v)+4).toFixed(1)}">${num(v,v>=100?0:1)}</text>`}).join("");
+  const band=`<line x1="${L}" x2="${W-R}" y1="${Y(x.hi).toFixed(1)}" y2="${Y(x.hi).toFixed(1)}" stroke="var(--good)" stroke-width="1" stroke-dasharray="6 4" opacity=".7"/><line x1="${L}" x2="${W-R}" y1="${Y(x.lo).toFixed(1)}" y2="${Y(x.lo).toFixed(1)}" stroke="var(--bad)" stroke-width="1" stroke-dasharray="6 4" opacity=".7"/>`;
+  const hits=w.map((v,i)=>`<rect class="hit" x="${(X(i)-iw/n/2).toFixed(1)}" y="${T}" width="${(iw/n).toFixed(1)}" height="${ih}" data-tl="${esc(dt(i).toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"}))}" data-tv="US$ ${num(v,2)}" data-tx="${esc("Media 50 ruedas: "+(s10[i]==null?"—":num(s10[i],2))+" · Media 200: "+(s40[i]==null?"—":num(s40[i],2)))}"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Precio semanal de ${esc(t)} con sus medias de 50 y 200 ruedas y el rango de 52 semanas">${grid}${ticks}${band}
+    <path d="${path(s40)}" fill="none" stroke="var(--muted)" stroke-width="1.8"/>
+    <path d="${path(s10)}" fill="none" stroke="var(--fg)" stroke-width="1.3" stroke-dasharray="5 3"/>
+    <path d="${path(w)}" fill="none" stroke="var(--ch)" stroke-width="2"/>
+    <circle cx="${X(n-1).toFixed(1)}" cy="${Y(w[n-1]).toFixed(1)}" r="4" fill="var(--ch)"/>${hits}</svg>
+    <div class="tleg"><span><i style="border-color:var(--ch)"></i>Precio</span><span><i style="border-color:var(--fg);border-top-style:dashed"></i>Media 50</span><span><i style="border-color:var(--muted)"></i>Media 200</span><span><i style="border-color:var(--good);border-top-style:dashed"></i>Máx. 52s</span><span><i style="border-color:var(--bad);border-top-style:dashed"></i>Mín. 52s</span></div>`;
+}
+function renderTecDetail(){
+  const t=tsel&&TEC[tsel]?tsel:null;
+  if(!t){const f=tecRows()[0];if(f){tsel=f.u.t;return renderTecDetail()}$("tdbody").innerHTML=`<div class="empty">Elegí una empresa de la tabla.</div>`;return}
+  const x=TEC[t],d=docs[t]||{},sc=SC[t]&&SC[t].score;
+  const us=v=>"US$ "+num(v,2);
+  const trTxt=x.s200==null
+    ?`El precio (${us(x.c)}) está ${x.c>x.s50?"por encima":"por debajo"} de su media de 50 ruedas (${us(x.s50)}). Todavía no tiene 200 ruedas de historia para armar la media larga.`
+    :x.tr==="up"?`El precio (${us(x.c)}) está por encima de su media de 50 ruedas (${us(x.s50)}), y ésta por encima de la de 200 (${us(x.s200)}): tendencia alcista ordenada.`
+    :x.tr==="down"?`El precio (${us(x.c)}) está por debajo de su media de 50 ruedas (${us(x.s50)}), y ésta por debajo de la de 200 (${us(x.s200)}): tendencia bajista ordenada.`
+    :`Las señales no coinciden: el precio (${us(x.c)}) está ${x.c>x.s50?"sobre":"bajo"} su media de 50 ruedas (${us(x.s50)}) y ${x.c>x.s200?"sobre":"bajo"} la de 200 (${us(x.s200)}).`;
+  const cr=x.cruce?`<p>Hace ${x.cruce.d} ${x.cruce.d===1?"rueda":"ruedas"} la media de 50 cruzó ${x.cruce.t==="dorada"?"por encima":"por debajo"} de la de 200: <b>${x.cruce.t==="dorada"?"cruz dorada":"cruz de la muerte"}</b>, que se suele leer como señal ${x.cruce.t==="dorada"?"alcista":"bajista"} de largo plazo.</p>`:"";
+  const rsiTxt=x.rsi==null?"":x.rsi<30?"Sobrevendida: cayó mucho y rápido en las últimas semanas. A veces precede un rebote, pero en caídas fuertes puede seguir bajando."
+    :x.rsi>70?"Sobrecomprada: subió mucho y rápido. A veces precede una pausa, pero en tendencias fuertes puede mantenerse arriba mucho tiempo."
+    :"Zona neutra (entre 30 y 70): sin exceso de compras ni de ventas.";
+  const pos=x.hi>x.lo?clamp((x.c-x.lo)/(x.hi-x.lo)):null;
+  const volTxt=x.rv==null?"":`<p>El volumen de los últimos 5 días es ${num(x.rv,1)}x el promedio de 50 días${x.rv>=1.5?" (mucho más movimiento que lo habitual)":x.rv<=.7?" (poco movimiento)":""}.</p>`;
+  let combo=`Puntaje de fundamentos: ${sc==null?"sin dato":sc}. Tendencia técnica: ${({up:"alcista",down:"bajista",mix:"mixta"})[x.tr]}.`;
+  if(sc!=null){
+    if(sc>=60&&((x.rsi!=null&&x.rsi<35)||(x.dhi!=null&&x.dhi<=-.2)))combo=`Buen puntaje de fundamentos (${sc}) con el precio castigado (RSI ${num(x.rsi,0)}, a ${num(Math.abs(x.dhi)*100,0)}% de su máximo anual). Es el tipo de caso que conviene mirar con más detalle: los números acompañan y el precio viene cayendo.`;
+    else if(sc>=60&&x.tr==="up")combo=`Buen puntaje de fundamentos (${sc}) y tendencia de precio a favor.`;
+    else if(sc<=35&&x.rsi!=null&&x.rsi>70)combo=`Puntaje de fundamentos flojo (${sc}) con el precio sobrecomprado: ojo, el precio puede estar yendo por delante de los números.`;
+    else if(sc<=35&&x.tr==="down")combo=`Puntaje de fundamentos flojo (${sc}) y tendencia bajista: el precio y los números apuntan en el mismo sentido.`;
+    else combo=`Puntaje de fundamentos: ${sc}. Tendencia técnica: ${({up:"alcista",down:"bajista",mix:"mixta"})[x.tr]}${x.rsi!=null?`, RSI ${num(x.rsi,0)}`:""}.`}
+  $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>
+  <div class="hint">Cierre del ${tecDate(x)} en dólares · ${esc(sec(t,d)||"")}</div>
+  ${tecChart(t,x)}
+  <h3>Tendencia</h3><p>${trTxt}</p>${cr}
+  <h3>RSI 14</h3><p><b>${num(x.rsi,0)}</b> · ${rsiTxt}</p>
+  <div class="tgauge"><u style="left:${clamp((x.rsi||0)/100)*100}%"></u></div><div class="tgl"><span>0 sobrevendida</span><span>30</span><span>70</span><span>100 sobrecomprada</span></div>
+  <h3>MACD</h3><p>${x.mh==null?"—":x.mh>=0?"La línea MACD está por encima de su señal: el impulso de corto plazo es comprador.":"La línea MACD está por debajo de su señal: el impulso de corto plazo es vendedor."}</p>
+  <h3>Rango de 52 semanas</h3><p>Está a ${num(Math.abs(x.dhi)*100,0)}% de su máximo (${us(x.hi)}) y ${num(x.dlo*100,0)}% por encima de su mínimo (${us(x.lo)}).</p>
+  ${pos==null?"":`<div class="tgauge" style="background:var(--track)"><u style="left:${pos*100}%"></u></div><div class="tgl"><span>mínimo ${us(x.lo)}</span><span>máximo ${us(x.hi)}</span></div>`}
+  <h3>Rendimiento</h3><div class="tret">${[["1 mes",x.r1],["3 meses",x.r3],["6 meses",x.r6],["12 meses",x.r12]].map(([l,v])=>`<div><span>${l}</span><b class="${sg(v)}">${pct(v,1)}</b></div>`).join("")}</div>${volTxt}
+  <h3>Cruce con los fundamentos</h3><div class="tcombo">${combo}</div>
+  <p class="hint" style="margin-top:12px">Lectura de contexto, no una recomendación. Los indicadores miran solo el precio pasado; las medias del gráfico son semanales (10 y 40 semanas ≈ 50 y 200 ruedas).</p>`;
+}
+function setTab(n){
+  tab=n;$("main").classList.toggle("tabtec",n==="tec");
+  document.querySelectorAll(".tabb").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===n)));
+  try{history.replaceState(null,"",n==="tec"?"#tecnico":location.pathname+location.search)}catch(_){}
+  if(n==="tec")renderTec()}
+document.querySelectorAll(".tabb").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+$("tchips").addEventListener("click",e=>{const b=e.target.closest("[data-tf]");if(!b)return;tfilt=b.dataset.tf;tpage=0;renderTec()});
+$("ttable").addEventListener("click",e=>{
+  const th=e.target.closest("th[data-tk]");if(th){const k=th.dataset.tk;if(tsort===k)tdir*=-1;else{tsort=k;tdir=(k==="name"||k==="rsi")?1:-1}renderTec();return}
+  const tr=e.target.closest("tr[data-t]");if(tr){tsel=tr.dataset.t;renderTec();
+    if(matchMedia("(max-width:960px)").matches)$("tdet").scrollIntoView({behavior:"smooth",block:"start"})}});
+$("tprev").addEventListener("click",()=>{tpage--;renderTec()});
+$("tnext").addEventListener("click",()=>{tpage++;renderTec()});
+$("tgbtn").addEventListener("click",()=>{const o=$("tgloss").hidden;$("tgloss").hidden=!o;$("tgbtn").setAttribute("aria-expanded",String(o))});
+$("trefresh").addEventListener("click",e=>dispatch("tecnico.yml",e.currentTarget,"Actualizar indicadores"));
+async function loadTec(){
+  try{const j=await fetch("data/tecnico.json?"+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()});TEC=j.t||{};tecAt=j.updated;tecErr=!Object.keys(TEC).length}
+  catch(_){TEC={};tecErr=true}
+  renderTec()}
+const _rt=renderTable;renderTable=function(){_rt();if(tab==="tec")renderTec()};
+
 // Eventos
 $("q").addEventListener("input",e=>{query=e.target.value;page=0;syncFavs();renderTable()});
 $("sectors").addEventListener("click",e=>{const bi=e.target.closest("[data-ind]");if(bi){industry=industry===bi.dataset.ind?"":bi.dataset.ind;page=0;syncFavs();renderSectors();renderTable();return}const b=e.target.closest("[data-sector]");if(!b)return;sector=b.dataset.sector;industry="";page=0;syncFavs();renderSectors();renderTable()});
@@ -1017,6 +1238,7 @@ async function loadPrices(){
     if(matchMedia("(max-width:960px)").matches)$("sectd").open=false;
     const first=rows()[0];if(first){selected=first.u.t;renderTable();renderDetail()}
     stamp();adoptRemoteFavs();
+    loadTec();if(location.hash==="#tecnico")setTab("tec");
     loadPrices();setInterval(loadPrices,5*60*1000);
   }catch(err){
     $("banner").textContent="No se pudieron leer los datos. Probá recargar la página en unos minutos.";$("banner").hidden=false;$("table").innerHTML=`<div class="empty">Sin datos.</div>`;
