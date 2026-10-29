@@ -477,12 +477,22 @@ function computeScores(){
   // proporción de pares que están peor que v (low = menor es mejor)
   const pstats=(arr,v,low)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return null;return {n:a.length,worse:a.filter(x=>low?x>v:x<v).length,med:median(a)}};
   const better=(arr,v,low)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return null;return a.filter(x=>low?x>v:x<v).length/a.length};
+  // Valuación contra pares: 70% qué tan lejos está de la mediana (medido con la "tolerancia" de su industria) + 30% el lugar en el ranking.
+  // Tolerancia = dispersión típica de los pares (rango entre cuartiles ÷ mediana), entre 25% y 60%: en un sector donde todos valen parecido, 15% de diferencia pesa más
+  // que en uno donde los múltiplos van de 20x a 60x. Igual a la mediana = 50; una tolerancia más barata = 100; 2 tolerancias más cara = 0.
+  const quant=(a,q)=>{const v=[...a].sort((x,y)=>x-y),i=(v.length-1)*q,l=Math.floor(i);return v[l]+(v[Math.min(l+1,v.length-1)]-v[l])*(i-l)};
+  const vScore=(arr,v)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return {s:null};
+    const st=pstats(arr,v,true),rel=better(arr,v,true),med=median(a),tol=clamp((quant(a,.75)-quant(a,.25))/med,.25,.6),d=v/med-1;
+    const dist=d<=0?.5+.5*Math.min(1,-d/tol):.5-.5*Math.min(1,d/(2*tol));
+    return {s:.7*dist+.3*rel,x:{own:v,...st,rel,dist,tol,d}}};
   Object.entries(base).forEach(([t,b])=>{
     const PI=peerInfo(b),P=PI.arr,m=b.m,items=[];
     const add=(g,label,w,sc,txt,x)=>items.push({g,label,w,s:sc,txt,x});
-    add("Valuación","P/E vs sus pares",20,m.pe>0?better(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,true):null,m.pe>0?num(m.pe,1)+"x":"sin ganancias",m.pe>0?{k:"pe",own:m.pe,...(pstats(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,true)||{})}:null);
+    const vp=m.pe>0?vScore(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe):{s:null};
+    add("Valuación","P/E vs sus pares",20,vp.s,m.pe>0?num(m.pe,1)+"x":"sin ganancias",vp.x?{k:"pe",...vp.x}:null);
     add("Valuación","P/E vs su propia historia",15,m.rpos!=null?1-m.rpos:null,m.rpos!=null?`${num(m.pe,1)}x · rango ${num(m.rlo,0)}–${num(m.rhi,0)}x`:"sin historial",m.rpos!=null?{k:"hist",own:m.pe,lo:m.rlo,hi:m.rhi,med:m.rmed}:null);
-    add("Valuación","Precio/Ventas vs sus pares",5,m.ps>0?better(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,true):null,m.ps>0?num(m.ps,1)+"x":"—",m.ps>0?{k:"ps",own:m.ps,...(pstats(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,true)||{})}:null);
+    const vs=m.ps>0?vScore(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps):{s:null};
+    add("Valuación","Precio/Ventas vs sus pares",5,vs.s,m.ps>0?num(m.ps,1)+"x":"—",vs.x?{k:"ps",...vs.x}:null);
     // crecimiento: mitad contra los pares (percentil) y mitad contra una meta que baja con el tamaño (una empresa enorme no puede crecer como una chica).
     // Sin pares suficientes (menos de 4 con dato) cuenta solo la meta. Un crecimiento negativo nunca pasa de 40.
     const sizeF=m.mcap>1e12?.5:m.mcap>1e11?.6:m.mcap>1e10?.8:1;
@@ -527,7 +537,7 @@ function explainItem(i,s){
   const mult=v=>num(v,1)+"x";
   switch(x.k){
     case "pe":case "ps":{const q=x.k==="pe"?"P/E":"Precio/Ventas";return x.med==null?`No hay suficientes pares con ${q} para comparar.`:
-      `${q} de la empresa: ${mult(x.own)}. ${peerTxt(mult)}Es más barata que ${x.worse} de esos ${x.n} → nota ${nota}.`}
+      `${q} de la empresa: ${mult(x.own)}. ${peerTxt(mult)}En esta industria lo normal es variar ±${num(x.tol*100,0)}% alrededor de la mediana, así que la distancia vale ${Math.round(x.dist*100)}. En el ranking es más barata que ${x.worse} de esos ${x.n} → ${Math.round(x.rel*100)}. Nota: 70% distancia + 30% ranking = ${nota}.`}
     case "mg":return x.med==null?"No hay suficientes pares para comparar.":`Gana ${num(x.own*100,1)}% de cada dólar que vende. La mediana de sus ${x.n} pares gana ${num(x.med*100,1)}% (${x.own>=x.med?"+":"−"}${num(Math.abs(x.own-x.med)*100,1)} puntos). Supera a ${x.worse} de ${x.n} → nota ${nota}.`;
     case "eg":case "rg":{const q=x.k==="eg"?"Los analistas esperan una ganancia":"Los ingresos del último ejercicio cambiaron",f=v=>(v>=0?"+":"−")+num(Math.abs(v)*100,0)+"%";
       const tam=s.mcapTxt?` (para una empresa de ${s.mcapTxt})`:"";
