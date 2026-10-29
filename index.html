@@ -13,15 +13,15 @@ window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:wght@500;600&display=swap">
 <style>
 /* Diseño E2: menú lateral, resumen, tabla con barra de rango y panel de detalle. Paleta de la terminal oscura, con versión clara. */
 :root{
   --bg:#f3f4f1; --side:#eceeea; --surface:#ffffff; --fg:#14201c; --muted:#5a6863; --line:#dce1dd; --line2:#c4cdc8;
   --accent:#a85f00; --accent-soft:#fbebcc; --warn:#a85f00; --bad:#b4361b; --good:#0b7a55; --row:#f4f6f4; --sel:#fbf0da;
   --good-bg:#dff2e8; --bad-bg:#fbe3da; --neutral-bg:#e8ece9; --track:#dce1dd; --bar-good:#7cc4a5; --bar-bad:#e9a592; --bar-mid:#b8c2bc;
-  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  --mono:"Inter",ui-sans-serif,system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0a0e0d; --side:#0d1311; --surface:#111816; --fg:#e6ece9; --muted:#8fa09a; --line:#1e2926; --line2:#2c3a36;
@@ -38,7 +38,7 @@ window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e
 :root[data-theme="dark"]{--ch:#e0883a}
 .mini,#zoom{--accent:var(--ch)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--body)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);font-variant-numeric:tabular-nums;font-feature-settings:"cv11","ss03";-webkit-font-smoothing:antialiased}
 .app{display:flex;min-height:100vh}
 .side{flex:0 0 232px;background:var(--side);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto}
 .brand{font:600 17px var(--mono);color:var(--accent);letter-spacing:.04em;padding:0 10px 14px}
@@ -304,7 +304,6 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
             <dt>P/E</dt><dd>Capitalización ÷ ganancia neta de 12 meses: cuántos dólares pagás por cada dólar de ganancia anual. Más bajo suele ser más barato, pero conviene comparar dentro del mismo sector.</dd>
             <dt>Vs sus años</dt><dd>Dónde está el P/E de hoy entre el mínimo y el máximo de sus últimos ejercicios. Barra a la izquierda: barata respecto de sí misma; a la derecha: cara.</dd>
             <dt>P/E est.</dt><dd>Precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso.</dd>
-            <dt>PEG</dt><dd>P/E ÷ crecimiento esperado de la ganancia por acción (en %). Cerca de 1 suele leerse como precio razonable para su crecimiento. «n/s» = no significativo o sin dato.</dd>
             <dt>P/Ventas</dt><dd>Capitalización ÷ ingresos de 12 meses.</dd>
             <dt>Div. yield</dt><dd>Dividendo anual ÷ precio.</dd>
             <dt>Ingresos y ganancia 12m</dt><dd>Suma de los últimos 12 meses, en dólares.</dd>
@@ -348,7 +347,6 @@ const COLS=[
   {k:"pe",label:"P/E",f:v=>mult(v),tip:"Capitalización ÷ ganancia neta de 12 meses"},
   {k:"rpos",label:"Vs sus años",bar:true,tip:"Dónde está el P/E de hoy entre su mínimo y su máximo histórico. A la izquierda = barata respecto de sí misma"},
   {k:"fpe",label:"P/E est.",f:v=>mult(v),tip:"Precio ÷ ganancia por acción estimada por analistas para este ejercicio"},
-  {k:"peg",label:"PEG",f:v=>v==null?"n/s":num(v,2),tip:"P/E ÷ crecimiento esperado de la ganancia. Cerca de 1 = razonable. n/s = sin dato"},
   {k:"ps",label:"P/Ventas",f:v=>mult(v),tip:"Capitalización ÷ ingresos de 12 meses"},
   {k:"dy",label:"Div. yield",f:v=>v==null?"—":num(v*100,2)+"%",tip:"Dividendo anual ÷ precio"},
   {k:"rev",label:"Ingresos 12m",f:v=>money(v),opt:true,tip:"Ingresos de los últimos 12 meses"},
@@ -409,14 +407,13 @@ function metrics(t){
   const ps=rev>0&&mcap?mcap/rev:null;
   const fpe=usd?(d.epsCur>0&&price?price/d.epsCur:null):(d.fpe0>0?d.fpe0*k0:null);
   const g=d.epsCur>0&&d.epsNext>0?(d.epsNext/d.epsCur-1)*100:null;
-  const peg=pe&&g>0?pe/g:(d.peg>0?d.peg:null);
   const div=(L&&L.lastDiv!=null)?L.lastDiv:d.lastDiv;
   const dy=div>0&&price?div/price:(d.dy>0?d.dy:null);
   // dónde está el P/E de hoy entre el mínimo y el máximo de sus ejercicios guardados (0 = mínimo, 1 = máximo)
   let rpos=null,rlo=null,rhi=null,rmed=null,rn=0;
   if(pe){const hv=(Array.isArray(d.hist)?d.hist:[]).map(h=>h.pe).filter(v=>typeof v==="number"&&v>0);
     if(hv.length>=2){const v=[...hv,pe];rlo=Math.min(...v);rhi=Math.max(...v);rmed=median(v);rn=hv.length;rpos=rhi>rlo?(pe-rlo)/(rhi-rlo):null}}
-  return {price,mcap,rev,ni,pe,ps,fpe,peg,dy,g,rpos,rlo,rhi,rmed,rn,score:(SC[t]&&SC[t].score)??null,liveAt:L&&L.at,fx};
+  return {price,mcap,rev,ni,pe,ps,fpe,dy,g,rpos,rlo,rhi,rmed,rn,score:(SC[t]&&SC[t].score)??null,liveAt:L&&L.at,fx};
 }
 
 function rows(){
