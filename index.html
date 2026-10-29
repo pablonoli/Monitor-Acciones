@@ -714,6 +714,38 @@ function openScore(t){
   $("zoom").hidden=false;$("zclose").focus();
 }
 
+// Ventana «Cómo se calcula» del puntaje técnico (misma presentación que la de fundamentos)
+const TSCALE={"Precio vs la media de 200 ruedas":"Escala: por encima = 100 · hasta 3% por debajo = 35 · más de 3% por debajo = 0. La media de 200 ruedas diarias (unos 10 meses) es el soporte o la resistencia más mirada.",
+  "Precio vs la media de 200 semanas":"Escala: por encima = 100 · hasta 3% por debajo = 35 · más de 3% por debajo = 0. La media de 200 semanas (casi 4 años) es el soporte de más largo plazo.",
+  "Apoyo en la media":"Escala: ◉ apoyada = 100 · sin retroceso (por encima de la 200d, sin probarla) = 60 · ≈ lateral = 35 · bajo la 200d sin tendencia previa = 30 · ▼ perdió la media = 0. «Apoyada» = la media subió 2% o más en 3 meses, el precio estuvo sobre ella el 75% o más de 6 meses, la cruzó 2 veces o menos y hoy está entre −2% y +3% de ella.",
+  "RSI":"Escala: 20 o menos = 100 · 30 = 85 · 40 = 60 · 50 a 60 = 100 · 70 = 70 · 80 = 35 · más de 80 = 30 (entre punto y punto, proporcional). La sobreventa suma porque puede ser un rebote; la sobrecompra resta porque comprar muy arriba es más riesgoso.",
+  "MACD":"Escala: sobre su señal y sobre cero = 100 · sobre su señal pero bajo cero = 65 · bajo su señal pero sobre cero = 40 · bajo su señal y bajo cero = 0.",
+  "Espacio hasta el techo":"Escala: 25% o más hasta el máximo anterior = 100 · 3% o menos = 30 (proporcional en el medio) · sin máximo por encima = 70. El techo es el pico anterior más cercano por encima del precio."};
+function openTecScore(t){
+  const a=tscore(t);if(!a)return;
+  const cl=v=>v>=.7?"var(--good)":v<=.35?"var(--bad)":"var(--warn)";
+  const k=a.W?100/a.W:1;let tot=0,rows="";
+  const grp={};a.items.forEach(i=>(grp[i.g]=grp[i.g]||[]).push(i));
+  Object.entries(grp).forEach(([g,it])=>{
+    const gp=it.reduce((q,i)=>q+(i.s==null?0:i.w*i.s*k),0),gm=it.reduce((q,i)=>q+(i.s==null?0:i.w*k),0);tot+=gp;
+    rows+=`<div class="srow sg"><span>${g}</span><span></span><span class="r">${num(gp,1)} <i>de ${num(gm,0)}</i></span></div>`;
+    it.forEach(i=>{
+      const pts=i.s==null?0:i.w*i.s*k,mx=i.s==null?0:i.w*k,nota=i.s==null?null:Math.round(i.s*100);
+      rows+=`<div class="srow it" data-open tabindex="0" role="button" aria-expanded="false"><span class="sn"><b><u>▸</u>${esc(i.label)}</b><span class="sv">${esc(i.txt)}</span></span>
+        <span class="sb">${nota==null?`<em>sin dato</em>`:`<span class="gbar"><i style="width:${nota}%;background:${cl(i.s)}"></i></span><b style="color:${cl(i.s)}">${nota}</b>`}</span>
+        <span class="r sp">${num(pts,1)}<i>de ${num(mx,mx%1?1:0)}</i></span></div>
+        <div class="srow sx" hidden><span>${esc(i.why)} ${TSCALE[i.label]?esc(TSCALE[i.label])+" ":""}<em>Pesa ${num(i.w*k,(i.w*k)%1?1:0)}% del total.</em></span></div>`})});
+  const grps=a.groups.map(g=>`<div class="sgr"><span>${g.n}</span><div class="gbar"><i style="width:${g.s==null?0:Math.round(g.s*100)}%;background:${g.s==null?"transparent":cl(g.s)}"></i></div><b>${g.s==null?"—":Math.round(g.s*100)}</b></div>`).join("");
+  const d=docs[t];
+  $("ztitle").textContent=`Cómo se calcula el puntaje técnico · ${t}${d&&d.name?" · "+d.name:""}`;
+  $("zbody").innerHTML=`<div class="sum"><div class="sbig" style="color:${cl(a.score/100)}">${a.score}<small>de 100</small></div><div class="sgs">${grps}</div></div>
+  <p class="hint" style="margin:10px 0 6px">Cada dato recibe una nota de 0 a 100 (verde = buena, amarillo = media, rojo = baja) y se multiplica por su peso. La suma de los puntos es el puntaje. Usa cierres diarios al ${tecDate(TEC[t])} y mira la situación del gráfico hoy, no el futuro. <button type="button" class="lnk" data-expand>Mostrar todas las explicaciones</button></p>
+  <div class="stable"><div class="srow sh"><span>Dato</span><span>Nota</span><span class="r">Puntos</span></div>${rows}</div>
+  <div class="stotbar"><span>Total</span><b>${num(tot,1)} → ${a.score}</b></div>
+  <p class="hint" style="margin:10px 0 0">Los datos que faltan no suman ni restan: el resto se reparte hasta llegar a 100. Es una lectura del momento, no una recomendación de inversión: puede haber buen técnico con malos fundamentos y al revés.</p>`;
+  $("zoom").hidden=false;$("zclose").focus();
+}
+
 function renderSectors(){
   const c={},ic={};Object.entries(docs).forEach(([t,d])=>{if(!d||d.status!=="ok")return;const x=sec(t,d);if(!x)return;c[x]=(c[x]||0)+1;
     if(x===sector){const i=indOf(d);if(i)ic[i]=(ic[i]||0)+1}});
@@ -883,6 +915,7 @@ document.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch")return;co
 document.addEventListener("click",e=>{
   if(e.target===$("zoom")||e.target.closest("#zclose")){closeZoom();return}
   const sb=e.target.closest&&e.target.closest("[data-score]");if(sb){openScore(sb.dataset.score);return}
+  const tb=e.target.closest&&e.target.closest("[data-tscore]");if(tb){openTecScore(tb.dataset.tscore);return}
   const ex=e.target.closest&&e.target.closest("[data-expand]");if(ex){const open=ex.dataset.expand!=="1";document.querySelectorAll("#zbody .srow.sx").forEach(n=>{n.hidden=!open;const r=n.previousElementSibling;if(r)r.setAttribute("aria-expanded",String(open))});ex.dataset.expand=open?"1":"";ex.textContent=open?"Ocultar las explicaciones":"Mostrar todas las explicaciones";return}
   const so=e.target.closest&&e.target.closest("[data-open]");if(so){const nx=so.nextElementSibling;if(nx){nx.hidden=!nx.hidden;so.setAttribute("aria-expanded",String(!nx.hidden))}return}
   const z=e.target.closest&&e.target.closest("[data-zoom]");if(z)openZoom(z.dataset.zoom);
@@ -1174,9 +1207,9 @@ function renderTecDetail(){
   <div class="tfrase">${frase}</div>
   ${tecChart(t,x)}
   ${(()=>{const a=tscore(t);if(!a)return "";const col=v=>v>=.7?"var(--bar-good)":v<=.35?"var(--bar-bad)":"var(--bar-mid)";
-    return `<div class="tcard"><div class="th"><h3>Puntaje técnico</h3><span class="pill${a.score>=70?" lo":a.score<=35?" hi":""}" style="font-size:15px">${a.score}</span></div>
+    return `<div class="tcard"><div class="th"><h3>Puntaje técnico</h3><span class="pill${a.score>=70?" lo":a.score<=35?" hi":""}" data-tscore="${esc(t)}" style="font-size:15px;cursor:pointer" title="Ver cómo se calcula">${a.score}</span></div>
     ${a.groups.map(g=>`<div class="grp"><span>${g.n}</span><div class="gbar"><i style="width:${g.s==null?0:Math.round(g.s*100)}%;background:${g.s==null?"transparent":col(g.s)}"></i></div><b>${g.s==null?"—":Math.round(g.s*100)}</b></div>`).join("")}
-    <details><summary>Cómo se calcula</summary><div><p style="margin:0 0 6px" class="hint">Cada dato recibe una nota de 0 a 100 y se multiplica por su peso. Lo que falta no suma.</p>${a.items.map(i=>`<p style="margin:0 0 6px"><b>${i.label}</b> (peso ${i.w}): ${i.txt} → <b>${i.s==null?"sin dato":Math.round(i.s*100)}</b><br><span class="hint">${i.why}</span></p>`).join("")}<p class="hint" style="margin:6px 0 0">Mide la situación técnica de hoy, no si conviene comprar: puede haber buen técnico con malos fundamentos y al revés.</p></div></details></div>`})()}
+    <button type="button" class="lnk" data-tscore="${esc(t)}" style="margin-top:8px">Ver cómo se calcula el puntaje →</button></div>`})()}
   <div class="tcard"><div class="th"><h3>Soportes y techos</h3>${nr||tn||sopHas(x,"sop")?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">${sopHas(x,"sop")?"◉ Soporte en "+sopList(x).find(o=>o.e==="sop").a:nr?"Cerca de "+nr.a:"Cerca del techo"}</span>`:""}</div>
     ${sopList(x).length?`<div class="tsop">${sopList(x).map(o=>`<p style="margin:0 0 6px"><span class="sp ${o.e}" style="margin:0 6px 0 0">${{sop:"◉",lat:"≈",perd:"▼"}[o.e]}</span>${sopTxt(o)}</p>`).join("")}</div>`:""}
     <div class="hint" style="margin:0 0 4px">Sobre el precio: techos y resistencias · Bajo el precio: soportes. En tenue, las medias cortas (10s = 10 semanas, 50d = 50 ruedas).</div>${ladder}
