@@ -1065,7 +1065,7 @@ function renderTecDetail(){
     :"Zona neutra (entre 30 y 70): sin exceso de compras ni de ventas.";
   const pos=x.hi>x.lo?clamp((x.c-x.lo)/(x.hi-x.lo)):null;
   const SR=srLevels(x);
-  const lv=[...SR.L.map(l=>({n:"Media "+l.a+({"10s":" (10 semanas)","50d":" (50 ruedas)","200d":" (200 ruedas)","200s":" (200 semanas)"})[l.a],v:l.v,t:"ma"})),{n:"Máx. 52 semanas",v:x.hi,t:"x"},{n:"Mín. 52 semanas",v:x.lo,t:"x"},{n:"Precio (cierre)",v:x.c,t:"p"}].filter(l=>l.v!=null).sort((a,b)=>b.v-a.v);
+  const lv=[...SR.L.map(l=>({n:"Media "+l.a,v:l.v,t:"ma"})),{n:"Máx. 52 semanas",v:x.hi,t:"x"},{n:"Mín. 52 semanas",v:x.lo,t:"x"},{n:"Precio (cierre)",v:x.c,t:"p"}].filter(l=>l.v!=null).sort((a,b)=>b.v-a.v);
   const ladder=lv.map(l=>l.t==="p"?`<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`:`<div class="marow"><span>${l.n}</span><span>${us(l.v)} · <span class="${l.v<x.c?"tp":"tn"}">${pct(l.v/x.c-1,1)}</span></span></div>`).join("");
   const mrows_unused=MAS.map(([k,nm],i)=>`<div class="marow"><span>${nm.replace(" (diaria)","")}</span><span>${x[k]==null?"sin historia suficiente":`${us(x[k])} · <span class="${ab[i]?"tp":"tn"}">${pct(x.c/x[k]-1,1)}</span>`}</span></div>`).join("");
   const cr=x.cruce?`<p style="margin:8px 0 0">Hace ${x.cruce.d} ${x.cruce.d===1?"rueda":"ruedas"} la media de 50 cruzó ${x.cruce.t==="dorada"?"por encima":"por debajo"} de la de 200: <b>${x.cruce.t==="dorada"?"cruz dorada":"cruz de la muerte"}</b>, que se suele leer como señal ${x.cruce.t==="dorada"?"alcista":"bajista"} de largo plazo.</p>`:"";
@@ -1075,7 +1075,7 @@ function renderTecDetail(){
   <div class="tfrase">${frase}</div>
   ${tecChart(t,x)}
   <div class="tcard"><div class="th"><h3>Soportes y resist.</h3>${SR.near?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">Cerca de ${SR.near.a}</span>`:""}</div>
-    <div class="hint" style="margin:0 0 4px">Sobre el precio: resistencias · Bajo el precio: soportes</div>${ladder}
+    <div class="hint" style="margin:0 0 4px">Sobre el precio: resistencias · Bajo el precio: soportes. 10s = 10 semanas, 50d y 200d = ruedas diarias, 200s = 200 semanas.</div>${ladder}
     <details><summary>Ver cruces y cómo leerlo</summary><div><p style="margin:0">Las medias actúan como soporte cuando el precio está por encima de ellas y como resistencia cuando está por debajo; cuanto más larga la media, más peso suele tener. Si el precio cruza una media, esta cambia de lado.</p>${cr}</div></details></div>
   <div class="tcard"><div class="th"><h3>Momento</h3><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">RSI ${num(x.rsi,0)}</span></div>
     <div>${x.mh==null?"":x.mh>=0?"MACD: impulso comprador":"MACD: impulso vendedor"}</div>
