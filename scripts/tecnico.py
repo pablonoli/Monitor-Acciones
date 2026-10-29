@@ -1,4 +1,4 @@
-"""Baja 2 años de precios diarios de Yahoo Finance y calcula los indicadores técnicos -> data/tecnico.json.
+"""Baja 5 años de precios diarios (hacen falta ~4 para la media de 200 semanas) de Yahoo Finance y calcula los indicadores técnicos -> data/tecnico.json.
 Se usa el precio en dólares del título original (ADR o acción), ajustado por dividendos y splits."""
 import json, math, os, datetime as dt
 import numpy as np
@@ -60,9 +60,13 @@ def calc(close, vol=None):
         v = vol.dropna()
         if len(v) >= 55 and v.iloc[-50:].mean() > 0:
             rv = r(v.iloc[-5:].mean() / v.iloc[-50:].mean(), 2)
-    w = c.resample("W-FRI").last().dropna().iloc[-SEMANAS:]
+    wk = c.resample("W-FRI").last().dropna()   # cierres semanales (la última barra puede ser una semana en curso)
+    s10w = float(wk.iloc[-10:].mean()) if len(wk) >= 10 else None
+    s200w = float(wk.iloc[-200:].mean()) if len(wk) >= 200 else None
+    w = wk.iloc[-SEMANAS:]
     return {
         "c": r(last, 2), "tr": tr, "s50": r(m50, 2), "s200": r(m200, 2) if m200 else None,
+        "s10w": r(s10w, 2), "s200w": r(s200w, 2) if s200w else None,
         "d50": r(last / m50 - 1), "d200": r(last / m200 - 1) if m200 else None,
         "rsi": r(rsi(c), 1), "macd": r(macd.iloc[-1], 3), "sig": r(sig.iloc[-1], 3), "mh": r(macd.iloc[-1] - sig.iloc[-1], 3),
         "hi": r(hi, 2), "lo": r(lo, 2), "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
@@ -87,7 +91,7 @@ def main():
     for i in range(0, len(syms), 80):
         lote = syms[i:i + 80]
         try:
-            df = yf.download(lote, period="2y", interval="1d", group_by="ticker", progress=False, threads=True, auto_adjust=True)
+            df = yf.download(lote, period="5y", interval="1d", group_by="ticker", progress=False, threads=True, auto_adjust=True)
         except Exception as e:
             print("lote falló:", e)
             continue
@@ -102,7 +106,7 @@ def main():
     faltan = [t for t in tickers if t not in out]
     for t in faltan[:40]:   # los que no salieron en el pedido grande se piden de a uno
         try:
-            x = yf.Ticker(sym[t]).history(period="2y", interval="1d", auto_adjust=True)
+            x = yf.Ticker(sym[t]).history(period="5y", interval="1d", auto_adjust=True)
             res = calc(x["Close"].tz_localize(None) if x.index.tz is not None else x["Close"], x.get("Volume"))
             if res:
                 out[t] = res
