@@ -684,6 +684,11 @@ function explainItem(i,s){
   }
   return i.s==null?"No hay dato para calcular esto; no suma ni resta.":"";
 }
+// Resumen en una frase para fundamentos: lo que más suma y lo que más resta (mismo formato que el técnico)
+function resumenScore(items,k){
+  const v=items.filter(i=>i.s!=null),f=i=>`${/^[A-ZÁÉÍÓÚ][A-Z\/]/.test(i.label)?i.label:i.label.charAt(0).toLowerCase()+i.label.slice(1)} (${i.txt})`,
+    up=v.filter(i=>i.s>=.7).sort((p,q)=>q.w*q.s-p.w*p.s).slice(0,2),dn=v.filter(i=>i.w*(1-i.s)*k>=3&&i.s<.7).sort((p,q)=>q.w*(1-q.s)-p.w*(1-p.s)).slice(0,2);
+  return `<p class="tres"><b>A favor:</b> ${up.length?esc(up.map(f).join("; ")):"casi nada"}. <b>En contra:</b> ${dn.length?esc(dn.map(f).join("; ")):"nada importante"}.</p>`}
 function openScore(t){
   const s=SC[t];if(!s||s.score==null)return;
   const cl=v=>v>=.7?"var(--good)":v<=.35?"var(--bad)":"var(--warn)";
@@ -706,6 +711,7 @@ function openScore(t){
   const grps=s.groups.map(g=>`<div class="sgr"><span>${g.n}</span><div class="gbar"><i style="width:${g.s==null?0:Math.round(g.s*100)}%;background:${g.s==null?"transparent":cl(g.s)}"></i></div><b>${g.s==null?"—":Math.round(g.s*100)}</b></div>`).join("");
   $("ztitle").textContent=`Cómo se calcula el puntaje · ${t}${docs[t]&&docs[t].name?" · "+docs[t].name:""}`;
   $("zbody").innerHTML=`<div class="sum"><div class="sbig" style="color:${cl(s.score/100)}">${s.score}<small>de 100</small></div><div class="sgs">${grps}</div></div>
+  ${resumenScore(s.items,s.k||1)}
   <p class="hint" style="margin:10px 0 6px">Cada dato recibe una nota de 0 a 100 (verde = buena, amarillo = media, rojo = baja) y se multiplica por su peso. La suma de los puntos es el puntaje.
   Comparada con ${s.peer.kind==="mercado"?"todo el mercado":`su ${s.peer.kind}: <b>${esc(s.peer.name)}</b>`} (${s.peer.n} empresas de tu lista). <button type="button" class="lnk" data-expand>Mostrar todas las explicaciones</button></p>
   ${s.flag?`<p class="hint" style="margin:0 0 8px">⚠ La ganancia de 12 meses (${money(s.flag.ni)}) subió ${num(s.flag.nij*100,0)}% contra el ejercicio ${esc(s.flag.fy)} con ingresos ${s.flag.rg>=0?"+":"−"}${num(Math.abs(s.flag.rg)*100,0)}%: podría incluir resultados no operativos. Por eso se usa el P/E estimado y no cuentan el P/E histórico, la ganancia esperada ni el margen.</p>`:""}
