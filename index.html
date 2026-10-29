@@ -584,7 +584,9 @@ const GRP={};
   const byFam={};all.forEach(b=>{if(b.fam)(byFam[b.fam]=byFam[b.fam]||[]).push(b)});
   const byGrp={};all.forEach(b=>{if(b.grp)(byGrp[b.grp]=byGrp[b.grp]||[]).push(b)});
   const byInd={};all.forEach(b=>{if(b.ind)(byInd[b.sector+"|"+b.ind]=byInd[b.sector+"|"+b.ind]||[]).push(b)});
-  const peerInfo=b=>{const gi=b.ind?byInd[b.sector+"|"+b.ind]:null;if(gi&&gi.length>=8)return {arr:gi,kind:"industria",name:b.ind,n:gi.length};
+  // industrias que Yahoo mezcla con empresas muy distintas (ej. Google y ADR chinas de internet): se comparan directo con su grupo
+  const GRP_FIRST=new Set(["Internet Content & Information"]);
+  const peerInfo=b=>{const gi=b.ind&&!GRP_FIRST.has(b.d.industry)?byInd[b.sector+"|"+b.ind]:null;if(gi&&gi.length>=8)return {arr:gi,kind:"industria",name:b.ind,n:gi.length};
     const gg=b.grp?byGrp[b.grp]:null;if(gg&&gg.length>=8)return {arr:gg,kind:"grupo",name:b.grpN,n:gg.length};
     const g=bySec[b.sector];if(g&&g.length>=8)return {arr:g,kind:"sector",name:b.sector,n:g.length};return {arr:all,kind:"mercado",name:"todas las empresas",n:all.length}};
   // proporción de pares que están peor que v (low = menor es mejor)
