@@ -184,6 +184,7 @@ svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
 .sum{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;padding:6px 0 2px}
 .sbig{font:600 56px/1 var(--mono);letter-spacing:-.03em}.sbig small{display:block;font:400 13px var(--body);color:var(--muted);letter-spacing:0;margin-top:4px}
 .sgs{display:grid;gap:6px}.sgr{display:grid;grid-template-columns:100px 1fr 34px;gap:10px;align-items:center;font-size:13px}.sgr .gbar{height:8px}.sgr .gbar i{height:8px}.sgr b{font:500 13px var(--mono);text-align:right}
+.tres{margin:10px 0 0;font-size:14px;line-height:1.45}
 .lnk{border:0;background:none;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
 .stotbar{position:sticky;bottom:-16px;display:flex;justify-content:space-between;align-items:baseline;background:var(--surface);border-top:2px solid var(--fg);padding:12px 8px;margin-top:0;font-size:15px;font-weight:600}
 .stotbar b{font:600 20px var(--mono)}
@@ -721,6 +722,18 @@ const TSCALE={"Precio vs la media de 200 ruedas":"Escala: por encima = 100 · ha
   "RSI":"Escala: 20 o menos = 100 · 30 = 85 · 40 = 60 · 50 a 60 = 100 · 70 = 70 · 80 = 35 · más de 80 = 30 (entre punto y punto, proporcional). La sobreventa suma porque puede ser un rebote; la sobrecompra resta porque comprar muy arriba es más riesgoso.",
   "MACD":"Escala: sobre su señal y sobre cero = 100 · sobre su señal pero bajo cero = 65 · bajo su señal pero sobre cero = 40 · bajo su señal y bajo cero = 0.",
   "Espacio hasta el techo":"Escala: 25% o más hasta el máximo anterior = 100 · 3% o menos = 30 (proporcional en el medio) · sin máximo por encima = 70. El techo es el pico anterior más cercano por encima del precio."};
+// Resumen en una frase de por qué el puntaje técnico dio lo que dio: lo que más suma y lo que más resta
+function tecResumen(a){
+  const k=a.W?100/a.W:1,ph=i=>{const L=i.label,t=i.txt,pn=i.s>=1;
+    if(L.startsWith("Precio vs la media de 200 r"))return pn?"está sobre la media de 200 ruedas":`está ${String(t).replace(/^[−+-]/,"")} bajo la media de 200 ruedas`;
+    if(L.startsWith("Precio vs la media de 200 s"))return pn?"está sobre la media de 200 semanas":`está ${String(t).replace(/^[−+-]/,"")} bajo la media de 200 semanas`;
+    if(L==="Apoyo en la media")return t.startsWith("apoyada")?`viene en tendencia alcista y se apoya en la media de ${t.endsWith("200s")?"200 semanas":"200 ruedas"}`:{"perdió la media":"perdió la media tras venir en tendencia alcista","lateral":"está lateral, cruzando la media seguido","sin retroceso":"sube sin retroceder a la media","bajo la media":"está bajo la media sin tendencia alcista previa"}[t]||"apoyo en la media";
+    if(L==="RSI"){const r=+t;return r<30?`RSI de ${t}, sobrevendida (posible rebote)`:r>=70?`RSI de ${t}, sobrecomprada (entrar es riesgoso)`:r>=50&&r<=60?`RSI de ${t}, en zona sana`:`RSI de ${t}`}
+    if(L==="MACD")return i.s>=1?"MACD con impulso comprador":i.s>=.65?"MACD recuperándose, pero todavía bajo cero":i.s>=.4?"MACD perdiendo impulso":"MACD con impulso vendedor";
+    return t==="máximos"?"está en máximos, sin techo arriba":`el techo está a ${String(t).replace(/^[−+-]/,"")}`};
+  const v=a.items.filter(i=>i.s!=null),up=v.filter(i=>i.s>=.7).sort((p,q)=>q.w*q.s-p.w*p.s).slice(0,2),dn=v.filter(i=>i.w*(1-i.s)*k>=3&&i.s<.7).sort((p,q)=>q.w*(1-q.s)-p.w*(1-p.s)).slice(0,2);
+  const j=l=>l.map(ph).join("; ");
+  return `<b>A favor:</b> ${up.length?j(up):"casi nada"}. <b>En contra:</b> ${dn.length?j(dn):"nada importante"}.`}
 function openTecScore(t){
   const a=tscore(t);if(!a)return;
   const cl=v=>v>=.7?"var(--good)":v<=.35?"var(--bad)":"var(--warn)";
@@ -739,6 +752,7 @@ function openTecScore(t){
   const d=docs[t];
   $("ztitle").textContent=`Cómo se calcula el puntaje técnico · ${t}${d&&d.name?" · "+d.name:""}`;
   $("zbody").innerHTML=`<div class="sum"><div class="sbig" style="color:${cl(a.score/100)}">${a.score}<small>de 100</small></div><div class="sgs">${grps}</div></div>
+  <p class="tres">${tecResumen(a)}</p>
   <p class="hint" style="margin:10px 0 6px">Cada dato recibe una nota de 0 a 100 (verde = buena, amarillo = media, rojo = baja) y se multiplica por su peso. La suma de los puntos es el puntaje. Usa cierres diarios al ${tecDate(TEC[t])} y mira la situación del gráfico hoy, no el futuro. <button type="button" class="lnk" data-expand>Mostrar todas las explicaciones</button></p>
   <div class="stable"><div class="srow sh"><span>Dato</span><span>Nota</span><span class="r">Puntos</span></div>${rows}</div>
   <div class="stotbar"><span>Total</span><b>${num(tot,1)} → ${a.score}</b></div>
@@ -1056,12 +1070,12 @@ function techScore(x){
     add("Tendencia",`Precio vs ${nm}`,15,d==null?null:d>=0?1:d>=-.03?.35:0,d==null?"sin historia":pct(d,1),
       d==null?"No hay historia suficiente para esta media.":d>=0?"Por encima de la media: la media actúa de soporte → 100.":d>=-.03?"Hasta 3% por debajo: perdió la media por poco → 35.":"Más de 3% por debajo: la media actúa de resistencia → 0.")};
   ma("s200","la media de 200 ruedas");ma("s200w","la media de 200 semanas");
-  const sl=[x.so,x.sow].filter(o=>o&&o.e),apo=sl.find(o=>o.e==="sop"),per=sl.find(o=>o.e==="perd"),lat=sl.find(o=>o.e==="lat");
+  const sl=sopList(x),apo=sl.find(o=>o.e==="sop"),per=sl.find(o=>o.e==="perd"),lat=sl.find(o=>o.e==="lat");
   const hasSo=Object.prototype.hasOwnProperty.call(x,"so");   // datos viejos no traen la lectura de soporte
   const a200=x.s200!=null?x.c>x.s200:null;
   let ss=null,st="—",sw="";
   if(hasSo){
-    if(apo){ss=1;st="apoyada";sw="Viene en tendencia alcista y está probando la media como soporte → 100."}
+    if(apo){ss=1;st="apoyada en la "+apo.a;sw="Viene en tendencia alcista y está probando la media como soporte → 100."}
     else if(per){ss=0;st="perdió la media";sw="Venía en tendencia alcista y cerró más de 2% por debajo de la media → 0."}
     else if(lat){ss=.35;st="lateral";sw="Cruza la media seguido: tocarla no es una señal de soporte → 35."}
     else if(a200!=null){ss=a200?.6:.3;st=a200?"sin retroceso":"bajo la media";sw=a200?"Por encima de la media sin estar probándola: sin retroceso a un soporte → 60.":"Por debajo de la media sin tendencia alcista previa → 30."}}
@@ -1208,6 +1222,7 @@ function renderTecDetail(){
   ${tecChart(t,x)}
   ${(()=>{const a=tscore(t);if(!a)return "";const col=v=>v>=.7?"var(--bar-good)":v<=.35?"var(--bar-bad)":"var(--bar-mid)";
     return `<div class="tcard"><div class="th"><h3>Puntaje técnico</h3><span class="pill${a.score>=70?" lo":a.score<=35?" hi":""}" data-tscore="${esc(t)}" style="font-size:15px;cursor:pointer" title="Ver cómo se calcula">${a.score}</span></div>
+    <p class="tres" style="margin:6px 0 0">${tecResumen(a)}</p>
     ${a.groups.map(g=>`<div class="grp"><span>${g.n}</span><div class="gbar"><i style="width:${g.s==null?0:Math.round(g.s*100)}%;background:${g.s==null?"transparent":col(g.s)}"></i></div><b>${g.s==null?"—":Math.round(g.s*100)}</b></div>`).join("")}
     <button type="button" class="lnk" data-tscore="${esc(t)}" style="margin-top:8px">Ver cómo se calcula el puntaje →</button></div>`})()}
   <div class="tcard"><div class="th"><h3>Soportes y techos</h3>${nr||tn||sopHas(x,"sop")?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">${sopHas(x,"sop")?"◉ Soporte en "+sopList(x).find(o=>o.e==="sop").a:nr?"Cerca de "+nr.a:"Cerca del techo"}</span>`:""}</div>
