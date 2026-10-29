@@ -249,7 +249,11 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
 .tcard .th{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
 .tcard .th h3{margin:0}
 .marow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:13.5px}.marow:first-child{border-top:0}
-.marow span:first-child{color:var(--muted)}
+.marow span:first-child{color:var(--muted);min-width:0}
+.marow.lp{background:var(--accent-soft);border-radius:4px;padding:5px 6px;margin:2px 0;border-top:0}.marow.lp span{color:var(--fg)!important}
+.marow span:last-child{white-space:nowrap}
+.lv{color:var(--muted);font-size:11px;margin-right:5px}
+td.nr .v{background:var(--accent-soft);color:var(--accent);padding:1px 6px;border-radius:4px;font-weight:600}
 .tfrase{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;padding:10px 12px;background:var(--row);font-size:14.5px;margin:10px 0 8px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
 .chipb{padding:6px 12px;border-radius:999px;font:500 13px var(--body);min-height:34px}
@@ -257,7 +261,7 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
 .tp{color:var(--good)}.tn{color:var(--bad)}
 #ttable table{min-width:0}
 #ttable td,#ttable th{white-space:nowrap;padding-left:6px;padding-right:6px}
-#ttable td.name{max-width:104px}
+#ttable td.name{max-width:84px}
 #ttable td.name span{overflow:hidden;text-overflow:ellipsis}
 td.tc small{font:500 11px var(--body);color:var(--muted);margin-left:6px}
 .tdet svg{min-width:0}
@@ -383,7 +387,7 @@ td.tc small{font:500 11px var(--body);color:var(--muted);margin-left:6px}
             <dt>Señal</dt><dd>Una sola etiqueta por empresa. Si el RSI es extremo manda él: <b>Sobrevendida</b> (RSI menor a 30) o <b>Sobrecomprada</b> (mayor a 70). Si no, depende de cuántas de las 4 medias tiene el precio por debajo: <b>Alcista</b> (precio sobre 3 o 4 de las 4), <b>Bajista</b> (sobre 0 o 1) o <b>Mixta</b> (sobre 2).</dd>
             <dt>RSI</dt><dd>Fuerza de las subas contra las bajas de las últimas 14 ruedas diarias (unas 3 semanas), de 0 a 100. Más de 70: subió mucho y rápido. Menos de 30: cayó mucho y rápido. No dice qué pasará: en tendencias fuertes puede quedarse mucho tiempo en esas zonas.</dd>
             <dt>MACD</dt><dd>Impulso de corto plazo, con cierres diarios (12-26-9). ▲ la línea está por encima de su señal (impulso comprador); ▼ por debajo (impulso vendedor).</dd>
-            <dt>Medias</dt><dd>Cuatro puntitos, en este orden: <b>10s</b> (media de 10 semanas), <b>50d</b> (50 ruedas diarias), <b>200d</b> (200 ruedas diarias) y <b>200s</b> (200 semanas, casi 4 años). Verde ● = el precio está por encima de esa media; rojo ● = por debajo; gris ○ = sin historia suficiente. Pasá el mouse para ver los valores.</dd>
+            <dt>Soporte y resistencia</dt><dd>Se toman de 4 medias: <b>10s</b> (10 semanas), <b>50d</b> (50 ruedas), <b>200d</b> (200 ruedas) y <b>200s</b> (200 semanas, casi 4 años). <b>Soporte</b> es la media más cercana por <i>debajo</i> del precio y <b>Resistencia</b> la más cercana por <i>encima</i>, con la distancia: cuánto tendría que caer (o subir) el precio para tocarla. Resaltado = a 2% o menos. «—» = no hay ninguna media de ese lado, o no hay historia suficiente.</dd>
             <dt>Vs máx. 52s</dt><dd>Cuánto está por debajo del precio máximo de las últimas 52 semanas. 0% = está en el máximo.</dd>
             <dt>Puntaje</dt><dd>El puntaje de fundamentos de la otra pestaña, para cruzar las dos miradas.</dd>
           </dl>
@@ -959,11 +963,12 @@ const TF=[
   ["sv","Sobrevendidas",x=>x.rsi!=null&&x.rsi<30],
   ["sc","Sobrecompradas",x=>x.rsi!=null&&x.rsi>70],
   ["lo","Cerca de mínimos",x=>x.dlo!=null&&x.dlo<=.1],
+  ["nm","Cerca de una media (±2%)",x=>!!srLevels(x).near],
   ["bq","Buen puntaje y cayendo",(x,t)=>SC[t]&&SC[t].score>=60&&x.dhi!=null&&x.dhi<=-.2]
 ];
-const TACC={name:r=>r.u.t,sig:r=>maRatio(r.x),rsi:r=>r.x.rsi,mh:r=>r.x.mh,ma:r=>maRatio(r.x),dhi:r=>r.x.dhi,score:r=>r.sc};
-const TCOLS=[["sig","Señal"],["rsi","RSI"],["mh","MACD"],["ma","Medias 10s·50d·200d·200s"],["dhi","Vs máx. 52s"],["score","Puntaje"]];
-const TTIP={sig:"Una sola etiqueta: RSI extremo primero; si no, cuántas medias tiene el precio por debajo",rsi:"RSI de 14 ruedas diarias. Menos de 30 = sobrevendida, más de 70 = sobrecomprada",mh:"MACD diario (12-26-9): ▲ impulso comprador, ▼ impulso vendedor",ma:"Precio contra la media de 10 semanas, 50 ruedas, 200 ruedas y 200 semanas. Verde = por encima, rojo = por debajo",dhi:"Cuánto está por debajo de su máximo de 52 semanas",score:"Puntaje de fundamentos (pestaña Fundamentos)"};
+const TACC={name:r=>r.u.t,sig:r=>maRatio(r.x),rsi:r=>r.x.rsi,mh:r=>r.x.mh,sop:r=>{const l=srLevels(r.x).sup;return l?r.x.c/l.v-1:null},res:r=>{const l=srLevels(r.x).res;return l?l.v/r.x.c-1:null},dhi:r=>r.x.dhi,score:r=>r.sc};
+const TCOLS=[["sig","Señal"],["rsi","RSI"],["mh","MACD"],["sop","Soporte"],["res","Resistencia"],["dhi","Vs máx. 52s"],["score","Puntaje"]];
+const TTIP={sig:"Una sola etiqueta: RSI extremo primero; si no, cuántas medias tiene el precio por debajo",rsi:"RSI de 14 ruedas diarias. Menos de 30 = sobrevendida, más de 70 = sobrecomprada",mh:"MACD diario (12-26-9): ▲ impulso comprador, ▼ impulso vendedor",sop:"Media más cercana por debajo del precio (10s, 50d, 200d o 200s) y cuánto tendría que caer para tocarla. Resaltado = a 2% o menos",res:"Media más cercana por encima del precio y cuánto tendría que subir para tocarla. Resaltado = a 2% o menos",dhi:"Cuánto está por debajo de su máximo de 52 semanas",score:"Puntaje de fundamentos (pestaña Fundamentos)"};
 function tecRows(){
   if(!universe)return [];
   const f=TF.find(x=>x[0]===tfilt)||TF[0];
@@ -973,6 +978,13 @@ function tecRows(){
     if(tsort==="name")return a.u.t<b.u.t?-tdir:tdir;
     const x=acc(a),y=acc(b);if(x==null&&y==null)return a.u.t<b.u.t?-1:1;if(x==null)return 1;if(y==null)return -1;return (x-y)*tdir||(a.u.t<b.u.t?-1:1)});
 }
+function srLevels(x){
+  const L=MAS.map(([k,n,a])=>x[k]==null?null:{k,n,a,v:x[k]}).filter(Boolean);
+  return {L,sup:L.filter(l=>l.v<x.c).sort((p,q)=>q.v-p.v)[0]||null,res:L.filter(l=>l.v>x.c).sort((p,q)=>p.v-q.v)[0]||null,near:L.filter(l=>Math.abs(x.c/l.v-1)<=.02).sort((p,q)=>Math.abs(x.c/p.v-1)-Math.abs(x.c/q.v-1))[0]||null}}
+function srCell(x,side){
+  const l=srLevels(x)[side];if(!l)return `<td class="na">—</td>`;
+  const d=l.v/x.c-1,near=Math.abs(d)<=.02;
+  return `<td class="${near?"nr":""}" title="${esc(l.n+": US$ "+num(l.v,2))}"><span class="lv">${l.a}</span><span class="v">${pct(d,1)}</span></td>`}
 function dotsHtml(x){
   const ab=maAbove(x);
   const tip=MAS.map(([k,n],i)=>`${n}: ${x[k]==null?"sin historia suficiente":(ab[i]?"precio por encima":"precio por debajo")+" ("+num(x[k],2)+")"}`).join("\n");
@@ -983,7 +995,8 @@ function tecCell(k,r){
     case "sig":{const L=tsig(x);return `<td style="text-align:left"><span class="pill ${L[1]}">${L[0]}</span></td>`}
     case "rsi":return x.rsi==null?`<td class="na">—</td>`:`<td><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">${num(x.rsi,0)}</span></td>`;
     case "mh":return x.mh==null?`<td class="na">—</td>`:`<td class="${sg(x.mh)}" title="${x.mh>=0?"MACD sobre su señal: impulso comprador":"MACD bajo su señal: impulso vendedor"}">${x.mh>=0?"▲":"▼"}</td>`;
-    case "ma":return `<td>${dotsHtml(x)}</td>`;
+    case "sop":return srCell(x,"sup");
+    case "res":return srCell(x,"res");
     case "dhi":return x.dhi==null?`<td class="na">—</td>`:`<td class="${x.dhi>-.05?"tp":""}">${Math.abs(x.dhi)<.005?"0%":pct(x.dhi,0)}</td>`;
     case "score":return r.sc==null?`<td class="na">—</td>`:`<td><span class="pill${r.sc>=70?" lo":r.sc<=35?" hi":""}">${r.sc}</span></td>`;
   }
@@ -1045,21 +1058,25 @@ function renderTecDetail(){
   const us=v=>"US$ "+num(v,2);
   const ab=maAbove(x),av=ab.filter(v=>v!=null),n=av.filter(Boolean).length;
   const zona=x.rsi==null?"":x.rsi<30?"sobrevendida":x.rsi>70?"sobrecomprada":"zona neutra";
-  const frase=`${L[0]==="Sobrevendida"||L[0]==="Sobrecomprada"?`<b>${L[0]}</b>`:`<b>${L[0]==="Mixta"?"Sin tendencia clara":L[0]}</b>`}: el precio está por encima de ${n} de sus ${av.length} medias. RSI ${num(x.rsi,0)} (${zona}), a ${num(Math.abs(x.dhi)*100,0)}% de su máximo anual${sc!=null?`. Fundamentos: <b>${sc}</b>`:""}.`;
+  const SR0=srLevels(x);
+  const frase=`${L[0]==="Sobrevendida"||L[0]==="Sobrecomprada"?`<b>${L[0]}</b>`:`<b>${L[0]==="Mixta"?"Sin tendencia clara":L[0]}</b>`}: el precio está por encima de ${n} de sus ${av.length} medias. Soporte más cercano: ${SR0.sup?`media ${SR0.sup.a} (${pct(SR0.sup.v/x.c-1,1)})`:"ninguna media por debajo"}; resistencia: ${SR0.res?`media ${SR0.res.a} (${pct(SR0.res.v/x.c-1,1)})`:"ninguna media por encima"}. RSI ${num(x.rsi,0)} (${zona}), a ${num(Math.abs(x.dhi)*100,0)}% de su máximo anual${sc!=null?`. Fundamentos: <b>${sc}</b>`:""}.`;
   const rsiTxt=x.rsi==null?"":x.rsi<30?"Sobrevendida: cayó mucho y rápido en las últimas semanas. A veces precede un rebote, pero en caídas fuertes puede seguir bajando."
     :x.rsi>70?"Sobrecomprada: subió mucho y rápido. A veces precede una pausa, pero en tendencias fuertes puede mantenerse arriba mucho tiempo."
     :"Zona neutra (entre 30 y 70): sin exceso de compras ni de ventas.";
   const pos=x.hi>x.lo?clamp((x.c-x.lo)/(x.hi-x.lo)):null;
-  const mrows=MAS.map(([k,nm],i)=>`<div class="marow"><span>${nm.replace(" (diaria)","")}</span><span>${x[k]==null?"sin historia suficiente":`${us(x[k])} · <span class="${ab[i]?"tp":"tn"}">${pct(x.c/x[k]-1,1)}</span>`}</span></div>`).join("");
+  const SR=srLevels(x);
+  const lv=[...SR.L.map(l=>({n:"Media "+l.a+({"10s":" (10 semanas)","50d":" (50 ruedas)","200d":" (200 ruedas)","200s":" (200 semanas)"})[l.a],v:l.v,t:"ma"})),{n:"Máx. 52 semanas",v:x.hi,t:"x"},{n:"Mín. 52 semanas",v:x.lo,t:"x"},{n:"Precio (cierre)",v:x.c,t:"p"}].filter(l=>l.v!=null).sort((a,b)=>b.v-a.v);
+  const ladder=lv.map(l=>l.t==="p"?`<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`:`<div class="marow"><span>${l.n}</span><span>${us(l.v)} · <span class="${l.v<x.c?"tp":"tn"}">${pct(l.v/x.c-1,1)}</span></span></div>`).join("");
+  const mrows_unused=MAS.map(([k,nm],i)=>`<div class="marow"><span>${nm.replace(" (diaria)","")}</span><span>${x[k]==null?"sin historia suficiente":`${us(x[k])} · <span class="${ab[i]?"tp":"tn"}">${pct(x.c/x[k]-1,1)}</span>`}</span></div>`).join("");
   const cr=x.cruce?`<p style="margin:8px 0 0">Hace ${x.cruce.d} ${x.cruce.d===1?"rueda":"ruedas"} la media de 50 cruzó ${x.cruce.t==="dorada"?"por encima":"por debajo"} de la de 200: <b>${x.cruce.t==="dorada"?"cruz dorada":"cruz de la muerte"}</b>, que se suele leer como señal ${x.cruce.t==="dorada"?"alcista":"bajista"} de largo plazo.</p>`:"";
   const volTxt=x.rv==null?"":`<p style="margin:8px 0 0">El volumen de los últimos 5 días es ${num(x.rv,1)}x el promedio de 50 días${x.rv>=1.5?" (mucho más movimiento que lo habitual)":x.rv<=.7?" (poco movimiento)":""}.</p>`;
   $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>
   <div class="hint">Cierre del ${tecDate(x)} en dólares · ${esc(sec(t,d)||"")}</div>
   <div class="tfrase">${frase}</div>
   ${tecChart(t,x)}
-  <div class="tcard"><div class="th"><h3>Tendencia</h3><span class="pill ${L[0]==="Alcista"?"lo":L[0]==="Bajista"?"hi":""}">${n} de ${av.length} medias</span></div>
-    <div class="dots" style="font-size:16px">${dotsHtml(x)}</div><div class="hint" style="margin-top:2px">10s · 50d · 200d · 200s</div>
-    <details><summary>Ver detalle</summary><div>${mrows}${cr}</div></details></div>
+  <div class="tcard"><div class="th"><h3>Soportes y resist.</h3>${SR.near?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">Cerca de ${SR.near.a}</span>`:""}</div>
+    <div class="hint" style="margin:0 0 4px">Sobre el precio: resistencias · Bajo el precio: soportes</div>${ladder}
+    <details><summary>Ver cruces y cómo leerlo</summary><div><p style="margin:0">Las medias actúan como soporte cuando el precio está por encima de ellas y como resistencia cuando está por debajo; cuanto más larga la media, más peso suele tener. Si el precio cruza una media, esta cambia de lado.</p>${cr}</div></details></div>
   <div class="tcard"><div class="th"><h3>Momento</h3><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">RSI ${num(x.rsi,0)}</span></div>
     <div>${x.mh==null?"":x.mh>=0?"MACD: impulso comprador":"MACD: impulso vendedor"}</div>
     <details><summary>Ver detalle</summary><div><p style="margin:0 0 4px">${rsiTxt}</p>
@@ -1078,7 +1095,7 @@ function setTab(n){
 document.querySelectorAll(".tabb").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
 $("tchips").addEventListener("click",e=>{const b=e.target.closest("[data-tf]");if(!b)return;tfilt=b.dataset.tf;tpage=0;renderTec()});
 $("ttable").addEventListener("click",e=>{
-  const th=e.target.closest("th[data-tk]");if(th){const k=th.dataset.tk;if(tsort===k)tdir*=-1;else{tsort=k;tdir=(k==="name"||k==="rsi")?1:-1}renderTec();return}
+  const th=e.target.closest("th[data-tk]");if(th){const k=th.dataset.tk;if(tsort===k)tdir*=-1;else{tsort=k;tdir=(k==="name"||k==="rsi"||k==="sop"||k==="res")?1:-1}renderTec();return}
   const tr=e.target.closest("tr[data-t]");if(tr){tsel=tr.dataset.t;renderTec();
     if(matchMedia("(max-width:960px)").matches)$("tdet").scrollIntoView({behavior:"smooth",block:"start"})}});
 $("tprev").addEventListener("click",()=>{tpage--;renderTec()});
