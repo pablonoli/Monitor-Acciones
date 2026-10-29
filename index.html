@@ -351,7 +351,7 @@ td.tc small{font:500 11px var(--body);color:var(--muted);margin-left:6px}
       </div>
       <div id="gloss" class="gloss" hidden>
           <dl>
-            <dt>Puntaje</dt><dd>Nota de 0 a 100 para comparar empresas. Combina valuación (40%), crecimiento (25%, mitad contra los pares de su industria o sector y mitad contra una meta que baja según el tamaño de la empresa), calidad (20%) y dividendos (15%, solo si la empresa paga). Compara cada empresa con las de su misma industria (o de su sector si la industria tiene menos de 8) y con su propia historia. Es una guía para ordenar, no una recomendación de inversión. Tocá una empresa para ver el desglose.</dd>
+            <dt>Puntaje</dt><dd>Nota de 0 a 100 para comparar empresas. Combina valuación (40%), crecimiento (25%, mitad contra los pares de su industria, grupo o sector y mitad contra una meta que baja según el tamaño de la empresa), calidad (20%) y dividendos (15%, solo si la empresa paga). Compara cada empresa con las de su misma industria (o de su sector si la industria tiene menos de 8) y con su propia historia. Es una guía para ordenar, no una recomendación de inversión. Tocá una empresa para ver el desglose.</dd>
             <dt>P/E</dt><dd>Capitalización ÷ ganancia neta de 12 meses: cuántos dólares pagás por cada dólar de ganancia anual. Más bajo suele ser más barato, pero conviene comparar dentro del mismo sector.</dd>
             <dt>Vs sus años</dt><dd>Dónde está el P/E de hoy entre el mínimo y el máximo de sus últimos ejercicios. Barra a la izquierda: barata respecto de sí misma; a la derecha: cara.</dd>
             <dt>P/E est.</dt><dd>Precio ÷ ganancia por acción que estiman los analistas para el ejercicio en curso.</dd>
@@ -440,7 +440,7 @@ let showMore=false;try{showMore=localStorage.getItem("cols")==="1"}catch(_){}
 function cell(c,m){
   if(!m)return `<td class="na${c.bar?" l":""}">—</td>`;
   if(c.k==="score"){const v=m.score;return v==null?`<td class="na">—</td>`:`<td><span class="pill${v>=70?" lo":v<=35?" hi":""}">${v}</span></td>`}
-  if(c.k==="pe"){const v=m.pe;return v==null?`<td class="na">n/s</td>`:`<td><span class="pill${v<15?" lo":v>40?" hi":""}">${num(v,1)}</span></td>`}
+  if(c.k==="pe"){const v=m.pe;return v==null?`<td class="na">n/s</td>`:`<td><span class="pill${v<15?" lo":v>40?" hi":""}"${m.flag?` title="La ganancia de 12 meses parece inflada por resultados no operativos: el puntaje usa el P/E estimado"`:""}>${num(v,1)}${m.flag?"⚠":""}</span></td>`}
   if(c.bar){if(m.rpos==null)return `<td class="na l">—</td>`;
     const r=m.rpos,col=r>=.9?"var(--bar-bad)":r<=.2?"var(--bar-good)":"var(--bar-mid)";
     return `<td class="l"><span class="rbar" title="Mínimo ${num(m.rlo,1)}x · máximo ${num(m.rhi,1)}x · mediana ${num(m.rmed,1)}x"><i style="width:${(r*100).toFixed(0)}%;background:${col}"></i><u style="left:${(r*100).toFixed(0)}%"></u></span></td>`}
@@ -497,7 +497,7 @@ function metrics(t){
   let rpos=null,rlo=null,rhi=null,rmed=null,rn=0;
   if(pe){const hv=(Array.isArray(d.hist)?d.hist:[]).map(h=>h.pe).filter(v=>typeof v==="number"&&v>0);
     if(hv.length>=2){const v=[...hv,pe];rlo=Math.min(...v);rhi=Math.max(...v);rmed=median(v);rn=hv.length;rpos=rhi>rlo?(pe-rlo)/(rhi-rlo):null}}
-  return {price,mcap,rev,ni,pe,ps,fpe,dy,g,rpos,rlo,rhi,rmed,rn,score:(SC[t]&&SC[t].score)??null,liveAt:L&&L.at,fx};
+  return {price,mcap,rev,ni,pe,ps,fpe,dy,g,rpos,rlo,rhi,rmed,rn,score:(SC[t]&&SC[t].score)??null,flag:!!(SC[t]&&SC[t].flag),liveAt:L&&L.at,fx};
 }
 
 function passes(u){
@@ -541,24 +541,51 @@ function renderTable(){
 }
 
 // Puntaje 0-100: valuación 40, crecimiento 25, calidad 20, dividendos 15 (solo si paga). Los datos que faltan no suman ni restan:
-// el puntaje se calcula con los que hay (mínimo la mitad del peso). Los pares son las de la misma industria (si hay 8 o más); si no, las del sector; si no, todas.
+// el puntaje se calcula con los que hay (mínimo la mitad del peso). Los pares son las de la misma industria (si hay 8 o más); si no, las de su grupo de industrias parecidas (si hay 8 o más); si no, las del sector; si no, todas.
 function computeScores(){
   SC={};if(!universe)return;
   const base={};
+// Grupos de comparación: las industrias de Yahoo con pocas empresas se juntan con otras parecidas para tener con quién compararse (clave = industria de Yahoo).
+const GRP={};
+[["Metales y minería",["Gold","Other Industrial Metals & Mining","Copper","Other Precious Metals & Mining","Steel"]],
+ ["Químicos y materiales",["Specialty Chemicals","Chemicals","Agricultural Inputs","Building Materials","Paper & Paper Products"]],
+ ["Medios y entretenimiento",["Internet Content & Information","Entertainment","Electronic Gaming & Multimedia","Publishing"]],
+ ["Comercio minorista",["Internet Retail","Apparel Retail","Home Improvement Retail","Auto & Truck Dealerships"]],
+ ["Autos y vehículos",["Auto Manufacturers","Auto Parts","Recreational Vehicles"]],
+ ["Viajes, ocio y restaurantes",["Travel Services","Restaurants","Resorts & Casinos"]],
+ ["Bebidas, tabaco y confitería",["Beverages - Non-Alcoholic","Beverages - Brewers","Beverages - Wineries & Distilleries","Tobacco","Confectioners"]],
+ ["Alimentos y consumo masivo",["Household & Personal Products","Farm Products","Food Distribution","Discount Stores"]],
+ ["Petróleo y gas",["Oil & Gas Integrated","Oil & Gas E&P","Oil & Gas Equipment & Services","Oil & Gas Refining & Marketing","Oil & Gas Midstream"]],
+ ["Servicios financieros y seguros",["Credit Services","Financial Data & Stock Exchanges","Mortgage Finance","Asset Management","Capital Markets","Insurance - Diversified","Insurance Brokers","Insurance - Property & Casualty"]],
+ ["Farmacéuticas y biotecnología",["Drug Manufacturers - General","Drug Manufacturers - Specialty & Generic","Biotechnology"]],
+ ["Equipos y servicios de salud",["Medical Devices","Diagnostics & Research","Healthcare Plans","Medical Distribution","Medical Instruments & Supplies","Health Information Services"]],
+ ["Transporte",["Airlines","Airports & Air Services","Integrated Freight & Logistics","Railroads"]],
+ ["Industriales diversos",["Aerospace & Defense","Conglomerates","Farm & Heavy Construction Machinery","Specialty Industrial Machinery","Tools & Accessories","Building Products & Equipment","Rental & Leasing Services","Consulting Services","Business Equipment & Supplies"]],
+ ["Hardware y electrónica",["Computer Hardware","Communication Equipment","Consumer Electronics","Electronic Components","Scientific & Technical Instruments","Solar"]],
+ ["Software y servicios de TI",["Software - Application","Software - Infrastructure","Information Technology Services"]],
+ ["Semiconductores y equipos",["Semiconductors","Semiconductor Equipment & Materials"]]
+].forEach(([g,l])=>l.forEach(i=>GRP[i]=g));
   universe.forEach(u=>{const d=docs[u.t];if(!d||d.status!=="ok")return;const m=metrics(u.t);if(!m)return;
     const H=Array.isArray(d.hist)?d.hist:[];
     const hr=H.map(h=>h.rev).filter(v=>v>0);
     const ny=H.map(h=>h.ni).filter(v=>v!=null);
-    base[u.t]={d,m,sector:sec(u.t,d),ind:indOf(d),fam:/ - /.test(d.industry||"")?sec(u.t,d)+"|"+d.industry.split(" - ")[0]:null,
+    base[u.t]={d,m,sector:sec(u.t,d),ind:indOf(d),grp:GRP[d.industry]?sec(u.t,d)+"|"+GRP[d.industry]:null,grpN:GRP[d.industry]||null,fam:/ - /.test(d.industry||"")?sec(u.t,d)+"|"+d.industry.split(" - ")[0]:null,
       rg:hr.length>=2?hr[hr.length-1]/hr[hr.length-2]-1:null,
       margin:m.rev>0&&m.ni!=null?m.ni/m.rev:null,
       posYrs:ny.length?ny.filter(v=>v>0).length/ny.length:null,
       eg:m.pe>0&&m.fpe>0?m.pe/m.fpe-1:null}});
   const all=Object.values(base),bySec={};
+  // Ganancia de 12 meses posiblemente inflada por resultados no operativos (ventas de activos, revalorización de inversiones): subió más de 50% contra el último ejercicio
+  // mientras los ingresos subieron menos de 25%, y los analistas esperan una ganancia menor (el P/E de hoy es más de 10% más bajo que el P/E estimado).
+  all.forEach(b=>{const H=Array.isArray(b.d.hist)?b.d.hist:[],lf=[...H].reverse().find(h=>h.ni>0&&h.rev>0),m=b.m;
+    b.flag=!!(lf&&m.ni>0&&m.rev>0&&b.eg!=null&&b.eg<-.1&&m.ni/lf.ni-1>.5&&m.rev/lf.rev-1<.25);
+    if(b.flag)b.flagX={nij:m.ni/lf.ni-1,rg:m.rev/lf.rev-1,fy:lf.fy,ni:m.ni}});
   all.forEach(b=>(bySec[b.sector]=bySec[b.sector]||[]).push(b));
   const byFam={};all.forEach(b=>{if(b.fam)(byFam[b.fam]=byFam[b.fam]||[]).push(b)});
+  const byGrp={};all.forEach(b=>{if(b.grp)(byGrp[b.grp]=byGrp[b.grp]||[]).push(b)});
   const byInd={};all.forEach(b=>{if(b.ind)(byInd[b.sector+"|"+b.ind]=byInd[b.sector+"|"+b.ind]||[]).push(b)});
   const peerInfo=b=>{const gi=b.ind?byInd[b.sector+"|"+b.ind]:null;if(gi&&gi.length>=8)return {arr:gi,kind:"industria",name:b.ind,n:gi.length};
+    const gg=b.grp?byGrp[b.grp]:null;if(gg&&gg.length>=8)return {arr:gg,kind:"grupo",name:b.grpN,n:gg.length};
     const g=bySec[b.sector];if(g&&g.length>=8)return {arr:g,kind:"sector",name:b.sector,n:g.length};return {arr:all,kind:"mercado",name:"todas las empresas",n:all.length}};
   // proporción de pares que están peor que v (low = menor es mejor)
   const pstats=(arr,v,low)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return null;return {n:a.length,worse:a.filter(x=>low?x>v:x<v).length,med:median(a)}};
@@ -579,10 +606,12 @@ function computeScores(){
   Object.entries(base).forEach(([t,b])=>{
     const PI=peerInfo(b),P=PI.arr,m=b.m,items=[];
     const add=(g,label,w,sc,txt,x)=>items.push({g,label,w,s:sc,txt,x});
-    const SA=b.fam&&byFam[b.fam].length>=8?byFam[b.fam]:(bySec[b.sector]||[]),SN=b.fam&&SA===byFam[b.fam]?(FAMN[b.d.industry.split(" - ")[0]]||"industrias parecidas ("+b.d.industry.split(" - ")[0]+")"):"todo su sector";
-    const vp=m.pe>0?vScore(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,SA.map(x=>x.m.pe>0?x.m.pe:null),SN):{s:null};
-    add("Valuación","P/E vs sus pares",20,vp.s,m.pe>0?num(m.pe,1)+"x":"sin ganancias",vp.x?{k:"pe",...vp.x}:null);
-    add("Valuación","P/E vs su propia historia",15,m.rpos!=null?1-m.rpos:null,m.rpos!=null?`${num(m.pe,1)}x · rango ${num(m.rlo,0)}–${num(m.rhi,0)}x`:"sin historial",m.rpos!=null?{k:"hist",own:m.pe,lo:m.rlo,hi:m.rhi,med:m.rmed}:null);
+    const SA=b.fam&&byFam[b.fam].length>=8?byFam[b.fam]:(b.grp&&byGrp[b.grp].length>=8?byGrp[b.grp]:(bySec[b.sector]||[])),SN=b.grp&&SA===byGrp[b.grp]?"su grupo ("+b.grpN+")":b.fam&&SA===byFam[b.fam]?(FAMN[b.d.industry.split(" - ")[0]]||"industrias parecidas ("+b.d.industry.split(" - ")[0]+")"):"todo su sector";
+    // con ganancia atípica se usa el P/E estimado (contra el P/E estimado de los pares)
+    const useF=b.flag&&m.fpe>0;
+    const vp=useF?vScore(P.map(x=>x.m.fpe>0?x.m.fpe:null),m.fpe,SA.map(x=>x.m.fpe>0?x.m.fpe:null),SN):(m.pe>0?vScore(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,SA.map(x=>x.m.pe>0?x.m.pe:null),SN):{s:null});
+    add("Valuación","P/E vs sus pares",20,vp.s,useF?num(m.fpe,1)+"x est.":(m.pe>0?num(m.pe,1)+"x":"sin ganancias"),vp.x?{k:"pe",...vp.x,est:useF}:null);
+    add("Valuación","P/E vs su propia historia",15,b.flag?null:(m.rpos!=null?1-m.rpos:null),b.flag?"no comparable (ganancia atípica)":m.rpos!=null?`${num(m.pe,1)}x · rango ${num(m.rlo,0)}–${num(m.rhi,0)}x`:"sin historial",m.rpos!=null?{k:"hist",own:m.pe,lo:m.rlo,hi:m.rhi,med:m.rmed}:null);
     const vs=m.ps>0?vScore(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,SA.map(x=>x.m.ps>0?x.m.ps:null),SN):{s:null};
     add("Valuación","Precio/Ventas vs sus pares",5,vs.s,m.ps>0?num(m.ps,1)+"x":"—",vs.x?{k:"ps",...vs.x}:null);
     // crecimiento: mitad contra los pares (percentil) y mitad contra una meta que baja con el tamaño (una empresa enorme no puede crecer como una chica).
@@ -590,10 +619,10 @@ function computeScores(){
     const sizeF=m.mcap>1e12?.5:m.mcap>1e11?.6:m.mcap>1e10?.8:1;
     const gScore=(v,arr,lo,top)=>{if(v==null)return {s:null};const st=pstats(arr,v,false),rel=better(arr,v,false),tp=top*sizeF;
       const abs=clamp((v-lo)/(tp-lo));let sc=rel!=null?(rel+abs)/2:abs;if(v<0)sc=Math.min(sc,.4);return {s:sc,x:{own:v,...(st||{}),rel,abs,top:tp,lo}}};
-    const ge=gScore(b.eg,P.map(x=>x.eg),-.05,.25),gr=gScore(b.rg,P.map(x=>x.rg),-.02,.20);
-    add("Crecimiento","Ganancia esperada vs actual",15,ge.s,b.eg!=null?(b.eg>=0?"+":"−")+num(Math.abs(b.eg)*100,0)+"%":"—",ge.x?{k:"eg",...ge.x}:null);
+    const ge=b.flag?{s:null}:gScore(b.eg,P.map(x=>x.flag?null:x.eg),-.05,.25),gr=gScore(b.rg,P.map(x=>x.rg),-.02,.20);
+    add("Crecimiento","Ganancia esperada vs actual",15,ge.s,b.flag?"no comparable (ganancia atípica)":b.eg!=null?(b.eg>=0?"+":"−")+num(Math.abs(b.eg)*100,0)+"%":"—",ge.x?{k:"eg",...ge.x}:null);
     add("Crecimiento","Ingresos del último ejercicio",10,gr.s,b.rg!=null?(b.rg>=0?"+":"−")+num(Math.abs(b.rg)*100,0)+"%":"—",gr.x?{k:"rg",...gr.x}:null);
-    add("Calidad","Margen neto vs sus pares",12,b.margin!=null?better(P.map(x=>x.margin),b.margin,false):null,b.margin!=null?num(b.margin*100,1)+"%":"—",b.margin!=null?{k:"mg",own:b.margin,...(pstats(P.map(x=>x.margin),b.margin,false)||{})}:null);
+    add("Calidad","Margen neto vs sus pares",12,b.margin!=null&&!b.flag?better(P.map(x=>x.flag?null:x.margin),b.margin,false):null,b.flag?"no comparable (ganancia atípica)":b.margin!=null?num(b.margin*100,1)+"%":"—",b.margin!=null&&!b.flag?{k:"mg",own:b.margin,...(pstats(P.map(x=>x.flag?null:x.margin),b.margin,false)||{})}:null);
     add("Calidad","Años con ganancia",8,b.posYrs,b.posYrs!=null?Math.round(b.posYrs*100)+"% de los años":"—");
     const dv=b.d.div;
     if(m.dy>0){
@@ -607,7 +636,7 @@ function computeScores(){
     let capped=false;if(score!=null&&m.ni!=null&&m.ni<=0&&score>45){score=45;capped=true}
     const groups={};
     items.forEach(i=>{const g=groups[i.g]||(groups[i.g]={w:0,ws:0});if(i.s!=null){g.w+=i.w;g.ws+=i.w*i.s}});
-    SC[t]={score,items,capped,peer:PI,mcapTxt:m.mcap>1e12?"más de US$ 1 billón":m.mcap>1e11?"entre US$ 100 mil M y 1 billón":m.mcap>1e10?"entre US$ 10 mil M y 100 mil M":"menos de US$ 10 mil M",k:W?100/W:1,groups:Object.entries(groups).map(([n,g])=>({n,s:g.w?g.ws/g.w:null})),cov:`${av.length} de ${items.length}`};
+    SC[t]={score,items,capped,peer:PI,flag:b.flag?b.flagX:null,mcapTxt:m.mcap>1e12?"más de US$ 1 billón":m.mcap>1e11?"entre US$ 100 mil M y 1 billón":m.mcap>1e10?"entre US$ 10 mil M y 100 mil M":"menos de US$ 10 mil M",k:W?100/W:1,groups:Object.entries(groups).map(([n,g])=>({n,s:g.w?g.ws/g.w:null})),cov:`${av.length} de ${items.length}`};
   });
 }
 
@@ -620,6 +649,7 @@ function scoreHtml(t){
   <div class="schead" style="margin-top:6px"><div class="scnum${s.score>=70?" lo":s.score<=35?" hi":""}">${s.score}</div><div class="scsub">de 100 · con ${s.cov} datos${s.capped?"<br>Tope de 45 porque tuvo pérdidas en los últimos 12 meses":""}</div></div>
   ${grp}
   <p class="cmp">Comparada con ${s.peer.kind==="mercado"?"todo el mercado":`su ${s.peer.kind}: <b>${esc(s.peer.name)}</b>`} (${s.peer.n} empresas de tu lista)</p>
+  ${s.flag?`<p class="hint" style="margin:6px 0 0">⚠ La ganancia de 12 meses (${money(s.flag.ni)}) subió ${num(s.flag.nij*100,0)}% contra el ejercicio ${esc(s.flag.fy)} con ingresos ${s.flag.rg>=0?"+":"−"}${num(Math.abs(s.flag.rg)*100,0)}%: podría incluir resultados no operativos. Por eso el puntaje usa el P/E estimado y no cuenta el P/E histórico, la ganancia esperada ni el margen.</p>`:""}
   <button type="button" class="scbtn" data-score="${esc(t)}">Ver cómo se calcula</button></div>`;
 }
 // Explicación de cada dato en una frase, con la diferencia contra los pares
@@ -629,7 +659,7 @@ function explainItem(i,s){
   const mult=v=>num(v,1)+"x";
   switch(x.k){
     case "pe":case "ps":{const q=x.k==="pe"?"P/E":"Precio/Ventas";return x.med==null?`No hay suficientes pares con ${q} para comparar.`:
-      `${q} de la empresa: ${mult(x.own)}. ${peerTxt(mult)}En esta industria lo normal es variar ±${num(x.tol*100,0)}% alrededor de la mediana, así que la distancia vale ${Math.round(x.dist*100)}. En el ranking es más barata que ${x.worse} de esos ${x.n} → ${Math.round(x.rel*100)}. Nota: 70% distancia + 30% ranking = ${Math.round(x.raw*100)}.${x.floor?` Como ${mult(x.own)} no supera el cuartil alto de ${x.sname} (${mult(x.top)}), la nota no baja de 35 → ${nota}.`:""}`}
+      `${q}${x.est?" estimado":""} de la empresa: ${mult(x.own)}. ${peerTxt(mult)}En esta industria lo normal es variar ±${num(x.tol*100,0)}% alrededor de la mediana, así que la distancia vale ${Math.round(x.dist*100)}. En el ranking es más barata que ${x.worse} de esos ${x.n} → ${Math.round(x.rel*100)}. Nota: 70% distancia + 30% ranking = ${Math.round(x.raw*100)}.${x.floor?` Como ${mult(x.own)} no supera el cuartil alto de ${x.sname} (${mult(x.top)}), la nota no baja de 35 → ${nota}.`:""}`}
     case "mg":return x.med==null?"No hay suficientes pares para comparar.":`Gana ${num(x.own*100,1)}% de cada dólar que vende. La mediana de sus ${x.n} pares gana ${num(x.med*100,1)}% (${x.own>=x.med?"+":"−"}${num(Math.abs(x.own-x.med)*100,1)} puntos). Supera a ${x.worse} de ${x.n} → nota ${nota}.`;
     case "eg":case "rg":{const q=x.k==="eg"?"Los analistas esperan una ganancia":"Los ingresos del último ejercicio cambiaron",f=v=>(v>=0?"+":"−")+num(Math.abs(v)*100,0)+"%";
       const tam=s.mcapTxt?` (para una empresa de ${s.mcapTxt})`:"";
@@ -672,6 +702,7 @@ function openScore(t){
   $("zbody").innerHTML=`<div class="sum"><div class="sbig" style="color:${cl(s.score/100)}">${s.score}<small>de 100</small></div><div class="sgs">${grps}</div></div>
   <p class="hint" style="margin:10px 0 6px">Cada dato recibe una nota de 0 a 100 (verde = buena, amarillo = media, rojo = baja) y se multiplica por su peso. La suma de los puntos es el puntaje.
   Comparada con ${s.peer.kind==="mercado"?"todo el mercado":`su ${s.peer.kind}: <b>${esc(s.peer.name)}</b>`} (${s.peer.n} empresas de tu lista). <button type="button" class="lnk" data-expand>Mostrar todas las explicaciones</button></p>
+  ${s.flag?`<p class="hint" style="margin:0 0 8px">⚠ La ganancia de 12 meses (${money(s.flag.ni)}) subió ${num(s.flag.nij*100,0)}% contra el ejercicio ${esc(s.flag.fy)} con ingresos ${s.flag.rg>=0?"+":"−"}${num(Math.abs(s.flag.rg)*100,0)}%: podría incluir resultados no operativos. Por eso se usa el P/E estimado y no cuentan el P/E histórico, la ganancia esperada ni el margen.</p>`:""}
   <div class="stable"><div class="srow sh"><span>Dato</span><span>Nota</span><span class="r">Puntos</span></div>${rows}</div>
   <div class="stotbar"><span>Total</span><b>${num(tot,1)} → ${s.score}${s.capped?" (tope 45)":""}</b></div>
   <p class="hint" style="margin:10px 0 0">Los datos que faltan no suman ni restan: el resto se reparte hasta llegar a 100. Es una guía para comparar, no una recomendación de inversión.</p>`;
