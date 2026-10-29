@@ -464,13 +464,14 @@ function computeScores(){
     const H=Array.isArray(d.hist)?d.hist:[];
     const hr=H.map(h=>h.rev).filter(v=>v>0);
     const ny=H.map(h=>h.ni).filter(v=>v!=null);
-    base[u.t]={d,m,sector:sec(u.t,d),ind:indOf(d),
+    base[u.t]={d,m,sector:sec(u.t,d),ind:indOf(d),fam:/ - /.test(d.industry||"")?sec(u.t,d)+"|"+d.industry.split(" - ")[0]:null,
       rg:hr.length>=2?hr[hr.length-1]/hr[hr.length-2]-1:null,
       margin:m.rev>0&&m.ni!=null?m.ni/m.rev:null,
       posYrs:ny.length?ny.filter(v=>v>0).length/ny.length:null,
       eg:m.pe>0&&m.fpe>0?m.pe/m.fpe-1:null}});
   const all=Object.values(base),bySec={};
   all.forEach(b=>(bySec[b.sector]=bySec[b.sector]||[]).push(b));
+  const byFam={};all.forEach(b=>{if(b.fam)(byFam[b.fam]=byFam[b.fam]||[]).push(b)});
   const byInd={};all.forEach(b=>{if(b.ind)(byInd[b.sector+"|"+b.ind]=byInd[b.sector+"|"+b.ind]||[]).push(b)});
   const peerInfo=b=>{const gi=b.ind?byInd[b.sector+"|"+b.ind]:null;if(gi&&gi.length>=8)return {arr:gi,kind:"industria",name:b.ind,n:gi.length};
     const g=bySec[b.sector];if(g&&g.length>=8)return {arr:g,kind:"sector",name:b.sector,n:g.length};return {arr:all,kind:"mercado",name:"todas las empresas",n:all.length}};
@@ -481,22 +482,23 @@ function computeScores(){
   // Tolerancia = dispersión típica de los pares (rango entre cuartiles ÷ mediana), entre 25% y 60%: en un sector donde todos valen parecido, 15% de diferencia pesa más
   // que en uno donde los múltiplos van de 20x a 60x. Igual a la mediana = 50; una tolerancia más barata = 100; 2 tolerancias más cara = 0.
   const quant=(a,q)=>{const v=[...a].sort((x,y)=>x-y),i=(v.length-1)*q,l=Math.floor(i);return v[l]+(v[Math.min(l+1,v.length-1)]-v[l])*(i-l)};
-  const vScore=(arr,v,sarr)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return {s:null};
+  const FAMN={"Banks":"los bancos","Insurance":"las aseguradoras","Drug Manufacturers":"las farmacéuticas","Beverages":"las bebidas","Oil & Gas":"petróleo y gas","Medical":"el sector médico","Software":"el software","Specialty":"las empresas especializadas"};
+  const vScore=(arr,v,sarr,sname)=>{const a=arr.filter(x=>x!=null);if(a.length<4||v==null)return {s:null};
     const st=pstats(arr,v,true),rel=better(arr,v,true),med=median(a),tol=clamp((quant(a,.75)-quant(a,.25))/med,.25,.6),d=v/med-1;
     const dist=d<=0?.5+.5*Math.min(1,-d/tol):.5-.5*Math.min(1,d/(2*tol));
     let sc=.7*dist+.3*rel,floor=null,top=null;
     // Piso: si el múltiplo está dentro del rango normal de todo su sector (no supera el cuartil alto del sector), la nota no baja de 35.
     const sa=(sarr||[]).filter(x=>x!=null);
     if(sa.length>=8){top=quant(sa,.75);if(v<=top){floor=.35;sc=Math.max(sc,floor)}}
-    return {s:sc,x:{own:v,...st,rel,dist,tol,d,floor,top,raw:.7*dist+.3*rel}}};
+    return {s:sc,x:{own:v,...st,rel,dist,tol,d,floor,top,sname,raw:.7*dist+.3*rel}}};
   Object.entries(base).forEach(([t,b])=>{
     const PI=peerInfo(b),P=PI.arr,m=b.m,items=[];
     const add=(g,label,w,sc,txt,x)=>items.push({g,label,w,s:sc,txt,x});
-    const SA=bySec[b.sector]||[];
-    const vp=m.pe>0?vScore(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,SA.map(x=>x.m.pe>0?x.m.pe:null)):{s:null};
+    const SA=b.fam&&byFam[b.fam].length>=8?byFam[b.fam]:(bySec[b.sector]||[]),SN=b.fam&&SA===byFam[b.fam]?(FAMN[b.d.industry.split(" - ")[0]]||"industrias parecidas ("+b.d.industry.split(" - ")[0]+")"):"todo su sector";
+    const vp=m.pe>0?vScore(P.map(x=>x.m.pe>0?x.m.pe:null),m.pe,SA.map(x=>x.m.pe>0?x.m.pe:null),SN):{s:null};
     add("Valuación","P/E vs sus pares",20,vp.s,m.pe>0?num(m.pe,1)+"x":"sin ganancias",vp.x?{k:"pe",...vp.x}:null);
     add("Valuación","P/E vs su propia historia",15,m.rpos!=null?1-m.rpos:null,m.rpos!=null?`${num(m.pe,1)}x · rango ${num(m.rlo,0)}–${num(m.rhi,0)}x`:"sin historial",m.rpos!=null?{k:"hist",own:m.pe,lo:m.rlo,hi:m.rhi,med:m.rmed}:null);
-    const vs=m.ps>0?vScore(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,SA.map(x=>x.m.ps>0?x.m.ps:null)):{s:null};
+    const vs=m.ps>0?vScore(P.map(x=>x.m.ps>0?x.m.ps:null),m.ps,SA.map(x=>x.m.ps>0?x.m.ps:null),SN):{s:null};
     add("Valuación","Precio/Ventas vs sus pares",5,vs.s,m.ps>0?num(m.ps,1)+"x":"—",vs.x?{k:"ps",...vs.x}:null);
     // crecimiento: mitad contra los pares (percentil) y mitad contra una meta que baja con el tamaño (una empresa enorme no puede crecer como una chica).
     // Sin pares suficientes (menos de 4 con dato) cuenta solo la meta. Un crecimiento negativo nunca pasa de 40.
@@ -542,7 +544,7 @@ function explainItem(i,s){
   const mult=v=>num(v,1)+"x";
   switch(x.k){
     case "pe":case "ps":{const q=x.k==="pe"?"P/E":"Precio/Ventas";return x.med==null?`No hay suficientes pares con ${q} para comparar.`:
-      `${q} de la empresa: ${mult(x.own)}. ${peerTxt(mult)}En esta industria lo normal es variar ±${num(x.tol*100,0)}% alrededor de la mediana, así que la distancia vale ${Math.round(x.dist*100)}. En el ranking es más barata que ${x.worse} de esos ${x.n} → ${Math.round(x.rel*100)}. Nota: 70% distancia + 30% ranking = ${Math.round(x.raw*100)}.${x.floor?` Como ${mult(x.own)} no supera el cuartil alto de todo su sector (${mult(x.top)}), la nota no baja de 35 → ${nota}.`:""}`}
+      `${q} de la empresa: ${mult(x.own)}. ${peerTxt(mult)}En esta industria lo normal es variar ±${num(x.tol*100,0)}% alrededor de la mediana, así que la distancia vale ${Math.round(x.dist*100)}. En el ranking es más barata que ${x.worse} de esos ${x.n} → ${Math.round(x.rel*100)}. Nota: 70% distancia + 30% ranking = ${Math.round(x.raw*100)}.${x.floor?` Como ${mult(x.own)} no supera el cuartil alto de ${x.sname} (${mult(x.top)}), la nota no baja de 35 → ${nota}.`:""}`}
     case "mg":return x.med==null?"No hay suficientes pares para comparar.":`Gana ${num(x.own*100,1)}% de cada dólar que vende. La mediana de sus ${x.n} pares gana ${num(x.med*100,1)}% (${x.own>=x.med?"+":"−"}${num(Math.abs(x.own-x.med)*100,1)} puntos). Supera a ${x.worse} de ${x.n} → nota ${nota}.`;
     case "eg":case "rg":{const q=x.k==="eg"?"Los analistas esperan una ganancia":"Los ingresos del último ejercicio cambiaron",f=v=>(v>=0?"+":"−")+num(Math.abs(v)*100,0)+"%";
       const tam=s.mcapTxt?` (para una empresa de ${s.mcapTxt})`:"";
