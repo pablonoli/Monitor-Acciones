@@ -138,6 +138,7 @@ tbody tr.dim:hover td,tbody tr.dim.sel td{opacity:1}
 svg{display:block;width:100%;min-width:480px;height:auto}
 .bigpe svg{min-width:0}
 svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.pehist{margin:0 0 22px;border-top:2px solid var(--fg);padding:10px 0 4px;min-width:0}.pehist svg{min-width:0;width:100%;height:auto;display:block}
 .minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:28px 32px}
 .mini{border:0;border-top:2px solid var(--fg);border-radius:0;padding:10px 0 4px;min-width:0}
 .mini svg{min-width:0}
@@ -947,6 +948,53 @@ document.addEventListener("keydown",e=>{
   if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches("[data-zoom]")){e.preventDefault();openZoom(e.target.dataset.zoom)}
 });
 
+// ---------- P/E histórico semanal ----------
+// P/E de cada semana = precio de la semana x acciones ÷ ganancia neta de 12 meses. La ganancia se interpola entre los cierres de ejercicio guardados y la de hoy,
+// así que es una aproximación (otras fuentes usan la ganancia de cada trimestre). Solo empresas que cotizan en dólares.
+let SEM=null,semLoading=false;
+function loadSem(){
+  if(SEM||semLoading)return;semLoading=true;
+  fetch("data/semanal.json?"+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{SEM=j},()=>{SEM={d:[],t:{}}}).finally(()=>{semLoading=false;
+    if(selected&&docs[selected]&&docs[selected].status==="ok"){const m=metrics(selected);if(m&&$("pehist"))$("pehist").innerHTML=peHistInner(selected,m)}})}
+function peSeries(t,m){
+  const d=docs[t];if(!SEM||!SEM.t||!SEM.t[t]||!d||(d.cur&&d.cur!=="USD"))return null;
+  const dates=SEM.d,pr=SEM.t[t],shares=d.shares||(d.mcap&&d.price?d.mcap/d.price:null);if(!shares||!dates.length)return null;
+  const kn=(Array.isArray(d.hist)?d.hist:[]).filter(h=>h.end&&h.ni!=null).map(h=>[Date.parse(h.end),h.ni]).sort((a,b)=>a[0]-b[0]);
+  const lastT=Date.parse(dates[dates.length-1]);
+  if(m.ni!=null)kn.push([Math.max(lastT,kn.length?kn[kn.length-1][0]+864e5:0),m.ni]);
+  if(kn.length<2)return null;
+  const pts=[];let j=0;
+  for(let i=0;i<dates.length;i++){const tm=Date.parse(dates[i]),p=pr[i];if(p==null||tm<kn[0][0]||tm>kn[kn.length-1][0])continue;
+    while(j<kn.length-2&&tm>kn[j+1][0])j++;
+    const [ta,na]=kn[j],[tb,nb]=kn[j+1],ni=na+(nb-na)*Math.min(1,Math.max(0,(tm-ta)/(tb-ta)));
+    const pe=ni>0?p*shares/ni:null;pts.push({d:dates[i],v:pe!=null&&pe>0&&pe<200?pe:null})}
+  return pts.filter(p=>p.v!=null).length>=20?pts:null}
+function peChartSvg(pts,W,H){
+  const MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"],vals=pts.map(p=>p.v).filter(v=>v!=null),med=median(vals);
+  let lo=Math.min(...vals),hi=Math.max(...vals);const sp=hi-lo||1;lo=Math.max(0,lo-sp*.12);hi+=sp*.12;
+  const L=44,R=64,T=14,B=26,n=pts.length,bw=(W-L-R)/n,x=i=>L+bw*i+bw/2,y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  let g="";
+  const lastV=[...vals].pop();
+  for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/>${Math.abs(y(v)-y(lastV))<13?"":`<text x="${W-R+6}" y="${y(v)+4}">${num(v,0)}</text>`}`}
+  let ly=-99;pts.forEach((p,i)=>{const m=+p.d.slice(5,7),dd=+p.d.slice(8,10);if((m===1||m===7)&&dd<=7&&x(i)-ly>40){ly=x(i);g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${MES[m-1]}-${p.d.slice(2,4)}</text>`}});
+  g+=`<line x1="${L}" x2="${W-R}" y1="${y(med)}" y2="${y(med)}" stroke="var(--muted)" stroke-dasharray="5 4"/><text x="${L+4}" y="${y(med)-5}" style="fill:var(--muted)">mediana ${num(med,1)}x</text>`;
+  let path="",pen=false;pts.forEach((p,i)=>{if(p.v==null){pen=false;return}path+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1);pen=true});
+  g+=`<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`;
+  const li=pts.length-1-[...pts].reverse().findIndex(p=>p.v!=null),lp=pts[li];
+  g+=`<rect x="${W-R+2}" y="${y(lp.v)-10}" width="${R-4}" height="20" rx="3" fill="var(--accent)"/><text x="${W-R+2+(R-4)/2}" y="${y(lp.v)+4}" text-anchor="middle" style="fill:var(--surface);font-weight:600">${num(lp.v,1)}</text>`;
+  pts.forEach((p,i)=>{if(p.v==null)return;const c=(p.v/med-1)*100;
+    g+=`<rect class="hit" x="${L+bw*i}" y="${T}" width="${Math.max(bw,1)}" height="${H-T-B}" fill="transparent" data-tl="${esc(fdate4(p.d))}" data-tv="${esc(num(p.v,1)+"x")}" data-tx="${esc((c>=0?"+":"−")+num(Math.abs(c),0)+"% vs mediana")}"/>`});
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="P/E semanal de los últimos años">${g}</svg>`}
+function peHistInner(t,m){
+  const pts=peSeries(t,m);
+  if(!SEM)return `<div class="mempty">Cargando el historial semanal…</div>`;
+  if(!pts)return `<div class="mempty">Sin historial semanal del P/E para esta empresa (cotiza en otra moneda, tiene pocos datos o todavía no se calculó).</div>`;
+  const v=pts.filter(p=>p.v!=null),a=v[v.length-1],med=median(v.map(p=>p.v)),c=(a.v/med-1)*100,mn=v.reduce((p,q)=>q.v<p.v?q:p),mx=v.reduce((p,q)=>q.v>p.v?q:p);
+  const W=Math.max(300,Math.min(900,Math.round(($("chart").clientWidth||640)))),H=W<520?190:230;
+  return `<div class="mhead"><b>P/E de los últimos años</b><span>semanal · aproximado</span></div>
+  <div class="mbig">${num(a.v,1)}x<small>hoy · mediana ${num(med,1)}x (${Math.abs(c)<3?"en línea":num(Math.abs(c),0)+"% "+(c>0?"por encima":"por debajo")}) · mín. ${num(mn.v,1)}x · máx. ${num(mx.v,1)}x</small></div>
+  ${peChartSvg(pts,W,H)}
+  <p class="hint" style="margin:6px 0 0">Precio de cada semana ÷ ganancia de 12 meses por acción actual. La ganancia de los años intermedios se estima uniendo los cierres de ejercicio, por eso puede diferir un poco de otras fuentes que usan la ganancia de cada trimestre. Pasá el mouse o tocá la línea para ver cada semana.</p>`}
 function drawPanels(t,m){
   const d=docs[t];
   const H0=fullHist(d)?{pts:d.hist}:hist[t];
@@ -977,7 +1025,8 @@ function drawPanels(t,m){
     const pts=v.ann.map(([y,x])=>({l:String(y),v:x}));pts.push({l:"12m",v:v.ttm??null,now:true});
     dps=add("dps","Dividendo por acción",pts,(x,ax)=>x==null?"—":"US$ "+num(x,ax?2:3),{bars:true,sub:"por año"});
   }
-  $("chart").innerHTML=`<p class="sub" style="margin:0 0 10px">Cada punto es el cierre de un ejercicio fiscal (el mes depende de la empresa: «jun-26» = ejercicio cerrado en junio de 2026), con el precio de esa fecha. «Hoy» usa el precio de hoy y la ganancia de los últimos 12 meses. Tocá un gráfico para agrandarlo; pasá el mouse o el dedo sobre un punto para ver el número. La línea punteada es la mediana del período.</p>
+  loadSem();
+  $("chart").innerHTML=`<div id="pehist" class="pehist">${peHistInner(t,m)}</div><p class="sub" style="margin:0 0 10px">Cada punto es el cierre de un ejercicio fiscal (el mes depende de la empresa: «jun-26» = ejercicio cerrado en junio de 2026), con el precio de esa fecha. «Hoy» usa el precio de hoy y la ganancia de los últimos 12 meses. Tocá un gráfico para agrandarlo; pasá el mouse o el dedo sobre un punto para ver el número. La línea punteada es la mediana del período.</p>
   <div class="minis">
     ${add("pe","P/E",series("pe",m.pe),mx,{sub:"precio / ganancia",median:true})}
     ${add("ps","Precio / Ventas",series("ps",m.ps),mx,{median:true})}

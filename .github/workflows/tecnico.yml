@@ -18,11 +18,14 @@ jobs:
         with: { python-version: "3.12" }
       - run: pip install yfinance pandas numpy
       - run: python scripts/tecnico.py
+      - run: python scripts/semanal.py
+        continue-on-error: true   # el gráfico del P/E histórico es un extra: si falla no frena los indicadores
       - name: Guardar resultado
         run: |
           git config user.name "datos-bot"
           git config user.email "datos-bot@users.noreply.github.com"
           git add data/tecnico.json
+          [ -f data/semanal.json ] && git add data/semanal.json || true
           git commit -m "Técnico $(date -u +%F)" || echo "sin cambios"
           git pull --rebase origin main || true
           git push
