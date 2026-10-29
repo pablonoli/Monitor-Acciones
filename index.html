@@ -240,6 +240,8 @@ rect.hit:hover{fill:var(--fg);fill-opacity:.09}
 #tecwrap{display:none;flex-direction:column;gap:16px}
 .main.tabtec #tecwrap{display:flex}
 .main.tabtec .fk,.main.tabtec .fc,.main.tabtec #more,.main.tabtec #scope{display:none!important}
+.tbase{display:inline-block;margin:0 0 8px;padding:4px 10px;border-radius:6px;background:var(--neutral-bg);font-size:12.5px}
+.tbase b{font-weight:600}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
 .chipb{padding:6px 12px;border-radius:999px;font:500 13px var(--body);min-height:34px}
 .chipb[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
@@ -369,14 +371,15 @@ td.tc small{font:500 11px var(--body);color:var(--muted);margin-left:6px}
         <div class="tbar">
           <div class="tt"><h2>Señales técnicas</h2><button type="button" id="tgbtn" aria-expanded="false" aria-controls="tgloss">ⓘ ¿Qué significa cada dato?</button><button type="button" id="trefresh">Actualizar indicadores</button></div>
           <p class="sub" id="tsub">Indicadores calculados con el precio en dólares al cierre de la rueda. Son una lectura del momento del precio, no un consejo de compra o venta. Tocá un encabezado para ordenar y una fila para ver el gráfico y el cierre. ✚ = cruz dorada reciente, ✖ = cruz de la muerte.</p>
+          <div class="tbase"><b>Base de cálculo:</b> cierres <b>diarios</b> (RSI de 14 ruedas, medias de 50 y 200 ruedas, MACD 12-26-9). El gráfico del panel es <b>semanal</b>.</div>
           <div class="chips" id="tchips" role="group" aria-label="Filtros rápidos"></div>
         </div>
         <div id="tgloss" class="gloss" hidden>
           <dl>
-            <dt>Tendencia</dt><dd>Compara el precio con su promedio de las últimas 50 ruedas (unos 2,5 meses) y de las últimas 200 (casi un año). Alcista: precio sobre la media de 50 y ésta sobre la de 200. Bajista: al revés. Mixta: las señales no coinciden.</dd>
+            <dt>Tendencia</dt><dd>Compara el cierre diario con su promedio de las últimas 50 ruedas (unos 2,5 meses) y de las últimas 200 (casi un año). Alcista: precio sobre la media de 50 y ésta sobre la de 200. Bajista: al revés. Mixta: las señales no coinciden.</dd>
             <dt>Cruz dorada / de la muerte</dt><dd>Cuando la media de 50 ruedas cruza hacia arriba (dorada) o hacia abajo (de la muerte) a la de 200. Se muestra si ocurrió en las últimas 60 ruedas.</dd>
             <dt>Vs media 50 / 200</dt><dd>A qué distancia está el precio de cada promedio. Muy positivo: se alejó hacia arriba y puede estar estirado. Negativo: está por debajo.</dd>
-            <dt>RSI 14</dt><dd>Fuerza de las subas contra las bajas de las últimas 14 ruedas, de 0 a 100. Más de 70: sobrecomprada (subió mucho y rápido). Menos de 30: sobrevendida (cayó mucho y rápido). No dice qué pasará: en tendencias fuertes puede quedarse mucho tiempo en esas zonas.</dd>
+            <dt>RSI 14d</dt><dd>Fuerza de las subas contra las bajas de las últimas 14 ruedas diarias (unas 3 semanas), de 0 a 100. Más de 70: sobrecomprada (subió mucho y rápido). Menos de 30: sobrevendida (cayó mucho y rápido). No dice qué pasará: en tendencias fuertes puede quedarse mucho tiempo en esas zonas.</dd>
             <dt>MACD</dt><dd>Mide el impulso de corto plazo. ▲ significa que su línea está por encima de su señal (impulso comprador); ▼, por debajo (impulso vendedor).</dd>
             <dt>Vs máx. 52s</dt><dd>Cuánto está por debajo del precio máximo de las últimas 52 semanas. 0% = está en el máximo.</dd>
             <dt>12M</dt><dd>Variación del precio en 12 meses (252 ruedas). Los rendimientos de 1, 3, 6 y 12 meses están en el panel de cada empresa.</dd>
@@ -953,8 +956,8 @@ const TF=[
   ["bq","Buen puntaje y cayendo",(x,t)=>SC[t]&&SC[t].score>=60&&x.dhi!=null&&x.dhi<=-.2]
 ];
 const TACC={name:r=>r.u.t,c:r=>r.x.c,tr:r=>({up:2,mix:1,down:0})[r.x.tr],d50:r=>r.x.d50,d200:r=>r.x.d200,rsi:r=>r.x.rsi,mh:r=>r.x.mh,dhi:r=>r.x.dhi,r1:r=>r.x.r1,r3:r=>r.x.r3,r12:r=>r.x.r12,r3:r=>r.x.r3,score:r=>r.sc};
-const TCOLS=[["tr","Tendencia"],["d50","Vs media 50"],["d200","Vs media 200"],["rsi","RSI 14"],["mh","MACD"],["dhi","Vs máx. 52s"],["r12","12M"],["score","Puntaje"]];
-const TTIP={tr:"Precio contra sus medias de 50 y 200 ruedas",d50:"Distancia del precio a su media de 50 ruedas",d200:"Distancia del precio a su media de 200 ruedas",rsi:"Menos de 30 = sobrevendida, más de 70 = sobrecomprada",mh:"▲ impulso comprador, ▼ impulso vendedor",dhi:"Cuánto está por debajo de su máximo de 52 semanas",r12:"Variación en 12 meses",score:"Puntaje de fundamentos (pestaña Fundamentos)"};
+const TCOLS=[["tr","Tendencia"],["d50","Vs 50d"],["d200","Vs 200d"],["rsi","RSI 14d"],["mh","MACD"],["dhi","Vs máx. 52s"],["r12","12M"],["score","Puntaje"]];
+const TTIP={tr:"Precio contra sus medias diarias de 50 y 200 ruedas",d50:"Distancia del precio a su media de 50 ruedas diarias",d200:"Distancia del precio a su media de 200 ruedas diarias",rsi:"RSI de 14 ruedas diarias. Menos de 30 = sobrevendida, más de 70 = sobrecomprada",mh:"MACD diario (12-26-9): ▲ impulso comprador, ▼ impulso vendedor",dhi:"Cuánto está por debajo de su máximo de 52 semanas",r12:"Variación en 12 meses",score:"Puntaje de fundamentos (pestaña Fundamentos)"};
 function tecRows(){
   if(!universe)return [];
   const f=TF.find(x=>x[0]===tfilt)||TF[0];
@@ -1024,7 +1027,7 @@ function tecChart(t,x){
     <path d="${path(s10)}" fill="none" stroke="var(--fg)" stroke-width="1.3" stroke-dasharray="5 3"/>
     <path d="${path(w)}" fill="none" stroke="var(--ch)" stroke-width="2"/>
     <circle cx="${X(n-1).toFixed(1)}" cy="${Y(w[n-1]).toFixed(1)}" r="4" fill="var(--ch)"/>${hits}</svg>
-    <div class="tleg"><span><i style="border-color:var(--ch)"></i>Precio</span><span><i style="border-color:var(--fg);border-top-style:dashed"></i>Media 50</span><span><i style="border-color:var(--muted)"></i>Media 200</span><span><i style="border-color:var(--good);border-top-style:dashed"></i>Máx. 52s</span><span><i style="border-color:var(--bad);border-top-style:dashed"></i>Mín. 52s</span></div>`;
+    <div class="tleg"><span><i style="border-color:var(--ch)"></i>Precio (cierre semanal)</span><span><i style="border-color:var(--fg);border-top-style:dashed"></i>Media 50</span><span><i style="border-color:var(--muted)"></i>Media 200</span><span><i style="border-color:var(--good);border-top-style:dashed"></i>Máx. 52s</span><span><i style="border-color:var(--bad);border-top-style:dashed"></i>Mín. 52s</span></div>`;
 }
 function renderTecDetail(){
   const t=tsel&&TEC[tsel]?tsel:null;
@@ -1052,15 +1055,15 @@ function renderTecDetail(){
   $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>
   <div class="hint">Cierre del ${tecDate(x)} en dólares · ${esc(sec(t,d)||"")}</div>
   ${tecChart(t,x)}
-  <h3>Tendencia</h3><p>${trTxt}</p>${cr}
-  <h3>RSI 14</h3><p><b>${num(x.rsi,0)}</b> · ${rsiTxt}</p>
+  <h3>Tendencia (medias diarias)</h3><p>${trTxt}</p>${cr}
+  <h3>RSI de 14 ruedas (diario)</h3><p><b>${num(x.rsi,0)}</b> · ${rsiTxt}</p>
   <div class="tgauge"><u style="left:${clamp((x.rsi||0)/100)*100}%"></u></div><div class="tgl"><span>0 sobrevendida</span><span>30</span><span>70</span><span>100 sobrecomprada</span></div>
-  <h3>MACD</h3><p>${x.mh==null?"—":x.mh>=0?"La línea MACD está por encima de su señal: el impulso de corto plazo es comprador.":"La línea MACD está por debajo de su señal: el impulso de corto plazo es vendedor."}</p>
+  <h3>MACD (diario)</h3><p>${x.mh==null?"—":x.mh>=0?"La línea MACD está por encima de su señal: el impulso de corto plazo es comprador.":"La línea MACD está por debajo de su señal: el impulso de corto plazo es vendedor."}</p>
   <h3>Rango de 52 semanas</h3><p>Está a ${num(Math.abs(x.dhi)*100,0)}% de su máximo (${us(x.hi)}) y ${num(x.dlo*100,0)}% por encima de su mínimo (${us(x.lo)}).</p>
   ${pos==null?"":`<div class="tgauge" style="background:var(--track)"><u style="left:${pos*100}%"></u></div><div class="tgl"><span>mínimo ${us(x.lo)}</span><span>máximo ${us(x.hi)}</span></div>`}
   <h3>Rendimiento</h3><div class="tret">${[["1 mes",x.r1],["3 meses",x.r3],["6 meses",x.r6],["12 meses",x.r12]].map(([l,v])=>`<div><span>${l}</span><b class="${sg(v)}">${pct(v,1)}</b></div>`).join("")}</div>${volTxt}
   <h3>Cruce con los fundamentos</h3><div class="tcombo">${combo}</div>
-  <p class="hint" style="margin-top:12px">Lectura de contexto, no una recomendación. Los indicadores miran solo el precio pasado; las medias del gráfico son semanales (10 y 40 semanas ≈ 50 y 200 ruedas).</p>`;
+  <p class="hint" style="margin-top:12px">Lectura de contexto, no una recomendación. Los indicadores (RSI, MACD y medias) se calculan con cierres diarios. El gráfico es semanal, así que sus medias se dibujan con 10 y 40 semanas (≈ 50 y 200 ruedas) y pueden diferir levemente de las diarias. Miran solo el precio pasado.</p>`;
 }
 function setTab(n){
   tab=n;$("main").classList.toggle("tabtec",n==="tec");
