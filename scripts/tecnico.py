@@ -25,6 +25,45 @@ def r(v, n=4):
     return round(v, n) if math.isfinite(v) else None
 
 
+def soporte(c, ma, low, look, slope_n, near_hi, min_ext, toques=False):
+    """¿La media funciona como soporte? Mira los últimos `look` períodos.
+    Tendencia alcista = la media sube (>= 2% en `slope_n` períodos), el precio estuvo sobre ella en 75% o más del tiempo, se alejó al menos `min_ext` por encima
+    y la cruzó 2 veces o menos. Si además hoy está entre -2% y +near_hi de la media -> "sop" (apoyada en la media: la está testeando desde arriba).
+    "perd": venía en esa tendencia y hoy cerró más de 2% por debajo. "lat": cruza la media seguido (3 o más cruces) y hoy está cerca: no sirve como soporte."""
+    s = pd.concat([c, ma], axis=1, keys=["c", "m"]).dropna()
+    if len(s) < max(slope_n + 5, int(look * 0.8)):
+        return None
+    s = s.iloc[-look:]
+    rel = (s["c"] / s["m"] - 1).values
+    mm = s["m"].values
+    pend = mm[-1] / mm[max(0, len(mm) - 1 - slope_n)] - 1
+    cruces = int((np.diff(np.sign(rel)) != 0).sum())
+    d = float(rel[-1])
+    base = {"p": r(pend), "n": cruces, "x": r(d)}
+    def tendencia(rr):
+        return len(rr) > 10 and pend >= 0.02 and (rr > 0).mean() >= 0.75 and rr.max() >= min_ext and int((np.diff(np.sign(rr)) != 0).sum()) <= 2
+    if tendencia(rel) and -0.02 <= d <= near_hi:
+        base["e"] = "sop"
+        if toques and low is not None:
+            l = low.reindex(s.index).ffill().values
+            m = mm
+            hit = (l <= m * 1.02) & (rel >= -0.01)
+            n, last = 0, -99
+            for i in np.where(hit[:-1])[0]:
+                if i - last > 5:
+                    n += 1
+                last = i
+            base["t"] = n
+        return base
+    if len(rel) > 12 and pend >= 0 and d < -0.02 and tendencia(rel[:-10]):
+        base["e"] = "perd"
+        return base
+    if cruces >= 3 and abs(d) <= near_hi:
+        base["e"] = "lat"
+        return base
+    return None
+
+
 def calc(close, vol=None, high=None, low=None):
     """close: pandas Series con fechas; devuelve el diccionario de indicadores o None si hay muy poco historial."""
     c = close.dropna()
@@ -81,6 +120,11 @@ def calc(close, vol=None, high=None, low=None):
     s10w = float(wk.iloc[-10:].mean()) if len(wk) >= 10 else None
     s200w = float(wk.iloc[-200:].mean()) if len(wk) >= 200 else None
     w = wk.iloc[-SEMANAS:]
+    so = sow = None
+    if m200 is not None:
+        so = soporte(c, s200, ll if low is not None else None, 120, 60, 0.03, 0.08, True)
+    if len(wk) >= 230:
+        sow = soporte(wk, wk.rolling(200).mean(), None, 52, 26, 0.05, 0.10)
     return {
         "c": r(last, 2), "tr": tr, "s50": r(m50, 2), "s200": r(m200, 2) if m200 else None,
         "s10w": r(s10w, 2), "s200w": r(s200w, 2) if s200w else None,
@@ -88,7 +132,7 @@ def calc(close, vol=None, high=None, low=None):
         "rsi": r(rsi(c), 1), "macd": r(macd.iloc[-1], 3), "sig": r(sig.iloc[-1], 3), "mh": r(macd.iloc[-1] - sig.iloc[-1], 3),
         "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
         "r1": ret(21), "r3": ret(63), "r6": ret(126), "r12": ret(252),
-        "cruce": cruce, "rv": rv,
+        "cruce": cruce, "rv": rv, "so": so, "sow": sow,
         "wend": c.index[-1].date().isoformat(), "w": [r(x, 2) for x in w.values],
     }
 
