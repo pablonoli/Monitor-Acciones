@@ -370,7 +370,7 @@ td.tc small{font:500 11px var(--body);color:var(--muted);margin-left:6px}
       <section class="panel tablepanel">
         <div class="tbar">
           <div class="tt"><h2>Señales técnicas</h2><button type="button" id="tgbtn" aria-expanded="false" aria-controls="tgloss">ⓘ ¿Qué significa cada dato?</button><button type="button" id="trefresh">Actualizar indicadores</button></div>
-          <p class="sub" id="tsub">Indicadores calculados con el precio en dólares al cierre de la rueda. Son una lectura del momento del precio, no un consejo de compra o venta. Tocá un encabezado para ordenar y una fila para ver el gráfico y el cierre. ✚ = cruz dorada reciente, ✖ = cruz de la muerte.</p>
+          <p class="sub" id="ttsub">Indicadores calculados con el precio en dólares al cierre de la rueda. Son una lectura del momento del precio, no un consejo de compra o venta. Tocá un encabezado para ordenar y una fila para ver el gráfico y el cierre. ✚ = cruz dorada reciente, ✖ = cruz de la muerte.</p>
           <div class="tbase"><b>Base de cálculo:</b> cierres <b>diarios</b> (RSI de 14 ruedas, medias de 50 y 200 ruedas, MACD 12-26-9). El gráfico del panel es <b>semanal</b>.</div>
           <div class="chips" id="tchips" role="group" aria-label="Filtros rápidos"></div>
         </div>
@@ -999,7 +999,7 @@ function renderTec(){
   const slice=all.slice(tpage*PAGE,tpage*PAGE+PAGE);
   $("tpinfo").textContent=all.length?`${tpage*PAGE+1}–${tpage*PAGE+slice.length} de ${all.length}`:"0 resultados";$("tprev").disabled=tpage===0;$("tnext").disabled=tpage>=pages-1;
   const any=Object.values(TEC)[0];
-  $("tsub").textContent=`Indicadores calculados con el precio en dólares al cierre del ${tecDate(any)}. Son una lectura del momento del precio, no un consejo de compra o venta. Tocá un encabezado para ordenar y una fila para ver el gráfico.`;
+  $("ttsub").textContent=`Indicadores calculados con el precio en dólares al cierre del ${tecDate(any)}. Son una lectura del momento del precio, no un consejo de compra o venta. Tocá un encabezado para ordenar y una fila para ver el gráfico y el cierre. ✚ = cruz dorada reciente, ✖ = cruz de la muerte.`;
   if(!slice.length){$("ttable").innerHTML=`<div class="empty">Ninguna empresa cumple este filtro con la selección actual.</div>`}
   else{
     let h=`<table><thead><tr><th data-tk="name" class="${tsort==="name"?"sorted":""}">Empresa</th>${TCOLS.map(([k,l])=>`<th data-tk="${k}" title="${esc(TTIP[k])}" class="${tsort===k?"sorted":""}">${l}${tsort===k?(tdir>0?" ↑":" ↓"):""}</th>`).join("")}</tr></thead><tbody>`;
