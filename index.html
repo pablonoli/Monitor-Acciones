@@ -728,7 +728,7 @@ const TSCALE={"Precio vs la media de 200 ruedas":["Precio por encima y a menos d
   "Apoyo en la media":["Mira si el precio, que venía subiendo, hoy está tocando la media de 200 ruedas desde arriba: la media funciona como un piso donde puede rebotar","◉ Apoyada (venía subiendo y hoy toca la media sin romperla): 100","Sube pero está lejos de la media, no hay piso cerca: 60","≈ Lateral (cruza la media para arriba y para abajo seguido, no sirve de piso): 35","Está por debajo de la media y antes no venía subiendo: 30","▼ Perdió la media (venía subiendo y cayó por debajo): 0","«Venía subiendo» = la media subió 2% o más en los últimos 3 meses y el precio estuvo casi siempre por encima en los últimos 6 meses. «Toca la media» = está entre −2% y +3% de ella"],
   "RSI":["20 o menos: 100 (sobreventa extrema, posible rebote)","30: 85 · 40: 60 · 50 a 60: 100 (fuerza sana)","70: 70 · 80: 35 · más de 80: 30 (sobrecompra: comprar acá es más riesgoso)","Entre punto y punto la nota sube o baja de a poco"],
   "MACD":["Sobre su señal y sobre cero: 100","Sobre su señal pero bajo cero (recuperándose): 65","Bajo su señal pero sobre cero (perdiendo impulso): 40","Bajo su señal y bajo cero: 0"],
-  "Espacio hasta el techo":["25% o más hasta el máximo anterior: 100","3% o menos: 30 (el techo está encima)","Entre medio: sube de a poco","En máximos (no hay un máximo anterior por encima): 30, igual que cuando el techo está encima. Comprar en el punto más alto es lo más riesgoso"]};
+  "Espacio hasta el techo":["25% o más hasta el máximo anterior: 100","3% o menos: 30 (el techo está encima)","Entre medio: sube de a poco","Acaba de superar un máximo anterior (hasta 5% por encima): 85, porque ese máximo ahora puede ser soporte","En máximos sin haber roto uno recién (no hay máximo anterior por encima): 30, igual que cuando el techo está encima. Comprar en el punto más alto es lo más riesgoso"]};
 // Resumen en una frase de por qué el puntaje técnico dio lo que dio: lo que más suma y lo que más resta
 function tecResumen(a){
   const k=a.W?100/a.W:1,ph=i=>{const L=i.label,t=i.txt,pn=i.s>=1;
@@ -738,6 +738,7 @@ function tecResumen(a){
     if(L==="Apoyo en la media")return t.startsWith("apoyada")?`viene en tendencia alcista y se apoya en la media de ${t.endsWith("200s")?"200 semanas":"200 ruedas"}`:{"perdió la media":"perdió la media tras venir en tendencia alcista","lateral":"está lateral, cruzando la media seguido","sin retroceso":"sube sin retroceder a la media","bajo la media":"está bajo la media sin tendencia alcista previa"}[t]||"apoyo en la media";
     if(L==="RSI"){const r=+t;return r<30?`RSI de ${t}, sobrevendida (posible rebote)`:r>=70?`RSI de ${t}, sobrecomprada (entrar es riesgoso)`:r>=50&&r<=60?`RSI de ${t}, en zona sana`:`RSI de ${t}`}
     if(L==="MACD")return i.s>=1?"MACD con impulso comprador":i.s>=.65?"MACD recuperándose, pero todavía bajo cero":i.s>=.4?"MACD perdiendo impulso":"MACD con impulso vendedor";
+    if(String(t).startsWith("rompió"))return `acaba de superar un máximo anterior (${String(t).replace("rompió ","")})`;
     return t==="máximos"?"está en máximos, sin techo arriba":`el techo está a ${String(t).replace(/^[−+-]/,"")}`};
   const v=a.items.filter(i=>i.s!=null),up=v.filter(i=>i.s>=.7).sort((p,q)=>q.w*q.s-p.w*p.s).slice(0,2),dn=v.filter(i=>i.w*(1-i.s)*k>=3&&i.s<.7).sort((p,q)=>q.w*(1-q.s)-p.w*(1-p.s)).slice(0,2);
   const j=l=>l.map(ph).join("; ");
@@ -1155,9 +1156,11 @@ function techScore(x){
   if(x.mh!=null&&x.macd!=null){const pos=x.mh>=0,up=x.macd>=0;ms=pos&&up?1:pos?.65:up?.4:0;mt=pos?"impulso comprador":"impulso vendedor";
     mw=pos&&up?"MACD sobre su señal y sobre cero → 100.":pos?"MACD sobre su señal pero bajo cero: se está recuperando → 65.":up?"MACD bajo su señal pero sobre cero: perdiendo impulso → 40.":"MACD bajo su señal y bajo cero → 0."}
   add("Momento","MACD",15,ms,mt,mw);
-  const tc=techo(x);let ts=.3,tt="máximos";
-  if(tc){const d=tc.v/x.c-1;ts=d>=.25?1:d<=.03?.3:.3+.7*(d-.03)/.22;tt=pct(d,1)}
-  add("Techo","Espacio hasta el techo",15,ts,tt,tc?`En este caso: el máximo anterior más cercano (${tc.n.replace("Máx.","máx.")}) está ${num((tc.v/x.c-1)*100,1)}% arriba del precio → nota ${Math.round(ts*100)}.`:"En este caso: el precio está en máximos, no hay un máximo anterior por encima → 30. No hay un techo marcado, pero ya subió todo lo que pudo en estos años y comprar en el punto más alto es lo más riesgoso: queda poco margen y mucho por perder si da vuelta.");
+  const tc=techo(x),rt=Array.isArray(x.rot)&&x.c>x.rot[0]?x.rot:null;let ts=.3,tt="máximos",tw="En este caso: el precio está en máximos, no hay un máximo anterior por encima → 30. No hay un techo marcado, pero ya subió todo lo que pudo en estos años y comprar en el punto más alto es lo más riesgoso: queda poco margen y mucho por perder si da vuelta.";
+  if(tc){const d=tc.v/x.c-1;ts=d>=.25?1:d<=.03?.3:.3+.7*(d-.03)/.22;tt=pct(d,1);tw=`En este caso: el máximo anterior más cercano (${tc.n.replace("Máx.","máx.")}) está ${num(d*100,1)}% arriba del precio → nota ${Math.round(ts*100)}.`}
+  // ruptura reciente: superó hace poco el máximo anterior (hasta 5% por encima) y no hay otro techo a menos de 3%: ese máximo pasa a ser soporte
+  if(rt&&!(tc&&tc.v/x.c-1<=.03)){ts=Math.max(ts,.85);tt=`rompió ${ymTxt(rt[1])} (${pct(x.c/rt[0]-1,1)})`;tw=`En este caso: el precio acaba de superar el máximo de ${ymTxt(rt[1])} (está ${num((x.c/rt[0]-1)*100,1)}% por encima). Ese máximo viejo ahora puede funcionar de soporte → ${Math.round(ts*100)}.`}
+  add("Techo","Espacio hasta el techo",15,ts,tt,tw);
   const av=it.filter(i=>i.s!=null),W=av.reduce((a,i)=>a+i.w,0),Wall=it.reduce((a,i)=>a+i.w,0);
   if(av.length<3||W<Wall*.5)return null;
   const groups={};it.forEach(i=>{const g=groups[i.g]||(groups[i.g]={w:0,ws:0});if(i.s!=null){g.w+=i.w;g.ws+=i.w*i.s}});
@@ -1193,7 +1196,9 @@ function lvlCell(x,k,nm){
   const so=sopList(x).find(o=>o.k===k),mk=so?{sop:["◉","apoyada: viene en tendencia alcista y está probando esta media como soporte"],lat:["≈","lateral: cruza esta media seguido, no sirve como soporte"],perd:["▼","venía en tendencia alcista y perdió esta media"]}[so.e]:null;
   return `<td class="${near?"nr":""}" title="${esc(nm+": US$ "+num(x[k],2)+(d>=0?": el precio está por encima, la media es soporte":": el precio está por debajo, la media es resistencia")+(mk?" · "+mk[1]:""))}"><span class="v ${d>=0?"tp":"tn"}">${pct(d,1)}</span>${mk?`<span class="sp ${so.e}">${mk[0]}</span>`:""}</td>`}
 function techoCell(x){
-  const t=techo(x);if(!t)return `<td class="na" title="Sin un máximo anterior por encima: el precio está en máximos o cerca de ellos">máximos</td>`;
+  const t=techo(x);
+  if(!t&&Array.isArray(x.rot)&&x.c>x.rot[0])return `<td class="nr" title="El precio acaba de superar el máximo de ${esc(ymTxt(x.rot[1]))} (US$ ${num(x.rot[0],2)}): ese máximo ahora puede ser soporte"><span class="lv">rompió</span><span class="v">${pct(x.c/x.rot[0]-1,1)}</span></td>`;
+  if(!t)return `<td class="na" title="Sin un máximo anterior por encima: el precio está en máximos o cerca de ellos">máximos</td>`;
   const d=t.v/x.c-1,near=d<=.03;
   return `<td class="${near?"nr":""}" title="${esc(t.n+": US$ "+num(t.v,2))}"><span class="lv">${t.a}</span><span class="v">${pct(d,1)}</span></td>`}
 function tecCell(k,r){
@@ -1219,6 +1224,7 @@ function tecLive(){
     y.d50=x.s50?p/x.s50-1:x.d50;y.d200=x.s200?p/x.s200-1:x.d200;
     y.hi=Math.max(x.hi,p);y.lo=Math.min(x.lo,p);y.dhi=p/y.hi-1;y.dlo=p/y.lo-1;
     if(Array.isArray(x.w)&&x.w.length)y.w=[...x.w.slice(0,-1),p];
+    if(Array.isArray(x.rot)){if(p<=x.rot[0]*1.0005){y.rot=null;y.sw=[[x.rot[0],x.rot[1]],...(x.sw||[])]}else if(p>x.rot[0]*1.05)y.rot=null}   // si el precio volvió abajo, ese máximo vuelve a ser techo
     // la lectura de soporte era del cierre: si el precio se movió y ya no está en la zona, se descarta
     ["so","sow"].forEach(f=>{const o=x[f];if(!o||!o.e)return;const k=f==="so"?"s200":"s200w";if(x[k]==null){y[f]=null;return}
       const dd=p/x[k]-1;if(o.e==="sop"&&(dd<-.02||dd>(f==="so"?.03:.05)))y[f]=null;if(o.e==="perd"&&dd>=-.02)y[f]=null;if(o.e==="lat"&&Math.abs(dd)>(f==="so"?.03:.05))y[f]=null});
@@ -1294,6 +1300,7 @@ function renderTecDetail(){
   // escalera de niveles: de arriba (resistencias) a abajo (soportes); los máximos repetidos se muestran una sola vez
   const seen=new Set(),lv=[];
   techos(x).forEach(l=>{if(!seen.has(l.v)){seen.add(l.v);lv.push({n:l.n,v:l.v,t:"x"})}});
+  if(Array.isArray(x.rot)&&x.c>x.rot[0]&&!seen.has(x.rot[0])){seen.add(x.rot[0]);lv.push({n:"Máx. de "+ymTxt(x.rot[1])+" (superado)",v:x.rot[0],t:"x"})}
   if(x.hi!=null&&!seen.has(x.hi)){seen.add(x.hi);lv.push({n:"Máx. 52 semanas",v:x.hi,t:"x"})}
   MAS.forEach(([k,n],i)=>{if(x[k]!=null)lv.push({n,v:x[k],t:"m",sec:k==="s10w"||k==="s50"})});
   if(x.lo!=null)lv.push({n:"Mín. 52 semanas",v:x.lo,t:"x"});
@@ -1302,7 +1309,7 @@ function renderTecDetail(){
   const row=l=>l.t==="p"?`<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`:`<div class="marow${l.sec?" sec":""}"><span>${l.n}</span><span>${us(l.v)} · <span class="${l.v<x.c?"tp":"tn"}">${pct(l.v/x.c-1,1)}</span></span></div>`;
   // lo importante: los 2 techos más cercanos, la media de 200 ruedas, la de 200 semanas y el precio; el resto queda en «Ver todos los niveles»
   const tcs=new Set(techos(x).slice(0,2).map(l=>l.v));
-  const clave=lv.filter(l=>l.t==="p"||l.n==="Media 200d"||l.n==="Media 200s"||(l.t==="x"&&tcs.has(l.v)));
+  const clave=lv.filter(l=>l.t==="p"||l.n==="Media 200d"||l.n==="Media 200s"||(l.t==="x"&&tcs.has(l.v))||l.n.endsWith("(superado)"));
   const ladder=clave.map(row).join(""),ladderAll=lv.map(row).join("");
   const tn=tc&&tc.v/x.c-1<=.03;
   $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>

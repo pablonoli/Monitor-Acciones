@@ -96,6 +96,13 @@ def calc(close, vol=None, high=None, low=None):
         if not sw or val > sw[-1][0] * 1.015:
             sw.append([r(val, 2), ym])
     sw = sw[:4]
+    # ruptura: el precio acaba de superar (hace 4 semanas o menos) el máximo de las 48 semanas anteriores y está a no más de 5% por encima
+    rot = None
+    if len(hw) >= 56:
+        base = hw.iloc[-52:-4]
+        H = float(base.max())
+        if last > H * 1.0005 and last <= H * 1.05:
+            rot = [r(H, 2), base.idxmax().strftime("%Y-%m")]
     def ret(n):
         return r(last / float(c.iloc[-1 - n]) - 1) if len(c) > n else None
     # cruce de las medias de 50 y 200 ruedas en los últimos 60 días
@@ -131,7 +138,7 @@ def calc(close, vol=None, high=None, low=None):
         "s10w": r(s10w, 2), "s200w": r(s200w, 2) if s200w else None,
         "d50": r(last / m50 - 1), "d200": r(last / m200 - 1) if m200 else None,
         "rsi": r(rsi(c), 1), "macd": r(macd.iloc[-1], 3), "sig": r(sig.iloc[-1], 3), "mh": r(macd.iloc[-1] - sig.iloc[-1], 3),
-        "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
+        "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "rot": rot, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
         "r1": ret(21), "r3": ret(63), "r6": ret(126), "r12": ret(252),
         "cruce": cruce, "rv": rv, "so": so, "sow": sow,
         "wend": c.index[-1].date().isoformat(), "w": [r(x, 2) for x in w.values],
