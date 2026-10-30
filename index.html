@@ -1096,7 +1096,7 @@ function drawSeries(d){
 function renderAll(){renderTable();if(selected)renderDetail()}
 
 // ---------- Pestaña Técnico ----------
-let tab="fund",TEC={},tecAt=null,tsort="score",tdir=-1,tpage=0,tfilt="all",tsel=null,tecKey="",tecErr=false;
+let tab="fund",TEC={},TEC0={},tecAt=null,tsort="score",tdir=-1,tpage=0,tfilt="all",tsel=null,tecKey="",tecErr=false;
 const pct=(v,d=1)=>v==null||!isFinite(v)?"—":(v>=0?"+":"−")+num(Math.abs(v)*100,d)+"%";
 const sg=v=>v==null?"":v>=0?"tp":"tn";
 // medias: [campo, nombre, abreviatura]. Las que más pesan son la de 200 ruedas (diaria) y la de 200 semanas.
@@ -1209,6 +1209,22 @@ function tecCell(k,r){
     case "score":return r.sc==null?`<td class="na">—</td>`:`<td><span class="pill${r.sc>=70?" lo":r.sc<=35?" hi":""}">${r.sc}</span></td>`;
   }
 }
+// Los indicadores se calculan una vez por día con el último cierre. Si hay un precio más nuevo (el mismo que se ve en Fundamentos), las cosas que dependen
+// solo del precio (distancia a las medias y a los máximos, niveles, gráfico) se recalculan con ese precio. RSI, MACD y las medias siguen siendo del cierre.
+function tecLive(){
+  TEC={};
+  for(const t in TEC0){const x=TEC0[t],d=docs[t],p=d&&d.status==="ok"?d.price:null;
+    if(!(p>0)||!x.c||!(p/x.c>.5&&p/x.c<2)||Math.abs(p/x.c-1)<1e-4){TEC[t]=x;continue}
+    const y={...x,c:p,cl:x.c,live:true,at:d.priceAt||null};
+    y.d50=x.s50?p/x.s50-1:x.d50;y.d200=x.s200?p/x.s200-1:x.d200;
+    y.hi=Math.max(x.hi,p);y.lo=Math.min(x.lo,p);y.dhi=p/y.hi-1;y.dlo=p/y.lo-1;
+    if(Array.isArray(x.w)&&x.w.length)y.w=[...x.w.slice(0,-1),p];
+    // la lectura de soporte era del cierre: si el precio se movió y ya no está en la zona, se descarta
+    ["so","sow"].forEach(f=>{const o=x[f];if(!o||!o.e)return;const k=f==="so"?"s200":"s200w";if(x[k]==null){y[f]=null;return}
+      const dd=p/x[k]-1;if(o.e==="sop"&&(dd<-.02||dd>(f==="so"?.03:.05)))y[f]=null;if(o.e==="perd"&&dd>=-.02)y[f]=null;if(o.e==="lat"&&Math.abs(dd)>(f==="so"?.03:.05))y[f]=null});
+    TEC[t]=y}
+  for(const k in TS)delete TS[k]}
+const tecPx=x=>x&&x.live?(x.at?new Date(x.at).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}):"hoy"):"";
 function tecDate(x){return x&&x.wend?new Date(x.wend+"T12:00:00").toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"}):""}
 function renderTec(){
   if(tab!=="tec"||!universe)return;
@@ -1228,7 +1244,7 @@ function renderTec(){
   const slice=all.slice(tpage*PAGE,tpage*PAGE+PAGE);
   $("tpinfo").textContent=all.length?`${tpage*PAGE+1}–${tpage*PAGE+slice.length} de ${all.length}`:"0 resultados";$("tprev").disabled=tpage===0;$("tnext").disabled=tpage>=pages-1;
   const any=Object.values(TEC)[0];
-  $("ttsub").textContent=`Cierres diarios al ${tecDate(any)}, en dólares (el gráfico del panel es semanal). Lectura del momento del precio, no una recomendación.`;
+  $("ttsub").textContent=`Precio actual, en dólares; RSI, MACD y medias con el cierre diario del ${tecDate(any)} (el gráfico del panel es semanal). Lectura del momento del precio, no una recomendación.`;
   if(!slice.length){$("ttable").innerHTML=`<div class="empty">Ninguna empresa cumple este filtro con la selección actual.</div>`}
   else{
     let h=`<table><thead><tr><th data-tk="name" class="${tsort==="name"?"sorted":""}">Empresa</th>${TCOLS.map(([k,l])=>`<th data-tk="${k}" title="${esc(TTIP[k])}" class="${tsort===k?"sorted":""}${k==="sig"?" l":""}">${l}${tsort===k?(tdir>0?" ↑":" ↓"):""}</th>`).join("")}</tr></thead><tbody>`;
@@ -1289,7 +1305,7 @@ function renderTecDetail(){
   const ladder=clave.map(row).join(""),ladderAll=lv.map(row).join("");
   const tn=tc&&tc.v/x.c-1<=.03;
   $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>
-  <div class="hint">Cierre del ${tecDate(x)} en dólares · ${esc(sec(t,d)||"")}</div>
+  <div class="hint">${x.live?`Precio de hoy (${tecPx(x)}) · RSI, MACD y medias al cierre del ${tecDate(x)}`:`Cierre del ${tecDate(x)} en dólares`} · ${esc(sec(t,d)||"")}</div>
   <div class="tfrase">${frase}</div>
   ${tecChart(t,x)}
   ${(()=>{const a=tscore(t);if(!a)return "";const col=v=>v>=.7?"var(--bar-good)":v<=.35?"var(--bar-bad)":"var(--bar-mid)";
@@ -1328,8 +1344,8 @@ $("tnext").addEventListener("click",()=>{tpage++;renderTec()});
 $("tgbtn").addEventListener("click",()=>{const o=$("tgloss").hidden;$("tgloss").hidden=!o;$("tgbtn").setAttribute("aria-expanded",String(o))});
 $("trefresh").addEventListener("click",e=>dispatch("tecnico.yml",e.currentTarget,"Actualizar indicadores"));
 async function loadTec(){
-  try{const j=await fetch("data/tecnico.json?"+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()});TEC=j.t||{};for(const k in TS)delete TS[k];tecAt=j.updated;tecErr=!Object.keys(TEC).length}
-  catch(_){TEC={};tecErr=true}
+  try{const j=await fetch("data/tecnico.json?"+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()});TEC0=j.t||{};tecLive();tecAt=j.updated;tecErr=!Object.keys(TEC0).length}
+  catch(_){TEC0={};TEC={};tecErr=true}
   renderTec()}
 const _rt=renderTable;renderTable=function(){_rt();if(tab==="tec")renderTec()};
 
@@ -1475,7 +1491,7 @@ async function loadPrices(){
   try{
     const pr=await fetch("data/precios.json?"+Date.now()).then(r=>r.json());
     if(applyPrices(pr)){
-      computeScores();renderAll();
+      computeScores();tecLive();renderAll();
       pricesAt=pr.updated;stamp();
     }
   }catch(_){}
@@ -1483,7 +1499,7 @@ async function loadPrices(){
 (async()=>{
   try{
     const [u,d]=await Promise.all([fetch("data/universe.json").then(r=>r.json()),fetch("data/datos.json?"+Date.now()).then(r=>r.json())]);
-    universe=u.list;docs={__status:{perDay:0},...d.co};datosAt=d.updated;
+    universe=u.list;docs={__status:{perDay:0},...d.co};datosAt=d.updated;tecLive();
     computeScores();renderSectors();renderAll();
     if(matchMedia("(max-width:960px)").matches)$("sectd").open=false;
     const first=rows()[0];if(first){selected=first.u.t;renderTable();renderDetail()}
