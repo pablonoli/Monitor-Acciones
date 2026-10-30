@@ -28,12 +28,18 @@ def resumen(rows):
     f20 = np.array([r["f20"] for r in rows if r["f20"] is not None], float)
     f60 = np.array([r["f60"] for r in rows if r["f60"] is not None], float)
     hl = [r["held"] for r in rows if r.get("held") is not None]
+    e20 = np.array([r["e20"] for r in rows if r.get("e20") is not None], float)
+    e60 = np.array([r["e60"] for r in rows if r.get("e60") is not None], float)
     o = {"n": n}
     if len(f20):
         o.update(m20=round(float(f20.mean()) * 100, 2), md20=round(float(np.median(f20)) * 100, 2), p20=round(float((f20 > 0).mean()) * 100, 1),
                  se20=round(float(f20.std(ddof=1) / math.sqrt(len(f20))) * 100, 2) if len(f20) > 2 else None)
     if len(f60):
         o.update(m60=round(float(f60.mean()) * 100, 2), md60=round(float(np.median(f60)) * 100, 2), p60=round(float((f60 > 0).mean()) * 100, 1), n60=len(f60))
+    if len(e20) > 2:
+        o.update(x20=round(float(e20.mean()) * 100, 2), xse20=round(float(e20.std(ddof=1) / math.sqrt(len(e20))) * 100, 2))
+    if len(e60) > 2:
+        o.update(x60=round(float(e60.mean()) * 100, 2), xse60=round(float(e60.std(ddof=1) / math.sqrt(len(e60))) * 100, 2))
     if hl:
         o["held"] = round(float(np.mean(hl)) * 100, 1)
     return o
@@ -122,8 +128,14 @@ def analizar(df):
 
 def main():
     import yfinance as yf
+    tickers, sufijo = TICKERS, ""
+    if "--100" in sys.argv:   # 100 empresas con CEDEAR repartidas parejo (de la lista ordenada), sin las que reportan en pesos
+        co = json.load(open("data/datos.json"))["co"]
+        uni = sorted(u["t"] for u in json.load(open("data/universe.json"))["list"] if u.get("k") == "CEDEAR")
+        uni = [t for t in uni if co.get(t, {}).get("status") == "ok" and co[t].get("cur") != "ARS" and "-" not in t]
+        tickers, sufijo = [uni[int(i)] for i in np.linspace(0, len(uni) - 1, 100)], "_100"
     todo, base_all, por = {}, [], {}
-    for tk in TICKERS:
+    for tk in tickers:
         try:
             df = yf.download(tk, period="10y", interval="1d", progress=False, auto_adjust=False)
             if isinstance(df.columns, pd.MultiIndex):
@@ -136,6 +148,11 @@ def main():
             print(tk, "sin datos suficientes")
             continue
         ev, base = res
+        b20 = np.mean([x["f20"] for x in base if x["f20"] is not None])
+        b60 = np.mean([x["f60"] for x in base if x["f60"] is not None])
+        for x in sum(ev.values(), []):   # exceso sobre el promedio de esa misma acción (para no premiar acciones que subieron mucho)
+            x["e20"] = None if x["f20"] is None else x["f20"] - b20
+            x["e60"] = None if x["f60"] is None else x["f60"] - b60
         base_all += base
         por[tk] = {k: resumen(x) for k, x in ev.items()}
         por[tk]["todas_las_ruedas"] = resumen(base)
@@ -144,22 +161,22 @@ def main():
         print(tk, {k: len(x) for k, x in ev.items()})
     pool = {k: resumen(x) for k, x in todo.items()}
     pool["todas_las_ruedas"] = resumen(base_all)
-    json.dump({"tickers": list(por), "pool": pool, "por_accion": por}, open("data/avwap_prueba.json", "w"), indent=1, ensure_ascii=False)
+    json.dump({"tickers": list(por), "pool": pool, "por_accion": por}, open(f"data/avwap_prueba{sufijo}.json", "w"), indent=1, ensure_ascii=False)
     nom = {"soporte_avwap_min": "Soporte: AVWAP desde el mínimo de 52 semanas (precio tocándolo desde arriba)",
            "soporte_media200": "Control: la misma regla con la media de 200 ruedas",
            "resistencia_avwap_max": "Resistencia: AVWAP desde el máximo de 52 semanas (precio tocándolo desde abajo)",
            "ruptura_avwap_max": "Ruptura: el precio supera ese AVWAP en más de 2%",
            "todas_las_ruedas": "Base: cualquier rueda"}
-    L = ["# Prueba del AVWAP", "", f"Acciones: {', '.join(por)}. Datos de 10 años, una señal por racha (separadas por al menos {SEP} ruedas). Retornos a {H1} y {H2} ruedas, en %.", "",
-         "| Regla | Señales | Prom. 20r | Mediana 20r | % positivas 20r | Prom. 60r | % positivas 60r | Aguantó/frenó |", "|---|---|---|---|---|---|---|---|"]
+    L = ["# Prueba del AVWAP", "", f"{len(por)} acciones: {', '.join(por)}. Datos de 10 años, una señal por racha (separadas por al menos {SEP} ruedas). Retornos a {H1} y {H2} ruedas, en %.", "",
+         "| Regla | Señales | Prom. 20r | % positivas 20r | Exceso vs la misma acción 20r (± error) | Prom. 60r | % positivas 60r | Exceso 60r (± error) | Aguantó/frenó |", "|---|---|---|---|---|---|---|---|---|"]
     for k in ["soporte_avwap_min", "soporte_media200", "resistencia_avwap_max", "ruptura_avwap_max", "todas_las_ruedas"]:
         s = pool.get(k, {"n": 0})
-        L.append(f"| {nom[k]} | {s['n']} | {s.get('m20','—')} | {s.get('md20','—')} | {s.get('p20','—')} | {s.get('m60','—')} | {s.get('p60','—')} | {s.get('held','—')} |")
+        L.append(f"| {nom[k]} | {s['n']} | {s.get('m20','—')} | {s.get('p20','—')} | {s.get('x20','—')} (± {s.get('xse20','—')}) | {s.get('m60','—')} | {s.get('p60','—')} | {s.get('x60','—')} (± {s.get('xse60','—')}) | {s.get('held','—')} |")
     L += ["", "## Por acción (señales de soporte AVWAP / control media 200 / resistencia)", "", "| Acción | Soporte AVWAP (n, prom 20r, % pos) | Media 200 (n, prom 20r, % pos) | Resistencia (n, prom 20r, % pos) | Base prom 20r |", "|---|---|---|---|---|"]
     for tk, d in por.items():
         f = lambda s: f"{s['n']}, {s.get('m20','—')}, {s.get('p20','—')}" if s["n"] else "0"
         L.append(f"| {tk} | {f(d['soporte_avwap_min'])} | {f(d['soporte_media200'])} | {f(d['resistencia_avwap_max'])} | {d['todas_las_ruedas'].get('m20','—')} |")
-    open("data/avwap_prueba.md", "w").write("\n".join(L) + "\n")
+    open(f"data/avwap_prueba{sufijo}.md", "w").write("\n".join(L) + "\n")
     print("\n".join(L))
 
 

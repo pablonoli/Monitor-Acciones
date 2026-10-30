@@ -9,18 +9,18 @@ concurrency:
 jobs:
   prueba:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install yfinance pandas numpy
-      - run: python scripts/avwap_prueba.py
+      - run: python scripts/avwap_prueba.py --100
       - name: Guardar resultado
         run: |
           git config user.name "datos-bot"
           git config user.email "datos-bot@users.noreply.github.com"
-          git add data/avwap_prueba.json data/avwap_prueba.md
+          git add data/avwap_prueba_100.json data/avwap_prueba_100.md
           git commit -m "Prueba AVWAP $(date -u +%F)" || echo "sin cambios"
           git pull --rebase origin main || true
           git push
