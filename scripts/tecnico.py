@@ -96,6 +96,23 @@ def calc(close, vol=None, high=None, low=None):
         if not sw or val > sw[-1][0] * 1.015:
             sw.append([r(val, 2), ym])
     sw = sw[:4]
+    # pisos históricos: mínimos semanales que fueron el más bajo de las 8 semanas anteriores y posteriores (donde el precio se dio vuelta hacia arriba).
+    # Se quedan los que están por debajo del precio; los que están a menos de 3% entre sí son una misma zona (se cuenta cuántas veces hizo piso ahí).
+    lw = ll.resample("W-FRI").min().dropna()
+    u = lw.values
+    pisos = []
+    for i in range(len(u)):
+        if i <= len(u) - 3 and u[i] <= u[max(0, i - 8):i + 9].min() and u[i] < last * 0.999:
+            pisos.append((float(u[i]), lw.index[i].strftime("%Y-%m")))
+    pisos.sort(reverse=True)
+    pi = []
+    for val, ym in pisos:
+        if pi and val >= pi[-1]["top"] * 0.97:
+            z = pi[-1]; z["vals"].append(val); z["t"] += 1
+            if ym > z["ym"]: z["ym"] = ym
+        else:
+            pi.append({"top": val, "vals": [val], "t": 1, "ym": ym})
+    pi = [[r(sum(z["vals"]) / len(z["vals"]), 2), z["ym"], z["t"]] for z in pi][:4]
     # ruptura: el precio acaba de superar (hace 4 semanas o menos) el máximo de las 48 semanas anteriores y está a no más de 5% por encima
     rot = None
     if len(hw) >= 56:
@@ -138,7 +155,7 @@ def calc(close, vol=None, high=None, low=None):
         "s10w": r(s10w, 2), "s200w": r(s200w, 2) if s200w else None,
         "d50": r(last / m50 - 1), "d200": r(last / m200 - 1) if m200 else None,
         "rsi": r(rsi(c), 1), "macd": r(macd.iloc[-1], 3), "sig": r(sig.iloc[-1], 3), "mh": r(macd.iloc[-1] - sig.iloc[-1], 3),
-        "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "rot": rot, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
+        "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "pi": pi, "rot": rot, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
         "r1": ret(21), "r3": ret(63), "r6": ret(126), "r12": ret(252),
         "cruce": cruce, "rv": rv, "so": so, "sow": sow,
         "wend": c.index[-1].date().isoformat(), "w": [r(x, 2) for x in w.values],
