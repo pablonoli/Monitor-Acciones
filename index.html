@@ -956,7 +956,7 @@ document.addEventListener("keydown",e=>{
 
 // ---------- P/E histórico diario ----------
 // P/E de cada rueda = precio de cierre x acciones ÷ ganancia neta de 12 meses. La ganancia se interpola entre los cierres de ejercicio guardados y la de hoy,
-// así que es una aproximación (otras fuentes usan la ganancia de cada trimestre). Solo empresas que cotizan en dólares.
+// así que es una aproximación (otras fuentes usan la ganancia de cada trimestre). Si la empresa reporta en otra moneda, la ganancia se convierte con el tipo de cambio de cada fecha.
 let SEM=null,semLoading=false;
 function loadSem(){
   if(SEM||semLoading)return;semLoading=true;
@@ -965,7 +965,8 @@ function loadSem(){
 // el gráfico anual del P/E queda escondido cuando está el diario (marcan lo mismo)
 function peMiniToggle(t,m){const has=!!(SEM&&peSeries(t,m));document.querySelectorAll('#chart .mini[data-zoom="pe"]').forEach(e=>e.style.display=has?"none":"")}
 function peSeries(t,m){
-  const d=docs[t];if(!SEM||!SEM.t||!SEM.t[t]||!d||(d.cur&&d.cur!=="USD"))return null;
+  const d=docs[t];if(!SEM||!SEM.t||!SEM.t[t]||!d)return null;
+  const usd=!d.cur||d.cur==="USD",fxs=usd?null:(SEM.fx&&SEM.fx[d.cur]);if(!usd&&!(fxs&&d.fx>0))return null;   // otra moneda: la ganancia se convierte con el cambio de cada fecha
   const dates=SEM.d,pr=SEM.t[t],shares=d.shares||(d.mcap&&d.price?d.mcap/d.price:null);if(!shares||!dates.length)return null;
   const kn=(Array.isArray(d.hist)?d.hist:[]).filter(h=>h.end&&h.ni!=null).map(h=>[Date.parse(h.end),h.ni]).sort((a,b)=>a[0]-b[0]);
   const lastT=Date.parse(dates[dates.length-1]);
@@ -975,7 +976,7 @@ function peSeries(t,m){
   for(let i=0;i<dates.length;i++){const tm=Date.parse(dates[i]),p=pr[i];if(p==null||tm<kn[0][0]||tm>kn[kn.length-1][0])continue;
     while(j<kn.length-2&&tm>kn[j+1][0])j++;
     const [ta,na]=kn[j],[tb,nb]=kn[j+1],ni=na+(nb-na)*Math.min(1,Math.max(0,(tm-ta)/(tb-ta)));
-    const pe=ni>0?p*shares/ni:null;pts.push({d:dates[i],v:pe!=null&&pe>0&&pe<200?pe:null})}
+    const fr=usd?1:fxs[i]/d.fx,pe=ni>0&&fr>0?p*shares*fr/ni:null;pts.push({d:dates[i],v:pe!=null&&pe>0&&pe<200?pe:null})}
   const ok=pts.filter(p=>p.v!=null);if(ok.length<20)return null;
   // el P/E de hoy de la tabla usa el dato de Yahoo; la serie se ajusta con un factor fijo para que hoy coincida (si la diferencia es razonable)
   const f=m.pe>0?m.pe/ok[ok.length-1].v:1;if(f>.7&&f<1.4&&Math.abs(f-1)>.005)ok.forEach(p=>p.v*=f);
@@ -999,13 +1000,13 @@ function peChartSvg(pts,W,H){
 function peHistInner(t,m){
   const pts=peSeries(t,m);
   if(!SEM)return `<div class="mempty">Cargando el historial diario…</div>`;
-  if(!pts)return `<div class="mempty">Sin historial diario del P/E para esta empresa (cotiza en otra moneda, tiene pocos datos o todavía no se calculó).</div>`;
+  if(!pts)return `<div class="mempty">Sin historial diario del P/E para esta empresa (tiene pocos datos, reporta en pesos argentinos o todavía no se calculó).</div>`;
   const v=pts.filter(p=>p.v!=null),a=v[v.length-1],med=median(v.map(p=>p.v)),c=(a.v/med-1)*100,mn=v.reduce((p,q)=>q.v<p.v?q:p),mx=v.reduce((p,q)=>q.v>p.v?q:p);
   const W=Math.max(300,Math.min(900,Math.round(($("chart").clientWidth||640)))),H=W<520?190:230;
   return `<div class="mhead"><b>P/E de los últimos años</b><span>diario · aproximado</span></div>
   <div class="mbig">${num(a.v,1)}x<small>al ${fdate4(a.d)} · mediana ${num(med,1)}x (${Math.abs(c)<3?"en línea":num(Math.abs(c),0)+"% "+(c>0?"por encima":"por debajo")}) · mín. ${num(mn.v,1)}x · máx. ${num(mx.v,1)}x</small></div>
   ${peChartSvg(pts,W,H)}
-  <p class="hint" style="margin:6px 0 0">Precio de cierre de cada rueda ÷ ganancia de 12 meses por acción. La ganancia de los años intermedios se estima uniendo los cierres de ejercicio, por eso puede diferir un poco de otras fuentes que usan la ganancia de cada trimestre. Pasá el mouse o deslizá el dedo por la línea para ver la fecha de cada día. Hoy coincide con el P/E de la tabla.</p>`}
+  <p class="hint" style="margin:6px 0 0">Precio de cierre de cada rueda ÷ ganancia de 12 meses por acción. La ganancia de los años intermedios se estima uniendo los cierres de ejercicio, por eso puede diferir un poco de otras fuentes que usan la ganancia de cada trimestre. Pasá el mouse o deslizá el dedo por la línea para ver la fecha de cada día. Hoy coincide con el P/E de la tabla.${docs[t]&&docs[t].cur&&docs[t].cur!=="USD"?` Esta empresa reporta en ${esc(docs[t].cur)}: su ganancia se convirtió a dólares con el tipo de cambio de cada fecha.`:""}</p>`}
 function drawPanels(t,m){
   const d=docs[t];
   const H0=fullHist(d)?{pts:d.hist}:hist[t];
