@@ -725,7 +725,7 @@ function openScore(t){
 // Ventana «Cómo se calcula» del puntaje técnico (misma presentación que la de fundamentos)
 const TSCALE={"Precio vs la media de 200 ruedas":["Precio por encima y a menos de 5% de la media: 100 (el soporte está a mano)","Por encima y alejándose: baja de 100 a 60 (a 20% o más: 60, el soporte queda lejos)","Por debajo: justo en la media vale 55 y baja de a poco hasta 0 cuando está 10% o más por debajo (la media es resistencia)","La media de 200 ruedas diarias (unos 10 meses) es el soporte o la resistencia más mirada"],
   "Precio vs la media de 200 semanas":["Precio por encima y a menos de 10% de la media: 100 (el soporte está a mano)","Por encima y alejándose: baja de 100 a 60 (a 40% o más: 60, el soporte queda lejos)","Por debajo: justo en la media vale 55 y baja de a poco hasta 0 cuando está 10% o más por debajo (la media es resistencia)","La media de 200 semanas (casi 4 años) es el soporte de más largo plazo"],
-  "Apoyo en la media":["◉ Apoyada: 100","Sin retroceso (por encima de la media de 200 ruedas, sin probarla): 60","≈ Lateral: 35","Debajo de la media sin tendencia alcista previa: 30","▼ Perdió la media: 0","«Apoyada» = la media subió 2% o más en 3 meses, el precio estuvo sobre ella el 75% o más de 6 meses, la cruzó 2 veces o menos y hoy está entre −2% y +3% de ella"],
+  "Apoyo en la media":["Mira si el precio, que venía subiendo, hoy está tocando la media de 200 ruedas desde arriba: la media funciona como un piso donde puede rebotar","◉ Apoyada (venía subiendo y hoy toca la media sin romperla): 100","Sube pero está lejos de la media, no hay piso cerca: 60","≈ Lateral (cruza la media para arriba y para abajo seguido, no sirve de piso): 35","Está por debajo de la media y antes no venía subiendo: 30","▼ Perdió la media (venía subiendo y cayó por debajo): 0","«Venía subiendo» = la media subió 2% o más en los últimos 3 meses y el precio estuvo casi siempre por encima en los últimos 6 meses. «Toca la media» = está entre −2% y +3% de ella"],
   "RSI":["20 o menos: 100 (sobreventa extrema, posible rebote)","30: 85 · 40: 60 · 50 a 60: 100 (fuerza sana)","70: 70 · 80: 35 · más de 80: 30 (sobrecompra: comprar acá es más riesgoso)","Entre punto y punto la nota sube o baja de a poco"],
   "MACD":["Sobre su señal y sobre cero: 100","Sobre su señal pero bajo cero (recuperándose): 65","Bajo su señal pero sobre cero (perdiendo impulso): 40","Bajo su señal y bajo cero: 0"],
   "Espacio hasta el techo":["25% o más hasta el máximo anterior: 100","3% o menos: 30 (el techo está encima)","Entre medio: sube de a poco","Sin máximo anterior por encima: 70"]};
@@ -1143,10 +1143,10 @@ function techScore(x){
   const a200=x.s200!=null?x.c>x.s200:null;
   let ss=null,st="—",sw="";
   if(hasSo){
-    if(apo){ss=1;st="apoyada en la "+apo.a;sw="Viene en tendencia alcista y está probando la media como soporte → 100."}
-    else if(per){ss=0;st="perdió la media";sw="Venía en tendencia alcista y cerró más de 2% por debajo de la media → 0."}
-    else if(lat){ss=.35;st="lateral";sw="Cruza la media seguido: tocarla no es una señal de soporte → 35."}
-    else if(a200!=null){ss=a200?.6:.3;st=a200?"sin retroceso":"bajo la media";sw=a200?"Por encima de la media sin estar probándola: sin retroceso a un soporte → 60.":"Por debajo de la media sin tendencia alcista previa → 30."}}
+    if(apo){ss=1;st="apoyada en la "+apo.a;sw="En este caso: venía subiendo y hoy el precio volvió a tocar la media de 200 ruedas sin romperla. La media lo sostiene como un piso → 100."}
+    else if(per){ss=0;st="perdió la media";sw="En este caso: venía subiendo, pero el precio cayó y cerró más de 2% por debajo de la media de 200 ruedas. Rompió el piso → 0."}
+    else if(lat){ss=.35;st="lateral";sw="En este caso: el precio cruza la media para arriba y para abajo seguido, está lateral. Tocarla no es una señal de piso → 35."}
+    else if(a200!=null){ss=a200?.6:.3;st=a200?"sin retroceso":"bajo la media";sw=a200?"En este caso: el precio está por encima de la media de 200 ruedas pero lejos, no la está tocando. No hay un piso cerca donde apoyarse → 60.":"En este caso: el precio está por debajo de la media de 200 ruedas y antes no venía subiendo, así que no hay un piso → 30."}}
   add("Soporte","Apoyo en la media",20,ss,st,sw||"Falta la lectura de soportes (se calcula en la próxima actualización).");
   const r=x.rsi;let rs=null;
   if(r!=null)rs=r<=20?1:r<30?1-.15*(r-20)/10:r<40?.85-.25*(r-30)/10:r<50?.6+.4*(r-40)/10:r<=60?1:r<=70?1-.3*(r-60)/10:r<=80?.7-.35*(r-70)/10:.3;
