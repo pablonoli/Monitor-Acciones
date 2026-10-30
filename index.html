@@ -1282,12 +1282,10 @@ function renderTecDetail(){
   if(x.lo!=null)lv.push({n:"Mín. 52 semanas",v:x.lo,t:"x"});
   lv.push({n:"Precio (cierre)",v:x.c,t:"p"});
   lv.sort((a,b)=>b.v-a.v);
-  const row=l=>{if(l.t==="p")return `<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`;
-    const up=l.v>x.c,dd=num(Math.abs(l.v/x.c-1)*100,1);
-    const dv=Math.abs(l.v/x.c-1),tag=dv<=.02?`<b style="color:var(--accent)">el precio lo está probando</b>`:`<b class="${up?"tn":"tp"}">${up?"resistencia":"soporte"}</b>`;
-    return `<div class="marow${l.sec?" sec":""}"><span>${l.n}<small style="display:block;font-size:12px;color:var(--muted)">${dd}% ${up?"arriba":"abajo"} del precio · ${tag}</small></span><span>${us(l.v)}</span></div>`};
-  // lo importante: techo más cercano, medias de 200 ruedas y de 200 semanas y el precio; el resto queda en «Ver todos los niveles»
-  const clave=lv.filter((l,i)=>l.t==="p"||l.n==="Media 200d"||l.n==="Media 200s"||(tc&&l.v===tc.v&&l.t==="x"));
+  const row=l=>l.t==="p"?`<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`:`<div class="marow${l.sec?" sec":""}"><span>${l.n}</span><span>${us(l.v)} · <span class="${l.v<x.c?"tp":"tn"}">${pct(l.v/x.c-1,1)}</span></span></div>`;
+  // lo importante: los 2 techos más cercanos, la media de 200 ruedas, la de 200 semanas y el precio; el resto queda en «Ver todos los niveles»
+  const tcs=new Set(techos(x).slice(0,2).map(l=>l.v));
+  const clave=lv.filter(l=>l.t==="p"||l.n==="Media 200d"||l.n==="Media 200s"||(l.t==="x"&&tcs.has(l.v)));
   const ladder=clave.map(row).join(""),ladderAll=lv.map(row).join("");
   const tn=tc&&tc.v/x.c-1<=.03;
   $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>
@@ -1301,7 +1299,7 @@ function renderTecDetail(){
     <button type="button" class="lnk" data-tscore="${esc(t)}" style="margin-top:8px">Ver cómo se calcula el puntaje →</button></div>`})()}
   <div class="tcard"><div class="th"><h3>Soportes y techos</h3>${nr||tn||sopHas(x,"sop")?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">${sopHas(x,"sop")?"◉ Soporte en "+sopList(x).find(o=>o.e==="sop").a:nr?"Cerca de "+nr.a:"Cerca del techo"}</span>`:""}</div>
     ${sopList(x).length?`<div class="tsop">${sopList(x).map(o=>`<p style="margin:0 0 6px"><span class="sp ${o.e}" style="margin:0 6px 0 0">${{sop:"◉",lat:"≈",perd:"▼"}[o.e]}</span>${sopTxt(o)}</p>`).join("")}</div>`:""}
-    <div class="hint" style="margin:0 0 4px">Lo clave: el techo más cercano y las medias de 200 ruedas y de 200 semanas. <b>Soporte</b> = nivel debajo del precio donde puede apoyarse; <b>resistencia</b> = nivel arriba donde puede frenarse.</div>${ladder}
+    <div class="hint" style="margin:0 0 4px">Sobre el precio: techos y resistencias · Bajo el precio: soportes. Se muestran los 2 techos más cercanos y las medias de 200.</div>${ladder}
     <details><summary>Ver todos los niveles</summary><div><div class="hint" style="margin:0 0 4px">Incluye máximos y mínimos de 52 semanas y las medias cortas (10s = 10 semanas, 50d = 50 ruedas, en tenue).</div>${ladderAll}</div></details>
     <details><summary>Cómo leerlo</summary><div><p style="margin:0">Las medias de 200 ruedas y de 200 semanas actúan como soporte cuando el precio está por encima de ellas y como resistencia cuando está por debajo. El techo es el máximo anterior más cercano por encima del precio (un pico de los últimos 5 años donde el precio se dio vuelta): si el precio lo supera, suele pasar a funcionar como soporte.</p>${cr}</div></details></div>
   <div class="tcard"><div class="th"><h3>Momento</h3><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">RSI ${num(x.rsi,0)}</span></div>
