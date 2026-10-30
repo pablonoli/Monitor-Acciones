@@ -728,7 +728,7 @@ const TSCALE={"Precio vs la media de 200 ruedas":["Precio por encima y a menos d
   "Apoyo en la media":["Mira si el precio, que venía subiendo, hoy está tocando la media de 200 ruedas desde arriba: la media funciona como un piso donde puede rebotar","◉ Apoyada (venía subiendo y hoy toca la media sin romperla): 100","Sube pero está lejos de la media, no hay piso cerca: 60","≈ Lateral (cruza la media para arriba y para abajo seguido, no sirve de piso): 35","Está por debajo de la media y antes no venía subiendo: 30","▼ Perdió la media (venía subiendo y cayó por debajo): 0","«Venía subiendo» = la media subió 2% o más en los últimos 3 meses y el precio estuvo casi siempre por encima en los últimos 6 meses. «Toca la media» = está entre −2% y +3% de ella"],
   "RSI":["20 o menos: 100 (sobreventa extrema, posible rebote)","30: 85 · 40: 60 · 50 a 60: 100 (fuerza sana)","70: 70 · 80: 35 · más de 80: 30 (sobrecompra: comprar acá es más riesgoso)","Entre punto y punto la nota sube o baja de a poco"],
   "MACD":["Sobre su señal y sobre cero: 100","Sobre su señal pero bajo cero (recuperándose): 65","Bajo su señal pero sobre cero (perdiendo impulso): 40","Bajo su señal y bajo cero: 0"],
-  "Espacio hasta el techo":["25% o más hasta el máximo anterior: 100","3% o menos: 30 (el techo está encima)","Entre medio: sube de a poco","En máximos (no hay un máximo anterior por encima): 50. No hay techo que frene al precio, pero tampoco un piso cerca y ya subió mucho: comprar en el punto más alto es más riesgoso"]};
+  "Espacio hasta el techo":["25% o más hasta el máximo anterior: 100","3% o menos: 30 (el techo está encima)","Entre medio: sube de a poco","En máximos (no hay un máximo anterior por encima): 30, igual que cuando el techo está encima. Comprar en el punto más alto es lo más riesgoso"]};
 // Resumen en una frase de por qué el puntaje técnico dio lo que dio: lo que más suma y lo que más resta
 function tecResumen(a){
   const k=a.W?100/a.W:1,ph=i=>{const L=i.label,t=i.txt,pn=i.s>=1;
@@ -1155,9 +1155,9 @@ function techScore(x){
   if(x.mh!=null&&x.macd!=null){const pos=x.mh>=0,up=x.macd>=0;ms=pos&&up?1:pos?.65:up?.4:0;mt=pos?"impulso comprador":"impulso vendedor";
     mw=pos&&up?"MACD sobre su señal y sobre cero → 100.":pos?"MACD sobre su señal pero bajo cero: se está recuperando → 65.":up?"MACD bajo su señal pero sobre cero: perdiendo impulso → 40.":"MACD bajo su señal y bajo cero → 0."}
   add("Momento","MACD",15,ms,mt,mw);
-  const tc=techo(x);let ts=.5,tt="máximos";
+  const tc=techo(x);let ts=.3,tt="máximos";
   if(tc){const d=tc.v/x.c-1;ts=d>=.25?1:d<=.03?.3:.3+.7*(d-.03)/.22;tt=pct(d,1)}
-  add("Techo","Espacio hasta el techo",15,ts,tt,tc?`En este caso: el máximo anterior más cercano (${tc.n.replace("Máx.","máx.")}) está ${num((tc.v/x.c-1)*100,1)}% arriba del precio → nota ${Math.round(ts*100)}.`:"En este caso: el precio está en máximos, no hay un máximo anterior por encima → 50. No hay techo que lo frene, pero ya subió mucho y comprar en el punto más alto es más riesgoso.");
+  add("Techo","Espacio hasta el techo",15,ts,tt,tc?`En este caso: el máximo anterior más cercano (${tc.n.replace("Máx.","máx.")}) está ${num((tc.v/x.c-1)*100,1)}% arriba del precio → nota ${Math.round(ts*100)}.`:"En este caso: el precio está en máximos, no hay un máximo anterior por encima → 30. No hay un techo marcado, pero ya subió todo lo que pudo en estos años y comprar en el punto más alto es lo más riesgoso: queda poco margen y mucho por perder si da vuelta.");
   const av=it.filter(i=>i.s!=null),W=av.reduce((a,i)=>a+i.w,0),Wall=it.reduce((a,i)=>a+i.w,0);
   if(av.length<3||W<Wall*.5)return null;
   const groups={};it.forEach(i=>{const g=groups[i.g]||(groups[i.g]={w:0,ws:0});if(i.s!=null){g.w+=i.w;g.ws+=i.w*i.s}});
