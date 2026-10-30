@@ -120,6 +120,7 @@ def calc(close, vol=None, high=None, low=None):
     s10w = float(wk.iloc[-10:].mean()) if len(wk) >= 10 else None
     s200w = float(wk.iloc[-200:].mean()) if len(wk) >= 200 else None
     w = wk.iloc[-SEMANAS:]
+    m200w = wk.rolling(200).mean().iloc[-SEMANAS:]   # media de 200 semanas de cada semana del gráfico (vacía donde no hay 200 semanas de historia)
     so = sow = None
     if m200 is not None:
         so = soporte(c, s200, ll if low is not None else None, 120, 60, 0.03, 0.08, True)
@@ -134,6 +135,7 @@ def calc(close, vol=None, high=None, low=None):
         "r1": ret(21), "r3": ret(63), "r6": ret(126), "r12": ret(252),
         "cruce": cruce, "rv": rv, "so": so, "sow": sow,
         "wend": c.index[-1].date().isoformat(), "w": [r(x, 2) for x in w.values],
+        "m200w": [r(x, 2) for x in m200w.values],
     }
 
 
