@@ -77,6 +77,38 @@ def calc(close, vol=None, high=None, low=None):
     m200 = float(s200.iloc[-1]) if len(c) >= 200 and math.isfinite(s200.iloc[-1]) else None
     macd = c.ewm(span=12, adjust=False).mean() - c.ewm(span=26, adjust=False).mean()
     sig = macd.ewm(span=9, adjust=False).mean()
+    # MACD frente a su propia historia: el MACD en % del precio (para poder compararlo en el tiempo), qué porcentaje de los días de los últimos 5 años estuvo más abajo que hoy,
+    # y las veces que llegó a su zona más baja (el 10% de los días más hundidos) y cuántas de esas veces el precio rebotó (40 ruedas (unos 2 meses) después estaba más alto)
+    mhist = None
+    try:
+        mp = (macd / c * 100).dropna()
+        if len(mp) >= 500:
+            q10 = float(mp.quantile(0.10))
+            mr = float((mp < mp.iloc[-1]).mean())
+            n = len(mp)
+            idxs = np.where((mp <= q10).values)[0]
+            eps, ini, ant = [], None, None
+            for k in idxs:                      # episodios = rachas de días en la zona (se unen si hay menos de 10 ruedas de diferencia)
+                if ini is None:
+                    ini = ant = k
+                elif k - ant <= 10:
+                    ant = k
+                else:
+                    eps.append((ini, ant)); ini = ant = k
+            if ini is not None:
+                eps.append((ini, ant))
+            tot = reb = 0
+            for ini, fin in eps:
+                if fin >= n - 11:               # el episodio que sigue en curso no cuenta
+                    continue
+                k = ini + int(np.argmin(mp.values[ini:fin + 1]))
+                if k + 40 < n:
+                    tot += 1
+                    if float(c.iloc[k + 40]) > float(c.iloc[k]):
+                        reb += 1
+            mhist = [r(mr, 3), r(q10, 2), tot, reb]
+    except Exception as e:
+        print("macd hist falló:", e)
     # máximos y mínimos con los extremos de cada rueda (High/Low); si no vienen, con los cierres
     hh = high.dropna() if high is not None else c
     ll = low.dropna() if low is not None else c
@@ -155,7 +187,7 @@ def calc(close, vol=None, high=None, low=None):
         "s10w": r(s10w, 2), "s200w": r(s200w, 2) if s200w else None,
         "d50": r(last / m50 - 1), "d200": r(last / m200 - 1) if m200 else None,
         "rsi": r(rsi(c), 1), "macd": r(macd.iloc[-1], 3), "sig": r(sig.iloc[-1], 3), "mh": r(macd.iloc[-1] - sig.iloc[-1], 3),
-        "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "pi": pi, "rot": rot, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
+        "hi": r(hi, 2), "lo": r(lo, 2), "sw": sw, "pi": pi, "mh5": mhist, "rot": rot, "dhi": r(last / hi - 1), "dlo": r(last / lo - 1),
         "r1": ret(21), "r3": ret(63), "r6": ret(126), "r12": ret(252),
         "cruce": cruce, "rv": rv, "so": so, "sow": sow,
         "wend": c.index[-1].date().isoformat(), "w": [r(x, 2) for x in w.values],
