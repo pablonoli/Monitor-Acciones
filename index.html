@@ -726,7 +726,6 @@ function openScore(t){
 const TSCALE={"Precio vs la media de 200 ruedas":["Precio por encima y a menos de 5% de la media: 100 (el soporte está a mano)","Por encima y alejándose: baja de 100 a 60 (a 20% o más: 60, el soporte queda lejos)","Por debajo: justo en la media vale 55 y baja de a poco hasta 0 cuando está 10% o más por debajo (la media es resistencia)","La media de 200 ruedas diarias (unos 10 meses) es el soporte o la resistencia más mirada"],
   "Precio vs la media de 200 semanas":["Precio por encima y a menos de 10% de la media: 100 (el soporte está a mano)","Por encima y alejándose: baja de 100 a 60 (a 40% o más: 60, el soporte queda lejos)","Por debajo: justo en la media vale 55 y baja de a poco hasta 0 cuando está 10% o más por debajo (la media es resistencia)","La media de 200 semanas (casi 4 años) es el soporte de más largo plazo"],
   "Apoyo en la media":["Mira si el precio, que venía subiendo, hoy está tocando la media de 200 ruedas desde arriba: la media funciona como un piso donde puede rebotar","◉ Apoyada (venía subiendo y hoy toca la media sin romperla): 100","Sube pero está lejos de la media, no hay piso cerca: 60","≈ Lateral (cruza la media para arriba y para abajo seguido, no sirve de piso): 35","Está por debajo de la media y antes no venía subiendo: 30","▼ Perdió la media (venía subiendo y cayó por debajo): 0","«Venía subiendo» = la media subió 2% o más en los últimos 3 meses y el precio estuvo casi siempre por encima en los últimos 6 meses. «Toca la media» = está entre −2% y +3% de ella"],
-  "Piso histórico":["Busca zonas abajo del precio donde, en los últimos 5 años, ya se dio vuelta hacia arriba (un mínimo semanal que fue el más bajo de 8 semanas antes y después)","A 3% o menos del piso: 100 si lo tocó 2 veces o más, 85 si lo tocó una sola vez","A medida que se aleja baja de a poco: a 25% o más queda en 30 (el piso queda lejos, si cae falta mucho para frenar)","Sin ningún piso abajo (está en mínimos de varios años): 20, porque nadie sabe cuánto más puede bajar","Responde a «¿cuánto más puede bajar?»: cerca de un piso donde ya rebotó hay menos riesgo y mejor rebote"],
   "RSI":["20 o menos: 100 (sobreventa extrema, posible rebote)","30: 85 · 40: 60 · 50 a 60: 100 (fuerza sana)","70: 70 · 80: 35 · más de 80: 30 (sobrecompra: comprar acá es más riesgoso)","Entre punto y punto la nota sube o baja de a poco"],
   "MACD":["Sobre su señal y sobre cero: 100","Sobre su señal pero bajo cero (recuperándose): 65","Bajo su señal pero sobre cero (perdiendo impulso): 40","Bajo su señal y bajo cero: 0","Si está muy hundido bajo cero suma, como la sobreventa del RSI. «Muy hundido» se mide contra la historia de esa misma acción: que su MACD esté entre el 25% de días más bajos de los últimos 5 años (con 5% o menos llega al máximo)","Hasta 100 si ya está sobre su señal (se está dando vuelta) y hasta 50 si todavía cae (puede seguir bajando)","Mira también los antecedentes: cuando el MACD llegó antes a esa zona baja, ¿el precio rebotó 2 meses después? Si casi siempre rebotó, la nota se mantiene; si casi siempre siguió cayendo, baja"],
   "Espacio hasta el techo":["25% o más hasta el máximo anterior: 100","3% o menos: 30 (el techo está encima)","Entre medio: sube de a poco","Acaba de superar un máximo anterior (hasta 5% por encima): 85, porque ese máximo ahora puede ser soporte","En máximos sin haber roto uno recién (no hay máximo anterior por encima): 30, igual que cuando el techo está encima. Comprar en el punto más alto es lo más riesgoso"]};
@@ -737,7 +736,6 @@ function tecResumen(a){
     if(L.startsWith("Precio vs la media de 200 r"))return mfr("200 ruedas");
     if(L.startsWith("Precio vs la media de 200 s"))return mfr("200 semanas");
     if(L==="Apoyo en la media")return t.startsWith("apoyada")?`viene en tendencia alcista y se apoya en la media de ${t.endsWith("200s")?"200 semanas":"200 ruedas"}`:{"perdió la media":"perdió la media tras venir en tendencia alcista","lateral":"está lateral, cruzando la media seguido","sin retroceso":"sube sin retroceder a la media","bajo la media":"está bajo la media sin tendencia alcista previa"}[t]||"apoyo en la media";
-    if(L==="Piso histórico")return t==="sin piso"?"no hay un piso histórico abajo (puede seguir cayendo)":`tiene un piso histórico cerca, a ${String(t).replace(/^[−+-]/,"").split(" ")[0]} (${String(t).replace(/.*\(|\)/g,"")})`;
     if(L==="RSI"){const r=+t;return r<30?`RSI de ${t}, sobrevendida (posible rebote)`:r>=70?`RSI de ${t}, sobrecomprada (entrar es riesgoso)`:r>=50&&r<=60?`RSI de ${t}, en zona sana`:`RSI de ${t}`}
     if(L==="MACD")return String(t).startsWith("muy bajo")?(t.endsWith("cae")?"MACD muy hundido y todavía cayendo (puede ser piso o seguir bajando)":"MACD muy hundido pero dándose vuelta (posible rebote)"):i.s>=1?"MACD con impulso comprador":i.s>=.65?"MACD recuperándose, pero todavía bajo cero":i.s>=.4?"MACD perdiendo impulso":"MACD con impulso vendedor";
     if(String(t).startsWith("rompió"))return `acaba de superar un máximo anterior (${String(t).replace("rompió ","")})`;
@@ -1113,9 +1111,6 @@ function techos(x){
   const L=Array.isArray(x.sw)?x.sw.map(([v,ym])=>({v,ym,a:ymTxt(ym),n:"Máx. de "+ymTxt(ym)})):(x.hi!=null&&x.hi>x.c*1.001?[{v:x.hi,ym:null,a:"52s",n:"Máx. 52 semanas"}]:[]);
   return L.filter(l=>l.v>x.c*1.001).sort((p,q)=>p.v-q.v)}
 function techo(x){return techos(x)[0]||null}
-// piso histórico = zona de abajo donde el precio ya se dio vuelta hacia arriba (mínimo semanal repetido); pi = [valor, año-mes del último toque, veces]
-function pisos(x){return Array.isArray(x.pi)?x.pi.map(([v,ym,t])=>({v,ym,t,a:ymTxt(ym),n:"Piso de "+ymTxt(ym)+(t>=2?" ("+t+" veces)":"")})).filter(l=>l.v<x.c*.999).sort((p,q)=>q.v-p.v):[]}
-function piso(x){return pisos(x)[0]||null}
 const dLvl=(x,k)=>x[k]==null?null:x[k]/x.c-1;   // distancia del nivel al precio: negativa = el nivel está abajo (soporte)
 function nearest(x){   // nivel más cercano (±2%) de las dos medias de 200
   const c=[["s200","200d"],["s200w","200s"]].filter(([k])=>x[k]!=null&&Math.abs(x[k]/x.c-1)<=.02).sort((p,q)=>Math.abs(x[p[0]]/x.c-1)-Math.abs(x[q[0]]/x.c-1));
@@ -1133,7 +1128,7 @@ function tsig(x){
   if(x.rsi!=null&&x.rsi<30)return ["Sobrevendida","lo"];
   if(x.rsi!=null&&x.rsi>70)return ["Sobrecomprada","hi"];
   const r=maRatio(x);return r==null?["Sin dato",""]:r===1?["Alcista","lo"]:r===0?["Bajista","hi"]:["Mixta",""]}
-// Puntaje técnico 0-100 (tendencia 30, soporte 25 [apoyo en la media 15 + piso histórico 10], RSI 20, MACD 15, espacio hasta el techo 10). Lo que falta no suma: se calcula con lo que hay (mínimo la mitad del peso).
+// Puntaje técnico 0-100 (tendencia 30, soporte 20, RSI 20, MACD 15, espacio hasta el techo 15). Lo que falta no suma: se calcula con lo que hay (mínimo la mitad del peso).
 function techScore(x){
   if(!x)return null;
   const it=[],add=(g,label,w,sc,txt,why)=>it.push({g,label,w,s:sc,txt,why});
@@ -1153,12 +1148,7 @@ function techScore(x){
     else if(per){ss=0;st="perdió la media";sw="En este caso: venía subiendo, pero el precio cayó y cerró más de 2% por debajo de la media de 200 ruedas. Rompió el piso → 0."}
     else if(lat){ss=.35;st="lateral";sw="En este caso: el precio cruza la media para arriba y para abajo seguido, está lateral. Tocarla no es una señal de piso → 35."}
     else if(a200!=null){ss=a200?.6:.3;st=a200?"sin retroceso":"bajo la media";sw=a200?"En este caso: el precio está por encima de la media de 200 ruedas pero lejos, no la está tocando. No hay un piso cerca donde apoyarse → 60.":"En este caso: el precio está por debajo de la media de 200 ruedas y antes no venía subiendo, así que no hay un piso → 30."}}
-  add("Soporte","Apoyo en la media",15,ss,st,sw||"Falta la lectura de soportes (se calcula en la próxima actualización).");
-  // piso histórico: cuánto margen de caída hay hasta la zona donde ya hizo piso (y si lo hizo más de una vez)
-  if(Array.isArray(x.pi)){const pf=piso(x);let ps=.2,pt="sin piso",pw="En este caso: no hay una zona abajo donde el precio haya hecho piso antes (está en mínimos de los últimos años o cerca). Sin un piso conocido, nadie sabe cuánto más puede bajar → 20.";
-    if(pf){const d=x.c/pf.v-1,f=d<=.03?1:d>=.25?.3:1-.7*(d-.03)/.22,k=pf.t>=2?1:.85;ps=f*k;pt=`−${num(d*100,1)}% (${pf.a})`;
-      pw=`En este caso: el piso más cercano (${pf.a}${pf.t>=2?`, donde se dio vuelta ${pf.t} veces`:", donde se dio vuelta 1 vez"}) está ${num(d*100,1)}% abajo del precio → nota ${Math.round(ps*100)}.`+(pf.t>=2?"":" Como lo tocó una sola vez, la nota es algo menor.")}
-    add("Soporte","Piso histórico",10,ps,pt,pw)}
+  add("Soporte","Apoyo en la media",20,ss,st,sw||"Falta la lectura de soportes (se calcula en la próxima actualización).");
   const r=x.rsi;let rs=null;
   if(r!=null)rs=r<=20?1:r<30?1-.15*(r-20)/10:r<40?.85-.25*(r-30)/10:r<50?.6+.4*(r-40)/10:r<=60?1:r<=70?1-.3*(r-60)/10:r<=80?.7-.35*(r-70)/10:.3;
   add("Momento","RSI",20,rs,r==null?"—":num(r,0),r==null?"":r>=50&&r<=60?"Fuerza sana, sin exceso (50 a 60) → 100.":r<=20?"Sobreventa extrema (20 o menos): cayó muchísimo y rápido, el mejor punto de rebote; aun así puede seguir bajando → 100.":r<30?"Sobrevendida (menos de 30): cayó mucho y rápido, un posible punto de rebote; cuenta como oportunidad, aunque puede seguir bajando → entre 100 y 85.":r<50?"Entre 30 y 50: salió de la sobreventa pero todavía sin fuerza → entre 60 y 100.":r<=80?r<=70?"Entre 60 y 70: la fuerza ya es grande, cerca de la sobrecompra → entre 100 y 70.":"Sobrecomprada (70 a 80): subió mucho y rápido, entrar acá es más riesgoso → entre 70 y 35.":"Más de 80: sobrecomprada extrema, comprar acá es lo más arriesgado → 30.");
@@ -1179,7 +1169,7 @@ function techScore(x){
   if(tc){const d=tc.v/x.c-1;ts=d>=.25?1:d<=.03?.3:.3+.7*(d-.03)/.22;tt=pct(d,1);tw=`En este caso: el máximo anterior más cercano (${tc.n.replace("Máx.","máx.")}) está ${num(d*100,1)}% arriba del precio → nota ${Math.round(ts*100)}.`}
   // ruptura reciente: superó hace poco el máximo anterior (hasta 5% por encima) y no hay otro techo a menos de 3%: ese máximo pasa a ser soporte
   if(rt&&!(tc&&tc.v/x.c-1<=.03)){ts=Math.max(ts,.85);tt=`rompió ${ymTxt(rt[1])} (${pct(x.c/rt[0]-1,1)})`;tw=`En este caso: el precio acaba de superar el máximo de ${ymTxt(rt[1])} (está ${num((x.c/rt[0]-1)*100,1)}% por encima). Ese máximo viejo ahora puede funcionar de soporte → ${Math.round(ts*100)}.`}
-  add("Techo","Espacio hasta el techo",10,ts,tt,tw);
+  add("Techo","Espacio hasta el techo",15,ts,tt,tw);
   const av=it.filter(i=>i.s!=null),W=av.reduce((a,i)=>a+i.w,0),Wall=it.reduce((a,i)=>a+i.w,0);
   if(av.length<3||W<Wall*.5)return null;
   const groups={};it.forEach(i=>{const g=groups[i.g]||(groups[i.g]={w:0,ws:0});if(i.s!=null){g.w+=i.w;g.ws+=i.w*i.s}});
@@ -1321,15 +1311,14 @@ function renderTecDetail(){
   techos(x).forEach(l=>{if(!seen.has(l.v)){seen.add(l.v);lv.push({n:l.n,v:l.v,t:"x"})}});
   if(Array.isArray(x.rot)&&x.c>x.rot[0]&&!seen.has(x.rot[0])){seen.add(x.rot[0]);lv.push({n:"Máx. de "+ymTxt(x.rot[1])+" (superado)",v:x.rot[0],t:"x"})}
   if(x.hi!=null&&!seen.has(x.hi)){seen.add(x.hi);lv.push({n:"Máx. 52 semanas",v:x.hi,t:"x"})}
-  pisos(x).slice(0,3).forEach(l=>{if(!seen.has(l.v)){seen.add(l.v);lv.push({n:l.n,v:l.v,t:"f"})}});
   MAS.forEach(([k,n],i)=>{if(x[k]!=null)lv.push({n,v:x[k],t:"m",sec:k==="s10w"||k==="s50"})});
   if(x.lo!=null)lv.push({n:"Mín. 52 semanas",v:x.lo,t:"x"});
   lv.push({n:"Precio (cierre)",v:x.c,t:"p"});
   lv.sort((a,b)=>b.v-a.v);
   const row=l=>l.t==="p"?`<div class="marow lp"><span><b>${l.n}</b></span><span><b>${us(l.v)}</b></span></div>`:`<div class="marow${l.sec?" sec":""}"><span>${l.n}</span><span>${us(l.v)} · <span class="${l.v<x.c?"tp":"tn"}">${pct(l.v/x.c-1,1)}</span></span></div>`;
   // lo importante: los 2 techos más cercanos, la media de 200 ruedas, la de 200 semanas y el precio; el resto queda en «Ver todos los niveles»
-  const tcs=new Set(techos(x).slice(0,2).map(l=>l.v)),pfs=new Set(pisos(x).slice(0,1).map(l=>l.v));
-  const clave=lv.filter(l=>l.t==="p"||l.n==="Media 200d"||l.n==="Media 200s"||(l.t==="x"&&tcs.has(l.v))||(l.t==="f"&&pfs.has(l.v))||l.n.endsWith("(superado)"));
+  const tcs=new Set(techos(x).slice(0,2).map(l=>l.v));
+  const clave=lv.filter(l=>l.t==="p"||l.n==="Media 200d"||l.n==="Media 200s"||(l.t==="x"&&tcs.has(l.v))||l.n.endsWith("(superado)"));
   const ladder=clave.map(row).join(""),ladderAll=lv.map(row).join("");
   const tn=tc&&tc.v/x.c-1<=.03;
   $("tdbody").innerHTML=`<div class="dhead"><div><span class="dtick">${esc(t)}</span> <span class="dname">${esc(d.name||"")}</span></div><span class="dprice">${num(x.c,2)}</span></div>
@@ -1343,7 +1332,7 @@ function renderTecDetail(){
     <button type="button" class="lnk" data-tscore="${esc(t)}" style="margin-top:8px">Ver cómo se calcula el puntaje →</button></div>`})()}
   <div class="tcard"><div class="th"><h3>Soportes y techos</h3>${nr||tn||sopHas(x,"sop")?`<span class="pill" style="background:var(--accent-soft);color:var(--accent);white-space:nowrap">${sopHas(x,"sop")?"◉ Soporte en "+sopList(x).find(o=>o.e==="sop").a:nr?"Cerca de "+nr.a:"Cerca del techo"}</span>`:""}</div>
     ${sopList(x).length?`<div class="tsop">${sopList(x).map(o=>`<p style="margin:0 0 6px"><span class="sp ${o.e}" style="margin:0 6px 0 0">${{sop:"◉",lat:"≈",perd:"▼"}[o.e]}</span>${sopTxt(o)}</p>`).join("")}</div>`:""}
-    <div class="hint" style="margin:0 0 4px">Sobre el precio: techos y resistencias · Bajo el precio: soportes. Se muestran los 2 techos más cercanos, el piso más cercano y las medias de 200.</div>${ladder}
+    <div class="hint" style="margin:0 0 4px">Sobre el precio: techos y resistencias · Bajo el precio: soportes. Se muestran los 2 techos más cercanos y las medias de 200.</div>${ladder}
     <details><summary>Ver todos los niveles</summary><div><div class="hint" style="margin:0 0 4px">Incluye máximos y mínimos de 52 semanas y las medias cortas (10s = 10 semanas, 50d = 50 ruedas, en tenue).</div>${ladderAll}</div></details>
     <details><summary>Cómo leerlo</summary><div><p style="margin:0">Las medias de 200 ruedas y de 200 semanas actúan como soporte cuando el precio está por encima de ellas y como resistencia cuando está por debajo. El techo es el máximo anterior más cercano por encima del precio (un pico de los últimos 5 años donde el precio se dio vuelta): si el precio lo supera, suele pasar a funcionar como soporte.</p>${cr}</div></details></div>
   <div class="tcard"><div class="th"><h3>Momento</h3><span class="pill${x.rsi<30?" lo":x.rsi>70?" hi":""}">RSI ${num(x.rsi,0)}</span></div>
