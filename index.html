@@ -723,12 +723,12 @@ function openScore(t){
 }
 
 // Ventana «Cómo se calcula» del puntaje técnico (misma presentación que la de fundamentos)
-const TSCALE={"Precio vs la media de 200 ruedas":"Escala: por encima y a menos de 5% = 100 · entre 5% y 20% por encima baja de 100 a 60 · más de 20% por encima = 60 · apenas por debajo ≈ 55 · 10% por debajo o más = 0. La media de 200 ruedas diarias (unos 10 meses) es el soporte o la resistencia más mirada.",
-  "Precio vs la media de 200 semanas":"Escala: por encima y a menos de 10% = 100 · entre 10% y 40% por encima baja de 100 a 60 · más de 40% por encima = 60 · apenas por debajo ≈ 55 · 10% por debajo o más = 0. La media de 200 semanas (casi 4 años) es el soporte de más largo plazo.",
-  "Apoyo en la media":"Escala: ◉ apoyada = 100 · sin retroceso (por encima de la 200d, sin probarla) = 60 · ≈ lateral = 35 · bajo la 200d sin tendencia previa = 30 · ▼ perdió la media = 0. «Apoyada» = la media subió 2% o más en 3 meses, el precio estuvo sobre ella el 75% o más de 6 meses, la cruzó 2 veces o menos y hoy está entre −2% y +3% de ella.",
-  "RSI":"Escala: 20 o menos = 100 · 30 = 85 · 40 = 60 · 50 a 60 = 100 · 70 = 70 · 80 = 35 · más de 80 = 30 (entre punto y punto, proporcional). La sobreventa suma porque puede ser un rebote; la sobrecompra resta porque comprar muy arriba es más riesgoso.",
-  "MACD":"Escala: sobre su señal y sobre cero = 100 · sobre su señal pero bajo cero = 65 · bajo su señal pero sobre cero = 40 · bajo su señal y bajo cero = 0.",
-  "Espacio hasta el techo":"Escala: 25% o más hasta el máximo anterior = 100 · 3% o menos = 30 (proporcional en el medio) · sin máximo por encima = 70. El techo es el pico anterior más cercano por encima del precio."};
+const TSCALE={"Precio vs la media de 200 ruedas":["Precio por encima y a menos de 5% de la media: 100 (el soporte está a mano)","Por encima y alejándose: baja de 100 a 60 (a 20% o más: 60, el soporte queda lejos)","Por debajo: justo en la media vale 55 y baja de a poco hasta 0 cuando está 10% o más por debajo (la media es resistencia)","La media de 200 ruedas diarias (unos 10 meses) es el soporte o la resistencia más mirada"],
+  "Precio vs la media de 200 semanas":["Precio por encima y a menos de 10% de la media: 100 (el soporte está a mano)","Por encima y alejándose: baja de 100 a 60 (a 40% o más: 60, el soporte queda lejos)","Por debajo: justo en la media vale 55 y baja de a poco hasta 0 cuando está 10% o más por debajo (la media es resistencia)","La media de 200 semanas (casi 4 años) es el soporte de más largo plazo"],
+  "Apoyo en la media":["◉ Apoyada: 100","Sin retroceso (por encima de la media de 200 ruedas, sin probarla): 60","≈ Lateral: 35","Debajo de la media sin tendencia alcista previa: 30","▼ Perdió la media: 0","«Apoyada» = la media subió 2% o más en 3 meses, el precio estuvo sobre ella el 75% o más de 6 meses, la cruzó 2 veces o menos y hoy está entre −2% y +3% de ella"],
+  "RSI":["20 o menos: 100 (sobreventa extrema, posible rebote)","30: 85 · 40: 60 · 50 a 60: 100 (fuerza sana)","70: 70 · 80: 35 · más de 80: 30 (sobrecompra: comprar acá es más riesgoso)","Entre punto y punto la nota sube o baja de a poco"],
+  "MACD":["Sobre su señal y sobre cero: 100","Sobre su señal pero bajo cero (recuperándose): 65","Bajo su señal pero sobre cero (perdiendo impulso): 40","Bajo su señal y bajo cero: 0"],
+  "Espacio hasta el techo":["25% o más hasta el máximo anterior: 100","3% o menos: 30 (el techo está encima)","Entre medio: sube de a poco","Sin máximo anterior por encima: 70"]};
 // Resumen en una frase de por qué el puntaje técnico dio lo que dio: lo que más suma y lo que más resta
 function tecResumen(a){
   const k=a.W?100/a.W:1,ph=i=>{const L=i.label,t=i.txt,pn=i.s>=1;
@@ -755,7 +755,7 @@ function openTecScore(t){
       rows+=`<div class="srow it" data-open tabindex="0" role="button" aria-expanded="false"><span class="sn"><b><u>▸</u>${esc(i.label)}</b><span class="sv">${esc(i.txt)}</span></span>
         <span class="sb">${nota==null?`<em>sin dato</em>`:`<span class="gbar"><i style="width:${nota}%;background:${cl(i.s)}"></i></span><b style="color:${cl(i.s)}">${nota}</b>`}</span>
         <span class="r sp">${num(pts,1)}<i>de ${num(mx,mx%1?1:0)}</i></span></div>
-        <div class="srow sx" hidden><span>${esc(i.why)} ${TSCALE[i.label]?esc(TSCALE[i.label])+" ":""}<em>Pesa ${num(i.w*k,(i.w*k)%1?1:0)}% del total.</em></span></div>`})});
+        <div class="srow sx" hidden><span>${esc(i.why)}${TSCALE[i.label]?`<br><b>Cómo se califica:</b>${TSCALE[i.label].map(l=>`<br>• ${esc(l)}`).join("")}<br>`:" "}<em>Pesa ${num(i.w*k,(i.w*k)%1?1:0)}% del total.</em></span></div>`})});
   const grps=a.groups.map(g=>`<div class="sgr"><span>${g.n}</span><div class="gbar"><i style="width:${g.s==null?0:Math.round(g.s*100)}%;background:${g.s==null?"transparent":cl(g.s)}"></i></div><b>${g.s==null?"—":Math.round(g.s*100)}</b></div>`).join("");
   const d=docs[t];
   $("ztitle").textContent=`Cómo se calcula el puntaje técnico · ${t}${d&&d.name?" · "+d.name:""}`;
@@ -1136,7 +1136,7 @@ function techScore(x){
   const ma=(k,nm,near,far)=>{const d=x[k]==null?null:x.c/x[k]-1;
     const sc=d==null?null:d>=0?(d<=near?1:d>=far?.6:1-.4*(d-near)/(far-near)):Math.max(0,.55*(1+d/.10));
     add("Tendencia",`Precio vs ${nm}`,15,sc,d==null?"sin historia":pct(d,1),
-      d==null?"No hay historia suficiente para esta media.":d>=0?(d<=near?`Por encima y cerca (hasta ${near*100}%): la media está a mano como soporte → 100.`:d>=far?`Por encima pero lejos (${far*100}% o más): la media queda lejos como soporte → 60.`:`Por encima pero alejándose de la media (entre ${near*100}% y ${far*100}%) → entre 100 y 60.`):d>=-.02?"Apenas por debajo: está probando la media y puede recuperarla o perderla → alrededor de 55.":"Por debajo: la media actúa de resistencia y la nota baja hasta 0 a 10% por debajo → "+Math.round(sc*100)+".")};
+      d==null?"No hay historia suficiente para esta media.":`Hoy el precio está ${num(Math.abs(d)*100,1)}% ${d>=0?"por encima":"por debajo"} de la media → nota ${Math.round(sc*100)}.`)};
   ma("s200","la media de 200 ruedas",.05,.20);ma("s200w","la media de 200 semanas",.10,.40);
   const sl=sopList(x),apo=sl.find(o=>o.e==="sop"),per=sl.find(o=>o.e==="perd"),lat=sl.find(o=>o.e==="lat");
   const hasSo=Object.prototype.hasOwnProperty.call(x,"so");   // datos viejos no traen la lectura de soporte
