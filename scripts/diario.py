@@ -30,6 +30,10 @@ def main():
         except Exception as e:
             print("lote falló:", e)
             continue
+        try:   # el pedido de 5 años a veces llega sin la última rueda: se completa con uno corto
+            df = df.combine_first(yf.download(lote, period="5d", interval="1d", group_by="ticker", progress=False, threads=True, auto_adjust=False))
+        except Exception as e:
+            print("completar últimos días falló:", e)
         for s in lote:
             try:
                 x = (df[s] if len(lote) > 1 else df)["Close"].dropna()

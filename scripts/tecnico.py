@@ -156,6 +156,12 @@ def main():
         except Exception as e:
             print("lote falló:", e)
             continue
+        # el pedido de 5 años a veces llega sin la última rueda: se completa con uno corto de los últimos días
+        try:
+            df2 = yf.download(lote, period="5d", interval="1d", group_by="ticker", progress=False, threads=True, auto_adjust=True)
+            df = df.combine_first(df2)
+        except Exception as e:
+            print("completar últimos días falló:", e)
         for s in lote:
             try:
                 x = df[s] if len(lote) > 1 else df
@@ -180,7 +186,8 @@ def main():
     for t, v in previo.items():   # lo que no se pudo bajar hoy conserva el dato anterior
         out.setdefault(t, v)
     json.dump({"updated": dt.datetime.utcnow().isoformat() + "Z", "t": out}, open("data/tecnico.json", "w"), separators=(",", ":"))
-    print(f"{len(out)} de {len(tickers)} con indicadores")
+    import collections
+    print(f"{len(out)} de {len(tickers)} con indicadores; última rueda:", collections.Counter(v["wend"] for v in out.values()).most_common(3))
 
 
 if __name__ == "__main__":
