@@ -197,7 +197,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
       <table id="accTabla">
         <thead><tr>
           <th class="iz" data-k="s">Símbolo</th><th class="iz" data-k="est">Hoy</th><th class="iz" data-k="perm">Permiso</th><th data-k="gap">Medias</th>
-          <th data-k="precio">Último cierre</th><th data-k="e">Estrategia</th><th data-k="m">Comprar y mantener</th><th data-k="n">Operaciones</th>
+          <th data-k="tend">Tendencia (6 meses)</th><th data-k="precio">Último cierre</th><th data-k="e">Estrategia</th><th data-k="m">Comprar y mantener</th><th data-k="n">Operaciones</th>
         </tr></thead>
         <tbody id="accCuerpo"></tbody>
       </table>
@@ -1042,7 +1042,14 @@ setInterval(() => actualizarTend(false), 60000);
 // ------------------------------ Acciones del S&P 500 ------------------------------
 // Los precios los baja todos los días un proceso de GitHub (scripts/tendencia.py) y quedan en data/tendencia_acciones.json.
 // Cada acción se evalúa con el cruce de promedios simples elegido (50/200 o 10/30, los mismos de TradingView) y, si se quiere, un filtro con SPY como mercado.
-const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["afuera", "Afuera"]];
+// Eficiencia de tendencia: lo que avanzó el precio en 6 meses (126 ruedas) dividido por todo lo que se movió en el camino.
+const EF_FUERTE = 0.10, EF_MEDIA = 0.05;
+function eficiencia(bars) {
+  const c = bars.slice(-127).map(k => k.close); let rec = 0;
+  for (let i = 1; i < c.length; i++) rec += Math.abs(c[i] - c[i - 1]);
+  return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
+}
+const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["afuera", "Afuera"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
@@ -1095,7 +1102,7 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const cerca = !comprado && !venderYa && permisoOk && !mediasOk && gap <= 0.02;
     const est = comprarYa ? 0 : venderYa ? 1 : cerca ? 2 : comprado ? 3 : 4;
     res.push({ s, t, propio, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
-      precio: bars[bars.length - 1].close, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
+      ...eficiencia(bars), precio: bars[bars.length - 1].close, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
 }
@@ -1111,7 +1118,7 @@ function comparacionAcc() {
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : r.venderYa ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && r.venderYa) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && r.venderYa) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
@@ -1142,7 +1149,7 @@ function pintarFilasAcc() {
   const q = accBusca.trim().toUpperCase();
   let filas = accRes.filter(r => accCumple(r, accFiltro) && (!q || r.s.includes(q)));
   const k = accOrd.k, dir = accOrd.asc ? 1 : -1;
-  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, precio: r => r.precio, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
+  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, tend: r => r.dir * r.ef, precio: r => r.precio, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
   filas.sort((a, b) => { const x = clave(a), y = clave(b); return (x < y ? -1 : x > y ? 1 : 0) * dir || (a.s < b.s ? -1 : 1); });
   document.querySelectorAll("#accTabla th[data-k]").forEach(th => { th.classList.toggle("ord", th.dataset.k === k); th.classList.toggle("asc", th.dataset.k === k && accOrd.asc); });
   const pc = x => `<td class="num ${x >= 0 ? "pos" : "neg"}">${pctT(x)}</td>`;
@@ -1152,9 +1159,9 @@ function pintarFilasAcc() {
       <td class="iz sim">${r.s}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span></td>
       <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
       <td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>
-      <td class="num">${fmt(r.precio)}</td>${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
-  }).join("") || `<tr><td class="iz" colspan="8">No hay acciones para mostrar con ese filtro.</td></tr>`;
-  $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta.`;
+      <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span></td><td class="num">${fmt(r.precio)}</td>${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
+  }).join("") || `<tr><td class="iz" colspan="9">No hay acciones para mostrar con ese filtro.</td></tr>`;
+  $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes.`;
   if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); if (r && cv) graficoTend(cv, r.t, accN); }
 }
 function detalleAcc(r) {
@@ -1170,7 +1177,7 @@ function detalleAcc(r) {
   const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura.` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura.` : r.comprado ? `<b class="pos">Seguir comprado.</b>` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`;
   const ops = r.ops.slice(-5).reverse().map(o => `<tr><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span></td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}</td></tr>`).join("");
   const ab = r.t.abierta ? `<tr class="abierta"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}</td></tr>` : "";
-  return `<tr class="det"><td colspan="8"><div class="cols">
+  return `<tr class="det"><td colspan="9"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}"></canvas>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media rápida</span><span><i class="l"></i>Media lenta</span><span><i class="m"></i>Promedio de ${accN} días</span><span><i class="v"></i>Comprado</span></div></div>
     <div>${paso("1 · Permiso del filtro", permTxt, r.permisoOk)}${paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>
