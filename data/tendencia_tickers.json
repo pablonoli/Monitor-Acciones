@@ -1,7 +1,7 @@
 {
  "filtro": "SPY",
  "extras": [],
- "nota": "Las acciones son las favoritas de data/favoritas.json (las del Monitor P/E). Para sumar otras, agregalas en extras. En defensivas van las que se tratan con la estrategia de rango (piso de 6 meses) en lugar del cruce de medias.",
+ "nota": "Las acciones son las favoritas de data/favoritas.json (las del Monitor P/E). Para sumar otras, agregalas en extras. En «defensivas» van las que se tratan con la estrategia de rango (piso de 6 meses): defensivas y emergentes (China, Brasil, Argentina). El resto usa el cruce 50/200.",
  "defensivas": [
   "KO",
   "PEP",
@@ -33,6 +33,17 @@
   "NEE",
   "PM",
   "AMGN",
-  "GILD"
+  "GILD",
+  "BABA",
+  "BIDU",
+  "JD",
+  "PBR",
+  "ABEV",
+  "GGAL",
+  "YPF",
+  "PAM",
+  "VIST",
+  "NU",
+  "MELI"
  ]
 }

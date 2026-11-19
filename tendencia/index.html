@@ -182,7 +182,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="controles">
-      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="mixta">Mixta: rango en defensivas, cruce 50/200 en el resto</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option><option value="10_30">Cruce 10/30 simple (swing, semanas)</option></select></label>
+      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="mixta">Mixta: rango en defensivas y emergentes, cruce 50/200 en el resto</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option><option value="10_30">Cruce 10/30 simple (swing, semanas)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
@@ -1085,7 +1085,7 @@ function mercadoN(bars, n) {
   return { ok, precio: c[u], media: m[u], arriba: c[u] > m[u] };
 }
 // Estrategia de rango para defensivas: compra en el 20% de abajo del rango de 6 meses (121 cierres) y vende al 60%, a los 40 días o con stop de 8%.
-const DEF_POR_DEFECTO = ["KO","PEP","PG","JNJ","MO","WMT","VZ","T","MCD","HSY","PFE","O","SNA","ABBV","UNH","COST","TGT","NKE","SBUX","CVX","XOM","LMT","ADP","MRK","ABT","TMO","LIN","NEE","PM","AMGN","GILD"];
+const DEF_POR_DEFECTO = ["KO","PEP","PG","JNJ","MO","WMT","VZ","T","MCD","HSY","PFE","O","SNA","ABBV","UNH","COST","TGT","NKE","SBUX","CVX","XOM","LMT","ADP","MRK","ABT","TMO","LIN","NEE","PM","AMGN","GILD","BABA","BIDU","JD","PBR","ABEV","GGAL","YPF","PAM","VIST","NU","MELI"];
 const defSet = () => new Set((accDatos && accDatos.def && accDatos.def.length) ? accDatos.def : DEF_POR_DEFECTO);
 function posRango(v, i) {
   if (i < 120) return NaN;
@@ -1135,7 +1135,7 @@ function comparacionAcc() {
   const filas = [50, 100, 150, 200].map(n => { const { res } = calcularAcc(accModo === "ninguno" ? "o" : accModo, n); return [n + " días", prom(res, "e"), res.reduce((a, r) => a + r.n, 0) / res.length]; });
   const sin = calcularAcc("ninguno", 200).res;
   filas.push(["Sin filtro", prom(sin, "e"), sin.reduce((a, r) => a + r.n, 0) / sin.length]);
-  const ests = Object.keys(ACC_EST).map(k => { const r = calcularAcc("ninguno", 200, k).res; return [k === "mixta" ? "mixta (rango en defensivas + cruce 50/200)" : "cruce " + ACC_EST[k].nombre, prom(r, "e"), r.reduce((a, x) => a + x.n, 0) / r.length]; });
+  const ests = Object.keys(ACC_EST).map(k => { const r = calcularAcc("ninguno", 200, k).res; return [k === "mixta" ? "mixta (rango en defensivas y emergentes + cruce 50/200)" : "cruce " + ACC_EST[k].nombre, prom(r, "e"), r.reduce((a, x) => a + x.n, 0) / r.length]; });
   return { filas, man: prom(sin, "m"), ests };
 }
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
@@ -1179,7 +1179,7 @@ function pintarFilasAcc() {
   $("accCuerpo").innerHTML = filas.map(r => {
     const abierta = accAbierta === r.s;
     return `<tr class="fila${abierta ? " abierta" : ""}" data-s="${r.s}" tabindex="0" aria-expanded="${abierta}">
-      <td class="iz sim">${r.s}${r.rango ? ' <span class="sub" style="font-weight:400">def.</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span></td>
+      <td class="iz sim">${r.s}${r.rango ? ' <span class="sub" style="font-weight:400">rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span></td>
       <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
       ${r.rango ? `<td class="num">Rango ${Math.round(100 * r.pos)}%</td>` : `<td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>`}
       <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span></td><td class="num">${fmt(r.precio)}</td>${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
