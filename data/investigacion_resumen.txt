@@ -1,0 +1,198 @@
+
+== 2018 a hoy | Resto (no defensivas ni emergentes) (87 acciones)
+  Comprar y mantener                                   rinde   436.7%  caída prom  -54.1%  ops   1.0  gana  97%  peor    -45%  mercado 100%
+  Cruce simple 50/200                                  rinde   222.3%  caída prom  -49.3%  ops   7.3  gana  48%  peor    -53%  mercado  66%
+  Cruce simple 10/30                                   rinde   126.0%  caída prom  -48.8%  ops  43.8  gana  42%  peor    -43%  mercado  58%
+  50/200, sale si cae 15% del máximo                   rinde   136.5%  caída prom  -42.8%  ops  14.1  gana  44%  peor    -26%  mercado  58%
+  50/200, sale si cae 10% del máximo                   rinde    85.5%  caída prom  -43.0%  ops  24.1  gana  42%  peor    -23%  mercado  52%
+  50/200, sale bajo el promedio de 100d                rinde   116.7%  caída prom  -43.1%  ops  39.2  gana  30%  peor    -35%  mercado  50%
+  Precio sobre/bajo su promedio de 200d                rinde   196.6%  caída prom  -45.4%  ops  37.6  gana  25%  peor    -26%  mercado  66%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    57.6%  caída prom  -44.0%  ops  26.6  gana  50%  peor    -38%  mercado  26%
+  Rebote RSI(14)<30, sale >50                          rinde    32.8%  caída prom  -35.7%  ops  13.8  gana  71%  peor    -56%  mercado  10%
+
+== 2018 a hoy | Defensivas (31 acciones)
+  Comprar y mantener                                   rinde   104.5%  caída prom  -45.8%  ops   1.0  gana  87%  peor    -44%  mercado 100%
+  Cruce simple 50/200                                  rinde    29.7%  caída prom  -42.0%  ops   8.4  gana  39%  peor    -36%  mercado  63%
+  Cruce simple 10/30                                   rinde    27.9%  caída prom  -38.7%  ops  44.2  gana  41%  peor    -22%  mercado  56%
+  50/200, sale si cae 15% del máximo                   rinde    19.3%  caída prom  -40.4%  ops  10.2  gana  39%  peor    -19%  mercado  58%
+  50/200, sale si cae 10% del máximo                   rinde     9.3%  caída prom  -41.0%  ops  16.2  gana  36%  peor    -20%  mercado  52%
+  50/200, sale bajo el promedio de 100d                rinde     4.9%  caída prom  -40.2%  ops  38.7  gana  27%  peor    -19%  mercado  46%
+  Precio sobre/bajo su promedio de 200d                rinde     4.5%  caída prom  -46.0%  ops  44.1  gana  21%  peor    -22%  mercado  62%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    56.9%  caída prom  -31.5%  ops  23.8  gana  60%  peor    -22%  mercado  28%
+  Rebote RSI(14)<30, sale >50                          rinde    17.5%  caída prom  -28.3%  ops  15.7  gana  70%  peor    -35%  mercado  12%
+
+== 2018 a hoy | Emergentes (China, Brasil, Argentina) (9 acciones)
+  Comprar y mantener                                   rinde    18.4%  caída prom  -81.1%  ops   1.0  gana  33%  peor    -71%  mercado 100%
+  Cruce simple 50/200                                  rinde     1.6%  caída prom  -69.5%  ops   8.0  gana  29%  peor    -68%  mercado  52%
+  Cruce simple 10/30                                   rinde    -3.9%  caída prom  -67.0%  ops  43.6  gana  32%  peor    -45%  mercado  50%
+  50/200, sale si cae 15% del máximo                   rinde   -28.9%  caída prom  -66.3%  ops  18.6  gana  31%  peor    -52%  mercado  39%
+  50/200, sale si cae 10% del máximo                   rinde   -17.3%  caída prom  -65.5%  ops  31.1  gana  32%  peor    -50%  mercado  35%
+  50/200, sale bajo el promedio de 100d                rinde   -36.8%  caída prom  -69.5%  ops  35.9  gana  21%  peor    -52%  mercado  35%
+  Precio sobre/bajo su promedio de 200d                rinde   -20.9%  caída prom  -71.9%  ops  42.8  gana  19%  peor    -50%  mercado  51%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    93.4%  caída prom  -65.4%  ops  41.3  gana  43%  peor    -38%  mercado  37%
+  Rebote RSI(14)<30, sale >50                          rinde     3.2%  caída prom  -51.6%  ops  17.1  gana  61%  peor    -50%  mercado  14%
+
+== 2018-2019 | Resto (no defensivas ni emergentes) (87 acciones)
+  Comprar y mantener                                   rinde    34.5%  caída prom  -30.9%  ops   1.0  gana  86%  peor    -34%  mercado 100%
+  Cruce simple 50/200                                  rinde    14.4%  caída prom  -26.7%  ops   2.6  gana  55%  peor    -27%  mercado  68%
+  Cruce simple 10/30                                   rinde     8.6%  caída prom  -26.4%  ops  10.6  gana  43%  peor    -22%  mercado  59%
+  50/200, sale si cae 15% del máximo                   rinde     6.1%  caída prom  -27.1%  ops   3.6  gana  44%  peor    -24%  mercado  60%
+  50/200, sale si cae 10% del máximo                   rinde     1.2%  caída prom  -27.3%  ops   5.7  gana  40%  peor    -20%  mercado  54%
+  50/200, sale bajo el promedio de 100d                rinde     1.6%  caída prom  -26.4%  ops  10.7  gana  29%  peor    -20%  mercado  50%
+  Precio sobre/bajo su promedio de 200d                rinde     9.6%  caída prom  -27.9%  ops  10.4  gana  27%  peor    -16%  mercado  68%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    17.7%  caída prom  -19.4%  ops   5.4  gana  60%  peor    -19%  mercado  26%
+  Rebote RSI(14)<30, sale >50                          rinde     8.9%  caída prom  -12.9%  ops   3.5  gana  76%  peor    -39%  mercado  11%
+
+== 2018-2019 | Defensivas (31 acciones)
+  Comprar y mantener                                   rinde    24.7%  caída prom  -23.6%  ops   1.0  gana  77%  peor    -30%  mercado 100%
+  Cruce simple 50/200                                  rinde    14.3%  caída prom  -21.3%  ops   2.3  gana  49%  peor    -21%  mercado  67%
+  Cruce simple 10/30                                   rinde     7.0%  caída prom  -20.0%  ops  10.4  gana  42%  peor    -22%  mercado  61%
+  50/200, sale si cae 15% del máximo                   rinde    12.2%  caída prom  -20.1%  ops   2.5  gana  50%  peor    -18%  mercado  63%
+  50/200, sale si cae 10% del máximo                   rinde     8.1%  caída prom  -20.6%  ops   3.7  gana  42%  peor    -12%  mercado  58%
+  50/200, sale bajo el promedio de 100d                rinde     3.3%  caída prom  -19.9%  ops  10.3  gana  28%  peor     -9%  mercado  52%
+  Precio sobre/bajo su promedio de 200d                rinde     9.2%  caída prom  -22.9%  ops  10.0  gana  22%  peor    -12%  mercado  67%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    10.3%  caída prom  -12.5%  ops   4.5  gana  65%  peor    -16%  mercado  26%
+  Rebote RSI(14)<30, sale >50                          rinde     6.2%  caída prom   -9.2%  ops   3.3  gana  74%  peor    -15%  mercado  11%
+
+== 2018-2019 | Emergentes (China, Brasil, Argentina) (9 acciones)
+  Comprar y mantener                                   rinde   -15.7%  caída prom  -59.7%  ops   1.0  gana  33%  peor    -76%  mercado 100%
+  Cruce simple 50/200                                  rinde   -23.5%  caída prom  -48.6%  ops   2.8  gana  28%  peor    -68%  mercado  47%
+  Cruce simple 10/30                                   rinde   -15.7%  caída prom  -43.8%  ops  10.3  gana  32%  peor    -45%  mercado  48%
+  50/200, sale si cae 15% del máximo                   rinde   -20.3%  caída prom  -43.1%  ops   4.3  gana  21%  peor    -52%  mercado  33%
+  50/200, sale si cae 10% del máximo                   rinde   -17.6%  caída prom  -39.9%  ops   6.1  gana  25%  peor    -50%  mercado  30%
+  50/200, sale bajo el promedio de 100d                rinde   -24.4%  caída prom  -43.7%  ops   8.8  gana  20%  peor    -52%  mercado  30%
+  Precio sobre/bajo su promedio de 200d                rinde   -26.1%  caída prom  -47.1%  ops  10.7  gana  23%  peor    -50%  mercado  44%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     4.7%  caída prom  -42.5%  ops  11.9  gana  38%  peor    -21%  mercado  46%
+  Rebote RSI(14)<30, sale >50                          rinde    -5.7%  caída prom  -31.8%  ops   4.7  gana  60%  peor    -46%  mercado  19%
+
+== 2020 (covid) | Resto (no defensivas ni emergentes) (88 acciones)
+  Comprar y mantener                                   rinde    37.5%  caída prom  -40.7%  ops   1.0  gana  78%  peor    -44%  mercado 100%
+  Cruce simple 50/200                                  rinde    14.9%  caída prom  -36.1%  ops   1.8  gana  53%  peor    -54%  mercado  65%
+  Cruce simple 10/30                                   rinde    24.2%  caída prom  -24.7%  ops   5.5  gana  47%  peor    -43%  mercado  64%
+  50/200, sale si cae 15% del máximo                   rinde    18.5%  caída prom  -23.0%  ops   2.6  gana  48%  peor    -22%  mercado  56%
+  50/200, sale si cae 10% del máximo                   rinde    13.8%  caída prom  -21.1%  ops   3.8  gana  42%  peor    -19%  mercado  52%
+  50/200, sale bajo el promedio de 100d                rinde    14.9%  caída prom  -22.0%  ops   4.9  gana  31%  peor    -22%  mercado  52%
+  Precio sobre/bajo su promedio de 200d                rinde    22.5%  caída prom  -26.3%  ops   5.5  gana  29%  peor    -28%  mercado  66%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     2.6%  caída prom  -26.7%  ops   3.5  gana  37%  peor    -38%  mercado  19%
+  Rebote RSI(14)<30, sale >50                          rinde    -3.4%  caída prom  -25.8%  ops   1.3  gana  52%  peor    -56%  mercado  10%
+
+== 2020 (covid) | Defensivas (31 acciones)
+  Comprar y mantener                                   rinde     5.4%  caída prom  -33.4%  ops   1.0  gana  58%  peor    -41%  mercado 100%
+  Cruce simple 50/200                                  rinde    -4.9%  caída prom  -28.1%  ops   1.8  gana  41%  peor    -38%  mercado  60%
+  Cruce simple 10/30                                   rinde     1.8%  caída prom  -18.1%  ops   5.5  gana  42%  peor    -18%  mercado  56%
+  50/200, sale si cae 15% del máximo                   rinde    -2.4%  caída prom  -20.1%  ops   2.1  gana  38%  peor    -21%  mercado  54%
+  50/200, sale si cae 10% del máximo                   rinde    -2.8%  caída prom  -19.3%  ops   2.8  gana  36%  peor    -20%  mercado  50%
+  50/200, sale bajo el promedio de 100d                rinde    -4.6%  caída prom  -18.5%  ops   5.5  gana  20%  peor    -11%  mercado  45%
+  Precio sobre/bajo su promedio de 200d                rinde    -6.8%  caída prom  -23.5%  ops   6.6  gana  20%  peor    -20%  mercado  59%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     4.2%  caída prom  -22.2%  ops   3.5  gana  49%  peor    -22%  mercado  19%
+  Rebote RSI(14)<30, sale >50                          rinde     1.4%  caída prom  -20.1%  ops   1.9  gana  62%  peor    -35%  mercado  12%
+
+== 2020 (covid) | Emergentes (China, Brasil, Argentina) (9 acciones)
+  Comprar y mantener                                   rinde    24.4%  caída prom  -50.4%  ops   1.0  gana  44%  peor    -59%  mercado 100%
+  Cruce simple 50/200                                  rinde    22.9%  caída prom  -20.2%  ops   1.2  gana  64%  peor    -30%  mercado  44%
+  Cruce simple 10/30                                   rinde    38.0%  caída prom  -27.2%  ops   4.3  gana  41%  peor    -18%  mercado  58%
+  50/200, sale si cae 15% del máximo                   rinde    26.6%  caída prom  -13.6%  ops   1.6  gana  71%  peor    -18%  mercado  38%
+  50/200, sale si cae 10% del máximo                   rinde    22.6%  caída prom  -12.9%  ops   3.1  gana  57%  peor    -10%  mercado  36%
+  50/200, sale bajo el promedio de 100d                rinde    28.3%  caída prom  -14.3%  ops   1.9  gana  47%  peor    -18%  mercado  37%
+  Precio sobre/bajo su promedio de 200d                rinde    36.0%  caída prom  -21.1%  ops   3.7  gana  30%  peor    -18%  mercado  48%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     3.7%  caída prom  -34.9%  ops   5.1  gana  39%  peor    -38%  mercado  33%
+  Rebote RSI(14)<30, sale >50                          rinde   -21.5%  caída prom  -30.1%  ops   1.4  gana  31%  peor    -50%  mercado  13%
+
+== 2021 | Resto (no defensivas ni emergentes) (90 acciones)
+  Comprar y mantener                                   rinde    28.5%  caída prom  -21.3%  ops   1.0  gana  83%  peor    -58%  mercado 100%
+  Cruce simple 50/200                                  rinde    25.3%  caída prom  -19.2%  ops   1.3  gana  67%  peor    -41%  mercado  85%
+  Cruce simple 10/30                                   rinde     9.3%  caída prom  -19.9%  ops   5.5  gana  47%  peor    -29%  mercado  61%
+  50/200, sale si cae 15% del máximo                   rinde    19.6%  caída prom  -19.3%  ops   2.1  gana  53%  peor    -26%  mercado  77%
+  50/200, sale si cae 10% del máximo                   rinde    14.2%  caída prom  -20.2%  ops   3.6  gana  49%  peor    -19%  mercado  71%
+  50/200, sale bajo el promedio de 100d                rinde    13.6%  caída prom  -19.6%  ops   6.1  gana  34%  peor    -19%  mercado  68%
+  Precio sobre/bajo su promedio de 200d                rinde    21.3%  caída prom  -20.4%  ops   4.1  gana  33%  peor    -25%  mercado  84%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     4.2%  caída prom   -8.3%  ops   1.8  gana  63%  peor    -16%  mercado  16%
+  Rebote RSI(14)<30, sale >50                          rinde     3.5%  caída prom   -4.7%  ops   1.1  gana  79%  peor    -15%  mercado   6%
+
+== 2021 | Defensivas (31 acciones)
+  Comprar y mantener                                   rinde    20.9%  caída prom  -15.5%  ops   1.0  gana  87%  peor    -16%  mercado 100%
+  Cruce simple 50/200                                  rinde    13.5%  caída prom  -14.6%  ops   1.5  gana  61%  peor    -14%  mercado  81%
+  Cruce simple 10/30                                   rinde    10.8%  caída prom  -12.8%  ops   5.3  gana  48%  peor    -10%  mercado  59%
+  50/200, sale si cae 15% del máximo                   rinde    10.9%  caída prom  -14.9%  ops   1.7  gana  55%  peor    -17%  mercado  77%
+  50/200, sale si cae 10% del máximo                   rinde     8.8%  caída prom  -14.6%  ops   2.5  gana  45%  peor    -11%  mercado  69%
+  50/200, sale bajo el promedio de 100d                rinde     9.7%  caída prom  -12.1%  ops   4.8  gana  36%  peor    -11%  mercado  61%
+  Precio sobre/bajo su promedio de 200d                rinde    11.1%  caída prom  -15.5%  ops   4.9  gana  30%  peor    -10%  mercado  79%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     6.9%  caída prom   -6.4%  ops   1.9  gana  73%  peor    -10%  mercado  20%
+  Rebote RSI(14)<30, sale >50                          rinde     3.2%  caída prom   -4.0%  ops   1.4  gana  80%  peor     -6%  mercado   9%
+
+== 2021 | Emergentes (China, Brasil, Argentina) (10 acciones)
+  Comprar y mantener                                   rinde     1.3%  caída prom  -39.7%  ops   1.0  gana  30%  peor    -48%  mercado 100%
+  Cruce simple 50/200                                  rinde     1.1%  caída prom  -33.7%  ops   1.3  gana  23%  peor    -33%  mercado  61%
+  Cruce simple 10/30                                   rinde    -7.5%  caída prom  -30.0%  ops   5.5  gana  31%  peor    -19%  mercado  45%
+  50/200, sale si cae 15% del máximo                   rinde    -5.1%  caída prom  -30.3%  ops   2.8  gana  39%  peor    -30%  mercado  42%
+  50/200, sale si cae 10% del máximo                   rinde    -4.4%  caída prom  -28.2%  ops   4.7  gana  34%  peor    -23%  mercado  38%
+  50/200, sale bajo el promedio de 100d                rinde    -8.7%  caída prom  -29.6%  ops   4.9  gana  22%  peor    -26%  mercado  38%
+  Precio sobre/bajo su promedio de 200d                rinde   -10.0%  caída prom  -33.5%  ops   6.1  gana  21%  peor    -26%  mercado  57%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     4.0%  caída prom  -21.7%  ops   4.0  gana  48%  peor    -16%  mercado  31%
+  Rebote RSI(14)<30, sale >50                          rinde     8.2%  caída prom  -12.4%  ops   1.8  gana  72%  peor    -13%  mercado  14%
+
+== 2022 (bajista) | Resto (no defensivas ni emergentes) (93 acciones)
+  Comprar y mantener                                   rinde   -23.0%  caída prom  -42.6%  ops   1.0  gana  16%  peor    -89%  mercado 100%
+  Cruce simple 50/200                                  rinde   -11.3%  caída prom  -20.8%  ops   1.4  gana  25%  peor    -38%  mercado  28%
+  Cruce simple 10/30                                   rinde   -16.4%  caída prom  -30.0%  ops   5.3  gana  28%  peor    -25%  mercado  42%
+  50/200, sale si cae 15% del máximo                   rinde    -8.3%  caída prom  -14.8%  ops   1.5  gana  30%  peor    -19%  mercado  18%
+  50/200, sale si cae 10% del máximo                   rinde    -7.1%  caída prom  -13.5%  ops   1.8  gana  31%  peor    -19%  mercado  16%
+  50/200, sale bajo el promedio de 100d                rinde    -7.4%  caída prom  -13.4%  ops   2.6  gana  24%  peor    -24%  mercado  15%
+  Precio sobre/bajo su promedio de 200d                rinde   -12.6%  caída prom  -20.9%  ops   4.8  gana  17%  peor    -30%  mercado  27%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde   -10.2%  caída prom  -33.5%  ops   7.0  gana  34%  peor    -38%  mercado  58%
+  Rebote RSI(14)<30, sale >50                          rinde     2.2%  caída prom  -16.2%  ops   2.4  gana  66%  peor    -52%  mercado  18%
+
+== 2022 (bajista) | Defensivas (31 acciones)
+  Comprar y mantener                                   rinde     3.2%  caída prom  -24.5%  ops   1.0  gana  45%  peor    -36%  mercado 100%
+  Cruce simple 50/200                                  rinde    -2.3%  caída prom  -19.7%  ops   1.6  gana  32%  peor    -25%  mercado  55%
+  Cruce simple 10/30                                   rinde    -1.8%  caída prom  -19.8%  ops   5.2  gana  41%  peor    -13%  mercado  55%
+  50/200, sale si cae 15% del máximo                   rinde    -4.5%  caída prom  -18.5%  ops   1.9  gana  32%  peor    -19%  mercado  49%
+  50/200, sale si cae 10% del máximo                   rinde    -6.2%  caída prom  -17.3%  ops   2.7  gana  34%  peor    -19%  mercado  41%
+  50/200, sale bajo el promedio de 100d                rinde    -4.8%  caída prom  -16.6%  ops   5.2  gana  26%  peor    -19%  mercado  37%
+  Precio sobre/bajo su promedio de 200d                rinde    -4.2%  caída prom  -19.8%  ops   6.3  gana  29%  peor    -22%  mercado  56%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde     9.2%  caída prom  -12.6%  ops   3.4  gana  64%  peor    -14%  mercado  33%
+  Rebote RSI(14)<30, sale >50                          rinde     2.4%  caída prom  -10.1%  ops   2.2  gana  67%  peor    -14%  mercado  14%
+
+== 2022 (bajista) | Emergentes (China, Brasil, Argentina) (10 acciones)
+  Comprar y mantener                                   rinde    27.6%  caída prom  -43.7%  ops   1.0  gana  50%  peor    -38%  mercado 100%
+  Cruce simple 50/200                                  rinde    20.4%  caída prom  -19.9%  ops   1.2  gana  42%  peor    -33%  mercado  41%
+  Cruce simple 10/30                                   rinde    -2.3%  caída prom  -33.5%  ops   5.7  gana  37%  peor    -22%  mercado  53%
+  50/200, sale si cae 15% del máximo                   rinde     7.7%  caída prom  -17.9%  ops   2.1  gana  43%  peor    -21%  mercado  30%
+  50/200, sale si cae 10% del máximo                   rinde     1.5%  caída prom  -20.0%  ops   4.1  gana  41%  peor    -14%  mercado  28%
+  50/200, sale bajo el promedio de 100d                rinde    10.4%  caída prom  -17.5%  ops   3.8  gana  26%  peor    -21%  mercado  31%
+  Precio sobre/bajo su promedio de 200d                rinde     5.7%  caída prom  -28.7%  ops   6.5  gana  15%  peor    -11%  mercado  41%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    27.6%  caída prom  -28.3%  ops   5.3  gana  45%  peor    -22%  mercado  39%
+  Rebote RSI(14)<30, sale >50                          rinde     0.7%  caída prom  -20.8%  ops   1.5  gana  53%  peor    -17%  mercado  11%
+
+== 2023 a hoy | Resto (no defensivas ni emergentes) (96 acciones)
+  Comprar y mantener                                   rinde   259.4%  caída prom  -43.0%  ops   1.0  gana  92%  peor    -34%  mercado 100%
+  Cruce simple 50/200                                  rinde   142.5%  caída prom  -39.7%  ops   3.2  gana  50%  peor    -45%  mercado  70%
+  Cruce simple 10/30                                   rinde    86.8%  caída prom  -38.4%  ops  18.9  gana  43%  peor    -42%  mercado  58%
+  50/200, sale si cae 15% del máximo                   rinde    90.0%  caída prom  -36.0%  ops   7.7  gana  46%  peor    -29%  mercado  60%
+  50/200, sale si cae 10% del máximo                   rinde    79.3%  caída prom  -35.8%  ops  12.9  gana  44%  peor    -24%  mercado  55%
+  50/200, sale bajo el promedio de 100d                rinde    86.1%  caída prom  -36.2%  ops  17.0  gana  33%  peor    -53%  mercado  54%
+  Precio sobre/bajo su promedio de 200d                rinde   125.8%  caída prom  -38.5%  ops  15.4  gana  27%  peor    -26%  mercado  70%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    43.8%  caída prom  -28.6%  ops  10.2  gana  52%  peor    -34%  mercado  24%
+  Rebote RSI(14)<30, sale >50                          rinde    19.2%  caída prom  -19.6%  ops   5.6  gana  72%  peor    -47%  mercado   9%
+
+== 2023 a hoy | Defensivas (31 acciones)
+  Comprar y mantener                                   rinde    29.0%  caída prom  -33.8%  ops   1.0  gana  74%  peor    -70%  mercado 100%
+  Cruce simple 50/200                                  rinde     9.3%  caída prom  -28.8%  ops   4.1  gana  35%  peor    -18%  mercado  59%
+  Cruce simple 10/30                                   rinde     6.7%  caída prom  -28.5%  ops  20.2  gana  39%  peor    -21%  mercado  53%
+  50/200, sale si cae 15% del máximo                   rinde     4.2%  caída prom  -29.3%  ops   4.6  gana  35%  peor    -18%  mercado  54%
+  50/200, sale si cae 10% del máximo                   rinde     1.6%  caída prom  -27.8%  ops   6.9  gana  34%  peor    -13%  mercado  47%
+  50/200, sale bajo el promedio de 100d                rinde     0.9%  caída prom  -26.2%  ops  15.5  gana  28%  peor    -16%  mercado  42%
+  Precio sobre/bajo su promedio de 200d                rinde     0.5%  caída prom  -31.9%  ops  19.6  gana  20%  peor    -22%  mercado  58%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    16.9%  caída prom  -22.8%  ops  10.7  gana  57%  peor    -22%  mercado  32%
+  Rebote RSI(14)<30, sale >50                          rinde     3.5%  caída prom  -15.6%  ops   6.9  gana  68%  peor    -29%  mercado  13%
+
+== 2023 a hoy | Emergentes (China, Brasil, Argentina) (11 acciones)
+  Comprar y mantener                                   rinde    93.4%  caída prom  -49.5%  ops   1.0  gana  64%  peor    -56%  mercado 100%
+  Cruce simple 50/200                                  rinde    58.0%  caída prom  -42.5%  ops   3.2  gana  46%  peor    -31%  mercado  62%
+  Cruce simple 10/30                                   rinde    26.8%  caída prom  -48.5%  ops  20.3  gana  35%  peor    -29%  mercado  52%
+  50/200, sale si cae 15% del máximo                   rinde    22.4%  caída prom  -43.0%  ops   9.2  gana  39%  peor    -27%  mercado  49%
+  50/200, sale si cae 10% del máximo                   rinde    16.1%  caída prom  -42.0%  ops  15.4  gana  37%  peor    -20%  mercado  44%
+  50/200, sale bajo el promedio de 100d                rinde    17.0%  caída prom  -43.7%  ops  17.7  gana  23%  peor    -23%  mercado  45%
+  Precio sobre/bajo su promedio de 200d                rinde    32.9%  caída prom  -51.1%  ops  17.4  gana  21%  peor    -17%  mercado  61%
+  Rango 6 meses (compra <20%, vende >60%, stop 8%)     rinde    36.5%  caída prom  -34.0%  ops  14.2  gana  47%  peor    -24%  mercado  30%
+  Rebote RSI(14)<30, sale >50                          rinde    26.9%  caída prom  -22.1%  ops   7.2  gana  67%  peor    -34%  mercado  12%
