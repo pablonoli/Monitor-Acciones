@@ -1,0 +1,33 @@
+name: Tendencia acciones
+on:
+  schedule:
+    - cron: "0 22 * * 1-5"   # después del cierre de EE.UU. (19:00 hora de Argentina), lunes a viernes
+  workflow_dispatch:
+  push:
+    paths:                    # al cambiar la lista de acciones o el script, se actualiza en el momento
+      - ".github/workflows/tendencia.yml"
+      - "scripts/tendencia.py"
+      - "data/tendencia_tickers.json"
+permissions:
+  contents: write
+concurrency:
+  group: datos
+  cancel-in-progress: false
+jobs:
+  tendencia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install yfinance pandas
+      - run: python scripts/tendencia.py
+      - name: Guardar resultado
+        run: |
+          git config user.name "datos-bot"
+          git config user.email "datos-bot@users.noreply.github.com"
+          git add data/tendencia_acciones.json
+          git commit -m "Tendencia acciones $(date -u +%F)" || echo "sin cambios"
+          git pull --rebase origin main || true
+          git push
