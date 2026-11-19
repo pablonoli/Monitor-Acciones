@@ -182,6 +182,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="controles">
+      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="50_200">Cruce 50/200 (tendencia, meses)</option><option value="10_30">Cruce 10/30 (swing, semanas)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
@@ -1040,12 +1041,15 @@ setInterval(() => actualizarTend(false), 60000);
 
 // ------------------------------ Acciones del S&P 500 ------------------------------
 // Los precios los baja todos los días un proceso de GitHub (scripts/tendencia.py) y quedan en data/tendencia_acciones.json.
-// Cada acción usa la misma estrategia (medias de 10 y 30 días) y el mismo filtro de 200 días, pero con SPY como mercado.
+// Cada acción se evalúa con el cruce de medias elegido (50/200 o 10/30) y, si se quiere, un filtro con SPY como mercado.
 const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["afuera", "Afuera"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
-let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "o")) ? guardado("acc_modo", "o") : "o";
+let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
+const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
 let accOrd = guardado("acc_ord", { k: "est", asc: true });
+const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200" }, "10_30": { rapida: 10, lenta: 30, nombre: "10/30" } };
+let accEst = ACC_EST[guardado("acc_est", "50_200")] ? guardado("acc_est", "50_200") : "50_200";
 let accN = [50, 100, 150, 200].includes(guardado("acc_n", 200)) ? guardado("acc_n", 200) : 200;
 if (!ACC_FILTROS.some(f => f[0] === accFiltro)) accFiltro = "todas";
 function decodificarAcc(txt) {
@@ -1074,7 +1078,7 @@ function mercadoN(bars, n) {
   return { ok, precio: c[u], media: m[u], arriba: c[u] > m[u] };
 }
 function barrasAcc(s) { const d = accDatos; d.__b = d.__b || {}; return d.__b[s] || (d.__b[s] = decodificarAcc(d.t[s])); }
-function calcularAcc(modoF = accModo, n = accN) {
+function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
   const d = accDatos, spy = barrasAcc(d.filtro);
   const mercado = modoF === "ninguno" ? null : mercadoN(spy, n);
   const res = [];
@@ -1083,7 +1087,7 @@ function calcularAcc(modoF = accModo, n = accN) {
     const bars = barrasAcc(s);
     if (bars.length < 260) continue;
     const propio = filtroPropio(bars, n);
-    const t = tendencia(bars, null, TEND["1d"], permiso(modoF === "spy" ? "btc" : modoF, mercado, propio), INICIO_T);
+    const t = tendencia(bars, null, ACC_EST[estr], permiso(modoF === "spy" ? "btc" : modoF, mercado, propio), INICIO_T);
     const r = desdeInicio(t);
     const comprado = t.estado === 1, comprarYa = comprado && !t.abierta, venderYa = !comprado && !!t.abierta;
     const permisoOk = modoF === "ninguno" ? true : (mercado.arriba || (modoF === "o" && propio.arriba));
@@ -1101,7 +1105,8 @@ function comparacionAcc() {
   const filas = [50, 100, 150, 200].map(n => { const { res } = calcularAcc(accModo === "ninguno" ? "o" : accModo, n); return [n + " días", prom(res, "e"), res.reduce((a, r) => a + r.n, 0) / res.length]; });
   const sin = calcularAcc("ninguno", 200).res;
   filas.push(["Sin filtro", prom(sin, "e"), sin.reduce((a, r) => a + r.n, 0) / sin.length]);
-  return { filas, man: prom(sin, "m") };
+  const ests = Object.keys(ACC_EST).map(k => { const r = calcularAcc("ninguno", 200, k).res; return [ACC_EST[k].nombre, prom(r, "e"), r.reduce((a, x) => a + x.n, 0) / r.length]; });
+  return { filas, man: prom(sin, "m"), ests };
 }
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : r.venderYa ? " AVISO" : r.cerca ? " cer" : "");
@@ -1111,7 +1116,7 @@ function accCumple(r, f) {
 function pintarAcc() {
   if (!accDatos) return;
   const { res, mercado, spy } = calcularAcc(); accRes = res; accMercado = mercado;
-  const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>¿Qué promedio conviene?</b> Resultado promedio por acción desde enero 2024 (con ${accModo === 'ninguno' ? 'SPY o propio' : NOMBRE_ACC[accModo]}): ` + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ') + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y todas las acciones están en el mismo mercado: sirve para ver si hay diferencias grandes, no para elegir el número que mejor le fue al pasado.</p>`; }
+  const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>Las dos estrategias, sin filtro</b> (resultado promedio por acción desde enero 2024): ` + comp.ests.map(f => `cruce ${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b> (${f[2].toLocaleString('es-AR', { maximumFractionDigits: 1 })} operaciones por acción)`).join(' · ') + `. Con el cruce ${ACC_EST[accEst].nombre} y distintos filtros: `  + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ') + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y de mercado alcista: sirve para ver diferencias grandes, no para elegir lo que mejor le fue al pasado.</p>`; }
   const n = res.length, compr = res.filter(r => r.comprado).length, perm = res.filter(r => r.permisoOk).length;
   const comprar = res.filter(r => r.comprarYa).map(r => r.s), vender = res.filter(r => r.venderYa).map(r => r.s);
   const ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
@@ -1183,7 +1188,8 @@ async function cargarAcc() {
   }
   $("accSub").textContent = "Todavía no hay datos de acciones. Se generan con la actualización diaria de GitHub (Actions → «Tendencia acciones» → Run workflow). Si abriste el archivo desde tu computadora, abrilo desde la página publicada.";
 }
-$("accModo").value = accModo; $("accN").value = accN;
+$("accModo").value = accModo; $("accN").value = accN; $("accEst").value = accEst;
+$("accEst").addEventListener("change", e => { accEst = e.target.value; guardar("acc_est", accEst); pintarAcc(); });
 $("accN").addEventListener("change", e => { accN = +e.target.value; guardar("acc_n", accN); pintarAcc(); });
 $("accModo").addEventListener("change", e => { accModo = e.target.value; guardar("acc_modo", accModo); pintarAcc(); });
 $("accBusca").addEventListener("input", e => { accBusca = e.target.value; pintarFilasAcc(); });
