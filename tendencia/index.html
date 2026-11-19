@@ -182,7 +182,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="controles">
-      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="50_200">Cruce 50/200 (tendencia, meses)</option><option value="10_30">Cruce 10/30 (swing, semanas)</option></select></label>
+      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option><option value="10_30">Cruce 10/30 simple (swing, semanas)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
@@ -647,7 +647,7 @@ const INICIO_T = Date.UTC(2024, 0, 1);
 // inicio: no se opera antes de esa fecha (como alguien que arranca ese día). eAntes y eOut son el valor de la porción
 // antes de comprar y después de vender, tomando 1 = el capital de la porción al inicio.
 function tendencia(v, enCurso, cfg, filtroOk = null, inicio = 0) {
-  const c = v.map(k => k.close), f = ema(c, cfg.rapida), sl = ema(c, cfg.lenta);
+  const c = v.map(k => k.close), mm = cfg.sma ? smaSerie : ema, f = mm(c, cfg.rapida), sl = mm(c, cfg.lenta);
   const cruce = c.map((_, i) => i >= cfg.lenta && f[i] > sl[i]);
   const sen = c.map((_, i) => cruce[i] && (!filtroOk || filtroOk(v[i].cierre, i)) ? 1 : 0);
   const w = enCurso ? v.concat([enCurso]) : v;
@@ -1041,14 +1041,14 @@ setInterval(() => actualizarTend(false), 60000);
 
 // ------------------------------ Acciones del S&P 500 ------------------------------
 // Los precios los baja todos los días un proceso de GitHub (scripts/tendencia.py) y quedan en data/tendencia_acciones.json.
-// Cada acción se evalúa con el cruce de medias elegido (50/200 o 10/30) y, si se quiere, un filtro con SPY como mercado.
+// Cada acción se evalúa con el cruce de promedios simples elegido (50/200 o 10/30, los mismos de TradingView) y, si se quiere, un filtro con SPY como mercado.
 const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["afuera", "Afuera"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
 let accOrd = guardado("acc_ord", { k: "est", asc: true });
-const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200" }, "10_30": { rapida: 10, lenta: 30, nombre: "10/30" } };
+const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200", sma: true }, "10_30": { rapida: 10, lenta: 30, nombre: "10/30", sma: true } };
 let accEst = ACC_EST[guardado("acc_est", "50_200")] ? guardado("acc_est", "50_200") : "50_200";
 let accN = [50, 100, 150, 200].includes(guardado("acc_n", 200)) ? guardado("acc_n", 200) : 200;
 if (!ACC_FILTROS.some(f => f[0] === accFiltro)) accFiltro = "todas";
