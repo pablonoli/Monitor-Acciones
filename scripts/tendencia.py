@@ -113,7 +113,7 @@ def main():
         else:
             fallas.append(s + " (sin datos)")
     ultimo_dia = max(v[1] for v in chk.values())
-    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "t": t}
+    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "t": t}
     with open(RUTA_SALIDA, "w") as f:
         json.dump(salida, f, separators=(",", ":"))
         f.write("\n")

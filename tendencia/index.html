@@ -182,7 +182,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="controles">
-      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option><option value="10_30">Cruce 10/30 simple (swing, semanas)</option></select></label>
+      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="mixta">Mixta: rango en defensivas, cruce 50/200 en el resto</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option><option value="10_30">Cruce 10/30 simple (swing, semanas)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
@@ -649,7 +649,7 @@ const INICIO_T = Date.UTC(2024, 0, 1);
 function tendencia(v, enCurso, cfg, filtroOk = null, inicio = 0) {
   const c = v.map(k => k.close), mm = cfg.sma ? smaSerie : ema, f = mm(c, cfg.rapida), sl = mm(c, cfg.lenta);
   const cruce = c.map((_, i) => i >= cfg.lenta && f[i] > sl[i]);
-  const sen = c.map((_, i) => cruce[i] && (!filtroOk || filtroOk(v[i].cierre, i)) ? 1 : 0);
+  const sen = cfg.senal ? cfg.senal(v, inicio) : c.map((_, i) => cruce[i] && (!filtroOk || filtroOk(v[i].cierre, i)) ? 1 : 0);
   const w = enCurso ? v.concat([enCurso]) : v;
   const eq = [1], ops = [];
   let e = 1, p = 0, ent = null;
@@ -1055,8 +1055,8 @@ let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) 
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
 let accOrd = guardado("acc_ord", { k: "est", asc: true });
-const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200", sma: true }, "10_30": { rapida: 10, lenta: 30, nombre: "10/30", sma: true } };
-let accEst = ACC_EST[guardado("acc_est", "50_200")] ? guardado("acc_est", "50_200") : "50_200";
+const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200", sma: true }, "10_30": { rapida: 10, lenta: 30, nombre: "10/30", sma: true }, "mixta": { rapida: 50, lenta: 200, nombre: "mixta", sma: true } };
+let accEst = ACC_EST[guardado("acc_est", "mixta")] ? guardado("acc_est", "mixta") : "mixta";
 let accN = [50, 100, 150, 200].includes(guardado("acc_n", 200)) ? guardado("acc_n", 200) : 200;
 if (!ACC_FILTROS.some(f => f[0] === accFiltro)) accFiltro = "todas";
 function decodificarAcc(txt) {
@@ -1084,6 +1084,26 @@ function mercadoN(bars, n) {
   const u = c.length - 1;
   return { ok, precio: c[u], media: m[u], arriba: c[u] > m[u] };
 }
+// Estrategia de rango para defensivas: compra en el 20% de abajo del rango de 6 meses (121 cierres) y vende al 60%, a los 40 días o con stop de 8%.
+const DEF_POR_DEFECTO = ["KO","PEP","PG","JNJ","MO","WMT","VZ","T","MCD","HSY","PFE","O","SNA","ABBV","UNH","COST","TGT","NKE","SBUX","CVX","XOM","LMT","ADP","MRK","ABT","TMO","LIN","NEE","PM","AMGN","GILD"];
+const defSet = () => new Set((accDatos && accDatos.def && accDatos.def.length) ? accDatos.def : DEF_POR_DEFECTO);
+function posRango(v, i) {
+  if (i < 120) return NaN;
+  let lo = Infinity, hi = -Infinity;
+  for (let k = i - 120; k <= i; k++) { const x = v[k].close; if (x < lo) lo = x; if (x > hi) hi = x; }
+  return (v[i].close - lo) / (hi - lo + 1e-9);
+}
+function senalRango(v, inicio) {
+  const sen = new Array(v.length).fill(0); let p = 0, held = 0, ent = 0;
+  for (let i = 0; i < v.length; i++) {
+    if (i + 1 < v.length && v[i + 1].apertura < inicio) continue;
+    const pos = posRango(v, i);
+    if (p === 0) { if (pos < 0.2) { p = 1; held = 0; ent = i + 1 < v.length ? v[i + 1].open : v[i].close; } }
+    else { held++; if (pos > 0.6 || held >= 40 || v[i].close <= ent * 0.92) p = 0; }
+    sen[i] = p;
+  }
+  return sen;
+}
 function barrasAcc(s) { const d = accDatos; d.__b = d.__b || {}; return d.__b[s] || (d.__b[s] = decodificarAcc(d.t[s])); }
 function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
   const d = accDatos, spy = barrasAcc(d.filtro);
@@ -1094,14 +1114,17 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const bars = barrasAcc(s);
     if (bars.length < 260) continue;
     const propio = filtroPropio(bars, n);
-    const t = tendencia(bars, null, ACC_EST[estr], permiso(modoF === "spy" ? "btc" : modoF, mercado, propio), INICIO_T);
+    const rango = estr === "mixta" && defSet().has(s);
+    const cfgS = rango ? { ...ACC_EST.mixta, senal: senalRango } : ACC_EST[estr === "mixta" ? "50_200" : estr];
+    const t = tendencia(bars, null, cfgS, rango ? null : permiso(modoF === "spy" ? "btc" : modoF, mercado, propio), INICIO_T);
+    const pos = posRango(bars, bars.length - 1);
     const r = desdeInicio(t);
     const comprado = t.estado === 1, comprarYa = comprado && !t.abierta, venderYa = !comprado && !!t.abierta;
-    const permisoOk = modoF === "ninguno" ? true : (mercado.arriba || (modoF === "o" && propio.arriba));
+    const permisoOk = (rango || modoF === "ninguno") ? true : (mercado.arriba || (modoF === "o" && propio.arriba));
     const gap = Math.abs(t.brecha), mediasOk = t.cruceArriba;
-    const cerca = !comprado && !venderYa && permisoOk && !mediasOk && gap <= 0.02;
+    const cerca = !comprado && !venderYa && (rango ? pos < 0.3 : (permisoOk && !mediasOk && gap <= 0.02));
     const est = comprarYa ? 0 : venderYa ? 1 : cerca ? 2 : comprado ? 3 : 4;
-    res.push({ s, t, propio, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
+    res.push({ s, t, propio, rango, pos, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
       ...eficiencia(bars), precio: bars[bars.length - 1].close, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
@@ -1112,7 +1135,7 @@ function comparacionAcc() {
   const filas = [50, 100, 150, 200].map(n => { const { res } = calcularAcc(accModo === "ninguno" ? "o" : accModo, n); return [n + " días", prom(res, "e"), res.reduce((a, r) => a + r.n, 0) / res.length]; });
   const sin = calcularAcc("ninguno", 200).res;
   filas.push(["Sin filtro", prom(sin, "e"), sin.reduce((a, r) => a + r.n, 0) / sin.length]);
-  const ests = Object.keys(ACC_EST).map(k => { const r = calcularAcc("ninguno", 200, k).res; return [ACC_EST[k].nombre, prom(r, "e"), r.reduce((a, x) => a + x.n, 0) / r.length]; });
+  const ests = Object.keys(ACC_EST).map(k => { const r = calcularAcc("ninguno", 200, k).res; return [k === "mixta" ? "mixta (rango en defensivas + cruce 50/200)" : "cruce " + ACC_EST[k].nombre, prom(r, "e"), r.reduce((a, x) => a + x.n, 0) / r.length]; });
   return { filas, man: prom(sin, "m"), ests };
 }
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
@@ -1123,7 +1146,7 @@ function accCumple(r, f) {
 function pintarAcc() {
   if (!accDatos) return;
   const { res, mercado, spy } = calcularAcc(); accRes = res; accMercado = mercado;
-  const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>Las dos estrategias, sin filtro</b> (resultado promedio por acción desde enero 2024): ` + comp.ests.map(f => `cruce ${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b> (${f[2].toLocaleString('es-AR', { maximumFractionDigits: 1 })} operaciones por acción)`).join(' · ') + `. Con el cruce ${ACC_EST[accEst].nombre} y distintos filtros: `  + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ') + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y de mercado alcista: sirve para ver diferencias grandes, no para elegir lo que mejor le fue al pasado.</p>`; }
+  const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>Las dos estrategias, sin filtro</b> (resultado promedio por acción desde enero 2024): ` + comp.ests.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b> (${f[2].toLocaleString('es-AR', { maximumFractionDigits: 1 })} operaciones por acción)`).join(' · ') + `. Con la estrategia elegida y distintos filtros (el filtro solo afecta a los cruces): `  + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ') + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y de mercado alcista: sirve para ver diferencias grandes, no para elegir lo que mejor le fue al pasado.</p>`; }
   const n = res.length, compr = res.filter(r => r.comprado).length, perm = res.filter(r => r.permisoOk).length;
   const comprar = res.filter(r => r.comprarYa).map(r => r.s), vender = res.filter(r => r.venderYa).map(r => r.s);
   const ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
@@ -1156,9 +1179,9 @@ function pintarFilasAcc() {
   $("accCuerpo").innerHTML = filas.map(r => {
     const abierta = accAbierta === r.s;
     return `<tr class="fila${abierta ? " abierta" : ""}" data-s="${r.s}" tabindex="0" aria-expanded="${abierta}">
-      <td class="iz sim">${r.s}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span></td>
+      <td class="iz sim">${r.s}${r.rango ? ' <span class="sub" style="font-weight:400">def.</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span></td>
       <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
-      <td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>
+      ${r.rango ? `<td class="num">Rango ${Math.round(100 * r.pos)}%</td>` : `<td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>`}
       <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span></td><td class="num">${fmt(r.precio)}</td>${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
   }).join("") || `<tr><td class="iz" colspan="9">No hay acciones para mostrar con ese filtro.</td></tr>`;
   $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes.`;
@@ -1174,13 +1197,13 @@ function detalleAcc(r) {
   }
   const g = (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "%";
   const medTxt = r.mediasOk ? `La media rápida está ${g} arriba de la lenta.` : `La media rápida está ${g} debajo de la lenta: tiene que cruzar para arriba.`;
-  const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura.` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura.` : r.comprado ? `<b class="pos">Seguir comprado.</b>` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`;
+  const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura.` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura.` : r.comprado ? `<b class="pos">Seguir comprado.</b>` : (r.rango ? `<b class="neg">Esperar.</b> Todavía no está cerca del piso de su rango.` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`);
   const ops = r.ops.slice(-5).reverse().map(o => `<tr><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span></td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}</td></tr>`).join("");
   const ab = r.t.abierta ? `<tr class="abierta"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}</td></tr>` : "";
   return `<tr class="det"><td colspan="9"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}"></canvas>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media rápida</span><span><i class="l"></i>Media lenta</span><span><i class="m"></i>Promedio de ${accN} días</span><span><i class="v"></i>Comprado</span></div></div>
-    <div>${paso("1 · Permiso del filtro", permTxt, r.permisoOk)}${paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>
+    <div>${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60%, a los 40 días o si cae 8% desde la compra.`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>
       <div class="scroll"><table style="margin-top:10px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
   </div></td></tr>`;
 }
