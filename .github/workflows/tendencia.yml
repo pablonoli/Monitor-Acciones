@@ -8,6 +8,7 @@ on:
       - ".github/workflows/tendencia.yml"
       - "scripts/tendencia.py"
       - "data/tendencia_tickers.json"
+      - "data/favoritas.json"
 permissions:
   contents: write
 concurrency:

@@ -183,10 +183,12 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="controles">
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
+      <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
     </div>
     <div class="aviso" id="accAviso" hidden></div>
     <div class="veredicto" id="accHoy" hidden></div>
+    <div class="veredicto" id="accComp" hidden></div>
     <div class="mini" id="accStats"></div>
     <div class="controles" role="group" aria-label="Qué mostrar"><span class="sub">Mostrar</span><div class="chips" id="accFiltros"></div></div>
     <div class="sub" id="accFiltroTxt"></div>
@@ -1042,7 +1044,9 @@ setInterval(() => actualizarTend(false), 60000);
 const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["afuera", "Afuera"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "o")) ? guardado("acc_modo", "o") : "o";
+const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
 let accOrd = guardado("acc_ord", { k: "est", asc: true });
+let accN = [50, 100, 150, 200].includes(guardado("acc_n", 200)) ? guardado("acc_n", 200) : 200;
 if (!ACC_FILTROS.some(f => f[0] === accFiltro)) accFiltro = "todas";
 function decodificarAcc(txt) {
   const uz = z => z % 2 ? -(z + 1) / 2 : z / 2;
@@ -1056,19 +1060,33 @@ function decodificarAcc(txt) {
 }
 const diaTxt = d => new Date(d * 86400000).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
 const lista2 = a => a.join(", ").replace(/, ([^,]*)$/, " y $1");
-function calcularAcc() {
-  const d = accDatos, spy = decodificarAcc(d.t[d.filtro]);
-  const mercado = accModo === "ninguno" ? null : filtroBTC(spy);
+// Igual que filtroBTC, pero con un promedio de n días (para elegir cuál filtro funciona mejor).
+function mercadoN(bars, n) {
+  const c = bars.map(k => k.close), cierres = bars.map(k => k.cierre), m = new Array(c.length).fill(NaN);
+  let suma = 0;
+  for (let i = 0; i < c.length; i++) { suma += c[i]; if (i >= n) suma -= c[i - n]; if (i >= n - 1) m[i] = suma / n; }
+  const ok = t => {
+    let lo = 0, hi = cierres.length - 1, j = -1;
+    while (lo <= hi) { const md = (lo + hi) >> 1; if (cierres[md] <= t) { j = md; lo = md + 1; } else hi = md - 1; }
+    return j >= 0 && isFinite(m[j]) && c[j] > m[j];
+  };
+  const u = c.length - 1;
+  return { ok, precio: c[u], media: m[u], arriba: c[u] > m[u] };
+}
+function barrasAcc(s) { const d = accDatos; d.__b = d.__b || {}; return d.__b[s] || (d.__b[s] = decodificarAcc(d.t[s])); }
+function calcularAcc(modoF = accModo, n = accN) {
+  const d = accDatos, spy = barrasAcc(d.filtro);
+  const mercado = modoF === "ninguno" ? null : mercadoN(spy, n);
   const res = [];
   for (const s of Object.keys(d.t)) {
     if (s === d.filtro) continue;
-    const bars = decodificarAcc(d.t[s]);
+    const bars = barrasAcc(s);
     if (bars.length < 260) continue;
-    const propio = filtroPropio(bars, 200);
-    const t = tendencia(bars, null, TEND["1d"], permiso(accModo === "spy" ? "btc" : accModo, mercado, propio), INICIO_T);
+    const propio = filtroPropio(bars, n);
+    const t = tendencia(bars, null, TEND["1d"], permiso(modoF === "spy" ? "btc" : modoF, mercado, propio), INICIO_T);
     const r = desdeInicio(t);
     const comprado = t.estado === 1, comprarYa = comprado && !t.abierta, venderYa = !comprado && !!t.abierta;
-    const permisoOk = accModo === "ninguno" ? true : (mercado.arriba || (accModo === "o" && propio.arriba));
+    const permisoOk = modoF === "ninguno" ? true : (mercado.arriba || (modoF === "o" && propio.arriba));
     const gap = Math.abs(t.brecha), mediasOk = t.cruceArriba;
     const cerca = !comprado && !venderYa && permisoOk && !mediasOk && gap <= 0.02;
     const est = comprarYa ? 0 : venderYa ? 1 : cerca ? 2 : comprado ? 3 : 4;
@@ -1076,6 +1094,14 @@ function calcularAcc() {
       precio: bars[bars.length - 1].close, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
+}
+// Resultado promedio (cada acción con el mismo peso) para cada largo de filtro, para comparar.
+function comparacionAcc() {
+  const prom = (res, k) => res.reduce((a, r) => a + 1 + r[k], 0) / res.length - 1;
+  const filas = [50, 100, 150, 200].map(n => { const { res } = calcularAcc(accModo === "ninguno" ? "o" : accModo, n); return [n + " días", prom(res, "e"), res.reduce((a, r) => a + r.n, 0) / res.length]; });
+  const sin = calcularAcc("ninguno", 200).res;
+  filas.push(["Sin filtro", prom(sin, "e"), sin.reduce((a, r) => a + r.n, 0) / sin.length]);
+  return { filas, man: prom(sin, "m") };
 }
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : r.venderYa ? " AVISO" : r.cerca ? " cer" : "");
@@ -1085,7 +1111,8 @@ function accCumple(r, f) {
 function pintarAcc() {
   if (!accDatos) return;
   const { res, mercado, spy } = calcularAcc(); accRes = res; accMercado = mercado;
-  const n = res.length, comp = res.filter(r => r.comprado).length, perm = res.filter(r => r.permisoOk).length;
+  const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>¿Qué promedio conviene?</b> Resultado promedio por acción desde enero 2024 (con ${accModo === 'ninguno' ? 'SPY o propio' : NOMBRE_ACC[accModo]}): ` + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ') + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y todas las acciones están en el mismo mercado: sirve para ver si hay diferencias grandes, no para elegir el número que mejor le fue al pasado.</p>`; }
+  const n = res.length, compr = res.filter(r => r.comprado).length, perm = res.filter(r => r.permisoOk).length;
   const comprar = res.filter(r => r.comprarYa).map(r => r.s), vender = res.filter(r => r.venderYa).map(r => r.s);
   const ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   $("accSub").textContent = `${n} acciones con datos al cierre del ${ult}. La señal se decide con ese cierre y se ejecuta en la apertura de la próxima rueda (las ruedas de EE.UU. cierran a las 17:00 hora argentina).`;
@@ -1093,15 +1120,15 @@ function pintarAcc() {
   $("accAviso").hidden = !viejo; if (viejo) $("accAviso").textContent = `Los datos son viejos (último cierre ${ult}). Revisá que la actualización diaria de GitHub esté funcionando.`;
   if (mercado) {
     const dif = mercado.precio / mercado.media - 1;
-    $("accFiltroTxt").innerHTML = `Mercado (${accDatos.filtro}): cerró en ${fmt(mercado.precio)}, ${pctT(Math.abs(dif)).replace("+", "")} ${dif >= 0 ? "arriba" : "debajo"} de su promedio de 200 días (${fmt(mercado.media)}). `
+    $("accFiltroTxt").innerHTML = `Mercado (${accDatos.filtro}): cerró en ${fmt(mercado.precio)}, ${pctT(Math.abs(dif)).replace("+", "")} ${dif >= 0 ? "arriba" : "debajo"} de su promedio de ${accN} días (${fmt(mercado.media)}). `
       + (mercado.arriba ? `<b class="pos">Todas las acciones tienen permiso para comprar.</b>` : accModo === "o" ? `Cada acción tiene permiso solo si está arriba de su propio promedio.` : `<b class="neg">Ninguna acción tiene permiso hasta que ${accDatos.filtro} vuelva a pasar ese promedio.</b>`);
   } else $("accFiltroTxt").textContent = "Sin filtro: cada acción sigue solo su propio cruce de medias.";
   const hoy = $("accHoy"); hoy.hidden = false; hoy.className = "veredicto " + (comprar.length || vender.length ? "pos" : "");
   hoy.innerHTML = comprar.length || vender.length
     ? `<p><b>Hoy:</b> ${comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : ""}${comprar.length && vender.length ? " y " : ""}${vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : ""}. Son las que cambiaron de estado en el último cierre.</p>`
-    : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${comp} de ${n} siguen comprados.</p>`;
+    : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${compr} de ${n} siguen comprados.</p>`;
   const est = res.reduce((a, r) => a + 1 + r.e, 0) / n - 1, man = res.reduce((a, r) => a + 1 + r.m, 0) / n - 1;
-  $("accStats").innerHTML = [[`${comp}/${n}`, "comprados"], [`${perm}/${n}`, "con permiso"], [pctT(est), "estrategia promedio desde ene 2024"], [pctT(man), "comprar y mantener promedio"]].map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("");
+  $("accStats").innerHTML = [[`${compr}/${n}`, "comprados"], [`${perm}/${n}`, "con permiso"], [pctT(est), "estrategia promedio desde ene 2024"], [pctT(man), "comprar y mantener promedio"]].map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("");
   $("accFiltros").innerHTML = ACC_FILTROS.map(([id, tx]) => `<button type="button" data-f="${id}" aria-pressed="${id === accFiltro}">${tx}<span class="fuente">${res.filter(r => accCumple(r, id)).length}</span></button>`).join("");
   pintarFilasAcc();
 }
@@ -1123,13 +1150,13 @@ function pintarFilasAcc() {
       <td class="num">${fmt(r.precio)}</td>${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
   }).join("") || `<tr><td class="iz" colspan="8">No hay acciones para mostrar con ese filtro.</td></tr>`;
   $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta.`;
-  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); if (r && cv) graficoTend(cv, r.t, 200); }
+  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); if (r && cv) graficoTend(cv, r.t, accN); }
 }
 function detalleAcc(r) {
   const mer = accMercado, cuando = "en el último cierre";
   let permTxt = "Sin filtro: no hace falta permiso.";
   if (mer) {
-    const m = [`${accDatos.filtro} cerró ${cuando} en ${fmt(mer.precio)}, ${mer.arriba ? "arriba" : "debajo"} de su promedio de 200 días (${fmt(mer.media)})`];
+    const m = [`${accDatos.filtro} cerró ${cuando} en ${fmt(mer.precio)}, ${mer.arriba ? "arriba" : "debajo"} de su promedio de ${accN} días (${fmt(mer.media)})`];
     if (accModo === "o") m.push(`${r.s} cerró en ${fmt(r.propio.precio)}, ${r.propio.arriba ? "arriba" : "debajo"} del suyo (${fmt(r.propio.media)})`);
     permTxt = m.join("; ") + ".";
   }
@@ -1140,7 +1167,7 @@ function detalleAcc(r) {
   const ab = r.t.abierta ? `<tr class="abierta"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}</td></tr>` : "";
   return `<tr class="det"><td colspan="8"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}"></canvas>
-      <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media rápida</span><span><i class="l"></i>Media lenta</span><span><i class="m"></i>Promedio de 200 días</span><span><i class="v"></i>Comprado</span></div></div>
+      <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media rápida</span><span><i class="l"></i>Media lenta</span><span><i class="m"></i>Promedio de ${accN} días</span><span><i class="v"></i>Comprado</span></div></div>
     <div>${paso("1 · Permiso del filtro", permTxt, r.permisoOk)}${paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>
       <div class="scroll"><table style="margin-top:10px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
   </div></td></tr>`;
@@ -1156,7 +1183,8 @@ async function cargarAcc() {
   }
   $("accSub").textContent = "Todavía no hay datos de acciones. Se generan con la actualización diaria de GitHub (Actions → «Tendencia acciones» → Run workflow). Si abriste el archivo desde tu computadora, abrilo desde la página publicada.";
 }
-$("accModo").value = accModo;
+$("accModo").value = accModo; $("accN").value = accN;
+$("accN").addEventListener("change", e => { accN = +e.target.value; guardar("acc_n", accN); pintarAcc(); });
 $("accModo").addEventListener("change", e => { accModo = e.target.value; guardar("acc_modo", accModo); pintarAcc(); });
 $("accBusca").addEventListener("input", e => { accBusca = e.target.value; pintarFilasAcc(); });
 $("accFiltros").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; accFiltro = b.dataset.f; guardar("acc_filtro", accFiltro); pintarAcc(); });
@@ -1168,7 +1196,7 @@ $("accTabla").querySelector("thead").addEventListener("click", e => {
 const accAlternar = tr => { if (!tr || !tr.dataset.s) return; accAbierta = accAbierta === tr.dataset.s ? null : tr.dataset.s; pintarFilasAcc(); };
 $("accCuerpo").addEventListener("click", e => accAlternar(e.target.closest("tr.fila")));
 $("accCuerpo").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); accAlternar(e.target.closest("tr.fila")); } });
-window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); if (cv && r) graficoTend(cv, r.t, 200); });
+window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); if (cv && r) graficoTend(cv, r.t, accN); });
 cargarAcc();
 setInterval(cargarAcc, 30 * 60000);
 </script>

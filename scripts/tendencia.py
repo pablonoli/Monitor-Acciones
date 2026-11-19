@@ -77,7 +77,9 @@ def bajar_uno(s):
 
 def main():
     cfg = json.load(open(RUTA_TICKERS))
-    filtro, acciones = cfg["filtro"], [a for a in cfg["acciones"] if a != cfg["filtro"]]
+    favoritas = json.load(open("data/favoritas.json"))
+    filtro = cfg["filtro"]
+    acciones = [a for a in dict.fromkeys(favoritas + cfg.get("extras", [])) if a != filtro]
     simbolos = [filtro] + acciones
     previo = {}
     if os.path.exists(RUTA_SALIDA):
