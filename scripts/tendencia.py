@@ -95,6 +95,15 @@ def main():
             x = bajar_uno(s)
             if x is not None:
                 datos[s] = x
+    # A veces la descarga en lote deja algunos símbolos un día atrasados: se vuelven a pedir de a uno.
+    if datos:
+        tope = max(pd.Timestamp(x.index[-1]) for x in datos.values())
+        atrasados = [s for s, x in datos.items() if pd.Timestamp(x.index[-1]) < tope]
+        for s in atrasados:
+            x = bajar_uno(s)
+            if x is not None and pd.Timestamp(x.index[-1]) > pd.Timestamp(datos[s].index[-1]):
+                datos[s] = x
+        print(f"{len(atrasados)} símbolos atrasados, {sum(1 for s in atrasados if pd.Timestamp(datos[s].index[-1]) >= tope)} corregidos")
     if filtro not in datos:
         sys.exit(f"No se pudo bajar {filtro}: no se guarda nada.")
     # Sin el pico de hoy: si el mercado todavía está abierto, la última vela no está completa.
