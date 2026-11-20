@@ -1096,7 +1096,7 @@ function mercadoN(bars, n) {
   return { ok, precio: c[u], media: m[u], arriba: c[u] > m[u] };
 }
 // Estrategia de rango para defensivas: compra en el 20% de abajo del rango de 6 meses (121 cierres) y vende al 60%, a los 40 días o con stop de 8% (tras un stop espera 10 ruedas para volver a comprar).
-const DEF_POR_DEFECTO = ["KO","PEP","PG","JNJ","MO","WMT","VZ","T","MCD","HSY","PFE","O","SNA","ABBV","UNH","COST","TGT","NKE","SBUX","CVX","XOM","LMT","ADP","MRK","ABT","TMO","LIN","NEE","PM","AMGN","GILD","BABA","BIDU","JD","PBR","ABEV","GGAL","YPF","PAM","VIST","NU","MELI"];
+const DEF_POR_DEFECTO = ["KO","PEP","PG","JNJ","MO","WMT","VZ","T","MCD","HSY","PFE","O","SNA","ABBV","UNH","COST","TGT","NKE","SBUX","CVX","XOM","LMT","ADP","MRK","ABT","TMO","LIN","NEE","PM","AMGN","GILD","BABA","BIDU","JD","PBR","ABEV","GGAL","YPF","PAM","VIST","NU","MELI","AMZN","MSFT","QCOM"];
 const defSet = () => new Set((accDatos && accDatos.def && accDatos.def.length) ? accDatos.def : DEF_POR_DEFECTO);
 function posRango(v, i) {
   if (i < 120) return NaN;
