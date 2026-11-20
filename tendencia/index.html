@@ -1060,7 +1060,7 @@ function eficiencia(bars) {
   for (let i = 1; i < c.length; i++) rec += Math.abs(c[i] - c[i - 1]);
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
-const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["afuera", "Afuera"]];
+const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["afuera", "Afuera"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
@@ -1174,12 +1174,12 @@ function comparacionAcc() {
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : r.venderYa ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && r.venderYa) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && r.venderYa) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
   const { res, mercado, spy } = calcularAcc(); accRes = res; accMercado = mercado;
-  const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>Las tres estrategias, sin filtro</b> (resultado promedio por acción desde enero 2024): ` + comp.ests.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b> (${f[2].toLocaleString('es-AR', { maximumFractionDigits: 1 })} operaciones por acción)`).join(' · ') + `. Con la estrategia elegida y distintos filtros (el filtro solo afecta a los cruces): `  + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ') + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y de mercado alcista: sirve para ver diferencias grandes, no para elegir lo que mejor le fue al pasado.</p>`; }
+  const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>Las estrategias, sin filtro</b> (resultado promedio por acción desde enero 2024): ` + comp.ests.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b> (${f[2].toLocaleString('es-AR', { maximumFractionDigits: 1 })} operaciones por acción)`).join(' · ') + `. Con la estrategia elegida y distintos filtros (el filtro solo afecta a los cruces): `  + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ') + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y de mercado alcista: sirve para ver diferencias grandes, no para elegir lo que mejor le fue al pasado.</p>`; }
   const n = res.length, compr = res.filter(r => r.comprado).length, perm = res.filter(r => r.permisoOk).length;
   const comprar = res.filter(r => r.comprarYa).map(r => r.s), vender = res.filter(r => r.venderYa).map(r => r.s);
   const ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
@@ -1212,7 +1212,7 @@ function pintarFilasAcc() {
   $("accCuerpo").innerHTML = filas.map(r => {
     const abierta = accAbierta === r.s;
     return `<tr class="fila${abierta ? " abierta" : ""}" data-s="${r.s}" tabindex="0" aria-expanded="${abierta}">
-      <td class="iz sim">${r.s}${r.rango ? ' <span class="sub" style="font-weight:400">rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? ` <span class="alerta" title="Esta acción ya tuvo ${r.stopsRec} stop(s) en los últimos 3 meses y sigue cerca del piso de su rango">⚠ ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} reciente${r.stopsRec > 1 ? "s" : ""}</span>` : ""}</td>
+      <td class="iz sim">${r.s}${r.rango ? ' <span class="pill AVISO" style="font-size:11px;padding:1px 6px">↔ rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? ` <span class="alerta" title="Esta acción ya tuvo ${r.stopsRec} stop(s) en los últimos 3 meses y sigue cerca del piso de su rango">⚠ ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} reciente${r.stopsRec > 1 ? "s" : ""}</span>` : ""}</td>
       <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
       ${r.rango ? `<td class="num">Rango ${Math.round(100 * r.pos)}%</td>` : `<td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>`}
       <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span></td><td class="num">${fmt(r.precio)}</td>${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
