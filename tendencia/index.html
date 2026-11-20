@@ -183,7 +183,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="controles">
-      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="mixta">Mixta: rango en defensivas y emergentes, cruce 50/200 en el resto</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option><option value="10_30">Cruce 10/30 simple (swing, semanas)</option></select></label>
+      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="mixta">Mixta: rango en defensivas y emergentes, cruce 50/200 en el resto</option><option value="auto">Automática: detecta si la acción está en rango (rango) o en tendencia (cruce 50/200)</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option><option value="10_30">Cruce 10/30 simple (swing, semanas)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
@@ -1066,7 +1066,7 @@ let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) 
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
 let accOrd = guardado("acc_ord", { k: "est", asc: true });
-const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200", sma: true }, "10_30": { rapida: 10, lenta: 30, nombre: "10/30", sma: true }, "mixta": { rapida: 50, lenta: 200, nombre: "mixta", sma: true } };
+const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200", sma: true }, "10_30": { rapida: 10, lenta: 30, nombre: "10/30", sma: true }, "mixta": { rapida: 50, lenta: 200, nombre: "mixta", sma: true }, "auto": { rapida: 50, lenta: 200, nombre: "automática", sma: true } };
 let accEst = ACC_EST[guardado("acc_est", "mixta")] ? guardado("acc_est", "mixta") : "mixta";
 let accN = [50, 100, 150, 200].includes(guardado("acc_n", 200)) ? guardado("acc_n", 200) : 200;
 if (!ACC_FILTROS.some(f => f[0] === accFiltro)) accFiltro = "todas";
@@ -1096,7 +1096,7 @@ function mercadoN(bars, n) {
   return { ok, precio: c[u], media: m[u], arriba: c[u] > m[u] };
 }
 // Estrategia de rango para defensivas: compra en el 20% de abajo del rango de 6 meses (121 cierres) y vende al 60%, a los 40 días o con stop de 8% (tras un stop espera 10 ruedas para volver a comprar).
-const DEF_POR_DEFECTO = ["KO","PEP","PG","JNJ","MO","WMT","VZ","T","MCD","HSY","PFE","O","SNA","ABBV","UNH","COST","TGT","NKE","SBUX","CVX","XOM","LMT","ADP","MRK","ABT","TMO","LIN","NEE","PM","AMGN","GILD","BABA","BIDU","JD","PBR","ABEV","GGAL","YPF","PAM","VIST","NU","MELI","AMZN","MSFT","QCOM"];
+const DEF_POR_DEFECTO = ["KO","PEP","PG","JNJ","MO","WMT","VZ","T","MCD","HSY","PFE","O","SNA","ABBV","UNH","COST","TGT","NKE","SBUX","CVX","XOM","LMT","ADP","MRK","ABT","TMO","LIN","NEE","PM","AMGN","GILD","BABA","BIDU","JD","PBR","ABEV","GGAL","YPF","PAM","VIST","NU","MELI"];
 const defSet = () => new Set((accDatos && accDatos.def && accDatos.def.length) ? accDatos.def : DEF_POR_DEFECTO);
 function posRango(v, i) {
   if (i < 120) return NaN;
@@ -1115,6 +1115,27 @@ function senalRango(v, inicio) {
   }
   return sen;
 }
+// ¿Está en rango? En las últimas 120 ruedas el precio cruzó al menos 6 veces su promedio y la tendencia de fondo (pendiente de la regresión) es chica frente al ancho del canal.
+function enRango(v, i) {
+  const N = 120; if (i < N) return false;
+  const y = [], m = []; let suma = 0;
+  for (let k = i - N; k <= i; k++) { y.push(Math.log(v[k].close)); suma += v[k].close; }
+  const media = suma / (N + 1);
+  let cr = 0, prev = 0;
+  for (let k = i - N; k <= i; k++) { const sg = Math.sign(v[k].close - media); if (k > i - N && sg !== prev) cr++; prev = sg; }
+  if (cr < 6) return false;
+  const n = N + 1, mx = N / 2; let my = 0; for (const q of y) my += q; my /= n;
+  let sxy = 0, sxx = 0; for (let k = 0; k < n; k++) { sxy += (k - mx) * (y[k] - my); sxx += (k - mx) * (k - mx); }
+  const b = sxy / sxx, a = my - b * mx; let ss = 0;
+  for (let k = 0; k < n; k++) { const r = y[k] - (a + b * k); ss += r * r; }
+  const sd = Math.sqrt(ss / n);
+  return Math.abs(b * N) / (sd * 4 + 1e-9) < 0.3;
+}
+// Automática: en los días en que la acción está en rango opera con la estrategia de rango; el resto del tiempo, con el cruce 50/200.
+function senalAuto(v, inicio) {
+  const r = senalRango(v, inicio), c = v.map(k => k.close), f = smaSerie(c, 50), sl = smaSerie(c, 200);
+  return c.map((_, i) => enRango(v, i) ? r[i] : (i >= 200 && f[i] > sl[i] ? 1 : 0));
+}
 function barrasAcc(s) { const d = accDatos; d.__b = d.__b || {}; return d.__b[s] || (d.__b[s] = decodificarAcc(d.t[s])); }
 function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
   const d = accDatos, spy = barrasAcc(d.filtro);
@@ -1125,13 +1146,13 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const bars = barrasAcc(s);
     if (bars.length < 260) continue;
     const propio = filtroPropio(bars, n);
-    const rango = estr === "mixta" && defSet().has(s);
-    const cfgS = rango ? { ...ACC_EST.mixta, senal: senalRango } : ACC_EST[estr === "mixta" ? "50_200" : estr];
-    const t = tendencia(bars, null, cfgS, rango ? null : permiso(modoF === "spy" ? "btc" : modoF, mercado, propio), INICIO_T);
+    const auto = estr === "auto", rango = auto ? enRango(bars, bars.length - 1) : (estr === "mixta" && defSet().has(s));
+    const cfgS = auto ? { ...ACC_EST.auto, senal: senalAuto } : rango ? { ...ACC_EST.mixta, senal: senalRango } : ACC_EST[estr === "mixta" ? "50_200" : estr];
+    const t = tendencia(bars, null, cfgS, (rango || auto) ? null : permiso(modoF === "spy" ? "btc" : modoF, mercado, propio), INICIO_T);
     const pos = posRango(bars, bars.length - 1);
     const r = desdeInicio(t);
     const comprado = t.estado === 1, comprarYa = comprado && !t.abierta, venderYa = !comprado && !!t.abierta;
-    const permisoOk = (rango || modoF === "ninguno") ? true : (mercado.arriba || (modoF === "o" && propio.arriba));
+    const permisoOk = (rango || auto || modoF === "ninguno") ? true : (mercado.arriba || (modoF === "o" && propio.arriba));
     const gap = Math.abs(t.brecha), mediasOk = t.cruceArriba;
     const cerca = !comprado && !venderYa && (rango ? pos < 0.3 : (permisoOk && !mediasOk && gap <= 0.02));
     const est = comprarYa ? 0 : venderYa ? 1 : cerca ? 2 : comprado ? 3 : 4;
@@ -1147,7 +1168,7 @@ function comparacionAcc() {
   const filas = [50, 100, 150, 200].map(n => { const { res } = calcularAcc(accModo === "ninguno" ? "o" : accModo, n); return [n + " días", prom(res, "e"), res.reduce((a, r) => a + r.n, 0) / res.length]; });
   const sin = calcularAcc("ninguno", 200).res;
   filas.push(["Sin filtro", prom(sin, "e"), sin.reduce((a, r) => a + r.n, 0) / sin.length]);
-  const ests = Object.keys(ACC_EST).map(k => { const r = calcularAcc("ninguno", 200, k).res; return [k === "mixta" ? "mixta (rango en defensivas y emergentes + cruce 50/200)" : "cruce " + ACC_EST[k].nombre, prom(r, "e"), r.reduce((a, x) => a + x.n, 0) / r.length]; });
+  const ests = Object.keys(ACC_EST).map(k => { const r = calcularAcc("ninguno", 200, k).res; return [k === "mixta" ? "mixta (rango en defensivas y emergentes + cruce 50/200)" : k === "auto" ? "automática (detecta rango + cruce 50/200)" : "cruce " + ACC_EST[k].nombre, prom(r, "e"), r.reduce((a, x) => a + x.n, 0) / r.length]; });
   return { filas, man: prom(sin, "m"), ests };
 }
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
