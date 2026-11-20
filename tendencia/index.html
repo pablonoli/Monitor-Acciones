@@ -1116,20 +1116,22 @@ function senalRango(v, inicio) {
   return sen;
 }
 // ¿Está en rango? En las últimas 120 ruedas el precio cruzó al menos 6 veces su promedio y la tendencia de fondo (pendiente de la regresión) es chica frente al ancho del canal.
-function enRango(v, i) {
-  const N = 120; if (i < N) return false;
+function enRango(v, i) { return enRangoInfo(v, i).ok; }
+function enRangoInfo(v, i) {
+  const N = 120; if (i < N) return { ok: false, cr: 0, pend: NaN };
   const y = [], m = []; let suma = 0;
   for (let k = i - N; k <= i; k++) { y.push(Math.log(v[k].close)); suma += v[k].close; }
   const media = suma / (N + 1);
   let cr = 0, prev = 0;
   for (let k = i - N; k <= i; k++) { const sg = Math.sign(v[k].close - media); if (k > i - N && sg !== prev) cr++; prev = sg; }
-  if (cr < 6) return false;
+  if (cr < 6) return { ok: false, cr, pend: NaN };
   const n = N + 1, mx = N / 2; let my = 0; for (const q of y) my += q; my /= n;
   let sxy = 0, sxx = 0; for (let k = 0; k < n; k++) { sxy += (k - mx) * (y[k] - my); sxx += (k - mx) * (k - mx); }
   const b = sxy / sxx, a = my - b * mx; let ss = 0;
   for (let k = 0; k < n; k++) { const r = y[k] - (a + b * k); ss += r * r; }
   const sd = Math.sqrt(ss / n);
-  return Math.abs(b * N) / (sd * 4 + 1e-9) < 0.3;
+  const pend = Math.abs(b * N) / (sd * 4 + 1e-9);
+  return { ok: pend < 0.3, cr, pend };
 }
 // Automática: en los días en que la acción está en rango opera con la estrategia de rango; el resto del tiempo, con el cruce 50/200.
 function senalAuto(v, inicio) {
@@ -1157,7 +1159,7 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const cerca = !comprado && !venderYa && (rango ? pos < 0.3 : (permisoOk && !mediasOk && gap <= 0.02));
     const est = comprarYa ? 0 : venderYa ? 1 : cerca ? 2 : comprado ? 3 : 4;
     const stopsRec = rango ? t.ops.filter(o => o.r <= -0.075 && o.salida >= bars[bars.length - 1].cierre - 90 * 86400000).length : 0;
-    res.push({ s, t, propio, rango, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
+    res.push({ s, t, propio, rango, det: auto ? enRangoInfo(bars, bars.length - 1) : null, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
       ...eficiencia(bars), precio: bars[bars.length - 1].close, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
@@ -1236,7 +1238,7 @@ function detalleAcc(r) {
   return `<tr class="det"><td colspan="9"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}"></canvas>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media rápida</span><span><i class="l"></i>Media lenta</span><span><i class="m"></i>Promedio de ${accN} días</span><span><i class="v"></i>Comprado</span></div></div>
-    <div>${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60%, a los 40 días o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
+    <div>${r.det ? paso("Detección: ¿está en rango?", r.det.cr < 6 ? `En las últimas 120 ruedas el precio cruzó su promedio solo ${r.det.cr} veces (necesita al menos 6 para considerarse que va y viene): <b>no está en rango</b>, se opera por tendencia (cruce 50/200).` : `En las últimas 120 ruedas el precio cruzó su promedio ${r.det.cr} veces (mínimo 6, cumple). Su tendencia de fondo es ${r.det.pend.toLocaleString("es-AR", { maximumFractionDigits: 2 })} veces el ancho de su canal (máximo 0,3): ${r.det.ok ? "<b>está en rango</b>, se opera comprando abajo y vendiendo arriba." : "<b>no está en rango</b>, sube o baja demasiado para su canal; se opera por tendencia (cruce 50/200)."}`, r.det.ok) : ""}${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60%, a los 40 días o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
       <div class="scroll"><table style="margin-top:10px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
   </div></td></tr>`;
 }
