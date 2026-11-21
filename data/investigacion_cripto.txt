@@ -1,0 +1,52 @@
+
+== 2021 a hoy (10 activos)
+  Comprar y mantener                   rinde    756.2%  vs azar    +0.0  caída prom  -86.3%  ops   0.0  en el mercado 100%
+  EMA 10/30 sin filtro                 rinde   2308.8%  vs azar +2184.7  caída prom  -72.8%  ops  32.8  en el mercado  47%
+  EMA 10/30 con filtro BTC o propio    rinde   3336.3%  vs azar +3246.1  caída prom  -66.7%  ops  27.7  en el mercado  39%
+  EMA 20/50 sin filtro                 rinde   1507.2%  vs azar +1384.7  caída prom  -77.3%  ops  19.0  en el mercado  48%
+  EMA 20/50 con filtro BTC o propio    rinde   2139.0%  vs azar +2035.8  caída prom  -70.7%  ops  17.4  en el mercado  43%
+  EMA 20/100 sin filtro                rinde   1404.8%  vs azar +1275.4  caída prom  -74.9%  ops  12.8  en el mercado  48%
+  EMA 20/100 con filtro BTC o propio   rinde   1275.9%  vs azar +1153.2  caída prom  -76.3%  ops  15.1  en el mercado  47%
+  EMA 50/100 sin filtro                rinde    817.9%  vs azar  +680.8  caída prom  -77.0%  ops   9.2  en el mercado  49%
+  EMA 50/100 con filtro BTC o propio   rinde    628.4%  vs azar  +501.5  caída prom  -81.4%  ops  15.8  en el mercado  47%
+  EMA 50/200 sin filtro                rinde   1138.3%  vs azar  +999.7  caída prom  -75.3%  ops   6.0  en el mercado  50%
+  EMA 50/200 con filtro BTC o propio   rinde    982.6%  vs azar  +866.7  caída prom  -77.8%  ops  17.0  en el mercado  46%
+
+== 2022 (bajista) (12 activos)
+  Comprar y mantener                   rinde    -70.9%  vs azar    +0.0  caída prom  -77.0%  ops   0.0  en el mercado 100%
+  EMA 10/30 sin filtro                 rinde    -45.2%  vs azar   -17.6  caída prom  -53.2%  ops   5.6  en el mercado  26%
+  EMA 10/30 con filtro BTC o propio    rinde    -16.5%  vs azar   -11.4  caída prom  -21.1%  ops   2.0  en el mercado   5%
+  EMA 20/50 sin filtro                 rinde    -39.6%  vs azar   -20.9  caída prom  -48.3%  ops   3.5  en el mercado  18%
+  EMA 20/50 con filtro BTC o propio    rinde    -14.0%  vs azar    -9.4  caída prom  -18.8%  ops   1.6  en el mercado   5%
+  EMA 20/100 sin filtro                rinde    -22.0%  vs azar   -14.3  caída prom  -28.1%  ops   1.5  en el mercado   8%
+  EMA 20/100 con filtro BTC o propio   rinde    -18.1%  vs azar   -12.7  caída prom  -20.9%  ops   1.8  en el mercado   5%
+  EMA 50/100 sin filtro                rinde    -17.8%  vs azar   -10.3  caída prom  -22.0%  ops   1.0  en el mercado   7%
+  EMA 50/100 con filtro BTC o propio   rinde    -18.9%  vs azar   -12.7  caída prom  -21.8%  ops   1.6  en el mercado   5%
+  EMA 50/200 sin filtro                rinde    -16.3%  vs azar    -7.8  caída prom  -19.7%  ops   0.7  en el mercado   6%
+  EMA 50/200 con filtro BTC o propio   rinde    -13.0%  vs azar    -7.9  caída prom  -14.0%  ops   1.3  en el mercado   3%
+
+== 2023 a hoy (12 activos)
+  Comprar y mantener                   rinde    146.4%  vs azar    +0.0  caída prom  -75.2%  ops   0.0  en el mercado 100%
+  EMA 10/30 sin filtro                 rinde    145.3%  vs azar   +97.8  caída prom  -57.9%  ops  22.1  en el mercado  48%
+  EMA 10/30 con filtro BTC o propio    rinde    174.2%  vs azar  +134.6  caída prom  -51.3%  ops  19.3  en el mercado  42%
+  EMA 20/50 sin filtro                 rinde    102.7%  vs azar   +49.6  caída prom  -55.6%  ops  12.1  en el mercado  49%
+  EMA 20/50 con filtro BTC o propio    rinde    128.6%  vs azar   +79.9  caída prom  -52.4%  ops  11.6  en el mercado  46%
+  EMA 20/100 sin filtro                rinde     66.3%  vs azar    +7.9  caída prom  -59.4%  ops   8.8  en el mercado  51%
+  EMA 20/100 con filtro BTC o propio   rinde     71.6%  vs azar   +15.5  caída prom  -58.4%  ops   9.3  en el mercado  50%
+  EMA 50/100 sin filtro                rinde     61.7%  vs azar    +1.2  caída prom  -62.8%  ops   6.2  en el mercado  51%
+  EMA 50/100 con filtro BTC o propio   rinde     56.8%  vs azar    -0.9  caída prom  -63.1%  ops   9.2  en el mercado  50%
+  EMA 50/200 sin filtro                rinde     81.7%  vs azar   +20.6  caída prom  -64.6%  ops   4.2  en el mercado  50%
+  EMA 50/200 con filtro BTC o propio   rinde     54.2%  vs azar    +1.2  caída prom  -63.5%  ops  10.9  en el mercado  46%
+
+== 2024 a hoy (el del panel) (12 activos)
+  Comprar y mantener                   rinde    -15.8%  vs azar    +0.0  caída prom  -75.2%  ops   0.0  en el mercado 100%
+  EMA 10/30 sin filtro                 rinde     34.8%  vs azar   +44.0  caída prom  -57.7%  ops  17.2  en el mercado  45%
+  EMA 10/30 con filtro BTC o propio    rinde     61.1%  vs azar   +69.0  caída prom  -50.6%  ops  14.6  en el mercado  37%
+  EMA 20/50 sin filtro                 rinde     36.7%  vs azar   +46.2  caída prom  -53.6%  ops   9.3  en el mercado  46%
+  EMA 20/50 con filtro BTC o propio    rinde     52.6%  vs azar   +61.6  caída prom  -50.2%  ops   8.7  en el mercado  42%
+  EMA 20/100 sin filtro                rinde     13.9%  vs azar   +22.5  caída prom  -57.0%  ops   6.3  en el mercado  47%
+  EMA 20/100 con filtro BTC o propio   rinde     17.3%  vs azar   +26.1  caída prom  -55.7%  ops   6.7  en el mercado  46%
+  EMA 50/100 sin filtro                rinde      2.3%  vs azar   +10.3  caída prom  -61.5%  ops   4.6  en el mercado  48%
+  EMA 50/100 con filtro BTC o propio   rinde     -1.8%  vs azar    +6.3  caída prom  -61.9%  ops   7.3  en el mercado  47%
+  EMA 50/200 sin filtro                rinde     17.0%  vs azar   +24.1  caída prom  -62.5%  ops   3.5  en el mercado  52%
+  EMA 50/200 con filtro BTC o propio   rinde      0.9%  vs azar    +8.5  caída prom  -61.5%  ops   9.5  en el mercado  47%
