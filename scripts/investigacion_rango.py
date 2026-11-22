@@ -8,7 +8,7 @@ from investigacion import cargar, backtest, sma, E, dia, PERIODOS
 
 # (ventana de detección en ruedas, mínimo de cruces del promedio)
 # (ventana, mínimo de cruces, condición extra): "ret" = en 120 ruedas se movió menos de 15%; "media" = el precio está a menos de 10% de su promedio de la ventana
-DETECTORES = [(120, 6, None), (180, 6, None), (180, 6, "ret"), (180, 6, "media"), (180, 6, "ambas"), (120, 6, "ambas"), (250, 6, "ambas")]
+DETECTORES = [(180, 6, "ambas"), (250, 6, "neto"), (360, 8, "neto"), (500, 8, "neto"), (500, 8, None)]   # "neto": en toda la ventana el precio terminó a menos de 25% de donde empezó
 PISOS = [120]          # largo de la ventana para ubicar piso y techo
 
 def pos_rango(C, N):
@@ -26,6 +26,7 @@ def en_rango(C, N, K, cond=None):
         ok = abs(co[0] * N) / (res.std() * 4 + 1e-9) < 0.3
         if ok and cond in ("ret", "ambas") and i >= 120: ok = abs(C[i] / C[i - 120] - 1) < 0.15
         if ok and cond in ("media", "ambas"): ok = abs(C[i] / w.mean() - 1) < 0.10
+        if ok and cond == "neto": ok = abs(C[i] / C[i - N] - 1) < 0.25
         fl[i] = ok
     return fl
 
