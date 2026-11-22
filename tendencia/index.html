@@ -867,7 +867,7 @@ function smaSerie(c, n) {
   for (let i = 0; i < c.length; i++) { suma += c[i]; if (i >= n) suma -= c[i - n]; if (i >= n - 1) m[i] = suma / n; }
   return m;
 }
-function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200) {
+function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false) {
   const { g, w, h } = lienzo(cv);
   const N = Math.min(120, t.f.length), corte = xs => xs.slice(-N);
   const closes = t.w.slice(0, t.f.length).map(k => k.close);
@@ -884,6 +884,11 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200) {
     xs.forEach((v, i) => { if (!isFinite(v)) { abierto = false; return; } abierto ? g.lineTo(X(i), Y(v)) : g.moveTo(X(i), Y(v)); abierto = true; });
     g.setLineDash(dash || []); g.strokeStyle = color; g.lineWidth = ancho; g.lineJoin = "round"; g.stroke(); g.setLineDash([]);
   };
+  if (banda) {   // piso y techo de los últimos 6 meses, con los niveles de compra (20%) y venta (60%) de la estrategia de rango
+    const pi = Math.min(...cl), te = Math.max(...cl), nivel = (v, tx, dash, ancho) => { g.beginPath(); g.moveTo(0, Y(v)); g.lineTo(w, Y(v)); g.setLineDash(dash); g.strokeStyle = col("--muted"); g.lineWidth = ancho; g.stroke(); g.setLineDash([]); g.fillStyle = col("--muted"); g.font = "11px " + (getComputedStyle(document.body).fontFamily || "sans-serif"); g.textAlign = "right"; g.fillText(tx, w - 3, Y(v) + (v === te ? 12 : -3)); g.textAlign = "left"; };
+    nivel(te, "techo 6m " + fmt(te), [6, 3], 1); nivel(pi, "piso 6m " + fmt(pi), [6, 3], 1);
+    nivel(pi + 0.2 * (te - pi), "compra (20%)", [2, 3], 1); nivel(pi + 0.6 * (te - pi), "venta (60%)", [2, 3], 1);
+  }
   linea(sm, col("--muted"), 1.6, [5, 4]); linea(sl, col("--blue"), 1.8); linea(f, col("--accent"), 1.8); linea(cl, col("--text"), 2.2);
   g.beginPath(); g.arc(X(N - 1), Y(cl[N - 1]), 4, 0, 7); g.fillStyle = col("--text"); g.fill();
   // Eje de fechas: primera y última vela con fecha completa, y el comienzo de cada mes (o cada tantos días si el tramo es corto).
@@ -1222,7 +1227,7 @@ function pintarFilasAcc() {
       <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span></td><td class="num">${fmt(r.precio)}</td>${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
   }).join("") || `<tr><td class="iz" colspan="9">No hay acciones para mostrar con ese filtro.</td></tr>`;
   $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes.`;
-  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); if (r && cv) graficoTend(cv, r.t, accN); }
+  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); if (r && cv) graficoTend(cv, r.t, accN, true); }
 }
 function detalleAcc(r) {
   const mer = accMercado, cuando = "en el último cierre";
@@ -1269,7 +1274,7 @@ $("accTabla").querySelector("thead").addEventListener("click", e => {
 const accAlternar = tr => { if (!tr || !tr.dataset.s) return; accAbierta = accAbierta === tr.dataset.s ? null : tr.dataset.s; pintarFilasAcc(); };
 $("accCuerpo").addEventListener("click", e => accAlternar(e.target.closest("tr.fila")));
 $("accCuerpo").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); accAlternar(e.target.closest("tr.fila")); } });
-window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); if (cv && r) graficoTend(cv, r.t, accN); });
+window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); if (cv && r) graficoTend(cv, r.t, accN, true); });
 cargarAcc();
 setInterval(cargarAcc, 30 * 60000);
 </script>
