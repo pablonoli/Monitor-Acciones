@@ -7,8 +7,9 @@ import numpy as np
 from investigacion import cargar, backtest, sma, E, dia, PERIODOS
 
 # (ventana de detección en ruedas, mínimo de cruces del promedio)
-DETECTORES = [(60, 3), (120, 6), (180, 6), (250, 6), (250, 12)]
-PISOS = [120, 250]          # largo de la ventana para ubicar piso y techo
+# (ventana, mínimo de cruces, condición extra): "ret" = en 120 ruedas se movió menos de 15%; "media" = el precio está a menos de 10% de su promedio de la ventana
+DETECTORES = [(120, 6, None), (180, 6, None), (180, 6, "ret"), (180, 6, "media"), (180, 6, "ambas"), (120, 6, "ambas"), (250, 6, "ambas")]
+PISOS = [120]          # largo de la ventana para ubicar piso y techo
 
 def pos_rango(C, N):
     n = len(C); p = np.full(n, np.nan)
@@ -16,13 +17,16 @@ def pos_rango(C, N):
         w = C[i - N:i + 1]; p[i] = (C[i] - w.min()) / (w.max() - w.min() + 1e-9)
     return p
 
-def en_rango(C, N, K):
+def en_rango(C, N, K, cond=None):
     n = len(C); fl = np.zeros(n, bool); x = np.arange(N + 1)
     for i in range(N, n):
         w = C[i - N:i + 1]; s = np.sign(w - w.mean())
         if (s[1:] != s[:-1]).sum() < K: continue
         co = np.polyfit(x, np.log(w), 1); res = np.log(w) - np.polyval(co, x)
-        fl[i] = abs(co[0] * N) / (res.std() * 4 + 1e-9) < 0.3
+        ok = abs(co[0] * N) / (res.std() * 4 + 1e-9) < 0.3
+        if ok and cond in ("ret", "ambas") and i >= 120: ok = abs(C[i] / C[i - 120] - 1) < 0.15
+        if ok and cond in ("media", "ambas"): ok = abs(C[i] / w.mean() - 1) < 0.10
+        fl[i] = ok
     return fl
 
 def maq(d, O, C, p, ini):
@@ -59,7 +63,7 @@ def correr(data, periodos=PERIODOS):
                 for N in PISOS:
                     r = maq(d, O, C, v["pos"][N][:k], ini) > 0
                     x = bt(np.where(fl, r, v["cr"][:k])); x["enrango"] = float(fl[i0:].mean())
-                    res[f"Auto: detecta con {nk[0]} ruedas (≥{nk[1]} cruces), piso/techo {N}"] = x
+                    res[f"Auto: {nk[0]} ruedas, ≥{nk[1]} cruces, extra={nk[2] or 'ninguna'}"] = x
             res["Comprar y mantener"] = dict(ret=res["Cruce 50/200"]["hold"], hold=res["Cruce 50/200"]["hold"], expo=1.0, trades=[], dd=0.0)
             for nom, x in res.items(): acum.setdefault(nom, []).append(x)
         n_ok = len(acum.get("Cruce 50/200", []))
