@@ -867,9 +867,17 @@ function smaSerie(c, n) {
   for (let i = 0; i < c.length; i++) { suma += c[i]; if (i >= n) suma -= c[i - n]; if (i >= n - 1) m[i] = suma / n; }
   return m;
 }
-function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false) {
+function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, nBarras = 120, hover = null) {
+  cv.__p = [t, n200, banda, nBarras];
+  if (!cv.__hov) {   // al pasar el mouse (o tocar y arrastrar) por el gráfico se marca la fecha y el precio de ese día
+    cv.__hov = true; cv.style.touchAction = "pan-y";
+    const mover = e => { const r = cv.getBoundingClientRect(), nn = cv.__n || 1; graficoTend(cv, ...cv.__p, Math.max(0, Math.min(nn - 1, Math.round((e.clientX - r.left - 6) / (r.width - 12) * (nn - 1))))); };
+    cv.addEventListener("pointermove", mover); cv.addEventListener("pointerdown", mover);
+    cv.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") graficoTend(cv, ...cv.__p); });
+  }
   const { g, w, h } = lienzo(cv);
-  const N = Math.min(120, t.f.length), corte = xs => xs.slice(-N);
+  const N = Math.min(nBarras, t.f.length); cv.__n = N;
+  const corte = xs => xs.slice(-N);
   const closes = t.w.slice(0, t.f.length).map(k => k.close);
   const cl = corte(closes), f = corte(t.f), sl = corte(t.sl), sen = corte(t.sen), sm = corte(smaSerie(closes, n200));
   const todos = [...cl, ...f, ...sl, ...sm.filter(isFinite)], lo = Math.min(...todos), hi = Math.max(...todos);
@@ -885,7 +893,7 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false) 
     g.setLineDash(dash || []); g.strokeStyle = color; g.lineWidth = ancho; g.lineJoin = "round"; g.stroke(); g.setLineDash([]);
   };
   if (banda) {   // piso y techo de los últimos 6 meses, con los niveles de compra (20%) y venta (60%) de la estrategia de rango
-    const pi = Math.min(...cl), te = Math.max(...cl), nivel = (v, tx, dash, ancho) => { g.beginPath(); g.moveTo(0, Y(v)); g.lineTo(w, Y(v)); g.setLineDash(dash); g.strokeStyle = col("--muted"); g.lineWidth = ancho; g.stroke(); g.setLineDash([]); g.fillStyle = col("--muted"); g.font = "11px " + (getComputedStyle(document.body).fontFamily || "sans-serif"); g.textAlign = "right"; g.fillText(tx, w - 3, Y(v) + (v === te ? 12 : -3)); g.textAlign = "left"; };
+    const c6 = cl.slice(-121), x6 = X(N - c6.length), pi = Math.min(...c6), te = Math.max(...c6), nivel = (v, tx, dash, ancho) => { g.beginPath(); g.moveTo(x6, Y(v)); g.lineTo(w, Y(v)); g.setLineDash(dash); g.strokeStyle = col("--muted"); g.lineWidth = ancho; g.stroke(); g.setLineDash([]); g.fillStyle = col("--muted"); g.font = "11px " + (getComputedStyle(document.body).fontFamily || "sans-serif"); g.textAlign = "right"; g.fillText(tx, w - 3, Y(v) + (v === te ? 12 : -3)); g.textAlign = "left"; };
     nivel(te, "techo 6m " + fmt(te), [6, 3], 1); nivel(pi, "piso 6m " + fmt(pi), [6, 3], 1);
     nivel(pi + 0.2 * (te - pi), "compra (20%)", [2, 3], 1); nivel(pi + 0.6 * (te - pi), "venta (60%)", [2, 3], 1);
   }
@@ -896,10 +904,20 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false) 
   const dmy = ms => { const d = new Date(ms); return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCFullYear()).slice(2)}`; };
   g.font = "11px " + (getComputedStyle(document.body).fontFamily || "sans-serif"); g.fillStyle = col("--muted"); g.strokeStyle = col("--muted"); g.lineWidth = 1;
   const marcas = [];
-  if (ts[N - 1] - ts[0] > 60 * 86400000) { for (let i = 1; i < N; i++) { const a = new Date(ts[i - 1]), b = new Date(ts[i]); if (a.getUTCMonth() !== b.getUTCMonth()) marcas.push([i, MES[b.getUTCMonth()] + (b.getUTCMonth() === 0 ? " " + String(b.getUTCFullYear()).slice(2) : "")]); } }
+  if (ts[N - 1] - ts[0] > 60 * 86400000) { for (let i = 1; i < N; i++) { const a = new Date(ts[i - 1]), b = new Date(ts[i]); if (a.getUTCMonth() !== b.getUTCMonth() && (ts[N - 1] - ts[0] < 400 * 86400000 || b.getUTCMonth() % 3 === 0)) marcas.push([i, MES[b.getUTCMonth()] + (b.getUTCMonth() === 0 ? " " + String(b.getUTCFullYear()).slice(2) : "")]); } }
   else { const paso = Math.max(1, Math.round(N / 5)); for (let i = paso; i < N; i += paso) marcas.push([i, dmy(ts[i]).slice(0, 5)]); }
   marcas.forEach(([i, tx]) => { const x = X(i), ancho = g.measureText(tx).width; if (x < 70 || x > w - 70) return; g.beginPath(); g.moveTo(x, hp); g.lineTo(x, hp + 4); g.stroke(); g.textAlign = "center"; g.fillText(tx, x, h - 2); });
   g.textAlign = "left"; g.fillText(dmy(ts[0]), 2, h - 2); g.textAlign = "right"; g.fillText(dmy(ts[N - 1]), w - 2, h - 2); g.textAlign = "left";
+  if (hover !== null && hover >= 0 && hover < N) {   // línea vertical + cartel con la fecha y el precio de ese día
+    const x = X(hover), y = Y(cl[hover]);
+    g.strokeStyle = col("--muted"); g.lineWidth = 1; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, hp); g.stroke(); g.setLineDash([]);
+    g.beginPath(); g.arc(x, y, 4, 0, 7); g.fillStyle = col("--accent"); g.fill();
+    const tx = dmy(ts[hover]) + "  ·  " + fmt(cl[hover]);
+    g.font = "bold 12px " + (getComputedStyle(document.body).fontFamily || "sans-serif");
+    const bw = g.measureText(tx).width + 14, bx = Math.max(2, Math.min(w - bw - 2, x - bw / 2)), by = y > 40 ? y - 30 : y + 12;
+    g.fillStyle = col("--text"); g.beginPath(); g.roundRect ? g.roundRect(bx, by, bw, 22, 5) : g.rect(bx, by, bw, 22); g.fill();
+    g.fillStyle = col("--bg") || "#fff"; g.textAlign = "left"; g.fillText(tx, bx + 7, by + 15);
+  }
 }
 // Titular de arriba: qué hay que hacer hoy, según el estado de todos los activos mostrados.
 function pintarHero(res) {
@@ -1225,7 +1243,7 @@ function pintarFilasAcc() {
       <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span></td><td class="num">${fmt(r.precio)}</td>${r.t.abierta ? `<td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}<br><span class="sub">desde ${fmt(r.t.abierta.precio)}</span></td>` : `<td class="num sub">—</td>`}${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
   }).join("") || `<tr><td class="iz" colspan="10">No hay acciones para mostrar con ese filtro.</td></tr>`;
   $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes.`;
-  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); if (r && cv) graficoTend(cv, r.t, accN, true); }
+  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); if (r && cv) graficoTend(cv, r.t, accN, true, 500); }
 }
 function detalleAcc(r) {
   const mer = accMercado, cuando = "en el último cierre";
@@ -1276,7 +1294,7 @@ $("accTabla").querySelector("thead").addEventListener("click", e => {
 const accAlternar = tr => { if (!tr || !tr.dataset.s) return; accAbierta = accAbierta === tr.dataset.s ? null : tr.dataset.s; pintarFilasAcc(); };
 $("accCuerpo").addEventListener("click", e => accAlternar(e.target.closest("tr.fila")));
 $("accCuerpo").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); accAlternar(e.target.closest("tr.fila")); } });
-window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); if (cv && r) graficoTend(cv, r.t, accN, true); });
+window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); if (cv && r) graficoTend(cv, r.t, accN, true, 500); });
 cargarAcc();
 setInterval(cargarAcc, 30 * 60000);
 </script>
