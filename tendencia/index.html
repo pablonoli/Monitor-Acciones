@@ -887,9 +887,8 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, 
     ops.sort((x, y) => x.a - y.a);
   }
   const senal = banda ? (t.estado === 1 && !t.abierta ? "COMPRAR" : t.estado !== 1 && t.abierta ? "VENDER" : null) : null;
-  const ZN = Math.min(90, N), z0 = N - ZN, conZoom = banda && (!!senal || ops.some(o => o.b >= z0));
-  // Alturas: gráfico, franja de operaciones con fechas, zoom de los últimos 90 días (si hubo movimiento) y medidor de rango de 6 meses (si opera por rango).
-  const HC = 190, y0 = HC + 14, alto = 18, yFecha = y0 + alto + 14, zTop = yFecha + 14, gTop = zTop + (conZoom ? 80 : 0) + 6;
+    // Alturas: gráfico, franja de operaciones con fechas, renglón con la señal de hoy (si hay) y medidor de rango de 6 meses (si opera por rango).
+  const HC = 190, y0 = HC + 14, alto = 18, yFecha = y0 + alto + 14, zTop = yFecha + 14, gTop = zTop + (senal ? 26 : 0) + 6;
   if (banda) cv.style.height = (gTop + (rango ? 78 : 0)) + "px";
   const { g, w, h } = lienzo(cv);
   const corte = xs => xs.slice(-N);
@@ -950,25 +949,15 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, 
   else { const paso = Math.max(1, Math.round(N / 5)); for (let i = paso; i < N; i += paso) marcas.push([i, dmy(ts[i]).slice(0, 5)]); }
   marcas.forEach(([i, tx]) => { const x = X(i); if (x < 70 || x > w - 70) return; g.beginPath(); g.moveTo(x, yT); g.lineTo(x, yT + 4); g.stroke(); g.textAlign = "center"; g.fillText(tx, x, yF); });
   g.textAlign = "left"; g.fillText(dmy(ts[0]), 2, yF); g.textAlign = "right"; g.fillText(dmy(ts[N - 1]), w - 2, yF); g.textAlign = "left";
-  if (conZoom) {   // zoom de los últimos 90 días: cada operación por separado, con su fecha y su resultado
-    const X2 = i => 6 + (i - z0) * (w - 12) / (ZN - 1), yb = zTop + 62, ab = 14;
-    g.font = "11px " + fam; g.fillStyle = col("--muted"); g.fillText("Zoom: últimos " + ZN + " días", 2, zTop + 10);
-    if (senal) { g.font = "bold 11px " + fam; g.fillStyle = col(senal === "COMPRAR" ? "--long" : "--short"); g.textAlign = "right"; g.fillText(senal + " hoy", w - 2, zTop + 10); g.textAlign = "left"; }
-    g.fillStyle = col("--line"); g.globalAlpha = 0.45; g.fillRect(0, yb, w, ab); g.globalAlpha = 1;
-    const ult = [-99, -99, -99];
-    ops.filter(o => o.b >= z0).forEach(o => {
-      const a2 = Math.max(o.a, z0), x0 = X2(a2), x1 = Math.max(X2(o.b), x0 + 3), c = col(o.r >= 0 ? "--long" : "--short");
-      rect(x0, yb, x1 - x0, ab, c, o.s === null ? 0.6 : 1, false);
-      const tx = dm(o.e) + "→" + (o.s === null ? "hoy" : dm(o.s)) + "  " + pctS(o.r); g.font = "bold 10px " + fam; const tw = g.measureText(tx).width, cx = (x0 + x1) / 2, lx = Math.max(2, Math.min(w - tw - 2, cx - tw / 2));
-      const nv = ult.findIndex(u => lx - u >= 8); if (nv < 0) return; ult[nv] = lx + tw;
-      const ly = yb - 8 - nv * 15; g.beginPath(); g.moveTo(cx, yb); g.lineTo(cx, ly + 2); g.strokeStyle = c; g.lineWidth = 1; g.stroke(); g.fillStyle = c; g.textAlign = "left"; g.fillText(tx, lx, ly);
-    });
+  if (senal) {   // señal de hoy, en una línea propia para que no tape ninguna barra
+    const c = col(senal === "COMPRAR" ? "--long" : "--short"), tx = senal + " en la próxima apertura";
+    g.font = "bold 12px " + fam; g.fillStyle = c; g.beginPath(); g.arc(8, zTop + 6, 5, 0, 7); g.fill(); g.textAlign = "left"; g.fillText("Hoy: " + tx, 20, zTop + 10.5);
   }
   if (rango) {   // medidor del rango de 6 meses: dónde está el precio hoy entre el piso y el techo, con las zonas de compra y venta
     const c6 = cl.slice(-121), pi = Math.min(...c6), te = Math.max(...c6), compra = pi + 0.2 * (te - pi), venta = pi + 0.6 * (te - pi), hoy = cl[N - 1], p = (hoy - pi) / (te - pi || 1);
     const xg = v => 8 + (v - pi) * (w - 16) / (te - pi || 1), yb = gTop + 28, ab = 14, cs = senal ? col(senal === "COMPRAR" ? "--long" : "--short") : col("--text");
     [[pi, compra, "--long", 0.4], [compra, venta, "--line", 1], [venta, te, "--short", 0.3]].forEach(([a, b, c, al]) => rect(xg(a), yb, xg(b) - xg(a), ab, col(c), al, false));
-    const tx = `Rango de 6 meses: hoy ${fmt(hoy)} está en el ${Math.round(100 * p)}%` + (senal ? " → " + senal : "");
+    const tx = `Rango de 6 meses: hoy ${fmt(hoy)} está en el ${Math.round(100 * p)}%`;
     g.font = "bold 11px " + fam; const tw = g.measureText(tx).width, px = xg(hoy);
     g.fillStyle = cs; g.textAlign = "left"; g.fillText(tx, Math.max(2, Math.min(w - tw - 2, px - 12)), gTop + 12);
     g.beginPath(); g.moveTo(px, yb + ab + 3); g.lineTo(px, yb - 3); g.strokeStyle = col("--text"); g.lineWidth = 2; g.stroke();
