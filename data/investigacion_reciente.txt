@@ -1,0 +1,83 @@
+
+== 2018 a hoy (127 acciones)
+  Comprar y mantener                                                       rinde   318.5%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde   155.3%  vs azar   +3.9  gana al azar en  28%  ops  7.6  en rango   0% del tiempo
+  Automática fijada, sin cambios (actual)                                  rinde   157.9%  vs azar   +7.3  gana al azar en  29%  ops  8.3  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas      rinde   156.3%  vs azar   +7.1  gana al azar en  30%  ops  8.3  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas      rinde   155.9%  vs azar   +8.8  gana al azar en  31%  ops  8.2  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas     rinde   157.2%  vs azar  +13.4  gana al azar en  32%  ops  8.1  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas y el precio está sobre el 60% de su banda rinde   157.2%  vs azar   +7.5  gana al azar en  29%  ops  8.3  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 60% de su banda rinde   155.1%  vs azar   +7.0  gana al azar en  31%  ops  8.3  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas y el precio está sobre el 60% de su banda rinde   153.8%  vs azar   +7.7  gana al azar en  31%  ops  8.3  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 80% de su banda rinde   156.7%  vs azar   +7.3  gana al azar en  29%  ops  8.3  en rango   5% del tiempo
+
+== 2018-2019 (127 acciones)
+  Comprar y mantener                                                       rinde    29.5%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    11.7%  vs azar  -11.4  gana al azar en  21%  ops  2.5  en rango   0% del tiempo
+  Automática fijada, sin cambios (actual)                                  rinde    12.4%  vs azar  -10.3  gana al azar en  24%  ops  2.6  en rango   6% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas      rinde    12.2%  vs azar  -10.5  gana al azar en  22%  ops  2.6  en rango   6% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas      rinde    12.0%  vs azar  -10.4  gana al azar en  24%  ops  2.6  en rango   6% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas     rinde    11.8%  vs azar  -10.3  gana al azar en  23%  ops  2.5  en rango   6% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas y el precio está sobre el 60% de su banda rinde    12.1%  vs azar  -10.6  gana al azar en  22%  ops  2.6  en rango   6% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 60% de su banda rinde    12.0%  vs azar  -10.5  gana al azar en  24%  ops  2.6  en rango   6% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas y el precio está sobre el 60% de su banda rinde    12.0%  vs azar  -10.4  gana al azar en  24%  ops  2.6  en rango   6% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 80% de su banda rinde    12.1%  vs azar  -10.5  gana al azar en  24%  ops  2.6  en rango   6% del tiempo
+
+== 2020 (covid) (128 acciones)
+  Comprar y mantener                                                       rinde    29.9%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    10.7%  vs azar  -16.8  gana al azar en   9%  ops  1.8  en rango   0% del tiempo
+  Automática fijada, sin cambios (actual)                                  rinde    10.8%  vs azar  -16.5  gana al azar en  11%  ops  1.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas      rinde    10.6%  vs azar  -16.4  gana al azar en  12%  ops  1.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas      rinde    10.8%  vs azar  -15.7  gana al azar en  12%  ops  1.7  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas     rinde    10.6%  vs azar  -15.5  gana al azar en  12%  ops  1.7  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas y el precio está sobre el 60% de su banda rinde    10.5%  vs azar  -16.5  gana al azar en  12%  ops  1.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 60% de su banda rinde    10.6%  vs azar  -16.2  gana al azar en  12%  ops  1.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas y el precio está sobre el 60% de su banda rinde    10.4%  vs azar  -16.2  gana al azar en  13%  ops  1.7  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 80% de su banda rinde    10.8%  vs azar  -16.3  gana al azar en  12%  ops  1.8  en rango   5% del tiempo
+
+== 2021 (131 acciones)
+  Comprar y mantener                                                       rinde    25.6%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    20.6%  vs azar   -4.8  gana al azar en  15%  ops  1.3  en rango   0% del tiempo
+  Automática fijada, sin cambios (actual)                                  rinde    20.9%  vs azar   -4.6  gana al azar en  15%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas      rinde    21.0%  vs azar   -4.4  gana al azar en  16%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas      rinde    20.6%  vs azar   -4.6  gana al azar en  17%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas     rinde    20.3%  vs azar   -4.5  gana al azar en  18%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas y el precio está sobre el 60% de su banda rinde    21.0%  vs azar   -4.4  gana al azar en  16%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 60% de su banda rinde    20.7%  vs azar   -4.5  gana al azar en  17%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas y el precio está sobre el 60% de su banda rinde    20.6%  vs azar   -4.3  gana al azar en  19%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 80% de su banda rinde    20.9%  vs azar   -4.5  gana al azar en  17%  ops  1.4  en rango   2% del tiempo
+
+== 2022 (bajista) (132 acciones)
+  Comprar y mantener                                                       rinde   -11.8%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    -6.9%  vs azar   -8.8  gana al azar en  13%  ops  1.4  en rango   0% del tiempo
+  Automática fijada, sin cambios (actual)                                  rinde    -7.1%  vs azar   -8.9  gana al azar en  14%  ops  1.5  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas      rinde    -7.2%  vs azar   -8.8  gana al azar en  14%  ops  1.5  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas      rinde    -7.1%  vs azar   -8.4  gana al azar en  14%  ops  1.5  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas     rinde    -7.0%  vs azar   -8.1  gana al azar en  15%  ops  1.4  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas y el precio está sobre el 60% de su banda rinde    -7.2%  vs azar   -8.8  gana al azar en  14%  ops  1.5  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 60% de su banda rinde    -7.2%  vs azar   -8.6  gana al azar en  14%  ops  1.5  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas y el precio está sobre el 60% de su banda rinde    -7.2%  vs azar   -8.5  gana al azar en  14%  ops  1.5  en rango   2% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 80% de su banda rinde    -7.0%  vs azar   -8.6  gana al azar en  14%  ops  1.5  en rango   2% del tiempo
+
+== 2023 a hoy (137 acciones)
+  Comprar y mantener                                                       rinde   191.6%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde   103.5%  vs azar   -8.2  gana al azar en  32%  ops  3.4  en rango   0% del tiempo
+  Automática fijada, sin cambios (actual)                                  rinde   104.1%  vs azar   -7.4  gana al azar en  33%  ops  3.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas      rinde   103.7%  vs azar   -7.4  gana al azar en  31%  ops  3.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas      rinde   103.2%  vs azar   -7.3  gana al azar en  33%  ops  3.7  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas     rinde   102.9%  vs azar   -6.5  gana al azar en  34%  ops  3.7  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas y el precio está sobre el 60% de su banda rinde   103.8%  vs azar   -7.5  gana al azar en  31%  ops  3.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 60% de su banda rinde   103.0%  vs azar   -7.7  gana al azar en  32%  ops  3.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas y el precio está sobre el 60% de su banda rinde   103.2%  vs azar   -6.9  gana al azar en  33%  ops  3.8  en rango   5% del tiempo
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 80% de su banda rinde   103.6%  vs azar   -7.5  gana al azar en  33%  ops  3.8  en rango   5% del tiempo
+
+== RESUMEN: promedio de los 5 períodos separados (vs azar) y en cuántos rinde más que el cruce 50/200
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas     vs azar promedio   -9.0   mejor que el cruce en 1 de 5 períodos
+  No compra por tendencia si estuvo en rango en las últimas 120 ruedas y el precio está sobre el 60% de su banda vs azar promedio   -9.3   mejor que el cruce en 1 de 5 períodos
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas      vs azar promedio   -9.3   mejor que el cruce en 2 de 5 períodos
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 80% de su banda vs azar promedio   -9.5   mejor que el cruce en 4 de 5 períodos
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas      vs azar promedio   -9.5   mejor que el cruce en 3 de 5 períodos
+  No compra por tendencia si estuvo en rango en las últimas 60 ruedas y el precio está sobre el 60% de su banda vs azar promedio   -9.5   mejor que el cruce en 2 de 5 períodos
+  Automática fijada, sin cambios (actual)                                  vs azar promedio   -9.5   mejor que el cruce en 4 de 5 períodos
+  No compra por tendencia si estuvo en rango en las últimas 20 ruedas y el precio está sobre el 60% de su banda vs azar promedio   -9.6   mejor que el cruce en 3 de 5 períodos
+  Cruce 50/200                                                             vs azar promedio  -10.0   mejor que el cruce en 0 de 5 períodos
