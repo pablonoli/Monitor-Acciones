@@ -116,6 +116,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
 #ficha { position: fixed; inset: 0; background: rgba(43,33,24,.45); z-index: 50; display: flex; align-items: flex-end; justify-content: center; } #ficha[hidden] { display: none; }
 #ficha .hoja { background: var(--panel); width: 100%; max-width: 460px; border-radius: 16px 16px 0 0; padding: 16px 18px 24px; box-shadow: 0 -4px 24px rgba(0,0,0,.15); }
 #ficha .cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 700; font-size: 16px; } #ficha .cab button { border: 0; background: var(--chip); border-radius: 50%; width: 32px; height: 32px; font-size: 16px; cursor: pointer; color: var(--text); }
+#ficha .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; margin-left: 8px; vertical-align: 1px; } #ficha .tag.tt { background: #dfe9f5; color: #24456b; } #ficha .tag.tr { background: #fff1cc; color: #7a5200; }
 #ficha p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; } #ficha p.sub { font-size: 12px; color: var(--muted); }
 @media (min-width: 700px) { #ficha { align-items: center; } #ficha .hoja { border-radius: 16px; } }
 .det tr.mot td { padding-top: 0; font-size: 12px; line-height: 1.4; color: var(--muted); white-space: normal; text-align: left; } .det tr.mot b { color: var(--text); font-weight: 600; }
@@ -192,7 +193,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="controles">
-      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="auto" selected>Automática: detecta si la acción está en rango (rango) o en tendencia (cruce 50/200)</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option></select></label>
+      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="auto" selected>Automática: si al comprar la acción está en rango usa la regla de rango; si no, el cruce 50/200 (compra y vende con la misma regla)</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
@@ -1235,12 +1236,19 @@ function enRangoInfo(v, i) {
   const pend = Math.abs(b * N) / (Math.sqrt(ss / n) * 4 + 1e-9), incl = Math.exp(b * N) - 1;
   return { ok: vj >= K && Math.abs(mov) < 0.25 && pend < 0.3, suave: vj >= 2 && Math.abs(mov) < 0.35 && pend < 0.45, vj, piso, techo, media, p0, p1, mov, pend, incl };
 }
-// Automática: en los días en que la acción está en rango opera con la estrategia de rango; el resto del tiempo, con el cruce 50/200.
+// Automática: si al comprar la acción está en rango, compra y vende con la regla de rango; si no está en rango, compra y vende con el cruce 50/200. La regla se elige al comprar y se mantiene hasta vender (no se cambia a mitad de la operación).
 function senalAuto(v, inicio) {
   if (v.__auto && v.__auto[0] === inicio) return v.__auto[1];
   const r = senalRango(v, inicio), c = v.map(k => k.close), f = smaSerie(c, 50), sl = smaSerie(c, 200);
-  const sen = c.map((_, i) => enRango(v, i) ? r[i] : (i >= 200 && f[i] > sl[i] ? 1 : 0));
-  v.__auto = [inicio, sen]; return sen;
+  const sen = new Array(v.length).fill(0), modo = new Array(v.length).fill(""); let st = 0, m = "";
+  for (let i = 0; i < v.length; i++) {
+    const cr = i >= 200 && f[i] > sl[i];
+    if (!st) { if (enRango(v, i) && r[i]) { st = 1; m = "R"; } else if (!enRango(v, i) && cr) { st = 1; m = "T"; } }
+    else if (m === "T" && !cr) st = 0;
+    else if (m === "R" && !r[i]) st = 0;
+    sen[i] = st; modo[i] = m;
+  }
+  v.__auto = [inicio, sen]; v.__autoModo = modo; return sen;
 }
 function barrasAcc(s) { const d = accDatos; d.__b = d.__b || {}; return d.__b[s] || (d.__b[s] = decodificarAcc(d.t[s])); }
 function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
@@ -1263,7 +1271,8 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const cerca = !comprado && !venderYa && (rango ? pos < 0.3 : (permisoOk && !mediasOk && gap <= 0.02));
     const est = comprarYa ? 0 : venderYa ? 1 : cerca ? 2 : comprado ? 3 : 4;
     const stopsRec = rango ? t.ops.filter(o => o.r <= -0.075 && o.salida >= bars[bars.length - 1].cierre - 90 * 86400000).length : 0;
-    res.push({ s, t, propio, rango, det: auto ? enRangoInfo(bars, bars.length - 1) : null, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
+    const modoAct = auto ? (bars.__autoModo || [])[bars.length - 1] || "" : "", usaRango = modoAct === "R";
+    res.push({ s, t, propio, rango, modoAct, usaRango, det: auto ? enRangoInfo(bars, bars.length - 1) : null, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
       ...eficiencia(bars), precio: bars[bars.length - 1].close, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
@@ -1330,38 +1339,28 @@ function pintarFilasAcc() {
 function motivoOp(r, ms, compra, o, cp) {
   const v = r.bars, e = v.findIndex(k => k.apertura >= ms); if (e < 1) return "";
   const s = e - 1, c = v.map(k => k.close); v.__m5 = v.__m5 || smaSerie(c, 50); v.__m2 = v.__m2 || smaSerie(c, 200);
-  const auto = accEst === "auto", rg = auto ? rangoSerie(v) : null, enR = auto && rg[s], antes = auto && s > 0 && rg[s - 1], pos = posRango(v, s), pct = Math.round(100 * pos);
-  const alza = v.__m5[s] > v.__m2[s], filtro = accModo !== "ninguno";
-  if (compra) {
-    if (cp) {
-      if (enR) return pos < 0.2 ? `en rango, ${pct}% de la banda de 6 meses (compra bajo 20%).` : `pasó a estar en rango y ya estaba comprado.`;
-      return (antes ? "salió del rango, la media 50 está sobre la 200." : "la media 50 cruzó arriba de la 200.") + (filtro ? " El filtro del mercado lo permitía." : "");
-    }
-    if (enR) return pos < 0.2 ? `estaba en rango y cerró en el ${pct}% de su banda de 6 meses (bajo 20%: zona de compra).` : `pasó a estar en rango y la estrategia de rango ya estaba comprada (había comprado cerca del piso).`;
-    return (antes ? "dejó de estar en rango y la media 50 está sobre la 200 (tendencia alcista)" : "la media de 50 cruzó por encima de la de 200 (cruce alcista)") + (filtro ? " y el filtro del mercado lo permitía." : ".");
+  const auto = accEst === "auto"; if (auto) senalAuto(v, INICIO_T);
+  const modo = auto ? (v.__autoModo || [])[s] : "T", rg = auto ? rangoSerie(v) : null, antes = auto && s > 0 && rg[s - 1], pos = posRango(v, s), pct = Math.round(100 * pos);
+  const filtro = accModo !== "ninguno" && !auto;
+  const et = auto ? (modo === "R" ? "por rango" : "por tendencia") : "";
+  let tx;
+  if (modo === "R") {
+    if (compra) tx = pos < 0.2 ? (cp ? `en rango, ${pct}% de la banda de 6 meses (compra bajo 20%).` : `estaba en rango y cerró en el ${pct}% de su banda de 6 meses (bajo 20%: zona de compra).`) : (cp ? `pasó a estar en rango y la regla de rango ya estaba en compra.` : `pasó a estar en rango y la regla de rango ya estaba en compra (había bajado de 20% de su banda y todavía no llegó a 60%).`);
+    else if (pos > 0.6) tx = cp ? `${pct}% de la banda de 6 meses (vende desde 60%).` : `el precio subió al ${pct}% de su banda de 6 meses (venta desde 60%).`;
+    else tx = o && v[s].close <= o.pIn * 0.92 ? (cp ? `corte de pérdida: cayó 8% o más desde la compra.` : `corte de pérdida: cerró en ${fmt(v[s].close)}, 8% o más abajo de la compra (${fmt(o.pIn)}).`) : "la regla de rango dio señal de venta.";
+  } else if (compra) {
+    tx = (antes ? (cp ? "salió del rango, la media 50 está sobre la 200." : "dejó de estar en rango y la media 50 está sobre la 200 (tendencia alcista).") : (cp ? "la media 50 cruzó arriba de la 200." : "la media de 50 cruzó por encima de la de 200 (cruce alcista).")) + (filtro ? (cp ? " El filtro del mercado lo permitía." : " El filtro del mercado lo permitía.") : "");
+  } else {
+    tx = v.__m5[s] > v.__m2[s] ? (filtro ? "el filtro del mercado dejó de dar permiso." : "la señal se dio vuelta.") : (cp ? "la media 50 cayó bajo la 200." : "la media de 50 cayó por debajo de la de 200 (cruce bajista).");
   }
-  if (cp) {
-    if (enR) {
-      if (pos > 0.6) return `${pct}% de la banda de 6 meses (vende desde 60%).`;
-      if (o && v[s].close <= o.pIn * 0.92) return `corte de pérdida: cayó 8% o más desde la compra.`;
-      return `pasó a estar en rango y estaba lejos del piso (${pct}% de la banda).`;
-    }
-    if (!alza) return antes ? "salió del rango, la media 50 está bajo la 200." : "la media 50 cayó bajo la 200.";
-    return filtro ? "el filtro del mercado dejó de dar permiso." : "la señal se dio vuelta.";
-  }
-  if (enR) {
-    if (pos > 0.6) return `estaba en rango y el precio subió al ${pct}% de su banda de 6 meses (venta desde 60%).`;
-    if (o && v[s].close <= o.pIn * 0.92) return `corte de pérdida: cerró en ${fmt(v[s].close)}, 8% o más abajo de la compra (${fmt(o.pIn)}).`;
-    return `pasó a estar en rango, y la estrategia de rango solo está comprada cerca del piso (el precio estaba en el ${pct}% de su banda), así que salió.`;
-  }
-  if (!alza) return antes ? "dejó de estar en rango y la media 50 está bajo la 200 (tendencia bajista)." : "la media de 50 cayó por debajo de la de 200 (cruce bajista).";
-  return filtro ? "el filtro del mercado dejó de dar permiso." : "la señal de la estrategia se dio vuelta.";
+  return { tx, et };
 }
 let accFichas = [];
 function abrirFicha(i) {
   const f = accFichas[i]; if (!f) return;
   $("fichaT").textContent = f.t;
-  $("fichaB").innerHTML = `<p><b>Compró el ${fechaT(f.c)} a ${fmt(f.pc)}</b><br>${f.cm}</p>` + (f.ab ? `<p class="sub">Sigue abierta. Se vende al llegar a 60% de la banda, con corte de pérdida de 8%, o cuando la señal se dé vuelta.</p>` : `<p><b>Vendió el ${fechaT(f.v)} a ${fmt(f.pv)}</b><br>${f.vm}</p>`);
+  const tag = m => m.et ? `<span class="tag ${m.et === "por rango" ? "tr" : "tt"}">${m.et}</span>` : "";
+  $("fichaB").innerHTML = `<p><b>Compró el ${fechaT(f.c)} a ${fmt(f.pc)}</b>${tag(f.cm)}<br>${f.cm.tx}</p>` + (f.ab ? `<p class="sub">Sigue abierta${f.cm.et ? ": se vende con la misma regla con que se compró (" + (f.cm.et === "por rango" ? "al llegar a 60% de la banda o con corte de pérdida de 8%" : "cuando la media 50 cae bajo la 200") + ")" : ""}.</p>` : `<p><b>Vendió el ${fechaT(f.v)} a ${fmt(f.pv)}</b>${tag(f.vm)}<br>${f.vm.tx}</p>`);
   $("ficha").hidden = false; $("fichaX").focus();
 }
 function cerrarFicha() { $("ficha").hidden = true; }
@@ -1381,8 +1380,8 @@ function detalleAcc(r) {
   const medTxt = r.mediasOk ? `La media rápida está ${g} arriba de la lenta.` : `La media rápida está ${g} debajo de la lenta: tiene que cruzar para arriba.`;
   const uo = r.ops[r.ops.length - 1], ultCierre = r.bars[r.bars.length - 1].cierre;
   const reciente = uo && ultCierre - uo.salida < 45 * 86400000 ? ` Ojo: la última operación se cerró el ${fechaT(uo.salida)} con ${pctT(uo.r)}.` : "";
-  const porComprar = r.rango ? (r.pos < 0.2 ? `porque cerró en el ${Math.round(100 * r.pos)}% de su rango de 6 meses (la estrategia de rango compra por debajo de 20%)` : `porque la señal de rango sigue activa (compró abajo y todavía no llegó al 60% para vender)`) : `porque el cruce 50/200 está alcista (la media rápida está ${g} arriba de la lenta)${r.permisoOk && accModo !== "ninguno" ? " y hay permiso del filtro" : ""}${accEst === "auto" ? " y hoy no está en rango, así que se opera por tendencia" : ""}`;
-  const porVender = r.rango ? (r.pos > 0.6 ? `porque subió al ${Math.round(100 * r.pos)}% de su rango (la estrategia de rango vende desde 60%)` : `porque cayó 8% o más desde la compra (stop de la estrategia de rango)`) : `porque ${!r.mediasOk ? "la media rápida quedó por debajo de la lenta" : "perdió el permiso del filtro"}`;
+  const porComprar = r.usaRango ? (r.pos < 0.2 ? `porque cerró en el ${Math.round(100 * r.pos)}% de su rango de 6 meses (la estrategia de rango compra por debajo de 20%)` : `porque la señal de rango sigue activa (compró abajo y todavía no llegó al 60% para vender)`) : `porque el cruce 50/200 está alcista (la media rápida está ${g} arriba de la lenta)${r.permisoOk && accModo !== "ninguno" ? " y hay permiso del filtro" : ""}${accEst === "auto" ? " y hoy no está en rango, así que se opera por tendencia" : ""}`;
+  const porVender = r.usaRango ? (r.pos > 0.6 ? `porque subió al ${Math.round(100 * r.pos)}% de su rango (la estrategia de rango vende desde 60%)` : `porque cayó 8% o más desde la compra (stop de la estrategia de rango)`) : `porque ${!r.mediasOk ? "la media rápida quedó por debajo de la lenta" : "perdió el permiso del filtro"}`;
   const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura, ${porComprar}.${reciente}` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura, ${porVender}.` : r.comprado ? `<b class="pos">Seguir comprado.</b>` : (r.rango ? `<b class="neg">Esperar.</b> Todavía no está cerca del piso de su rango.` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`);
   accFichas = [];
   const flecha = '<span class="fl">›</span>';
