@@ -1,14 +1,13 @@
 """Investigación (no es parte del dashboard): ¿qué niveles de compra y venta conviene usar en la estrategia de rango?
 Usa el detector de rango actual del dashboard (500 ruedas, ≥3 viajes entre zonas de 20%, cambio < 25%, inclinación < 30%)
 y prueba distintos niveles de compra/venta, cortes de pérdida y largos de banda, en varios períodos desde 2018.
-Se corre sola cuando cambia este archivo o a mano desde Actions. Escribe data/investigacion_niveles.txt."""
+Se corre sola cuando cambia este archivo o a mano desde Actions. Escribe data/investigacion_bandas.txt."""
 import time, json
 import numpy as np
 from investigacion import cargar, backtest, sma, E, dia, PERIODOS
 
 # (compra bajo X de la banda, vende sobre Y, corte de pérdida, ruedas de la banda)
-COMBOS = [(c, v, 0.08, 120) for c in (0.1, 0.2, 0.3) for v in (0.4, 0.5, 0.6, 0.7, 0.8)]
-COMBOS += [(0.2, 0.6, s, 120) for s in (0.05, 0.12, 0.99)] + [(0.2, 0.6, 0.08, nv) for nv in (60, 250)]
+COMBOS = [(0.2, 0.6, 0.08, nv) for nv in (60, 120, 250, 375, 500)]   # solo cambia el largo de la banda de piso y techo
 VENTANAS = sorted({c[3] for c in COMBOS})
 
 def pos_rango(C, N):
@@ -18,15 +17,21 @@ def pos_rango(C, N):
     return p
 
 def en_rango(C, N=500, K=3, Z=0.2):
-    """Igual que enRangoInfo del dashboard."""
-    n = len(C); fl = np.zeros(n, bool); x = np.arange(N + 1)
+    """Igual que rangoSerie del dashboard: entra cuando cumple todo y sale solo si se pasa de límites más amplios."""
+    n = len(C); ok = np.zeros(n, bool); suave = np.zeros(n, bool); x = np.arange(N + 1)
     for i in range(N, n):
-        w = C[i - N:i + 1]; mn, mx = w.min(), w.max()
-        if abs(C[i] / C[i - N] - 1) >= 0.25: continue
+        w = C[i - N:i + 1]; mn, mx = w.min(), w.max(); mov = abs(C[i] / C[i - N] - 1)
+        if mov >= 0.35: continue
         q = (w - mn) / (mx - mn + 1e-9); z = np.where(q <= Z, -1, np.where(q >= 1 - Z, 1, 0)); z = z[z != 0]
-        if len(z) < 2 or (z[1:] != z[:-1]).sum() < K: continue
-        co = np.polyfit(x, np.log(w), 1); res = np.log(w) - np.polyval(co, x)
-        fl[i] = abs(co[0] * N) / (res.std() * 4 + 1e-9) < 0.3
+        vj = (z[1:] != z[:-1]).sum() if len(z) > 1 else 0
+        if vj < 2: continue
+        co = np.polyfit(x, np.log(w), 1); res = np.log(w) - np.polyval(co, x); pend = abs(co[0] * N) / (res.std() * 4 + 1e-9)
+        suave[i] = pend < 0.45; ok[i] = suave[i] and vj >= K and mov < 0.25 and pend < 0.3
+    fl = np.zeros(n, bool); est = False
+    for i in range(n):
+        if not est and ok[i]: est = True
+        elif est and not suave[i]: est = False
+        fl[i] = est
     return fl
 
 def maq(d, O, C, p, ini, comp, vend, stop):
@@ -95,5 +100,5 @@ def resumen(filas):
 if __name__ == "__main__":
     t0 = time.time(); data = cargar(); print(len(data), "símbolos bajados en", round(time.time() - t0), "s", flush=True)
     filas = correr(data)
-    json.dump(filas, open("data/investigacion_niveles.json", "w"), ensure_ascii=False)
-    txt = resumen(filas); open("data/investigacion_niveles.txt", "w", encoding="utf-8").write(txt); print(txt)
+    json.dump(filas, open("data/investigacion_bandas.json", "w"), ensure_ascii=False)
+    txt = resumen(filas); open("data/investigacion_bandas.txt", "w", encoding="utf-8").write(txt); print(txt)
