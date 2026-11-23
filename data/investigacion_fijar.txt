@@ -1,0 +1,41 @@
+
+== 2018 a hoy (126 acciones)
+  Comprar y mantener                                                       rinde   319.8%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde   156.5%  vs azar   +4.7  gana al azar en  29%  ops  7.6  en rango   0% del tiempo
+  Automática actual (se mezclan las reglas)                                rinde   153.6%  vs azar   +6.2  gana al azar en  29%  ops  8.7  en rango   5% del tiempo
+  Automática fijada (vende con la regla con que compró)                    rinde   159.2%  vs azar   +8.1  gana al azar en  29%  ops  8.3  en rango   5% del tiempo
+
+== 2018-2019 (126 acciones)
+  Comprar y mantener                                                       rinde    29.4%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    11.5%  vs azar  -11.4  gana al azar en  21%  ops  2.5  en rango   0% del tiempo
+  Automática actual (se mezclan las reglas)                                rinde    11.8%  vs azar  -10.3  gana al azar en  25%  ops  2.7  en rango   6% del tiempo
+  Automática fijada (vende con la regla con que compró)                    rinde    12.3%  vs azar  -10.3  gana al azar en  24%  ops  2.6  en rango   6% del tiempo
+
+== 2020 (covid) (127 acciones)
+  Comprar y mantener                                                       rinde    30.2%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    11.1%  vs azar  -16.7  gana al azar en   9%  ops  1.8  en rango   0% del tiempo
+  Automática actual (se mezclan las reglas)                                rinde    10.7%  vs azar  -16.6  gana al azar en  11%  ops  1.9  en rango   5% del tiempo
+  Automática fijada (vende con la regla con que compró)                    rinde    11.2%  vs azar  -16.4  gana al azar en  11%  ops  1.8  en rango   5% del tiempo
+
+== 2021 (130 acciones)
+  Comprar y mantener                                                       rinde    25.5%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    20.5%  vs azar   -4.8  gana al azar en  15%  ops  1.3  en rango   0% del tiempo
+  Automática actual (se mezclan las reglas)                                rinde    20.7%  vs azar   -4.6  gana al azar en  16%  ops  1.4  en rango   2% del tiempo
+  Automática fijada (vende con la regla con que compró)                    rinde    20.7%  vs azar   -4.6  gana al azar en  15%  ops  1.4  en rango   2% del tiempo
+
+== 2022 (bajista) (131 acciones)
+  Comprar y mantener                                                       rinde   -11.9%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde    -6.7%  vs azar   -8.6  gana al azar en  13%  ops  1.4  en rango   0% del tiempo
+  Automática actual (se mezclan las reglas)                                rinde    -7.0%  vs azar   -8.7  gana al azar en  15%  ops  1.5  en rango   2% del tiempo
+  Automática fijada (vende con la regla con que compró)                    rinde    -6.9%  vs azar   -8.7  gana al azar en  15%  ops  1.5  en rango   2% del tiempo
+
+== 2023 a hoy (136 acciones)
+  Comprar y mantener                                                       rinde   192.8%  vs azar   +0.0  gana al azar en   0%  ops  0.0  en rango   0% del tiempo
+  Cruce 50/200                                                             rinde   104.1%  vs azar   -8.3  gana al azar en  32%  ops  3.4  en rango   0% del tiempo
+  Automática actual (se mezclan las reglas)                                rinde   103.3%  vs azar   -7.6  gana al azar en  32%  ops  4.0  en rango   5% del tiempo
+  Automática fijada (vende con la regla con que compró)                    rinde   104.7%  vs azar   -7.4  gana al azar en  32%  ops  3.8  en rango   5% del tiempo
+
+== RESUMEN: promedio de los 5 períodos separados (vs azar) y en cuántos rinde más que el cruce 50/200
+  Automática fijada (vende con la regla con que compró)                    vs azar promedio   -9.5   mejor que el cruce en 4 de 5 períodos
+  Automática actual (se mezclan las reglas)                                vs azar promedio   -9.5   mejor que el cruce en 2 de 5 períodos
+  Cruce 50/200                                                             vs azar promedio  -10.0   mejor que el cruce en 0 de 5 períodos
