@@ -876,14 +876,27 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, 
     cv.addEventListener("pointermove", mover); cv.addEventListener("pointerdown", mover);
     cv.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") graficoTend(cv, ...cv.__p); });
   }
-  if (banda) cv.style.height = "260px";
-  const { g, w, h } = lienzo(cv);
   const N = Math.min(nBarras, t.f.length); cv.__n = N;
+  const rango = banda === "rango", tsN = t.w.slice(0, t.f.length).map(k => k.apertura).slice(-N);
+  const idx = ms => { const k = tsN.findIndex(x => x >= ms); return k < 0 ? N - 1 : k; };
+  // Operaciones dentro del tramo mostrado (la que sigue abierta llega hasta hoy) y señal de hoy, que se ejecuta en la próxima apertura.
+  const ops = [];
+  if (banda) {
+    t.ops.forEach(o => { if (o.salida >= tsN[0]) ops.push({ a: o.entrada < tsN[0] ? 0 : idx(o.entrada), b: idx(o.salida), r: o.r, e: o.entrada, s: o.salida }); });
+    if (t.abierta) ops.push({ a: t.abierta.t < tsN[0] ? 0 : idx(t.abierta.t), b: N - 1, r: t.actual, e: t.abierta.t, s: null });
+    ops.sort((x, y) => x.a - y.a);
+  }
+  const senal = banda ? (t.estado === 1 && !t.abierta ? "COMPRAR" : t.estado !== 1 && t.abierta ? "VENDER" : null) : null;
+  const ZN = Math.min(90, N), z0 = N - ZN, conZoom = banda && (!!senal || ops.some(o => o.b >= z0));
+  // Alturas: gráfico, franja de operaciones con fechas, zoom de los últimos 90 días (si hubo movimiento) y medidor de rango de 6 meses (si opera por rango).
+  const HC = 190, y0 = HC + 14, alto = 18, yFecha = y0 + alto + 14, zTop = yFecha + 14, gTop = zTop + (conZoom ? 80 : 0) + 6;
+  if (banda) cv.style.height = (gTop + (rango ? 78 : 0)) + "px";
+  const { g, w, h } = lienzo(cv);
   const corte = xs => xs.slice(-N);
   const closes = t.w.slice(0, t.f.length).map(k => k.close);
   const cl = corte(closes), f = corte(t.f), sl = corte(t.sl), sen = corte(t.sen), sm = corte(smaSerie(closes, n200));
-  const todos = [...cl, ...f, ...sl, ...sm.filter(isFinite)], lo = Math.min(...todos), hi = Math.max(...todos);
-  const hs = banda ? 30 : 0, hp = h - 18 - hs;   // alto del gráfico; abajo queda lugar para las fechas
+  const todos = banda ? [...cl, ...(rango ? [] : [...f, ...sl])] : [...cl, ...f, ...sl, ...sm.filter(isFinite)], lo = Math.min(...todos), hi = Math.max(...todos);
+  const hp = banda ? HC : h - 18;   // alto del gráfico; abajo queda lugar para las fechas
   const X = i => 6 + i * (w - 12) / (N - 1), Y = v => 8 + (hi - v) * (hp - 16) / (hi - lo || 1);
   g.fillStyle = col("--long-bg");
   if (!banda) sen.forEach((x, i) => { if (x === 1 && i < N - 1) g.fillRect(X(i), 0, X(i + 1) - X(i) + 0.5, hp); });
@@ -894,57 +907,89 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, 
     xs.forEach((v, i) => { if (!isFinite(v)) { abierto = false; return; } abierto ? g.lineTo(X(i), Y(v)) : g.moveTo(X(i), Y(v)); abierto = true; });
     g.setLineDash(dash || []); g.strokeStyle = color; g.lineWidth = ancho; g.lineJoin = "round"; g.stroke(); g.setLineDash([]);
   };
-  const fam = getComputedStyle(document.body).fontFamily || "sans-serif", tsN = t.w.slice(0, t.f.length).map(k => k.apertura).slice(-N);
-  if (banda) {
-    const c6 = cl.slice(-121), pi = Math.min(...c6), te = Math.max(...c6), mn = Math.min(...cl), mxx = Math.max(...cl), pro = cl.reduce((a, b) => a + b, 0) / N;
-    const compra = pi + 0.2 * (te - pi), venta = pi + 0.6 * (te - pi), x6 = X(N - c6.length);
-    const ch = cv.nextElementSibling;   // carteles de arriba: qué significa cada línea y su valor
-    if (ch && ch.classList.contains("niv")) ch.innerHTML = `<span style="flex-basis:100%"><i style="border-color:var(--accent)"></i>2 años: piso <b>${fmt(mn)}</b> · promedio <b>${fmt(pro)}</b> · techo <b>${fmt(mxx)}</b></span>` + (banda === "rango" ? `<span style="flex-basis:100%;margin-top:-2px"><i style="border-color:var(--long)"></i>6 meses (la estrategia de rango compra y vende con esta banda): compra bajo <b>${fmt(compra)}</b> · <i style="border-color:var(--short);margin-left:4px"></i>venta sobre <b>${fmt(venta)}</b></span>` : "");
-    const hor = (v, color, desde, ancho) => { g.beginPath(); g.moveTo(desde, Y(v)); g.lineTo(w, Y(v)); g.setLineDash([2, 4]); g.strokeStyle = color; g.lineWidth = ancho; g.stroke(); g.setLineDash([]); };
-    g.globalAlpha = 0.45; [mxx, mn, pro].forEach(v => hor(v, col("--accent"), 0, 1)); g.globalAlpha = 1;        // 2 años: de punta a punta
-    if (banda === "rango") { g.globalAlpha = 0.6; hor(compra, col("--long"), x6, 1.2); hor(venta, col("--short"), x6, 1.2); g.globalAlpha = 1; }   // los niveles de compra y venta solo existen si hoy opera por rango   // niveles de la estrategia: solo sobre los 6 meses que se miden
-    g.globalAlpha = 0.4; linea(sl, col("--blue"), 1); linea(f, col("--accent"), 1); g.globalAlpha = 1;
+  const fam = getComputedStyle(document.body).fontFamily || "sans-serif", pctS = v => pctT(v).replace(".", ",");
+  const dm = ms => { const d = new Date(ms); return String(d.getUTCDate()).padStart(2, "0") + "/" + String(d.getUTCMonth() + 1).padStart(2, "0"); };
+  const etiquetas = [];   // los nombres de los niveles se dibujan al final, encima de todo
+  const pill = (tx, x, yc, color) => { g.font = "11px " + fam; const tw = g.measureText(tx).width + 8; g.globalAlpha = 0.88; g.fillStyle = col("--bg"); g.fillRect(x, yc - 8, tw, 16); g.globalAlpha = 1; g.fillStyle = color; g.textAlign = "left"; g.fillText(tx, x + 4, yc + 4); };
+  if (banda) {   // 2 años: piso y techo punteados y muy tenues, promedio rayado
+    const mn = Math.min(...cl), mxx = Math.max(...cl), pro = cl.reduce((a, b) => a + b, 0) / N, usados = [];
+    [[mxx, "techo 2 años " + fmt(mxx), [1, 3], 0.5, "--accent"], [mn, "piso 2 años " + fmt(mn), [1, 3], 0.5, "--accent"], [pro, "promedio 2 años " + fmt(pro), [5, 4], 0.7, "--muted"]].forEach(([v, tx, dash, al, c]) => {
+      g.beginPath(); g.moveTo(0, Y(v)); g.lineTo(w, Y(v)); g.setLineDash(dash); g.strokeStyle = col(c); g.globalAlpha = al; g.lineWidth = 1; g.stroke(); g.setLineDash([]); g.globalAlpha = 1;
+      if (usados.every(y => Math.abs(y - Y(v)) > 17)) { usados.push(Y(v)); etiquetas.push([tx, 2, Y(v), col(c)]); }
+    });
+    if (!rango) { g.globalAlpha = 0.5; linea(sl, col("--blue"), 1.2); linea(f, col("--accent"), 1.2); g.globalAlpha = 1; }   // las medias solo explican la señal cuando opera por cruce
   } else linea(sm, col("--muted"), 1.6, [5, 4]);
   if (!banda) { linea(sl, col("--blue"), 1.8); linea(f, col("--accent"), 1.8); }
   linea(cl, col("--text"), banda ? 1.8 : 2.2);
   g.beginPath(); g.arc(X(N - 1), Y(cl[N - 1]), 4, 0, 7); g.fillStyle = col("--text"); g.fill();
-  if (banda) {   // franja de operaciones: una barra por cada compra→venta (verde ganó, roja perdió); la de hoy, si hay señal
-    const y0 = hp + 8, alto = 16, idx = ms => { const k = tsN.findIndex(x => x >= ms); return k < 0 ? N - 1 : k; };
+  const rect = (x0, yy, ww, hh, color, alfa, rayas) => {
+    g.save(); g.globalAlpha = alfa; g.fillStyle = color; g.beginPath(); g.roundRect ? g.roundRect(x0, yy, ww, hh, 3) : g.rect(x0, yy, ww, hh); g.fill(); g.clip();
+    if (rayas) { g.globalAlpha = 0.55; g.strokeStyle = "#fff"; g.lineWidth = 1.6; for (let k = -hh; k < ww; k += 5) { g.beginPath(); g.moveTo(x0 + k, yy + hh); g.lineTo(x0 + k + hh, yy); g.stroke(); } }
+    g.restore();
+  };
+  if (banda) {   // franja de operaciones de todo el tramo; las que quedan pegadas se juntan en una barra rayada con la cantidad (×3) y el resultado de todas
     g.fillStyle = col("--line"); g.globalAlpha = 0.45; g.fillRect(0, y0, w, alto); g.globalAlpha = 1;
-    const barra = (i0, i1, color, tx, alfa) => {
-      const x0 = X(i0), x1 = Math.max(X(i1), x0 + 4); g.globalAlpha = alfa; g.fillStyle = color; g.beginPath(); g.roundRect ? g.roundRect(x0, y0, x1 - x0, alto, 3) : g.rect(x0, y0, x1 - x0, alto); g.fill(); g.globalAlpha = 1;
-      g.font = "bold 10px " + fam; if (tx && g.measureText(tx).width + 6 < x1 - x0) { g.fillStyle = "#fff"; g.textAlign = "center"; g.fillText(tx, (x0 + x1) / 2, y0 + 11.5); g.textAlign = "left"; }
-    };
-    const punto = (i, v, color) => { g.beginPath(); g.moveTo(X(i), Y(v)); g.lineTo(X(i), y0); g.strokeStyle = color; g.globalAlpha = 0.25; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1; g.beginPath(); g.arc(X(i), Y(v), 3.5, 0, 7); g.fillStyle = color; g.fill(); g.strokeStyle = col("--bg"); g.lineWidth = 1.5; g.stroke(); };
-    t.ops.forEach(o => { if (o.salida < tsN[0]) return; const i0 = o.entrada < tsN[0] ? 0 : idx(o.entrada), i1 = idx(o.salida), c = col(o.r >= 0 ? "--long" : "--short");
-      barra(i0, i1, c, pctT(o.r), 1); if (o.entrada >= tsN[0]) punto(i0, o.pIn, col("--long")); punto(i1, o.pOut, col("--short")); });
-    if (t.abierta) { const i0 = t.abierta.t < tsN[0] ? 0 : idx(t.abierta.t); barra(i0, N - 1, col("--long"), pctT(t.actual) + " hoy", 0.55); if (t.abierta.t >= tsN[0]) punto(i0, t.abierta.precio, col("--long")); }
-    const comprarYa = t.estado === 1 && !t.abierta, venderYa = t.estado !== 1 && !!t.abierta;   // señal de hoy: se ejecuta en la próxima apertura
-    if (comprarYa || venderYa) {
-      const c = col(comprarYa ? "--long" : "--short"), tx = comprarYa ? "COMPRAR" : "VENDER"; g.font = "bold 11px " + fam; const tw = g.measureText(tx).width + 14;
-      g.fillStyle = col("--bg"); g.fillRect(w - tw - 2, y0 - 2, tw, alto + 4); g.strokeStyle = c; g.lineWidth = 2; g.strokeRect(w - tw - 2, y0 - 2, tw, alto + 4);
-      g.fillStyle = c; g.textAlign = "center"; g.fillText(tx, w - tw / 2 - 2, y0 + 12); g.textAlign = "left";
-      g.beginPath(); g.moveTo(X(N - 1), Y(cl[N - 1])); g.lineTo(X(N - 1), y0 - 2); g.strokeStyle = c; g.lineWidth = 1.5; g.stroke();
-    }
+    const grupos = [];
+    ops.forEach(o => { const u = grupos[grupos.length - 1]; if (u && o.a - u.b <= 8) { u.b = Math.max(u.b, o.b); u.k++; u.net = (1 + u.net) * (1 + o.r) - 1; u.ab = u.ab || o.s === null; } else grupos.push({ a: o.a, b: o.b, k: 1, net: o.r, ab: o.s === null }); });
+    g.font = "bold 10px " + fam;
+    grupos.forEach(u => {
+      const x0 = X(u.a), x1 = Math.max(X(u.b), x0 + 4), c = col(u.net >= 0 ? "--long" : "--short"), tx = pctS(u.net) + (u.ab ? " hoy" : "");
+      rect(x0, y0, x1 - x0, alto, c, u.ab ? 0.6 : 1, u.k > 1);
+      if (u.k > 1) { g.fillStyle = c; g.textAlign = "center"; g.fillText("×" + u.k, (x0 + x1) / 2, y0 - 3); }
+      if (g.measureText(tx).width + 8 < x1 - x0) { g.fillStyle = "#fff"; g.textAlign = "center"; g.fillText(tx, (x0 + x1) / 2, y0 + 12.5); }
+      g.textAlign = "left";
+    });
   }
   // Eje de fechas: primera y última vela con fecha completa, y el comienzo de cada mes (o cada tantos días si el tramo es corto).
-  const ts = t.w.slice(0, t.f.length).map(k => k.apertura).slice(-N), MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const ts = tsN, MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const dmy = ms => { const d = new Date(ms); return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCFullYear()).slice(2)}`; };
-  g.font = "11px " + (getComputedStyle(document.body).fontFamily || "sans-serif"); g.fillStyle = col("--muted"); g.strokeStyle = col("--muted"); g.lineWidth = 1;
+  const yT = banda ? y0 + alto : h - 18, yF = banda ? yFecha : h - 2;
+  g.font = "11px " + fam; g.fillStyle = col("--muted"); g.strokeStyle = col("--muted"); g.lineWidth = 1;
   const marcas = [];
   if (ts[N - 1] - ts[0] > 60 * 86400000) { for (let i = 1; i < N; i++) { const a = new Date(ts[i - 1]), b = new Date(ts[i]); if (a.getUTCMonth() !== b.getUTCMonth() && (ts[N - 1] - ts[0] < 400 * 86400000 || b.getUTCMonth() % 3 === 0)) marcas.push([i, MES[b.getUTCMonth()] + (b.getUTCMonth() === 0 ? " " + String(b.getUTCFullYear()).slice(2) : "")]); } }
   else { const paso = Math.max(1, Math.round(N / 5)); for (let i = paso; i < N; i += paso) marcas.push([i, dmy(ts[i]).slice(0, 5)]); }
-  marcas.forEach(([i, tx]) => { const x = X(i), ancho = g.measureText(tx).width; if (x < 70 || x > w - 70) return; g.beginPath(); g.moveTo(x, h - 18); g.lineTo(x, h - 14); g.stroke(); g.textAlign = "center"; g.fillText(tx, x, h - 2); });
-  g.textAlign = "left"; g.fillText(dmy(ts[0]), 2, h - 2); g.textAlign = "right"; g.fillText(dmy(ts[N - 1]), w - 2, h - 2); g.textAlign = "left";
-  if (hover !== null && hover >= 0 && hover < N) {   // línea vertical + cartel con la fecha y el precio de ese día
+  marcas.forEach(([i, tx]) => { const x = X(i); if (x < 70 || x > w - 70) return; g.beginPath(); g.moveTo(x, yT); g.lineTo(x, yT + 4); g.stroke(); g.textAlign = "center"; g.fillText(tx, x, yF); });
+  g.textAlign = "left"; g.fillText(dmy(ts[0]), 2, yF); g.textAlign = "right"; g.fillText(dmy(ts[N - 1]), w - 2, yF); g.textAlign = "left";
+  if (conZoom) {   // zoom de los últimos 90 días: cada operación por separado, con su fecha y su resultado
+    const X2 = i => 6 + (i - z0) * (w - 12) / (ZN - 1), yb = zTop + 62, ab = 14;
+    g.font = "11px " + fam; g.fillStyle = col("--muted"); g.fillText("Zoom: últimos " + ZN + " días", 2, zTop + 10);
+    if (senal) { g.font = "bold 11px " + fam; g.fillStyle = col(senal === "COMPRAR" ? "--long" : "--short"); g.textAlign = "right"; g.fillText(senal + " hoy", w - 2, zTop + 10); g.textAlign = "left"; }
+    g.fillStyle = col("--line"); g.globalAlpha = 0.45; g.fillRect(0, yb, w, ab); g.globalAlpha = 1;
+    const ult = [-99, -99, -99];
+    ops.filter(o => o.b >= z0).forEach(o => {
+      const a2 = Math.max(o.a, z0), x0 = X2(a2), x1 = Math.max(X2(o.b), x0 + 3), c = col(o.r >= 0 ? "--long" : "--short");
+      rect(x0, yb, x1 - x0, ab, c, o.s === null ? 0.6 : 1, false);
+      const tx = dm(o.e) + "→" + (o.s === null ? "hoy" : dm(o.s)) + "  " + pctS(o.r); g.font = "bold 10px " + fam; const tw = g.measureText(tx).width, cx = (x0 + x1) / 2, lx = Math.max(2, Math.min(w - tw - 2, cx - tw / 2));
+      const nv = ult.findIndex(u => lx - u >= 8); if (nv < 0) return; ult[nv] = lx + tw;
+      const ly = yb - 8 - nv * 15; g.beginPath(); g.moveTo(cx, yb); g.lineTo(cx, ly + 2); g.strokeStyle = c; g.lineWidth = 1; g.stroke(); g.fillStyle = c; g.textAlign = "left"; g.fillText(tx, lx, ly);
+    });
+  }
+  if (rango) {   // medidor del rango de 6 meses: dónde está el precio hoy entre el piso y el techo, con las zonas de compra y venta
+    const c6 = cl.slice(-121), pi = Math.min(...c6), te = Math.max(...c6), compra = pi + 0.2 * (te - pi), venta = pi + 0.6 * (te - pi), hoy = cl[N - 1], p = (hoy - pi) / (te - pi || 1);
+    const xg = v => 8 + (v - pi) * (w - 16) / (te - pi || 1), yb = gTop + 28, ab = 14, cs = senal ? col(senal === "COMPRAR" ? "--long" : "--short") : col("--text");
+    [[pi, compra, "--long", 0.4], [compra, venta, "--line", 1], [venta, te, "--short", 0.3]].forEach(([a, b, c, al]) => rect(xg(a), yb, xg(b) - xg(a), ab, col(c), al, false));
+    const tx = `Rango de 6 meses: hoy ${fmt(hoy)} está en el ${Math.round(100 * p)}%` + (senal ? " → " + senal : "");
+    g.font = "bold 11px " + fam; const tw = g.measureText(tx).width, px = xg(hoy);
+    g.fillStyle = cs; g.textAlign = "left"; g.fillText(tx, Math.max(2, Math.min(w - tw - 2, px - 12)), gTop + 12);
+    g.beginPath(); g.moveTo(px, yb + ab + 3); g.lineTo(px, yb - 3); g.strokeStyle = col("--text"); g.lineWidth = 2; g.stroke();
+    g.beginPath(); g.moveTo(px - 5, yb - 9); g.lineTo(px + 5, yb - 9); g.lineTo(px, yb - 2); g.closePath(); g.fillStyle = col("--text"); g.fill();
+    g.font = "10px " + fam; g.fillStyle = col("--muted");
+    [[pi, "piso 6m", "left"], [compra, "compra bajo", "center"], [venta, "venta sobre", "center"], [te, "techo 6m", "right"]].forEach(([v, nom, al]) => {
+      const x = al === "left" ? 8 : al === "right" ? w - 8 : xg(v); g.textAlign = al; g.fillText(nom, x, yb + ab + 14); g.fillText(fmt(v), x, yb + ab + 26);
+    });
+    g.textAlign = "left";
+  }
+  etiquetas.forEach(([tx, x, y, c]) => pill(tx, x, y, c));
+  if (hover !== null && hover >= 0 && hover < N) {   // línea vertical + cartel con la fecha y el precio de ese día (y la operación en curso ese día, si hay)
     const x = X(hover), y = Y(cl[hover]);
     g.strokeStyle = col("--muted"); g.lineWidth = 1; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, hp); g.stroke(); g.setLineDash([]);
     g.beginPath(); g.arc(x, y, 4, 0, 7); g.fillStyle = col("--accent"); g.fill();
-    const tx = dmy(ts[hover]) + "  ·  " + fmt(cl[hover]);
-    g.font = "bold 12px " + (getComputedStyle(document.body).fontFamily || "sans-serif");
-    const bw = g.measureText(tx).width + 14, bx = Math.max(2, Math.min(w - bw - 2, x - bw / 2)), by = y > 40 ? y - 30 : y + 12;
-    g.fillStyle = col("--text"); g.beginPath(); g.roundRect ? g.roundRect(bx, by, bw, 22, 5) : g.rect(bx, by, bw, 22); g.fill();
-    g.fillStyle = col("--bg") || "#fff"; g.textAlign = "left"; g.fillText(tx, bx + 7, by + 15);
+    const lin = [dmy(ts[hover]) + "  ·  " + fmt(cl[hover])];
+    ops.filter(o => o.a <= hover && hover <= o.b).forEach(o => lin.push("operación " + dm(o.e) + "→" + (o.s === null ? "hoy" : dm(o.s)) + "  " + pctS(o.r)));
+    g.font = "bold 12px " + fam;
+    const bw = Math.max(...lin.map(s => g.measureText(s).width)) + 14, bh = 8 + 15 * lin.length, bx = Math.max(2, Math.min(w - bw - 2, x - bw / 2)), by = y > bh + 18 ? y - bh - 8 : y + 12;
+    g.fillStyle = col("--text"); g.beginPath(); g.roundRect ? g.roundRect(bx, by, bw, bh, 5) : g.rect(bx, by, bw, bh); g.fill();
+    g.fillStyle = col("--bg") || "#fff"; g.textAlign = "left"; lin.forEach((s, k) => g.fillText(s, bx + 7, by + 15 + 15 * k));
   }
 }
 // Titular de arriba: qué hay que hacer hoy, según el estado de todos los activos mostrados.
@@ -1291,8 +1336,8 @@ function detalleAcc(r) {
   const ops = r.ops.slice(-5).reverse().map(o => `<tr><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span></td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}</td></tr>`).join("");
   const ab = r.t.abierta ? `<tr class="abierta"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}</td></tr>` : "";
   return `<tr class="det"><td colspan="10"><div class="cols">
-    <div><canvas role="img" aria-label="Gráfico de ${r.s}"></canvas><div class="niv"></div>
-      <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span><span><i class="v" style="background:var(--long);border-color:var(--long)"></i>Operación ganada</span><span><i class="v" style="background:var(--short);border-color:var(--short)"></i>perdida</span></div></div>
+    <div><canvas role="img" aria-label="Gráfico de ${r.s}: precio de 2 años, operaciones y señal de hoy"></canvas>
+      <div class="leyenda"><span><i class="p"></i>Precio</span>${r.rango ? "" : '<span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span>'}<span><i class="v" style="background:var(--long);border-color:var(--long)"></i>Operación ganada</span><span><i class="v" style="background:var(--short);border-color:var(--short)"></i>perdida</span><span>Barra rayada: varias operaciones seguidas</span></div></div>
     <div>${r.det ? paso("¿Está en rango? (se mira 2 años)", r.det.corto ? "Todavía no hay 2 años de historia para evaluarlo: se opera por tendencia (cruce 50/200)." : `${r.det.vj >= 3 ? "✓" : "✕"} <b>Rebota entre piso y techo:</b> en 2 años el precio tuvo un piso de ${fmt(r.det.piso)}, un techo de ${fmt(r.det.techo)} y un promedio de ${fmt(r.det.media)}. La banda se divide en una zona de abajo (hasta ${fmt(r.det.piso + 0.2 * (r.det.techo - r.det.piso))}) y una zona de arriba (desde ${fmt(r.det.techo - 0.2 * (r.det.techo - r.det.piso))}): cada una es el 20% del ancho entre piso y techo (el mismo 20% de la compra). Fue ${r.det.vj} ${r.det.vj === 1 ? "vez" : "veces"} de una zona a la otra (hacen falta 3 o más).<br>${Math.abs(r.det.mov) < 0.25 ? "✓" : "✕"} <b>No tiene rumbo:</b> hace 2 años valía ${fmt(r.det.p0)} y hoy ${fmt(r.det.p1)}: cambió ${pctT(r.det.mov)}. Para ser rango tiene que haber cambiado menos de 25% (para arriba o para abajo) respecto de lo que valía hace 2 años.<br>${r.det.pend < 0.3 ? "✓" : "✕"} <b>Sin inclinación de fondo:</b> la línea recta que mejor sigue al precio ${r.det.incl >= 0 ? "sube" : "baja"} ${Math.abs(r.det.incl * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% en los 2 años, y eso es un ${Math.round(100 * r.det.pend)}% de lo que el precio suele oscilar alrededor de esa línea (tiene que ser menos de 30%; si es más, el movimiento es más una subida o una bajada que un vaivén).<br>${r.det.ok ? "<b>Está en rango:</b> se opera comprando abajo y vendiendo arriba." : "<b>No está en rango:</b> se opera por tendencia (cruce 50/200)."}`, r.det.ok) : ""}${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60% o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
       <div class="scroll"><table style="margin-top:10px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
   </div></td></tr>`;
