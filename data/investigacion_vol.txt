@@ -1,0 +1,78 @@
+== 2018 a hoy
+  LENTAS (vol. menor a 30%) · 109 acciones
+     Actual: todo al cruce    mediana   43.0%  promedio   87.6%  caída típica  -46.5%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   39.3%  promedio   68.2%  caída típica  -40.8%  mejor que actual en  40%, peor en  60%
+     Vende 50% a +20%         mediana   36.9%  promedio   57.6%  caída típica  -38.8%  mejor que actual en  39%, peor en  61%
+  MEDIAS (30% a 45%) · 14 acciones
+     Actual: todo al cruce    mediana  232.8%  promedio  503.2%  caída típica  -59.7%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana  168.5%  promedio  259.5%  caída típica  -51.8%  mejor que actual en  14%, peor en  86%
+     Vende 50% a +20%         mediana  110.1%  promedio  167.8%  caída típica  -49.4%  mejor que actual en  14%, peor en  86%
+  RÁPIDAS (más de 45%) · 3 acciones
+     Actual: todo al cruce    mediana   35.7%  promedio  787.4%  caída típica  -49.1%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana  120.1%  promedio  485.5%  caída típica  -34.7%  mejor que actual en  67%, peor en  33%
+     Vende 50% a +20%         mediana  169.4%  promedio  362.4%  caída típica  -27.0%  mejor que actual en  67%, peor en  33%
+== 2018-2019
+  LENTAS (vol. menor a 30%) · 109 acciones
+     Actual: todo al cruce    mediana    8.9%  promedio   13.4%  caída típica  -23.0%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana    9.6%  promedio   11.3%  caída típica  -18.5%  mejor que actual en  39%, peor en  40%
+     Vende 50% a +20%         mediana    9.6%  promedio   10.2%  caída típica  -16.7%  mejor que actual en  37%, peor en  43%
+  MEDIAS (30% a 45%) · 14 acciones
+     Actual: todo al cruce    mediana   -7.1%  promedio   -8.9%  caída típica  -41.1%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   -6.6%  promedio   -8.7%  caída típica  -33.7%  mejor que actual en  50%, peor en  36%
+     Vende 50% a +20%         mediana   -5.8%  promedio   -8.9%  caída típica  -31.7%  mejor que actual en  43%, peor en  43%
+  RÁPIDAS (más de 45%) · 3 acciones
+     Actual: todo al cruce    mediana    0.5%  promedio   54.5%  caída típica  -49.1%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   11.2%  promedio   43.6%  caída típica  -34.7%  mejor que actual en  67%, peor en  33%
+     Vende 50% a +20%         mediana   16.2%  promedio   38.0%  caída típica  -27.0%  mejor que actual en  67%, peor en  33%
+== 2020 (covid)
+  LENTAS (vol. menor a 30%) · 98 acciones
+     Actual: todo al cruce    mediana   -6.5%  promedio   -1.4%  caída típica  -34.3%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   -1.0%  promedio   -0.5%  caída típica  -26.5%  mejor que actual en  40%, peor en  31%
+     Vende 50% a +20%         mediana    0.3%  promedio   -0.2%  caída típica  -22.1%  mejor que actual en  40%, peor en  31%
+  MEDIAS (30% a 45%) · 21 acciones
+     Actual: todo al cruce    mediana   19.7%  promedio   30.9%  caída típica  -31.3%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   22.5%  promedio   23.8%  caída típica  -26.2%  mejor que actual en  38%, peor en  48%
+     Vende 50% a +20%         mediana   22.7%  promedio   20.0%  caída típica  -20.9%  mejor que actual en  38%, peor en  48%
+  RÁPIDAS (más de 45%) · 8 acciones
+     Actual: todo al cruce    mediana    1.0%  promedio  100.6%  caída típica  -30.2%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana    8.0%  promedio   52.4%  caída típica  -24.8%  mejor que actual en  25%, peor en  25%
+     Vende 50% a +20%         mediana   10.7%  promedio   35.7%  caída típica  -22.0%  mejor que actual en  25%, peor en  25%
+== 2021
+  LENTAS (vol. menor a 30%) · 3 acciones
+     Actual: todo al cruce    mediana   -3.7%  promedio   -8.8%  caída típica  -11.4%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   -3.7%  promedio   -5.3%  caída típica  -10.0%  mejor que actual en  33%, peor en  33%
+     Vende 50% a +20%         mediana   -3.7%  promedio   -3.7%  caída típica  -10.0%  mejor que actual en  33%, peor en  33%
+  MEDIAS (30% a 45%) · 46 acciones
+     Actual: todo al cruce    mediana   12.9%  promedio   17.2%  caída típica  -15.1%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   10.3%  promedio   12.9%  caída típica  -11.9%  mejor que actual en  24%, peor en  48%
+     Vende 50% a +20%         mediana    8.8%  promedio   10.8%  caída típica  -10.5%  mejor que actual en  24%, peor en  48%
+  RÁPIDAS (más de 45%) · 81 acciones
+     Actual: todo al cruce    mediana   20.4%  promedio   24.1%  caída típica  -18.5%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   16.8%  promedio   17.8%  caída típica  -13.4%  mejor que actual en  38%, peor en  54%
+     Vende 50% a +20%         mediana   16.1%  promedio   14.7%  caída típica  -11.1%  mejor que actual en  36%, peor en  57%
+== 2022 (bajista)
+  LENTAS (vol. menor a 30%) · 84 acciones
+     Actual: todo al cruce    mediana  -11.0%  promedio   -8.3%  caída típica  -19.7%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   -8.3%  promedio   -6.7%  caída típica  -16.5%  mejor que actual en  51%, peor en  10%
+     Vende 50% a +20%         mediana   -6.5%  promedio   -5.9%  caída típica  -13.2%  mejor que actual en  50%, peor en  11%
+  MEDIAS (30% a 45%) · 31 acciones
+     Actual: todo al cruce    mediana  -14.5%  promedio   -9.1%  caída típica  -28.6%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   -9.8%  promedio   -7.6%  caída típica  -21.3%  mejor que actual en  45%, peor en  10%
+     Vende 50% a +20%         mediana   -8.2%  promedio   -6.8%  caída típica  -16.6%  mejor que actual en  45%, peor en  10%
+  RÁPIDAS (más de 45%) · 16 acciones
+     Actual: todo al cruce    mediana   -4.2%  promedio    3.7%  caída típica  -24.2%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   -4.2%  promedio    0.1%  caída típica  -19.7%  mejor que actual en  31%, peor en  12%
+     Vende 50% a +20%         mediana   -4.2%  promedio   -1.4%  caída típica  -16.7%  mejor que actual en  31%, peor en  12%
+== 2023 a hoy
+  LENTAS (vol. menor a 30%) · 41 acciones
+     Actual: todo al cruce    mediana   29.6%  promedio   39.2%  caída típica  -28.3%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   26.4%  promedio   29.8%  caída típica  -25.0%  mejor que actual en  27%, peor en  56%
+     Vende 50% a +20%         mediana   22.3%  promedio   25.3%  caída típica  -23.3%  mejor que actual en  27%, peor en  56%
+  MEDIAS (30% a 45%) · 50 acciones
+     Actual: todo al cruce    mediana   11.5%  promedio   53.2%  caída típica  -35.9%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   15.5%  promedio   39.5%  caída típica  -32.6%  mejor que actual en  44%, peor en  48%
+     Vende 50% a +20%         mediana   16.0%  promedio   32.6%  caída típica  -27.3%  mejor que actual en  44%, peor en  48%
+  RÁPIDAS (más de 45%) · 45 acciones
+     Actual: todo al cruce    mediana   79.6%  promedio  211.6%  caída típica  -47.0%  mejor que actual en   0%, peor en   0%
+     Vende 1/3 a +20%         mediana   81.1%  promedio  131.2%  caída típica  -37.4%  mejor que actual en  36%, peor en  64%
+     Vende 50% a +20%         mediana   75.3%  promedio   98.3%  caída típica  -32.0%  mejor que actual en  31%, peor en  69%
