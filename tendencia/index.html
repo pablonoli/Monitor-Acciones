@@ -1158,7 +1158,7 @@ function eficiencia(bars) {
   for (let i = 1; i < c.length; i++) rec += Math.abs(c[i] - c[i - 1]);
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
-const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["afuera", "Afuera"]];
+const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["cerca", "Cerca de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["naciente", "Tendencia naciente (sin compra)"], ["rango", "En rango ↔"], ["afuera", "Afuera"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
@@ -1294,7 +1294,7 @@ function comparacionAcc() {
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : r.venderYa ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && r.venderYa) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && r.venderYa) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
@@ -1335,7 +1335,7 @@ function pintarFilasAcc() {
       <td class="iz sim">${r.s}${r.rango ? ' <span class="pill AVISO" style="font-size:11px;padding:1px 6px">↔ rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? ` <span class="alerta" title="Esta acción ya tuvo ${r.stopsRec} stop(s) en los últimos 3 meses y sigue cerca del piso de su rango">⚠ ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} reciente${r.stopsRec > 1 ? "s" : ""}</span>` : ""}</td>
       <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
       ${r.rango ? `<td class="num">Rango ${Math.round(100 * r.pos)}%</td>` : `<td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>`}
-      <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span></td><td class="num">${fmt(r.precio)}</td>${r.t.abierta ? `<td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}<br><span class="sub">desde ${fmt(r.t.abierta.precio)}</span></td>` : `<td class="num sub">—</td>`}${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
+      <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span>${accCumple(r, "naciente") ? `<br><span class="sub">${r.bloqueada ? "salió de un rango: espera un cruce nuevo" : r.rango ? "está en rango: espera zona de compra" : !r.mediasOk ? "las medias están a " + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% de cruzar" : "sin señal de compra todavía"}</span>` : ""}</td><td class="num">${fmt(r.precio)}</td>${r.t.abierta ? `<td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}<br><span class="sub">desde ${fmt(r.t.abierta.precio)}</span></td>` : `<td class="num sub">—</td>`}${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
   }).join("") || `<tr><td class="iz" colspan="10">No hay acciones para mostrar con ese filtro.</td></tr>`;
   $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes.`;
   if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); ajustarDetalle(); if (r && cv) graficoTend(cv, r.t, accN, r.rango ? "rango" : true, 501); }
