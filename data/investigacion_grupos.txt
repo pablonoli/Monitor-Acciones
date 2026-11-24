@@ -1,0 +1,101 @@
+######## DEFENSIVAS Y CONSUMO (34 acciones disponibles)
+== 2018 a hoy (34 acciones)
+  Comprar y mantener         mediana   87.9%  promedio  114.9%  caída típica  -44.6%  invertido 100%  mejor que actual en  88%, peor en  12%
+  Actual: todo al cruce      mediana   18.6%  promedio   36.4%  caída típica  -38.5%  invertido  63%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   21.7%  promedio   35.3%  caída típica  -36.2%  invertido  56%  mejor que actual en  62%, peor en  38%
+  Vende 1/3 a +20%           mediana   24.0%  promedio   34.7%  caída típica  -36.2%  invertido  54%  mejor que actual en  62%, peor en  38%
+  Vende 50% a +20%           mediana   26.2%  promedio   33.4%  caída típica  -35.7%  invertido  50%  mejor que actual en  62%, peor en  38%
+  Vende 75% a +20%           mediana   18.0%  promedio   30.9%  caída típica  -34.1%  invertido  43%  mejor que actual en  59%, peor en  41%
+== 2018-2019 (34 acciones)
+  Comprar y mantener         mediana   24.6%  promedio   25.6%  caída típica  -22.6%  invertido 100%  mejor que actual en  68%, peor en  24%
+  Actual: todo al cruce      mediana   10.9%  promedio   16.9%  caída típica  -20.1%  invertido  68%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   15.4%  promedio   15.4%  caída típica  -17.0%  invertido  59%  mejor que actual en  38%, peor en  32%
+  Vende 1/3 a +20%           mediana   16.0%  promedio   14.8%  caída típica  -16.4%  invertido  57%  mejor que actual en  35%, peor en  35%
+  Vende 50% a +20%           mediana   17.0%  promedio   13.8%  caída típica  -15.5%  invertido  51%  mejor que actual en  32%, peor en  38%
+  Vende 75% a +20%           mediana   12.8%  promedio   12.2%  caída típica  -14.3%  invertido  43%  mejor que actual en  32%, peor en  38%
+== 2020 (covid) (34 acciones)
+  Comprar y mantener         mediana    8.0%  promedio    6.9%  caída típica  -33.6%  invertido 100%  mejor que actual en  71%, peor en  24%
+  Actual: todo al cruce      mediana   -6.0%  promedio   -4.2%  caída típica  -30.8%  invertido  58%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   -0.0%  promedio   -1.5%  caída típica  -25.2%  invertido  51%  mejor que actual en  56%, peor en   9%
+  Vende 1/3 a +20%           mediana    0.4%  promedio   -0.7%  caída típica  -23.7%  invertido  49%  mejor que actual en  56%, peor en   9%
+  Vende 50% a +20%           mediana    0.8%  promedio    1.0%  caída típica  -19.7%  invertido  45%  mejor que actual en  56%, peor en   9%
+  Vende 75% a +20%           mediana    2.6%  promedio    3.5%  caída típica  -11.6%  invertido  38%  mejor que actual en  56%, peor en   9%
+== 2021 (34 acciones)
+  Comprar y mantener         mediana   22.2%  promedio   22.8%  caída típica  -15.7%  invertido 100%  mejor que actual en  59%, peor en  15%
+  Actual: todo al cruce      mediana   12.2%  promedio   17.0%  caída típica  -15.1%  invertido  82%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   14.0%  promedio   14.4%  caída típica  -12.2%  invertido  71%  mejor que actual en  18%, peor en  41%
+  Vende 1/3 a +20%           mediana   14.9%  promedio   13.6%  caída típica  -11.7%  invertido  67%  mejor que actual en  18%, peor en  41%
+  Vende 50% a +20%           mediana   14.8%  promedio   11.9%  caída típica  -10.0%  invertido  60%  mejor que actual en  18%, peor en  41%
+  Vende 75% a +20%           mediana    9.6%  promedio    9.5%  caída típica   -9.9%  invertido  50%  mejor que actual en  18%, peor en  41%
+== 2022 (bajista) (34 acciones)
+  Comprar y mantener         mediana   -2.1%  promedio    1.7%  caída típica  -25.4%  invertido 100%  mejor que actual en  68%, peor en  18%
+  Actual: todo al cruce      mediana  -11.6%  promedio   -5.0%  caída típica  -20.5%  invertido  53%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana  -11.2%  promedio   -5.3%  caída típica  -18.3%  invertido  46%  mejor que actual en  35%, peor en  18%
+  Vende 1/3 a +20%           mediana  -10.2%  promedio   -5.4%  caída típica  -17.8%  invertido  44%  mejor que actual en  35%, peor en  18%
+  Vende 50% a +20%           mediana   -7.6%  promedio   -5.6%  caída típica  -17.0%  invertido  40%  mejor que actual en  35%, peor en  18%
+  Vende 75% a +20%           mediana   -5.1%  promedio   -5.8%  caída típica  -13.6%  invertido  33%  mejor que actual en  35%, peor en  18%
+== 2023 a hoy (34 acciones)
+  Comprar y mantener         mediana   22.3%  promedio   32.8%  caída típica  -32.3%  invertido 100%  mejor que actual en  76%, peor en  24%
+  Actual: todo al cruce      mediana    2.7%  promedio   11.6%  caída típica  -29.1%  invertido  60%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana    5.5%  promedio   10.6%  caída típica  -27.3%  invertido  55%  mejor que actual en  44%, peor en  32%
+  Vende 1/3 a +20%           mediana    7.0%  promedio   10.3%  caída típica  -26.6%  invertido  53%  mejor que actual en  44%, peor en  32%
+  Vende 50% a +20%           mediana    7.7%  promedio    9.7%  caída típica  -25.1%  invertido  50%  mejor que actual en  44%, peor en  32%
+  Vende 75% a +20%           mediana   12.8%  promedio    8.8%  caída típica  -23.7%  invertido  45%  mejor que actual en  44%, peor en  32%
+== RESUMEN: promedio de los períodos separados
+  Comprar y mantener         mediana   15.0%  promedio   17.9%  caída típica  -25.9%
+  Actual: todo al cruce      mediana    1.6%  promedio    7.3%  caída típica  -23.1%
+  Vende 25% a +20%           mediana    4.7%  promedio    6.7%  caída típica  -20.0%
+  Vende 1/3 a +20%           mediana    5.6%  promedio    6.5%  caída típica  -19.2%
+  Vende 50% a +20%           mediana    6.5%  promedio    6.2%  caída típica  -17.5%
+  Vende 75% a +20%           mediana    6.5%  promedio    5.6%  caída típica  -14.6%
+
+######## TECNOLÓGICAS (34 acciones disponibles)
+== 2018 a hoy (32 acciones)
+  Comprar y mantener         mediana  452.2%  promedio  702.4%  caída típica  -57.8%  invertido 100%  mejor que actual en  78%, peor en  22%
+  Actual: todo al cruce      mediana  210.0%  promedio  374.2%  caída típica  -50.7%  invertido  68%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana  176.7%  promedio  268.3%  caída típica  -43.3%  invertido  57%  mejor que actual en  22%, peor en  78%
+  Vende 1/3 a +20%           mediana  158.6%  promedio  236.1%  caída típica  -41.2%  invertido  53%  mejor que actual en  22%, peor en  78%
+  Vende 50% a +20%           mediana  123.0%  promedio  177.7%  caída típica  -39.6%  invertido  45%  mejor que actual en  22%, peor en  78%
+  Vende 75% a +20%           mediana   96.4%  promedio  106.4%  caída típica  -33.3%  invertido  33%  mejor que actual en  22%, peor en  78%
+== 2018-2019 (32 acciones)
+  Comprar y mantener         mediana   35.4%  promedio   50.4%  caída típica  -32.2%  invertido 100%  mejor que actual en  88%, peor en  12%
+  Actual: todo al cruce      mediana   20.2%  promedio   23.2%  caída típica  -26.7%  invertido  70%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   17.5%  promedio   19.7%  caída típica  -22.7%  invertido  59%  mejor que actual en  38%, peor en  56%
+  Vende 1/3 a +20%           mediana   15.6%  promedio   18.4%  caída típica  -22.3%  invertido  56%  mejor que actual en  38%, peor en  56%
+  Vende 50% a +20%           mediana   16.1%  promedio   15.6%  caída típica  -19.7%  invertido  48%  mejor que actual en  34%, peor en  59%
+  Vende 75% a +20%           mediana   13.7%  promedio   11.1%  caída típica  -16.2%  invertido  38%  mejor que actual en  34%, peor en  59%
+== 2020 (covid) (32 acciones)
+  Comprar y mantener         mediana   42.0%  promedio   67.9%  caída típica  -35.1%  invertido 100%  mejor que actual en  78%, peor en   0%
+  Actual: todo al cruce      mediana   18.5%  promedio   43.7%  caída típica  -34.4%  invertido  77%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   18.9%  promedio   30.8%  caída típica  -27.4%  invertido  64%  mejor que actual en  34%, peor en  47%
+  Vende 1/3 a +20%           mediana   19.9%  promedio   27.1%  caída típica  -25.5%  invertido  60%  mejor que actual en  34%, peor en  47%
+  Vende 50% a +20%           mediana   20.8%  promedio   20.5%  caída típica  -20.3%  invertido  52%  mejor que actual en  34%, peor en  47%
+  Vende 75% a +20%           mediana   17.2%  promedio   12.4%  caída típica  -15.4%  invertido  40%  mejor que actual en  34%, peor en  47%
+== 2021 (32 acciones)
+  Comprar y mantener         mediana   38.7%  promedio   41.5%  caída típica  -19.5%  invertido 100%  mejor que actual en  44%, peor en   3%
+  Actual: todo al cruce      mediana   32.4%  promedio   34.4%  caída típica  -18.6%  invertido  90%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   27.3%  promedio   26.5%  caída típica  -14.8%  invertido  71%  mejor que actual en  22%, peor en  72%
+  Vende 1/3 a +20%           mediana   25.0%  promedio   23.9%  caída típica  -13.4%  invertido  65%  mejor que actual en  22%, peor en  72%
+  Vende 50% a +20%           mediana   20.5%  promedio   18.8%  caída típica  -10.3%  invertido  52%  mejor que actual en  19%, peor en  75%
+  Vende 75% a +20%           mediana   13.2%  promedio   11.5%  caída típica   -5.7%  invertido  33%  mejor que actual en  19%, peor en  75%
+== 2022 (bajista) (33 acciones)
+  Comprar y mantener         mediana  -39.3%  promedio  -35.7%  caída típica  -47.4%  invertido 100%  mejor que actual en  18%, peor en  82%
+  Actual: todo al cruce      mediana  -14.5%  promedio  -17.1%  caída típica  -25.4%  invertido  24%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana  -13.7%  promedio  -13.7%  caída típica  -19.5%  invertido  20%  mejor que actual en  73%, peor en   0%
+  Vende 1/3 a +20%           mediana  -12.2%  promedio  -12.6%  caída típica  -17.9%  invertido  19%  mejor que actual en  73%, peor en   0%
+  Vende 50% a +20%           mediana  -10.4%  promedio  -10.3%  caída típica  -14.7%  invertido  16%  mejor que actual en  73%, peor en   0%
+  Vende 75% a +20%           mediana   -5.9%  promedio   -7.0%  caída típica   -8.1%  invertido  12%  mejor que actual en  73%, peor en   0%
+== 2023 a hoy (34 acciones)
+  Comprar y mantener         mediana  202.9%  promedio  393.1%  caída típica  -49.3%  invertido 100%  mejor que actual en  88%, peor en  12%
+  Actual: todo al cruce      mediana   90.5%  promedio  220.5%  caída típica  -41.7%  invertido  71%  mejor que actual en   0%, peor en   0%
+  Vende 25% a +20%           mediana   87.0%  promedio  155.5%  caída típica  -35.2%  invertido  59%  mejor que actual en  29%, peor en  71%
+  Vende 1/3 a +20%           mediana   85.2%  promedio  136.6%  caída típica  -32.6%  invertido  54%  mejor que actual en  29%, peor en  71%
+  Vende 50% a +20%           mediana   83.8%  promedio  103.3%  caída típica  -26.9%  invertido  46%  mejor que actual en  29%, peor en  71%
+  Vende 75% a +20%           mediana   67.8%  promedio   63.1%  caída típica  -20.2%  invertido  33%  mejor que actual en  29%, peor en  71%
+== RESUMEN: promedio de los períodos separados
+  Comprar y mantener         mediana   55.9%  promedio  103.4%  caída típica  -36.7%
+  Actual: todo al cruce      mediana   29.4%  promedio   60.9%  caída típica  -29.4%
+  Vende 25% a +20%           mediana   27.4%  promedio   43.7%  caída típica  -23.9%
+  Vende 1/3 a +20%           mediana   26.7%  promedio   38.7%  caída típica  -22.3%
+  Vende 50% a +20%           mediana   26.2%  promedio   29.6%  caída típica  -18.4%
+  Vende 75% a +20%           mediana   21.2%  promedio   18.2%  caída típica  -13.1%
