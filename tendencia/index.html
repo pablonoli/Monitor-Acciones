@@ -75,6 +75,10 @@ label.campo { max-width: 100%; } label.campo select { min-width: 0; max-width: 1
 .nom { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .nom h2 { margin: 0; font-family: var(--font-head); font-size: 26px; font-weight: 600; }
 .price { font-size: 18px; }
+.var { font-size: 14px; font-weight: 600; } .var.pos { color: var(--long); } .var.neg { color: var(--short); }
+.rangoT { display: flex; gap: 6px; margin: 2px 0 6px; }
+.rangoT button { font-size: 13px; padding: 4px 12px; min-height: 32px; }
+.rangoT button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 .pill { font-family: var(--font-num); font-weight: 600; font-size: 14px; padding: 8px 14px; border-radius: 8px; background: var(--short-bg); color: var(--short); white-space: nowrap; }
 .pill.LONG { background: var(--long-bg); color: var(--long); }
 .pill.AVISO { background: var(--accent-bg); color: var(--accent-d); }
@@ -776,6 +780,9 @@ const ACTIVOS_T = [
 let tendSel = guardado("tend_activos", ["BTC", "SOL", "HYPE", "MSTR"]).filter(id => ACTIVOS_T.some(a => a.id === id));
 let tendOrden = guardado("tend_orden", "fecha");
 let tendAnio = guardado("tend_anio", "todos");
+let tendRango = guardado("tend_rango", "corto") === "2a" ? "2a" : "corto";
+const nBarrasT = () => tendRango === "2a" ? (tendTf === "1d" ? 730 : 4380) : 120;
+const txRangoT = r => r === "2a" ? "2 años" : tendTf === "1d" ? "4 meses" : "20 días";
 const activosSel = () => ACTIVOS_T.filter(a => tendSel.includes(a.id));
 const MS_VELA = { "1d": 86400000, "4h": 14400000 };
 // Cotización diaria de la acción MSTR (Yahoo Finance), del 03/01/2023 al 17/11/2026.
@@ -830,9 +837,10 @@ function crearTend() {
   $("tendGrid").innerHTML = activosSel().map(a => `
     <article class="card tcard" id="t-${a.id}">
       <div class="top">
-        <div class="nom"><h2>${a.id}</h2><span class="price num" data-k="precio">—</span></div>
+        <div class="nom"><h2>${a.id}</h2><span class="price num" data-k="precio">—</span><span class="var num" data-k="var"></span></div>
         <span class="pill" data-k="pill">…</span>
       </div>
+      <div class="rangoT" role="group" aria-label="Cuánto tiempo mostrar en el gráfico">${["corto", "2a"].map(r => `<button type="button" data-r="${r}" aria-pressed="${r === tendRango}">${txRangoT(r)}</button>`).join("")}</div>
       <canvas data-k="graf" role="img" aria-label="Gráfico de ${a.nombre}: precio, media rápida, media lenta y media de 200 días"></canvas>
       <div class="ley">El precio de arriba es el de ahora; el permiso y el cruce se deciden con el último cierre.</div>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media rápida</span><span><i class="l"></i>Media lenta</span><span><i class="m"></i>Media de 200 días (el permiso)</span><span><i class="v"></i>Comprado</span></div>
@@ -852,12 +860,15 @@ function crearTend() {
 }
 const ultimosT = {};
 const paso = (nombre, txt, ok) => `<div class="paso"><div><b>${nombre}</b><span class="sub">${txt}</span></div><span class="chip ${ok ? "si" : "no"}">${ok ? "✓ Sí" : "✕ No"}</span></div>`;
-function pintarTend(s, t, precioVivo, info) {
+function pintarTend(s, t, precioVivo, info, cierreAnt) {
   const card = $("t-" + s), q = k => card.querySelector(`[data-k="${k}"]`), d = desdeInicio(t);
   const comprado = t.estado === 1, comprarYa = comprado && !t.abierta, venderYa = !comprado && !!t.abierta;
   ultimosT[s] = t;
   card.className = "card tcard" + (comprado ? " LONG" : "");
   q("precio").textContent = "US$ " + fmt(precioVivo);
+  const vd = q("var");
+  if (cierreAnt > 0) { const v = precioVivo / cierreAnt - 1; vd.textContent = `${v >= 0 ? "▲" : "▼"} ${pctT(v).replace(/^[+−]/, "")} ${tendTf === "1d" ? "hoy" : "en 24 h"}`; vd.className = "var num " + (v >= 0 ? "pos" : "neg"); vd.title = tendTf === "1d" ? "Variación desde el último cierre diario" : "Variación contra el cierre de hace 24 horas"; }
+  else vd.textContent = "";
   q("pill").textContent = comprarYa ? "COMPRAR" : venderYa ? "VENDER" : comprado ? "COMPRADO" : "AFUERA";
   q("pill").className = "pill" + (comprado ? " LONG" : venderYa ? " AVISO" : "");
   const ult = t.ops[t.ops.length - 1], gap = pctT(Math.abs(t.brecha)).replace("+", "");
@@ -900,7 +911,7 @@ function smaSerie(c, n) {
   for (let i = 0; i < c.length; i++) { suma += c[i]; if (i >= n) suma -= c[i - n]; if (i >= n - 1) m[i] = suma / n; }
   return m;
 }
-function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, nBarras = 120, hover = null) {
+function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, nBarras = nBarrasT(), hover = null) {
   cv.__p = [t, n200, banda, nBarras];
   if (!cv.__hov) {   // al pasar el mouse (o tocar y arrastrar) por el gráfico se marca la fecha y el precio de ese día
     cv.__hov = true; cv.style.touchAction = "pan-y";
@@ -1060,7 +1071,7 @@ async function actualizarTend(completo) {
         if (gen !== tendGen) return;
         const propio = filtroPropio(cerradas, tf === "1d" ? 200 : 1200);
         const t = tendencia(cerradas, enCurso, cfg, permiso(tendModo, filtro, propio), INICIO_T);
-        resumenes.push(pintarTend(a.id, t, enCurso ? enCurso.close : cerradas[cerradas.length - 1].close, { modo: tendModo, btc: filtro, propio }));
+        resumenes.push(pintarTend(a.id, t, enCurso ? enCurso.close : cerradas[cerradas.length - 1].close, { modo: tendModo, btc: filtro, propio }, (tf === "1d" ? cerradas[cerradas.length - 1] : cerradas[cerradas.length - 7] || cerradas[0]).close));
         avisarCambioTend(a.id, tf, t);
       } catch (e) {
         console.log(a.id, e); fallas.push(a.id);
@@ -1140,6 +1151,12 @@ $("tendOrden").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   tendOrden = b.dataset.orden; guardar("tend_orden", tendOrden);
   if (ultimaLista) pintarListaTend(ultimaLista.filas, ultimaLista.cap, ultimaLista.hoy);
+});
+$("tendGrid").addEventListener("click", e => {
+  const b = e.target.closest(".rangoT button"); if (!b) return;
+  tendRango = b.dataset.r; guardar("tend_rango", tendRango);
+  document.querySelectorAll(".rangoT button").forEach(x => x.setAttribute("aria-pressed", x.dataset.r === tendRango));
+  Object.entries(ultimosT).forEach(([id, t]) => { const c = $("t-" + id); if (c) graficoTend(c.querySelector('[data-k="graf"]'), t); });
 });
 $("tendTf").value = tendTf;
 $("tendModo").value = tendModo;
