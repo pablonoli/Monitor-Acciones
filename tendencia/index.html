@@ -41,12 +41,17 @@ label.campo { max-width: 100%; } label.campo select { min-width: 0; max-width: 1
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 .chips button .fuente { font-weight: 400; opacity: .8; font-size: 12px; margin-left: 6px; }
+.ajustes { margin-top: 12px; border: 1px dashed #cdbfa4; border-radius: 14px; padding: 0 14px; }
+.ajustes > summary { cursor: pointer; padding: 12px 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+.ajustes[open] > summary { color: var(--text); }
+.ajustes[open] { padding-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
+.ajustes[open] > summary { padding-bottom: 0; }
 .ftar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .ftar button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; border-radius: 14px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--line); min-height: 0; }
 .ftar button .k { font-size: 12.5px; font-weight: 500; color: var(--muted); line-height: 1.25; }
 .ftar button .v { font-family: var(--font-head); font-size: 26px; font-weight: 600; line-height: 1.1; }
 .ftar button.c-vender { background: var(--short-bg); border-color: #e7c3bd; } .ftar button.c-vender .k, .ftar button.c-vender .v { color: var(--short); }
-.ftar button.c-por { background: var(--accent-bg); border-color: #f0c3aa; } .ftar button.c-por .k, .ftar button.c-por .v { color: var(--accent-d); }
+.ftar button.c-por { background: #e3edf7; border-color: #bdd1e6; } .ftar button.c-por .k, .ftar button.c-por .v { color: var(--blue); }
 .ftar button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 .fotros { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13.5px; }
 .fotros button { background: none; border: none; border-bottom: 1px solid transparent; border-radius: 0; padding: 4px 0; min-height: 32px; color: var(--muted); font-weight: 500; }
@@ -204,17 +209,22 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
   <section class="panel" id="acc">
     <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
     <div class="sub" id="accSub">Bajando los datos…</div>
-    <div class="controles">
+    <div class="aviso" id="accAviso" hidden></div>
+    <div class="veredicto" id="accHoy" hidden></div>
+    <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
+    <details class="ajustes" id="accAjustes">
+      <summary>Ajustes y resultados de la estrategia</summary>
+      <div class="controles">
       <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="auto" selected>Automática: si al comprar la acción está en rango usa la regla de rango; si no, el cruce 50/200 (compra y vende con la misma regla)</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
+      </div>
+      <div class="veredicto" id="accComp" hidden></div>
+      <div class="mini" id="accStats"></div>
+    </details>
+    <div class="controles">
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
     </div>
-    <div class="aviso" id="accAviso" hidden></div>
-    <div class="veredicto" id="accHoy" hidden></div>
-    <div class="veredicto" id="accComp" hidden></div>
-    <div class="mini" id="accStats"></div>
-    <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
     <div class="sub" id="accFiltroTxt"></div>
     <div class="scroll">
       <table id="accTabla">
