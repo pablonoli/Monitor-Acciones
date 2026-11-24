@@ -41,6 +41,18 @@ label.campo { max-width: 100%; } label.campo select { min-width: 0; max-width: 1
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 .chips button .fuente { font-weight: 400; opacity: .8; font-size: 12px; margin-left: 6px; }
+.ftar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.ftar button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; border-radius: 14px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--line); min-height: 0; }
+.ftar button .k { font-size: 12.5px; font-weight: 500; color: var(--muted); line-height: 1.25; }
+.ftar button .v { font-family: var(--font-head); font-size: 26px; font-weight: 600; line-height: 1.1; }
+.ftar button.c-vender { background: var(--short-bg); border-color: #e7c3bd; } .ftar button.c-vender .k, .ftar button.c-vender .v { color: var(--short); }
+.ftar button.c-por { background: var(--accent-bg); border-color: #f0c3aa; } .ftar button.c-por .k, .ftar button.c-por .v { color: var(--accent-d); }
+.ftar button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.fotros { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13.5px; }
+.fotros button { background: none; border: none; border-bottom: 1px solid transparent; border-radius: 0; padding: 4px 0; min-height: 32px; color: var(--muted); font-weight: 500; }
+.fotros button b { font-weight: 600; color: var(--text); margin-left: 4px; }
+.fotros button[aria-pressed="true"] { color: var(--accent-d); border-bottom-color: var(--accent); font-weight: 600; }
+@media (max-width: 520px) { .ftar { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .hero { background: var(--hero); color: var(--hero-text); border-radius: 22px; padding: 36px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; }
 .hero .hcol { flex: 1 1 360px; display: flex; flex-direction: column; gap: 8px; }
 .hero .kick { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--hero-kick); }
@@ -202,7 +214,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <div class="veredicto" id="accHoy" hidden></div>
     <div class="veredicto" id="accComp" hidden></div>
     <div class="mini" id="accStats"></div>
-    <div class="controles" role="group" aria-label="Qué mostrar"><span class="sub">Mostrar</span><div class="chips" id="accFiltros"></div></div>
+    <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
     <div class="sub" id="accFiltroTxt"></div>
     <div class="scroll">
       <table id="accTabla">
@@ -1159,6 +1171,7 @@ function eficiencia(bars) {
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
 const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"]];
+const ACC_TARJ = [["comprar", "Comprar hoy", ""], ["vender", "Vender hoy", "c-vender"], ["por", "A punto de comprar", "c-por"], ["fuerte", "Tendencia fuerte ▲", ""]], ACC_OTROS = [["todas", "Todas"], ["comprado", "Comprados"], ["rango", "En rango ↔"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
@@ -1325,7 +1338,8 @@ function pintarAcc() {
     : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${compr} de ${n} siguen comprados.</p>`;
   const est = res.reduce((a, r) => a + 1 + r.e, 0) / n - 1, man = res.reduce((a, r) => a + 1 + r.m, 0) / n - 1;
   $("accStats").innerHTML = [[`${compr}/${n}`, "comprados"], [`${perm}/${n}`, "con permiso"], [pctT(est), "estrategia promedio desde ene 2024"], [pctT(man), "comprar y mantener promedio"]].map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("");
-  $("accFiltros").innerHTML = ACC_FILTROS.map(([id, tx]) => `<button type="button" data-f="${id}" aria-pressed="${id === accFiltro}">${tx}<span class="fuente">${res.filter(r => accCumple(r, id)).length}</span></button>`).join("");
+  const nF = id => res.filter(r => accCumple(r, id)).length;
+  $("accFiltros").innerHTML = `<div class="ftar">${ACC_TARJ.map(([id, tx, cl]) => `<button type="button" class="${cl}" data-f="${id}" aria-pressed="${id === accFiltro}"><span class="k">${tx}</span><span class="v">${nF(id)}</span></button>`).join("")}</div><div class="fotros">${ACC_OTROS.map(([id, tx]) => `<button type="button" data-f="${id}" aria-pressed="${id === accFiltro}">${tx}<b>${nF(id)}</b></button>`).join("")}</div>`;
   pintarFilasAcc();
 }
 let accMercado = null;
@@ -1424,7 +1438,7 @@ $("accEst").addEventListener("change", e => { accEst = e.target.value; guardar("
 $("accN").addEventListener("change", e => { accN = +e.target.value; guardar("acc_n", accN); pintarAcc(); });
 $("accModo").addEventListener("change", e => { accModo = e.target.value; guardar("acc_modo", accModo); pintarAcc(); });
 $("accBusca").addEventListener("input", e => { accBusca = e.target.value; pintarFilasAcc(); });
-$("accFiltros").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; accFiltro = b.dataset.f; guardar("acc_filtro", accFiltro); pintarAcc(); });
+$("accFiltros").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; accFiltro = (b.dataset.f === accFiltro && b.closest(".ftar")) ? "todas" : b.dataset.f; guardar("acc_filtro", accFiltro); pintarAcc(); });
 $("accTabla").querySelector("thead").addEventListener("click", e => {
   const th = e.target.closest("th[data-k]"); if (!th) return;
   accOrd = accOrd.k === th.dataset.k ? { k: accOrd.k, asc: !accOrd.asc } : { k: th.dataset.k, asc: ["s", "est", "perm", "n"].includes(th.dataset.k) };
