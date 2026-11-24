@@ -188,6 +188,8 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
 
   <section class="panel" id="tendLista" hidden>
     <h2>Todas las operaciones desde enero 2024</h2>
+    <details class="ajustes" id="tendListaDet">
+    <summary>Mostrar la lista de operaciones</summary>
     <div class="sub" id="tendListaSub"></div>
     <div class="controles" role="group" aria-label="Año de la compra">
       <span class="sub">Año</span>
@@ -208,6 +210,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
         <tfoot id="tendOpsTot"></tfoot>
       </table>
     </div>
+    </details>
   </section>
 
   <section class="panel" id="acc">
