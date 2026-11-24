@@ -91,9 +91,13 @@ def correr(data, periodos=PERIODOS):
             for nom, x in res.items(): acum.setdefault(nom, []).append(x)
         n_ok = len(acum.get("Cruce 50/200", []))
         if n_ok < 10: continue
+        hold = np.array([x["hold"] for x in acum["Comprar y mantener"]]); mask = hold <= np.quantile(hold, 0.9)
+        base = np.array([x["ret"] for x in acum[VARIANTES[0]]])
         for nom, R in acum.items():
-            azar = float(np.mean([(1 + x["hold"]) ** x["expo"] - 1 for x in R])); ret = float(np.mean([x["ret"] for x in R]))
-            filas.append(dict(periodo=pn, acciones=n_ok, estrategia=nom, ret=ret, vs_azar=ret - azar, dd=float(np.mean([x["dd"] for x in R])), expo=float(np.mean([x["expo"] for x in R])), ops=float(np.mean([x["ops"] for x in R]))))
+            rets = np.array([x["ret"] for x in R]); dds = np.array([x["dd"] for x in R])
+            azar = float(np.mean([(1 + x["hold"]) ** x["expo"] - 1 for x in R]))
+            filas.append(dict(periodo=pn, acciones=n_ok, estrategia=nom, ret=float(rets.mean()), vs_azar=float(rets.mean()) - azar, dd=float(dds.mean()), expo=float(np.mean([x["expo"] for x in R])),
+                              ops=float(np.mean([x["ops"] for x in R])), mediana=float(np.median(rets)), sin_top=float(rets[mask].mean()), dd_med=float(np.median(dds)), mejor=float(np.mean(rets > base + 1e-9)), peor=float(np.mean(rets < base - 1e-9))))
     return filas
 
 def texto(filas):
@@ -102,16 +106,14 @@ def texto(filas):
         if f["periodo"] not in per: per.append(f["periodo"])
     for p in per:
         F = [f for f in filas if f["periodo"] == p]; out.append(f"== {p} ({F[0]['acciones']} acciones)")
-        for f in F: out.append(f"  {f['estrategia'][:82]:82} rinde {100*f['ret']:7.1f}%  peor caída {100*f['dd']:6.1f}%  vs azar {100*f['vs_azar']:+6.1f}  invertido {100*f['expo']:3.0f}% del tiempo  ops {f['ops']:.1f}")
+        for f in F: out.append(f"  {f['estrategia'][:80]:80} mediana {100*f['mediana']:6.1f}%  sin el 10% que más subió {100*f['sin_top']:6.1f}%  promedio {100*f['ret']:6.1f}%  caída típica {100*f['dd_med']:6.1f}%  mejor que actual en {100*f['mejor']:3.0f}% de las acciones, peor en {100*f['peor']:3.0f}%")
     sep = [p for p in per if p != "2018 a hoy"]; out.append("== RESUMEN: promedio de los 5 períodos separados")
-    base = {p: next(f["ret"] for f in filas if f["periodo"] == p and f["estrategia"] == VARIANTES[0]) for p in sep}
     noms = []
     for f in filas:
         if f["estrategia"] not in noms: noms.append(f["estrategia"])
     for n in noms:
         R = [f for f in filas if f["estrategia"] == n and f["periodo"] in sep]
-        mejor = sum(1 for f in R if f["ret"] > base[f["periodo"]] + 1e-9)
-        out.append(f"  {n[:82]:82} rinde promedio {100*np.mean([f['ret'] for f in R]):6.1f}%  peor caída promedio {100*np.mean([f['dd'] for f in R]):6.1f}%  rinde más que el actual en {mejor} de 5")
+        out.append(f"  {n[:80]:80} mediana {100*np.mean([f['mediana'] for f in R]):6.1f}%  sin el 10% que más subió {100*np.mean([f['sin_top'] for f in R]):6.1f}%  caída típica {100*np.mean([f['dd_med'] for f in R]):6.1f}%  mejor que actual en {100*np.mean([f['mejor'] for f in R]):3.0f}% de las acciones, peor en {100*np.mean([f['peor'] for f in R]):3.0f}%")
     return "\n".join(out)
 
 if __name__ == "__main__":
