@@ -698,15 +698,18 @@ function tendencia(v, enCurso, cfg, filtroOk = null, inicio = 0) {
     e *= 1 + p * (w[i].open / w[i - 1].close - 1);
     const obj = w[i].apertura >= inicio ? sen[i - 1] : 0;
     if (obj !== p) {
-      if (p) { e *= 1 - COSTO_T; ops.push({ entrada: ent.t, salida: w[i].apertura, pIn: ent.precio, pOut: w[i].open, eAntes: ent.eAntes, eOut: e, r: e / ent.eAntes - 1 }); ent = null; }
-      else { const eAntes = e; e *= 1 - COSTO_T; ent = { t: w[i].apertura, precio: w[i].open, eAntes }; }
+      const dif = Math.abs(obj - p);   // 1 = compra o venta total; 0,5 = venta parcial (la mitad)
+      e *= 1 - COSTO_T * dif;
+      if (!p) ent = { t: w[i].apertura, precio: w[i].open, eAntes: e / (1 - COSTO_T * dif), parciales: [] };
+      else if (!obj) { ops.push({ entrada: ent.t, salida: w[i].apertura, pIn: ent.precio, pOut: w[i].open, eAntes: ent.eAntes, eOut: e, r: e / ent.eAntes - 1, parciales: ent.parciales }); ent = null; }
+      else ent.parciales.push({ t: w[i].apertura, precio: w[i].open });
       p = obj;
     }
     e *= 1 + p * (w[i].close / w[i].open - 1);
     eq.push(e);
   }
   const n = v.length - 1;
-  return { f, sl, sen, eq, ops, estado: sen[n], cruceArriba: cruce[n], abierta: ent, actual: ent ? e / ent.eAntes - 1 : null, eActual: e,
+  return { f, sl, sen, eq, ops, estado: sen[n] > 0 ? 1 : 0, fraccion: sen[n], parcialYa: n > 0 && sen[n] > 0 && sen[n] < sen[n - 1], cruceArriba: cruce[n], abierta: ent, actual: ent ? e / ent.eAntes - 1 : null, eActual: e,
            brecha: (f[n] - sl[n]) / sl[n], ultimoCierre: v[n].cierre, w };
 }
 // Filtro de Bitcoin: solo se compra si el cierre diario de BTC está sobre su promedio de 200 días.
@@ -1280,24 +1283,29 @@ function enRangoInfo(v, i) {
   return { ok: vj >= K && Math.abs(mov) < 0.25 && pend < 0.3, suave: vj >= 2 && Math.abs(mov) < 0.35 && pend < 0.45, vj, piso, techo, media, p0, p1, mov, pend, incl };
 }
 // Automática: si al comprar la acción está en rango, compra y vende con la regla de rango; si no está en rango, compra y vende con el cruce 50/200. La regla se elige al comprar y se mantiene hasta vender (no se cambia a mitad de la operación). Si la acción sale de un rango con un cruce alcista ya dado, no compra con ese cruce: espera uno nuevo.
+// Defensivas y de consumo donde la prueba histórica mostró que vender la mitad a +20% mejora el resultado típico y achica las caídas.
+const PARCIAL_SET = new Set("KO PEP PG JNJ MO WMT VZ T MCD HSY PFE O SNA ABBV UNH COST TGT NKE SBUX CVX XOM LMT ADP MRK ABT TMO LIN NEE PM AMGN GILD DUK SO CL KMB GIS MDLZ".split(" "));
+const PARCIAL_UMBRAL = 0.2, PARCIAL_VENTA = 0.5;
 function senalAuto(v, inicio) {
   if (v.__auto && v.__auto[0] === inicio) return v.__auto[1];
   const r = senalRango(v, inicio), c = v.map(k => k.close), f = smaSerie(c, 50), sl = smaSerie(c, 200);
-  const sen = new Array(v.length).fill(0), modo = new Array(v.length).fill(""), bloq = new Array(v.length).fill(false); let st = 0, m = "", esp = false, flPrev = false;
+  const sen = new Array(v.length).fill(0), modo = new Array(v.length).fill(""), bloq = new Array(v.length).fill(false); let st = 0, m = "", esp = false, flPrev = false, frac = 1, entP = 0;
   for (let i = 0; i < v.length; i++) {
     const cr = i >= 200 && f[i] > sl[i], fl = enRango(v, i);
     // Si la acción pasa de estar en rango a no estarlo, no se compra con el cruce de medias que ya estaba dado: se espera un cruce nuevo (evita entrar tarde, después de la subida).
     if (flPrev && !fl && cr) esp = true;
     if (!cr) esp = false;
     flPrev = fl; const frena = esp && !fl && cr; bloq[i] = frena;
-    if (!st) { if (fl && r[i]) { st = 1; m = "R"; } else if (!fl && cr && !frena) { st = 1; m = "T"; } }
+    if (!st) { if (fl && r[i]) { st = 1; m = "R"; } else if (!fl && cr && !frena) { st = 1; m = "T"; } if (st) { frac = 1; entP = c[i]; } }
     else if (m === "T" && !cr) st = 0;
     else if (m === "R" && !r[i]) st = 0;
-    sen[i] = st; modo[i] = m;
+    // Acciones defensivas: al llegar a +20% de ganancia se vende la mitad; el resto sale con la regla de siempre.
+    else if (v.__parcial && frac === 1 && c[i] >= (1 + PARCIAL_UMBRAL) * entP) frac = 1 - PARCIAL_VENTA;
+    sen[i] = st ? frac : 0; modo[i] = m;
   }
   v.__auto = [inicio, sen]; v.__autoModo = modo; v.__autoBloq = bloq; return sen;
 }
-function barrasAcc(s) { const d = accDatos; d.__b = d.__b || {}; return d.__b[s] || (d.__b[s] = decodificarAcc(d.t[s])); }
+function barrasAcc(s) { const d = accDatos; d.__b = d.__b || {}; if (!d.__b[s]) { d.__b[s] = decodificarAcc(d.t[s]); d.__b[s].__parcial = PARCIAL_SET.has(s); } return d.__b[s]; }
 function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
   const d = accDatos, spy = barrasAcc(d.filtro);
   const mercado = modoF === "ninguno" ? null : mercadoN(spy, n);
@@ -1321,7 +1329,7 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const stopsRec = rango ? t.ops.filter(o => o.r <= -0.075 && o.salida >= bars[bars.length - 1].cierre - 90 * 86400000).length : 0;
     const bloqueada = auto && !comprado && !!(bars.__autoBloq || [])[bars.length - 1];
     const modoAct = auto ? (bars.__autoModo || [])[bars.length - 1] || "" : "", usaRango = modoAct === "R";
-    res.push({ s, t, propio, rango, modoAct, usaRango, bloqueada, por, faltan: hc.faltan, det: auto ? enRangoInfo(bars, bars.length - 1) : null, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
+    res.push({ s, t, parcialYa: !!t.parcialYa, mitad: t.fraccion > 0 && t.fraccion < 1, propio, rango, modoAct, usaRango, bloqueada, por, faltan: hc.faltan, det: auto ? enRangoInfo(bars, bars.length - 1) : null, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
       ...eficiencia(bars), precio: bars[bars.length - 1].close, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
@@ -1342,17 +1350,17 @@ function haciaCruce(bars) {
   const b0 = m(50, 0) / m(200, 0) - 1, b1 = m(50, 10) / m(200, 10) - 1, v = (b0 - b1) / 10;
   return { sube: m(50, 0) > m(50, 10), sobre50: bars[bars.length - 1].close > m(50, 0), faltan: b0 < 0 && v > 0 ? Math.ceil(-b0 / v) : null };
 }
-const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
-const accPillCls = r => "pill s" + (r.comprado ? " LONG" : r.venderYa ? " AVISO" : r.cerca ? " cer" : "");
+const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.parcialYa ? "VENDER ½" : r.mitad ? "COMPRADO ½" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
+const accPillCls = r => "pill s" + (r.comprado ? " LONG" : (r.venderYa || r.parcialYa) ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && r.venderYa) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
   const { res, mercado, spy } = calcularAcc(); accRes = res; accMercado = mercado;
   const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>Las estrategias, sin filtro</b> (resultado promedio por acción desde enero 2024): ` + comp.ests.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b> (${f[2].toLocaleString('es-AR', { maximumFractionDigits: 1 })} operaciones por acción)`).join(' · ') + (accEst === "auto" ? "" : `. Con la estrategia elegida y distintos filtros: ` + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ')) + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y de mercado alcista: sirve para ver diferencias grandes, no para elegir lo que mejor le fue al pasado.</p>`; }
   const n = res.length, compr = res.filter(r => r.comprado).length, perm = res.filter(r => r.permisoOk).length;
-  const comprar = res.filter(r => r.comprarYa).map(r => r.s), vender = res.filter(r => r.venderYa).map(r => r.s);
+  const comprar = res.filter(r => r.comprarYa).map(r => r.s), vender = res.filter(r => r.venderYa).map(r => r.s), mitad = res.filter(r => r.parcialYa).map(r => r.s);
   const ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   $("accSub").textContent = `${n} acciones con datos al cierre del ${ult}. La señal se decide con ese cierre y se ejecuta en la apertura de la próxima rueda (las ruedas de EE.UU. cierran a las 17:00 hora argentina).`;
   const viejo = accDatos.ultimo && (Date.now() - Date.parse(accDatos.ultimo + "T21:00:00Z")) > 5 * 86400000;
@@ -1362,9 +1370,9 @@ function pintarAcc() {
     $("accFiltroTxt").innerHTML = `Mercado (${accDatos.filtro}): cerró en ${fmt(mercado.precio)}, ${pctT(Math.abs(dif)).replace("+", "")} ${dif >= 0 ? "arriba" : "debajo"} de su promedio de ${accN} días (${fmt(mercado.media)}). `
       + (mercado.arriba ? `<b class="pos">Todas las acciones tienen permiso para comprar.</b>` : accModo === "o" ? `Cada acción tiene permiso solo si está arriba de su propio promedio.` : `<b class="neg">Ninguna acción tiene permiso hasta que ${accDatos.filtro} vuelva a pasar ese promedio.</b>`);
   } else $("accFiltroTxt").textContent = "Sin filtro: cada acción sigue solo su propio cruce de medias.";
-  const hoy = $("accHoy"); hoy.hidden = false; hoy.className = "veredicto " + (comprar.length || vender.length ? "pos" : "");
-  hoy.innerHTML = comprar.length || vender.length
-    ? `<p><b>Hoy:</b> ${comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : ""}${comprar.length && vender.length ? " y " : ""}${vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : ""}. Son las que cambiaron de estado en el último cierre.</p>`
+  const hoy = $("accHoy"); hoy.hidden = false; hoy.className = "veredicto " + (comprar.length || vender.length || mitad.length ? "pos" : "");
+  hoy.innerHTML = comprar.length || vender.length || mitad.length
+    ? `<p><b>Hoy:</b> ${[comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : "", vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : "", mitad.length ? "vender la mitad de <b class='neg'>" + lista2(mitad) + "</b> (llegó a +20%)" : ""].filter(Boolean).join(" · ")}. Son las que cambiaron de estado en el último cierre.</p>`
     : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${compr} de ${n} siguen comprados.</p>`;
   const est = res.reduce((a, r) => a + 1 + r.e, 0) / n - 1, man = res.reduce((a, r) => a + 1 + r.m, 0) / n - 1;
   $("accStats").innerHTML = [[`${compr}/${n}`, "comprados"], [`${perm}/${n}`, "con permiso"], [pctT(est), "estrategia promedio desde ene 2024"], [pctT(man), "comprar y mantener promedio"]].map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("");
@@ -1439,12 +1447,12 @@ function detalleAcc(r) {
   const reciente = uo && ultCierre - uo.salida < 45 * 86400000 ? ` Ojo: la última operación se cerró el ${fechaT(uo.salida)} con ${pctT(uo.r)}.` : "";
   const porComprar = r.usaRango ? (r.pos < 0.2 ? `porque cerró en el ${Math.round(100 * r.pos)}% de su rango de 6 meses (la estrategia de rango compra por debajo de 20%)` : `porque la señal de rango sigue activa (compró abajo y todavía no llegó al 60% para vender)`) : `porque el cruce 50/200 está alcista (la media rápida está ${g} arriba de la lenta)${r.permisoOk && accModo !== "ninguno" ? " y hay permiso del filtro" : ""}${accEst === "auto" ? " y hoy no está en rango, así que se opera por tendencia" : ""}`;
   const porVender = r.usaRango ? (r.pos > 0.6 ? `porque subió al ${Math.round(100 * r.pos)}% de su rango (la estrategia de rango vende desde 60%)` : `porque cayó 8% o más desde la compra (stop de la estrategia de rango)`) : `porque ${!r.mediasOk ? "la media rápida quedó por debajo de la lenta" : "perdió el permiso del filtro"}`;
-  const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura, ${porComprar}.${reciente}` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura, ${porVender}.` : r.comprado ? `<b class="pos">Seguir comprado.</b>` : (r.bloqueada ? `<b class="neg">Esperar.</b> La acción acaba de salir de un rango y el cruce de medias ya estaba alcista: no se compra con ese cruce (sería entrar tarde). Se espera un cruce nuevo, o sea que las medias vuelvan a cruzarse hacia arriba.` : r.rango ? `<b class="neg">Esperar.</b> Todavía no está cerca del piso de su rango.` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`);
+  const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura, ${porComprar}.${reciente}` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura, ${porVender}.` : r.parcialYa ? `<b class="neg">Vender la mitad</b> en la próxima apertura: la ganancia llegó a +20% (regla de acciones defensivas). La otra mitad sigue hasta la señal de venta de siempre.` : r.comprado ? `<b class="pos">Seguir comprado${r.mitad ? " con la otra mitad (la primera se vendió al llegar a +20%)" : ""}.</b>` : (r.bloqueada ? `<b class="neg">Esperar.</b> La acción acaba de salir de un rango y el cruce de medias ya estaba alcista: no se compra con ese cruce (sería entrar tarde). Se espera un cruce nuevo, o sea que las medias vuelvan a cruzarse hacia arriba.` : r.rango ? `<b class="neg">Esperar.</b> Todavía no está cerca del piso de su rango.` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`);
   accFichas = [];
   const flecha = '<span class="fl">›</span>';
-  const ops = r.ops.slice(-5).reverse().map(o => { accFichas.push({ t: `Operación ${o.r >= 0 ? "ganada" : "perdida"} ${pctT(o.r)}`, c: o.entrada, pc: o.pIn, cm: motivoOp(r, o.entrada, true, o, true), v: o.salida, pv: o.pOut, vm: motivoOp(r, o.salida, false, o, true) }); return `<tr class="opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span></td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}${flecha}</td></tr>`; }).join("");
+  const ops = r.ops.slice(-5).reverse().map(o => { accFichas.push({ t: `Operación ${o.r >= 0 ? "ganada" : "perdida"} ${pctT(o.r)}`, c: o.entrada, pc: o.pIn, cm: motivoOp(r, o.entrada, true, o, true), v: o.salida, pv: o.pOut, vm: motivoOp(r, o.salida, false, o, true) }); return `<tr class="opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span>${(o.parciales || []).map(x => `<br><span class="sub">½ el ${fechaT(x.t)} a ${fmt(x.precio)}</span>`).join("")}</td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}${flecha}</td></tr>`; }).join("");
   let ab = "";
-  if (r.t.abierta) { accFichas.push({ t: `Operación abierta ${pctT(r.t.actual)}`, c: r.t.abierta.t, pc: r.t.abierta.precio, cm: motivoOp(r, r.t.abierta.t, true, null, true), ab: true }); ab = `<tr class="abierta opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}${flecha}</td></tr>`; }
+  if (r.t.abierta) { accFichas.push({ t: `Operación abierta ${pctT(r.t.actual)}`, c: r.t.abierta.t, pc: r.t.abierta.precio, cm: motivoOp(r, r.t.abierta.t, true, null, true), ab: true }); ab = `<tr class="abierta opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta${(r.t.abierta.parciales || []).map(x => `<br><span class="sub">½ vendida el ${fechaT(x.t)} a ${fmt(x.precio)} (+20%)</span>`).join("")}</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}${flecha}</td></tr>`; }
   return `<tr class="det"><td colspan="10"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}: precio de 2 años, operaciones y señal de hoy"></canvas>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span><span><i class="v" style="background:var(--long);border-color:var(--long)"></i>Operación ganada</span><span><i class="v" style="background:var(--short);border-color:var(--short)"></i>perdida</span><span>Barra rayada: varias operaciones seguidas</span></div></div>
