@@ -44,6 +44,25 @@ def codificar(df):
     return ",".join(toks), len(toks), prev_dia, prev_c
 
 
+def limpiar(s, x):
+    """Deja solo Open y Close completos. A veces Yahoo manda la vela del último día con el cierre vacío (todavía sin consolidar)
+    aunque la rueda ya terminó: en ese caso se toma el último precio de ese día de las velas de 5 minutos."""
+    x = x[["Open", "Close"]]
+    try:
+        if len(x) and pd.isna(x["Close"].iloc[-1]):
+            dia = pd.Timestamp(x.index[-1]).date(); ahora = dt.datetime.now(dt.timezone.utc)
+            if dia < ahora.date() or ahora.hour >= 21:
+                h = yf.Ticker(s).history(period="5d", interval="5m", auto_adjust=False)
+                h = h[[k.date() == dia for k in h.index]].dropna(subset=["Close"])
+                if len(h):
+                    x = x.copy(); x.iloc[-1, x.columns.get_loc("Close")] = float(h["Close"].iloc[-1])
+                    if pd.isna(x["Open"].iloc[-1]): x.iloc[-1, x.columns.get_loc("Open")] = float(h["Open"].iloc[0])
+                    print(s, "cierre del", dia, "completado con el último precio del día:", round(float(h["Close"].iloc[-1]), 2))
+    except Exception as e:
+        print(s, "no se pudo completar el cierre:", e, file=sys.stderr)
+    return x.dropna()
+
+
 def bajar_lote(simbolos):
     """Devuelve {símbolo: DataFrame} con lo que se pudo bajar."""
     out = {}
@@ -52,7 +71,7 @@ def bajar_lote(simbolos):
         for s in simbolos:
             try:
                 x = d[s] if isinstance(d.columns, pd.MultiIndex) else d
-                x = x[["Open", "Close"]].dropna()
+                x = limpiar(s, x)
                 if len(x) > 30:
                     out[s] = x
             except Exception:
@@ -65,7 +84,8 @@ def bajar_lote(simbolos):
 def bajar_uno(s):
     for intento in range(3):
         try:
-            x = yf.Ticker(s).history(start=INICIO, interval="1d", auto_adjust=False)[["Open", "Close"]].dropna()
+            x = yf.Ticker(s).history(start=INICIO, interval="1d", auto_adjust=False)
+            x = limpiar(s, x)
             if len(x) > 30:
                 x.index = x.index.tz_localize(None) if x.index.tz is not None else x.index
                 return x
