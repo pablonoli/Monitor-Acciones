@@ -13,6 +13,9 @@ VARIANTES = ["Actual (todo o nada)",
              "T4 vende todo si cae 15% desde el máximo",
              "T5 vende la mitad con +20% de ganancia",
              "T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce",
+             "T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella",
+             "T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% del máximo",
+             "T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%",
              "R1 (rango) vende la mitad al 40% de la banda y el resto al 60%"]
 
 def reciente(fl, M):
@@ -36,11 +39,17 @@ def simular(fl, r, cr, pos, C, s50, bloq, var):
             if modo == "T" and not cr[i]: st = False; frac = 0.0
             elif modo == "R" and not r[i]: st = False; frac = 0.0
             elif modo == "T":
-                if var.startswith("T1") and frac == 1 and C[i] < s50[i]: frac = 0.5
-                elif var.startswith("T2") and frac == 1 and C[i] <= 0.9 * mx: frac = 0.5
+                if var.startswith("T1b") and frac == 0.5 and C[i] > s50[i]: frac = 1.0
+                elif var.startswith("T2b") and frac == 0.5 and C[i] >= 0.95 * mx: frac = 1.0
+                elif var.startswith("T5b") and frac == 0.5 and C[i] <= 1.1 * ent: frac = 1.0
+                elif var.startswith("T1 ") and frac == 1 and C[i] < s50[i]: frac = 0.5
+                elif var.startswith("T2 ") and frac == 1 and C[i] <= 0.9 * mx: frac = 0.5
+                elif var.startswith("T1b") and frac == 1 and C[i] < s50[i]: frac = 0.5
+                elif var.startswith("T2b") and frac == 1 and C[i] <= 0.9 * mx: frac = 0.5
+                elif var.startswith("T5b") and frac == 1 and C[i] >= 1.2 * ent: frac = 0.5
                 elif var.startswith("T3") and C[i] < s50[i]: st = False; frac = 0.0
                 elif var.startswith("T4") and C[i] <= 0.85 * mx: st = False; frac = 0.0; espera = True
-                elif var.startswith("T5") and frac == 1 and C[i] >= 1.2 * ent: frac = 0.5
+                elif var.startswith("T5 ") and frac == 1 and C[i] >= 1.2 * ent: frac = 0.5
                 elif var.startswith("T6"):
                     if pasos == 0 and C[i] >= 1.2 * ent: frac = 2 / 3; pasos = 1
                     elif pasos <= 1 and C[i] < s50[i] and frac > 1 / 3: frac = 1 / 3; pasos = 2
