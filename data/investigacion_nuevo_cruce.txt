@@ -1,0 +1,42 @@
+== 2018 a hoy (127 acciones)
+  Comprar y mantener                                                               mediana  151.4%  sin el 10% que más subió  165.8%  promedio  315.2%  caída típica  -51.5%  mejor que actual en  83% de las acciones, peor en  17%
+  Cruce 50/200                                                                     mediana   55.0%  sin el 10% que más subió   81.6%  promedio  155.3%  caída típica  -48.9%  mejor que actual en  27% de las acciones, peor en  24%
+  Actual (espera de 4 semanas al salir del rango)                                  mediana   52.2%  sin el 10% que más subió   84.2%  promedio  157.2%  caída típica  -48.4%  mejor que actual en   0% de las acciones, peor en   0%
+  Al salir del rango no compra con el cruce que ya estaba: espera un cruce nuevo   mediana   52.2%  sin el 10% que más subió   88.6%  promedio  161.4%  caída típica  -48.0%  mejor que actual en  19% de las acciones, peor en  18%
+  Sale del rango apenas hay cruce alcista y el precio está sobre la media 200 (sin mediana   56.7%  sin el 10% que más subió   86.9%  promedio  159.8%  caída típica  -49.1%  mejor que actual en  31% de las acciones, peor en  12%
+== 2018-2019 (127 acciones)
+  Comprar y mantener                                                               mediana   24.6%  sin el 10% que más subió   19.9%  promedio   28.5%  caída típica  -26.5%  mejor que actual en  77% de las acciones, peor en  20%
+  Cruce 50/200                                                                     mediana    8.1%  sin el 10% que más subió    6.6%  promedio   11.7%  caída típica  -24.8%  mejor que actual en  11% de las acciones, peor en   8%
+  Actual (espera de 4 semanas al salir del rango)                                  mediana    8.1%  sin el 10% que más subió    7.0%  promedio   12.1%  caída típica  -24.4%  mejor que actual en   0% de las acciones, peor en   0%
+  Al salir del rango no compra con el cruce que ya estaba: espera un cruce nuevo   mediana    8.1%  sin el 10% que más subió    6.7%  promedio   11.9%  caída típica  -24.4%  mejor que actual en   4% de las acciones, peor en   5%
+  Sale del rango apenas hay cruce alcista y el precio está sobre la media 200 (sin mediana    8.9%  sin el 10% que más subió    7.0%  promedio   12.2%  caída típica  -24.8%  mejor que actual en   9% de las acciones, peor en   6%
+== 2020 (covid) (128 acciones)
+  Comprar y mantener                                                               mediana   20.8%  sin el 10% que más subió   14.0%  promedio   28.8%  caída típica  -38.3%  mejor que actual en  75% de las acciones, peor en  15%
+  Cruce 50/200                                                                     mediana   -0.0%  sin el 10% que más subió   -2.3%  promedio   10.7%  caída típica  -34.6%  mejor que actual en   9% de las acciones, peor en   8%
+  Actual (espera de 4 semanas al salir del rango)                                  mediana    0.0%  sin el 10% que más subió   -2.3%  promedio   10.5%  caída típica  -34.0%  mejor que actual en   0% de las acciones, peor en   0%
+  Al salir del rango no compra con el cruce que ya estaba: espera un cruce nuevo   mediana    0.0%  sin el 10% que más subió   -1.4%  promedio   11.5%  caída típica  -31.6%  mejor que actual en   9% de las acciones, peor en   8%
+  Sale del rango apenas hay cruce alcista y el precio está sobre la media 200 (sin mediana    0.0%  sin el 10% que más subió   -1.9%  promedio   11.1%  caída típica  -34.6%  mejor que actual en   9% de las acciones, peor en   5%
+== 2021 (131 acciones)
+  Comprar y mantener                                                               mediana   20.9%  sin el 10% que más subió   17.8%  promedio   24.7%  caída típica  -18.5%  mejor que actual en  44% de las acciones, peor en  18%
+  Cruce 50/200                                                                     mediana   15.8%  sin el 10% que más subió   13.6%  promedio   20.6%  caída típica  -17.1%  mejor que actual en   1% de las acciones, peor en   4%
+  Actual (espera de 4 semanas al salir del rango)                                  mediana   16.1%  sin el 10% que más subió   13.9%  promedio   21.0%  caída típica  -17.0%  mejor que actual en   0% de las acciones, peor en   0%
+  Al salir del rango no compra con el cruce que ya estaba: espera un cruce nuevo   mediana   12.8%  sin el 10% que más subió   12.2%  promedio   19.4%  caída típica  -16.7%  mejor que actual en   2% de las acciones, peor en   7%
+  Sale del rango apenas hay cruce alcista y el precio está sobre la media 200 (sin mediana   15.8%  sin el 10% que más subió   13.8%  promedio   20.8%  caída típica  -17.1%  mejor que actual en   1% de las acciones, peor en   3%
+== 2022 (bajista) (132 acciones)
+  Comprar y mantener                                                               mediana  -15.8%  sin el 10% que más subió  -20.7%  promedio  -12.0%  caída típica  -36.5%  mejor que actual en  39% de las acciones, peor en  53%
+  Cruce 50/200                                                                     mediana  -10.4%  sin el 10% que más subió  -12.5%  promedio   -6.9%  caída típica  -21.2%  mejor que actual en   4% de las acciones, peor en   2%
+  Actual (espera de 4 semanas al salir del rango)                                  mediana  -10.6%  sin el 10% que más subió  -12.7%  promedio   -7.2%  caída típica  -21.2%  mejor que actual en   0% de las acciones, peor en   0%
+  Al salir del rango no compra con el cruce que ya estaba: espera un cruce nuevo   mediana  -10.0%  sin el 10% que más subió  -12.3%  promedio   -6.7%  caída típica  -21.1%  mejor que actual en   7% de las acciones, peor en   2%
+  Sale del rango apenas hay cruce alcista y el precio está sobre la media 200 (sin mediana  -10.3%  sin el 10% que más subió  -12.5%  promedio   -6.9%  caída típica  -21.2%  mejor que actual en   4% de las acciones, peor en   1%
+== 2023 a hoy (137 acciones)
+  Comprar y mantener                                                               mediana   77.7%  sin el 10% que más subió   89.2%  promedio  187.3%  caída típica  -37.7%  mejor que actual en  83% de las acciones, peor en  17%
+  Cruce 50/200                                                                     mediana   32.7%  sin el 10% que más subió   46.0%  promedio  103.5%  caída típica  -36.0%  mejor que actual en  16% de las acciones, peor en  13%
+  Actual (espera de 4 semanas al salir del rango)                                  mediana   32.9%  sin el 10% que más subió   46.3%  promedio  103.8%  caída típica  -35.8%  mejor que actual en   0% de las acciones, peor en   0%
+  Al salir del rango no compra con el cruce que ya estaba: espera un cruce nuevo   mediana   32.7%  sin el 10% que más subió   46.0%  promedio  103.5%  caída típica  -35.4%  mejor que actual en   9% de las acciones, peor en   8%
+  Sale del rango apenas hay cruce alcista y el precio está sobre la media 200 (sin mediana   34.3%  sin el 10% que más subió   47.1%  promedio  104.5%  caída típica  -35.7%  mejor que actual en  15% de las acciones, peor en   6%
+== RESUMEN: promedio de los 5 períodos separados
+  Comprar y mantener                                                               mediana   25.6%  sin el 10% que más subió   24.0%  caída típica  -31.5%  mejor que actual en  64% de las acciones, peor en  25%
+  Cruce 50/200                                                                     mediana    9.2%  sin el 10% que más subió   10.3%  caída típica  -26.7%  mejor que actual en   8% de las acciones, peor en   7%
+  Actual (espera de 4 semanas al salir del rango)                                  mediana    9.3%  sin el 10% que más subió   10.4%  caída típica  -26.5%  mejor que actual en   0% de las acciones, peor en   0%
+  Al salir del rango no compra con el cruce que ya estaba: espera un cruce nuevo   mediana    8.7%  sin el 10% que más subió   10.3%  caída típica  -25.8%  mejor que actual en   6% de las acciones, peor en   6%
+  Sale del rango apenas hay cruce alcista y el precio está sobre la media 200 (sin mediana    9.7%  sin el 10% que más subió   10.7%  caída típica  -26.7%  mejor que actual en   8% de las acciones, peor en   4%
