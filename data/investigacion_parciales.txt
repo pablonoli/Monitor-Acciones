@@ -1,98 +1,98 @@
 == 2018 a hoy (127 acciones)
-  Comprar y mantener                                                                 rinde   286.6%  peor caída  -54.1%  vs azar   -3.1  invertido 100% del tiempo  ops 1.0
-  Cruce 50/200                                                                       rinde   141.5%  peor caída  -49.1%  vs azar   +0.7  invertido  64% del tiempo  ops 7.6
-  Actual (todo o nada)                                                               rinde   143.4%  peor caída  -48.8%  vs azar   +4.1  invertido  64% del tiempo  ops 8.3
-  T1 vende la mitad al cerrar bajo la media 50                                       rinde    71.9%  peor caída  -32.7%  vs azar  +16.1  invertido  37% del tiempo  ops 8.3
-  T2 vende la mitad si cae 10% desde el máximo                                       rinde    73.5%  peor caída  -36.1%  vs azar   +9.5  invertido  43% del tiempo  ops 8.3
-  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)           rinde    43.8%  peor caída  -42.9%  vs azar  -24.3  invertido  40% del tiempo  ops 54.0
-  T4 vende todo si cae 15% desde el máximo                                           rinde    50.1%  peor caída  -38.6%  vs azar   -2.0  invertido  40% del tiempo  ops 8.2
-  T5 vende la mitad con +20% de ganancia                                             rinde    75.2%  peor caída  -40.3%  vs azar   +7.6  invertido  46% del tiempo  ops 8.3
-  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce               rinde    45.1%  peor caída  -26.9%  vs azar   +8.6  invertido  27% del tiempo  ops 8.3
-  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella             rinde    89.8%  peor caída  -42.2%  vs azar  -10.1  invertido  52% del tiempo  ops 8.3
-  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% de rinde   101.1%  peor caída  -41.9%  vs azar   +4.0  invertido  54% del tiempo  ops 8.3
-  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%               rinde    85.0%  peor caída  -42.4%  vs azar  +14.6  invertido  47% del tiempo  ops 8.3
-  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                     rinde   143.2%  peor caída  -48.8%  vs azar   +4.3  invertido  64% del tiempo  ops 8.3
+  Comprar y mantener                                                               mediana  147.3%  sin el 10% que más subió  155.1%  promedio  286.6%  caída típica  -51.5%  mejor que actual en  83% de las acciones, peor en  17%
+  Cruce 50/200                                                                     mediana   52.2%  sin el 10% que más subió   77.8%  promedio  141.5%  caída típica  -48.9%  mejor que actual en  26% de las acciones, peor en  25%
+  Actual (todo o nada)                                                             mediana   50.1%  sin el 10% que más subió   80.4%  promedio  143.4%  caída típica  -48.4%  mejor que actual en   0% de las acciones, peor en   0%
+  T1 vende la mitad al cerrar bajo la media 50                                     mediana   32.2%  sin el 10% que más subió   47.2%  promedio   71.9%  caída típica  -31.2%  mejor que actual en  35% de las acciones, peor en  65%
+  T2 vende la mitad si cae 10% desde el máximo                                     mediana   35.2%  sin el 10% que más subió   47.7%  promedio   73.5%  caída típica  -35.2%  mejor que actual en  39% de las acciones, peor en  61%
+  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)         mediana    1.1%  sin el 10% que más subió   23.6%  promedio   43.8%  caída típica  -41.6%  mejor que actual en  27% de las acciones, peor en  73%
+  T4 vende todo si cae 15% desde el máximo                                         mediana   22.5%  sin el 10% que más subió   34.7%  promedio   50.1%  caída típica  -37.5%  mejor que actual en  38% de las acciones, peor en  62%
+  T5 vende la mitad con +20% de ganancia                                           mediana   40.6%  sin el 10% que más subió   50.0%  promedio   75.2%  caída típica  -39.7%  mejor que actual en  37% de las acciones, peor en  63%
+  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce             mediana   21.0%  sin el 10% que más subió   30.5%  promedio   45.1%  caída típica  -25.4%  mejor que actual en  33% de las acciones, peor en  67%
+  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella           mediana   25.7%  sin el 10% que más subió   51.0%  promedio   89.8%  caída típica  -41.3%  mejor que actual en  30% de las acciones, peor en  70%
+  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95%  mediana   37.1%  sin el 10% que más subió   63.7%  promedio  101.1%  caída típica  -41.4%  mejor que actual en  39% de las acciones, peor en  61%
+  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%             mediana   39.5%  sin el 10% que más subió   53.4%  promedio   85.0%  caída típica  -40.9%  mejor que actual en  37% de las acciones, peor en  63%
+  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                   mediana   50.1%  sin el 10% que más subió   79.9%  promedio  143.2%  caída típica  -48.4%  mejor que actual en  10% de las acciones, peor en  24%
 == 2018-2019 (127 acciones)
-  Comprar y mantener                                                                 rinde    28.5%  peor caída  -31.2%  vs azar   -1.0  invertido 100% del tiempo  ops 1.0
-  Cruce 50/200                                                                       rinde    11.7%  peor caída  -27.0%  vs azar  -11.4  invertido  66% del tiempo  ops 2.5
-  Actual (todo o nada)                                                               rinde    12.1%  peor caída  -26.6%  vs azar  -10.6  invertido  65% del tiempo  ops 2.6
-  T1 vende la mitad al cerrar bajo la media 50                                       rinde     7.0%  peor caída  -16.7%  vs azar   -4.8  invertido  38% del tiempo  ops 2.6
-  T2 vende la mitad si cae 10% desde el máximo                                       rinde     8.2%  peor caída  -19.6%  vs azar   -6.3  invertido  45% del tiempo  ops 2.6
-  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)           rinde    -2.3%  peor caída  -24.4%  vs azar  -16.8  invertido  41% del tiempo  ops 13.1
-  T4 vende todo si cae 15% desde el máximo                                           rinde     7.6%  peor caída  -22.1%  vs azar   -8.7  invertido  48% del tiempo  ops 2.5
-  T5 vende la mitad con +20% de ganancia                                             rinde     9.0%  peor caída  -20.9%  vs azar   -5.0  invertido  48% del tiempo  ops 2.6
-  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce               rinde     5.0%  peor caída  -13.4%  vs azar   -3.4  invertido  28% del tiempo  ops 2.6
-  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella             rinde     4.9%  peor caída  -23.6%  vs azar  -13.7  invertido  53% del tiempo  ops 2.6
-  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% de rinde     7.6%  peor caída  -24.0%  vs azar  -11.6  invertido  56% del tiempo  ops 2.6
-  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%               rinde     9.8%  peor caída  -21.3%  vs azar   -4.4  invertido  49% del tiempo  ops 2.6
-  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                     rinde    12.1%  peor caída  -26.5%  vs azar  -10.5  invertido  65% del tiempo  ops 2.6
+  Comprar y mantener                                                               mediana   24.6%  sin el 10% que más subió   19.9%  promedio   28.5%  caída típica  -26.5%  mejor que actual en  77% de las acciones, peor en  20%
+  Cruce 50/200                                                                     mediana    8.1%  sin el 10% que más subió    6.6%  promedio   11.7%  caída típica  -24.8%  mejor que actual en  11% de las acciones, peor en   8%
+  Actual (todo o nada)                                                             mediana    8.1%  sin el 10% que más subió    7.0%  promedio   12.1%  caída típica  -24.4%  mejor que actual en   0% de las acciones, peor en   0%
+  T1 vende la mitad al cerrar bajo la media 50                                     mediana    5.6%  sin el 10% que más subió    3.7%  promedio    7.0%  caída típica  -14.5%  mejor que actual en  40% de las acciones, peor en  59%
+  T2 vende la mitad si cae 10% desde el máximo                                     mediana    4.7%  sin el 10% que más subió    4.6%  promedio    8.2%  caída típica  -18.2%  mejor que actual en  39% de las acciones, peor en  58%
+  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)         mediana   -4.4%  sin el 10% que más subió   -5.2%  promedio   -2.3%  caída típica  -23.6%  mejor que actual en  19% de las acciones, peor en  80%
+  T4 vende todo si cae 15% desde el máximo                                         mediana    2.4%  sin el 10% que más subió    3.3%  promedio    7.6%  caída típica  -20.2%  mejor que actual en  28% de las acciones, peor en  57%
+  T5 vende la mitad con +20% de ganancia                                           mediana    8.7%  sin el 10% que más subió    5.6%  promedio    9.0%  caída típica  -18.6%  mejor que actual en  39% de las acciones, peor en  43%
+  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce             mediana    5.3%  sin el 10% que más subió    2.5%  promedio    5.0%  caída típica  -10.9%  mejor que actual en  40% de las acciones, peor en  59%
+  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella           mediana    1.4%  sin el 10% que más subió    0.9%  promedio    4.9%  caída típica  -22.5%  mejor que actual en  22% de las acciones, peor en  77%
+  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95%  mediana    5.3%  sin el 10% que más subió    2.6%  promedio    7.6%  caída típica  -22.7%  mejor que actual en  28% de las acciones, peor en  69%
+  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%             mediana    8.7%  sin el 10% que más subió    6.2%  promedio    9.8%  caída típica  -18.6%  mejor que actual en  39% de las acciones, peor en  42%
+  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                   mediana    8.1%  sin el 10% que más subió    7.0%  promedio   12.1%  caída típica  -24.4%  mejor que actual en   2% de las acciones, peor en   7%
 == 2020 (covid) (128 acciones)
-  Comprar y mantener                                                                 rinde    28.8%  peor caída  -39.6%  vs azar   -1.2  invertido 100% del tiempo  ops 1.0
-  Cruce 50/200                                                                       rinde    10.7%  peor caída  -33.0%  vs azar  -16.8  invertido  63% del tiempo  ops 1.8
-  Actual (todo o nada)                                                               rinde    10.5%  peor caída  -32.8%  vs azar  -16.5  invertido  61% del tiempo  ops 1.8
-  T1 vende la mitad al cerrar bajo la media 50                                       rinde     7.3%  peor caída  -19.5%  vs azar   -6.4  invertido  37% del tiempo  ops 1.8
-  T2 vende la mitad si cae 10% desde el máximo                                       rinde     7.7%  peor caída  -21.5%  vs azar   -6.7  invertido  43% del tiempo  ops 1.8
-  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)           rinde    12.1%  peor caída  -17.5%  vs azar   -6.9  invertido  41% del tiempo  ops 6.4
-  T4 vende todo si cae 15% desde el máximo                                           rinde     3.8%  peor caída  -17.9%  vs azar   -5.1  invertido  36% del tiempo  ops 1.6
-  T5 vende la mitad con +20% de ganancia                                             rinde     5.5%  peor caída  -24.7%  vs azar   -8.6  invertido  44% del tiempo  ops 1.8
-  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce               rinde     5.8%  peor caída  -14.5%  vs azar   -3.5  invertido  28% del tiempo  ops 1.8
-  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella             rinde    11.6%  peor caída  -23.4%  vs azar  -11.3  invertido  51% del tiempo  ops 1.8
-  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% de rinde     9.4%  peor caída  -24.5%  vs azar  -10.5  invertido  52% del tiempo  ops 1.8
-  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%               rinde     5.6%  peor caída  -27.9%  vs azar   -9.2  invertido  47% del tiempo  ops 1.8
-  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                     rinde    10.4%  peor caída  -32.8%  vs azar  -16.6  invertido  61% del tiempo  ops 1.8
+  Comprar y mantener                                                               mediana   20.8%  sin el 10% que más subió   14.0%  promedio   28.8%  caída típica  -38.3%  mejor que actual en  75% de las acciones, peor en  15%
+  Cruce 50/200                                                                     mediana   -0.0%  sin el 10% que más subió   -2.3%  promedio   10.7%  caída típica  -34.6%  mejor que actual en   9% de las acciones, peor en   8%
+  Actual (todo o nada)                                                             mediana    0.0%  sin el 10% que más subió   -2.3%  promedio   10.5%  caída típica  -34.0%  mejor que actual en   0% de las acciones, peor en   0%
+  T1 vende la mitad al cerrar bajo la media 50                                     mediana    1.1%  sin el 10% que más subió    0.8%  promedio    7.3%  caída típica  -19.5%  mejor que actual en  55% de las acciones, peor en  40%
+  T2 vende la mitad si cae 10% desde el máximo                                     mediana    1.9%  sin el 10% que más subió    1.4%  promedio    7.7%  caída típica  -21.6%  mejor que actual en  57% de las acciones, peor en  36%
+  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)         mediana    2.7%  sin el 10% que más subió    3.4%  promedio   12.1%  caída típica  -16.9%  mejor que actual en  56% de las acciones, peor en  40%
+  T4 vende todo si cae 15% desde el máximo                                         mediana    0.0%  sin el 10% que más subió    2.5%  promedio    3.8%  caída típica  -18.9%  mejor que actual en  52% de las acciones, peor en  37%
+  T5 vende la mitad con +20% de ganancia                                           mediana    3.2%  sin el 10% que más subió    0.2%  promedio    5.5%  caída típica  -21.9%  mejor que actual en  38% de las acciones, peor en  34%
+  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce             mediana    1.3%  sin el 10% que más subió    1.6%  promedio    5.8%  caída típica  -14.0%  mejor que actual en  54% de las acciones, peor en  41%
+  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella           mediana    0.4%  sin el 10% que más subió    0.7%  promedio   11.6%  caída típica  -24.1%  mejor que actual en  57% de las acciones, peor en  38%
+  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95%  mediana    0.3%  sin el 10% que más subió    0.8%  promedio    9.4%  caída típica  -25.4%  mejor que actual en  52% de las acciones, peor en  40%
+  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%             mediana    2.7%  sin el 10% que más subió   -0.1%  promedio    5.6%  caída típica  -28.1%  mejor que actual en  40% de las acciones, peor en  32%
+  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                   mediana    0.0%  sin el 10% que más subió   -2.4%  promedio   10.4%  caída típica  -34.0%  mejor que actual en   1% de las acciones, peor en   4%
 == 2021 (131 acciones)
-  Comprar y mantener                                                                 rinde    24.7%  peor caída  -21.4%  vs azar   -0.9  invertido 100% del tiempo  ops 1.0
-  Cruce 50/200                                                                       rinde    20.6%  peor caída  -19.2%  vs azar   -4.8  invertido  82% del tiempo  ops 1.3
-  Actual (todo o nada)                                                               rinde    21.0%  peor caída  -19.1%  vs azar   -4.4  invertido  82% del tiempo  ops 1.4
-  T1 vende la mitad al cerrar bajo la media 50                                       rinde    10.6%  peor caída  -11.5%  vs azar   -1.6  invertido  45% del tiempo  ops 1.4
-  T2 vende la mitad si cae 10% desde el máximo                                       rinde    12.1%  peor caída  -12.8%  vs azar   -2.0  invertido  52% del tiempo  ops 1.4
-  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)           rinde     5.8%  peor caída  -18.8%  vs azar  -12.2  invertido  55% del tiempo  ops 8.6
-  T4 vende todo si cae 15% desde el máximo                                           rinde    10.0%  peor caída  -12.0%  vs azar   -2.6  invertido  47% del tiempo  ops 1.0
-  T5 vende la mitad con +20% de ganancia                                             rinde    13.0%  peor caída  -12.7%  vs azar   -0.2  invertido  52% del tiempo  ops 1.4
-  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce               rinde     7.2%  peor caída   -8.8%  vs azar   -1.0  invertido  32% del tiempo  ops 1.4
-  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella             rinde    13.1%  peor caída  -17.3%  vs azar   -8.5  invertido  69% del tiempo  ops 1.4
-  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% de rinde    16.0%  peor caída  -16.7%  vs azar   -5.9  invertido  70% del tiempo  ops 1.4
-  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%               rinde    13.6%  peor caída  -12.9%  vs azar   +0.0  invertido  54% del tiempo  ops 1.4
-  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                     rinde    21.0%  peor caída  -19.1%  vs azar   -4.4  invertido  82% del tiempo  ops 1.4
+  Comprar y mantener                                                               mediana   20.9%  sin el 10% que más subió   17.8%  promedio   24.7%  caída típica  -18.5%  mejor que actual en  44% de las acciones, peor en  18%
+  Cruce 50/200                                                                     mediana   15.8%  sin el 10% que más subió   13.6%  promedio   20.6%  caída típica  -17.1%  mejor que actual en   1% de las acciones, peor en   4%
+  Actual (todo o nada)                                                             mediana   16.1%  sin el 10% que más subió   13.9%  promedio   21.0%  caída típica  -17.0%  mejor que actual en   0% de las acciones, peor en   0%
+  T1 vende la mitad al cerrar bajo la media 50                                     mediana    9.5%  sin el 10% que más subió    7.6%  promedio   10.6%  caída típica   -9.9%  mejor que actual en  31% de las acciones, peor en  67%
+  T2 vende la mitad si cae 10% desde el máximo                                     mediana    9.9%  sin el 10% que más subió    8.5%  promedio   12.1%  caída típica  -11.7%  mejor que actual en  34% de las acciones, peor en  61%
+  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)         mediana    1.8%  sin el 10% que más subió    1.2%  promedio    5.8%  caída típica  -17.5%  mejor que actual en  20% de las acciones, peor en  79%
+  T4 vende todo si cae 15% desde el máximo                                         mediana    3.9%  sin el 10% que más subió    9.6%  promedio   10.0%  caída típica  -14.6%  mejor que actual en  24% de las acciones, peor en  46%
+  T5 vende la mitad con +20% de ganancia                                           mediana   14.4%  sin el 10% que más subió    9.8%  promedio   13.0%  caída típica  -10.8%  mejor que actual en  31% de las acciones, peor en  53%
+  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce             mediana    6.4%  sin el 10% que más subió    5.3%  promedio    7.2%  caída típica   -7.1%  mejor que actual en  29% de las acciones, peor en  69%
+  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella           mediana    7.4%  sin el 10% que más subió    7.4%  promedio   13.1%  caída típica  -15.7%  mejor que actual en  20% de las acciones, peor en  79%
+  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95%  mediana   10.9%  sin el 10% que más subió   10.7%  promedio   16.0%  caída típica  -15.3%  mejor que actual en  25% de las acciones, peor en  68%
+  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%             mediana   15.2%  sin el 10% que más subió   10.3%  promedio   13.6%  caída típica  -11.2%  mejor que actual en  33% de las acciones, peor en  52%
+  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                   mediana   16.1%  sin el 10% que más subió   13.9%  promedio   21.0%  caída típica  -17.0%  mejor que actual en   1% de las acciones, peor en   2%
 == 2022 (bajista) (132 acciones)
-  Comprar y mantener                                                                 rinde   -12.0%  peor caída  -37.7%  vs azar   -0.2  invertido 100% del tiempo  ops 1.0
-  Cruce 50/200                                                                       rinde    -6.9%  peor caída  -20.6%  vs azar   -8.8  invertido  35% del tiempo  ops 1.4
-  Actual (todo o nada)                                                               rinde    -7.2%  peor caída  -20.7%  vs azar   -8.8  invertido  36% del tiempo  ops 1.5
-  T1 vende la mitad al cerrar bajo la media 50                                       rinde    -4.7%  peor caída  -12.5%  vs azar   -5.2  invertido  20% del tiempo  ops 1.5
-  T2 vende la mitad si cae 10% desde el máximo                                       rinde    -5.1%  peor caída  -13.6%  vs azar   -5.5  invertido  22% del tiempo  ops 1.5
-  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)           rinde    -5.3%  peor caída  -12.6%  vs azar   -7.7  invertido  18% del tiempo  ops 4.0
-  T4 vende todo si cae 15% desde el máximo                                           rinde    -5.4%  peor caída  -11.3%  vs azar   -5.7  invertido  18% del tiempo  ops 1.2
-  T5 vende la mitad con +20% de ganancia                                             rinde    -5.7%  peor caída  -15.3%  vs azar   -6.1  invertido  26% del tiempo  ops 1.5
-  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce               rinde    -3.8%  peor caída   -9.7%  vs azar   -4.0  invertido  15% del tiempo  ops 1.5
-  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella             rinde    -6.2%  peor caída  -16.1%  vs azar   -8.2  invertido  27% del tiempo  ops 1.5
-  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% de rinde    -6.9%  peor caída  -16.6%  vs azar   -8.6  invertido  28% del tiempo  ops 1.5
-  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%               rinde    -5.4%  peor caída  -15.8%  vs azar   -5.7  invertido  26% del tiempo  ops 1.5
-  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                     rinde    -7.2%  peor caída  -20.8%  vs azar   -8.8  invertido  36% del tiempo  ops 1.5
+  Comprar y mantener                                                               mediana  -15.8%  sin el 10% que más subió  -20.7%  promedio  -12.0%  caída típica  -36.5%  mejor que actual en  39% de las acciones, peor en  53%
+  Cruce 50/200                                                                     mediana  -10.4%  sin el 10% que más subió  -12.5%  promedio   -6.9%  caída típica  -21.2%  mejor que actual en   4% de las acciones, peor en   2%
+  Actual (todo o nada)                                                             mediana  -10.6%  sin el 10% que más subió  -12.7%  promedio   -7.2%  caída típica  -21.2%  mejor que actual en   0% de las acciones, peor en   0%
+  T1 vende la mitad al cerrar bajo la media 50                                     mediana   -6.7%  sin el 10% que más subió   -7.5%  promedio   -4.7%  caída típica  -12.8%  mejor que actual en  69% de las acciones, peor en  20%
+  T2 vende la mitad si cae 10% desde el máximo                                     mediana   -6.5%  sin el 10% que más subió   -8.0%  promedio   -5.1%  caída típica  -14.5%  mejor que actual en  67% de las acciones, peor en  18%
+  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)         mediana   -5.7%  sin el 10% que más subió   -7.4%  promedio   -5.3%  caída típica  -13.2%  mejor que actual en  60% de las acciones, peor en  28%
+  T4 vende todo si cae 15% desde el máximo                                         mediana   -2.9%  sin el 10% que más subió   -6.9%  promedio   -5.4%  caída típica  -13.4%  mejor que actual en  58% de las acciones, peor en  20%
+  T5 vende la mitad con +20% de ganancia                                           mediana   -6.4%  sin el 10% que más subió   -8.8%  promedio   -5.7%  caída típica  -14.6%  mejor que actual en  47% de las acciones, peor en  11%
+  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce             mediana   -4.4%  sin el 10% que más subió   -5.8%  promedio   -3.8%  caída típica   -9.3%  mejor que actual en  69% de las acciones, peor en  20%
+  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella           mediana   -7.4%  sin el 10% que más subió  -10.0%  promedio   -6.2%  caída típica  -17.3%  mejor que actual en  61% de las acciones, peor en  27%
+  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95%  mediana   -8.1%  sin el 10% que más subió  -10.2%  promedio   -6.9%  caída típica  -17.4%  mejor que actual en  57% de las acciones, peor en  27%
+  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%             mediana   -6.6%  sin el 10% que más subió   -8.7%  promedio   -5.4%  caída típica  -14.9%  mejor que actual en  46% de las acciones, peor en   8%
+  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                   mediana  -10.6%  sin el 10% que más subió  -12.8%  promedio   -7.2%  caída típica  -21.2%  mejor que actual en   1% de las acciones, peor en   2%
 == 2023 a hoy (137 acciones)
-  Comprar y mantener                                                                 rinde   167.7%  peor caída  -41.8%  vs azar   -3.9  invertido 100% del tiempo  ops 1.0
-  Cruce 50/200                                                                       rinde    96.6%  peor caída  -37.8%  vs azar   -5.1  invertido  67% del tiempo  ops 3.4
-  Actual (todo o nada)                                                               rinde    96.9%  peor caída  -37.8%  vs azar   -4.4  invertido  67% del tiempo  ops 3.8
-  T1 vende la mitad al cerrar bajo la media 50                                       rinde    45.3%  peor caída  -24.2%  vs azar   +4.4  invertido  39% del tiempo  ops 3.8
-  T2 vende la mitad si cae 10% desde el máximo                                       rinde    46.3%  peor caída  -26.5%  vs azar   +2.1  invertido  44% del tiempo  ops 3.8
-  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)           rinde    43.2%  peor caída  -33.1%  vs azar  -10.7  invertido  42% del tiempo  ops 24.0
-  T4 vende todo si cae 15% desde el máximo                                           rinde    27.0%  peor caída  -27.5%  vs azar   -0.5  invertido  38% del tiempo  ops 3.7
-  T5 vende la mitad con +20% de ganancia                                             rinde    50.4%  peor caída  -28.6%  vs azar   +5.0  invertido  47% del tiempo  ops 3.8
-  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce               rinde    28.6%  peor caída  -19.6%  vs azar   +2.4  invertido  29% del tiempo  ops 3.8
-  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella             rinde    70.3%  peor caída  -33.0%  vs azar   -5.0  invertido  55% del tiempo  ops 3.8
-  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% de rinde    70.9%  peor caída  -31.8%  vs azar   +2.7  invertido  56% del tiempo  ops 3.8
-  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%               rinde    51.0%  peor caída  -29.7%  vs azar   +3.6  invertido  49% del tiempo  ops 3.8
-  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                     rinde    96.8%  peor caída  -37.7%  vs azar   -4.3  invertido  67% del tiempo  ops 3.8
+  Comprar y mantener                                                               mediana   76.6%  sin el 10% que más subió   81.2%  promedio  167.7%  caída típica  -37.7%  mejor que actual en  80% de las acciones, peor en  20%
+  Cruce 50/200                                                                     mediana   30.7%  sin el 10% que más subió   43.8%  promedio   96.6%  caída típica  -36.0%  mejor que actual en  15% de las acciones, peor en  14%
+  Actual (todo o nada)                                                             mediana   34.0%  sin el 10% que más subió   44.2%  promedio   96.9%  caída típica  -35.8%  mejor que actual en   0% de las acciones, peor en   0%
+  T1 vende la mitad al cerrar bajo la media 50                                     mediana   22.0%  sin el 10% que más subió   23.7%  promedio   45.3%  caída típica  -22.4%  mejor que actual en  36% de las acciones, peor en  64%
+  T2 vende la mitad si cae 10% desde el máximo                                     mediana   23.6%  sin el 10% que más subió   26.4%  promedio   46.3%  caída típica  -25.8%  mejor que actual en  36% de las acciones, peor en  64%
+  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)         mediana    6.2%  sin el 10% que más subió   11.4%  promedio   43.2%  caída típica  -30.6%  mejor que actual en  29% de las acciones, peor en  71%
+  T4 vende todo si cae 15% desde el máximo                                         mediana    7.0%  sin el 10% que más subió   19.5%  promedio   27.0%  caída típica  -26.4%  mejor que actual en  34% de las acciones, peor en  64%
+  T5 vende la mitad con +20% de ganancia                                           mediana   29.0%  sin el 10% que más subió   29.9%  promedio   50.4%  caída típica  -27.0%  mejor que actual en  35% de las acciones, peor en  57%
+  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce             mediana   15.9%  sin el 10% que más subió   16.5%  promedio   28.6%  caída típica  -18.2%  mejor que actual en  36% de las acciones, peor en  64%
+  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella           mediana   17.0%  sin el 10% que más subió   28.1%  promedio   70.3%  caída típica  -30.4%  mejor que actual en  34% de las acciones, peor en  66%
+  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95%  mediana   21.2%  sin el 10% que más subió   34.1%  promedio   70.9%  caída típica  -31.9%  mejor que actual en  36% de las acciones, peor en  64%
+  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%             mediana   31.1%  sin el 10% que más subió   30.3%  promedio   51.0%  caída típica  -28.1%  mejor que actual en  35% de las acciones, peor en  57%
+  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                   mediana   30.6%  sin el 10% que más subió   44.0%  promedio   96.8%  caída típica  -35.8%  mejor que actual en   7% de las acciones, peor en  12%
 == RESUMEN: promedio de los 5 períodos separados
-  Comprar y mantener                                                                 rinde promedio   47.5%  peor caída promedio  -34.3%  rinde más que el actual en 4 de 5
-  Cruce 50/200                                                                       rinde promedio   26.5%  peor caída promedio  -27.5%  rinde más que el actual en 2 de 5
-  Actual (todo o nada)                                                               rinde promedio   26.7%  peor caída promedio  -27.4%  rinde más que el actual en 0 de 5
-  T1 vende la mitad al cerrar bajo la media 50                                       rinde promedio   13.1%  peor caída promedio  -16.9%  rinde más que el actual en 1 de 5
-  T2 vende la mitad si cae 10% desde el máximo                                       rinde promedio   13.8%  peor caída promedio  -18.8%  rinde más que el actual en 1 de 5
-  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)           rinde promedio   10.7%  peor caída promedio  -21.3%  rinde más que el actual en 2 de 5
-  T4 vende todo si cae 15% desde el máximo                                           rinde promedio    8.6%  peor caída promedio  -18.2%  rinde más que el actual en 1 de 5
-  T5 vende la mitad con +20% de ganancia                                             rinde promedio   14.4%  peor caída promedio  -20.4%  rinde más que el actual en 1 de 5
-  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce               rinde promedio    8.6%  peor caída promedio  -13.2%  rinde más que el actual en 1 de 5
-  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella             rinde promedio   18.7%  peor caída promedio  -22.7%  rinde más que el actual en 2 de 5
-  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95% de rinde promedio   19.4%  peor caída promedio  -22.7%  rinde más que el actual en 1 de 5
-  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%               rinde promedio   14.9%  peor caída promedio  -21.5%  rinde más que el actual en 1 de 5
-  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                     rinde promedio   26.6%  peor caída promedio  -27.4%  rinde más que el actual en 0 de 5
+  Comprar y mantener                                                               mediana   25.4%  sin el 10% que más subió   22.4%  caída típica  -31.5%  mejor que actual en  63% de las acciones, peor en  25%
+  Cruce 50/200                                                                     mediana    8.8%  sin el 10% que más subió    9.8%  caída típica  -26.7%  mejor que actual en   8% de las acciones, peor en   7%
+  Actual (todo o nada)                                                             mediana    9.5%  sin el 10% que más subió   10.0%  caída típica  -26.5%  mejor que actual en   0% de las acciones, peor en   0%
+  T1 vende la mitad al cerrar bajo la media 50                                     mediana    6.3%  sin el 10% que más subió    5.7%  caída típica  -15.8%  mejor que actual en  46% de las acciones, peor en  50%
+  T2 vende la mitad si cae 10% desde el máximo                                     mediana    6.7%  sin el 10% que más subió    6.6%  caída típica  -18.4%  mejor que actual en  47% de las acciones, peor en  48%
+  T3 vende todo al cerrar bajo la media 50 (y vuelve a comprar sobre ella)         mediana    0.1%  sin el 10% que más subió    0.7%  caída típica  -20.4%  mejor que actual en  37% de las acciones, peor en  60%
+  T4 vende todo si cae 15% desde el máximo                                         mediana    2.1%  sin el 10% que más subió    5.6%  caída típica  -18.7%  mejor que actual en  39% de las acciones, peor en  45%
+  T5 vende la mitad con +20% de ganancia                                           mediana    9.8%  sin el 10% que más subió    7.3%  caída típica  -18.6%  mejor que actual en  38% de las acciones, peor en  39%
+  T6 escalonada: 1/3 con +20%, 1/3 bajo la media 50, el resto al cruce             mediana    4.9%  sin el 10% que más subió    4.0%  caída típica  -11.9%  mejor que actual en  46% de las acciones, peor en  51%
+  T1b vende la mitad bajo la media 50 y la recompra al volver sobre ella           mediana    3.7%  sin el 10% que más subió    5.4%  caída típica  -22.0%  mejor que actual en  39% de las acciones, peor en  57%
+  T2b vende la mitad si cae 10% desde el máximo y la recompra al recuperar el 95%  mediana    5.9%  sin el 10% que más subió    7.6%  caída típica  -22.5%  mejor que actual en  40% de las acciones, peor en  54%
+  T5b vende la mitad con +20% y la recompra si el precio vuelve a +10%             mediana   10.2%  sin el 10% que más subió    7.6%  caída típica  -20.2%  mejor que actual en  39% de las acciones, peor en  38%
+  R1 (rango) vende la mitad al 40% de la banda y el resto al 60%                   mediana    8.8%  sin el 10% que más subió   10.0%  caída típica  -26.5%  mejor que actual en   2% de las acciones, peor en   5%
