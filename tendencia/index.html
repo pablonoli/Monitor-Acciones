@@ -1236,15 +1236,17 @@ function enRangoInfo(v, i) {
   const pend = Math.abs(b * N) / (Math.sqrt(ss / n) * 4 + 1e-9), incl = Math.exp(b * N) - 1;
   return { ok: vj >= K && Math.abs(mov) < 0.25 && pend < 0.3, suave: vj >= 2 && Math.abs(mov) < 0.35 && pend < 0.45, vj, piso, techo, media, p0, p1, mov, pend, incl };
 }
-// Automática: si al comprar la acción está en rango, compra y vende con la regla de rango; si no está en rango, compra y vende con el cruce 50/200. La regla se elige al comprar y se mantiene hasta vender (no se cambia a mitad de la operación).
+// Automática: si al comprar la acción está en rango, compra y vende con la regla de rango; si no está en rango, compra y vende con el cruce 50/200. La regla se elige al comprar y se mantiene hasta vender (no se cambia a mitad de la operación). Si la acción sale de un rango con un cruce alcista ya dado, no compra con ese cruce: espera uno nuevo.
 function senalAuto(v, inicio) {
   if (v.__auto && v.__auto[0] === inicio) return v.__auto[1];
   const r = senalRango(v, inicio), c = v.map(k => k.close), f = smaSerie(c, 50), sl = smaSerie(c, 200);
-  const sen = new Array(v.length).fill(0), modo = new Array(v.length).fill(""), bloq = new Array(v.length).fill(false); let st = 0, m = "", ultRango = -1e9;
+  const sen = new Array(v.length).fill(0), modo = new Array(v.length).fill(""), bloq = new Array(v.length).fill(false); let st = 0, m = "", esp = false, flPrev = false;
   for (let i = 0; i < v.length; i++) {
-    const cr = i >= 200 && f[i] > sl[i], fl = enRango(v, i); if (fl) ultRango = i;
-    // No se compra por tendencia si la acción estuvo en rango en las últimas 20 ruedas y el precio está arriba del 60% de su banda de 6 meses (evita comprar en el techo justo al salir de un rango).
-    const frena = !fl && cr && i - ultRango < 20 && posRango(v, i) > 0.6; bloq[i] = frena;
+    const cr = i >= 200 && f[i] > sl[i], fl = enRango(v, i);
+    // Si la acción pasa de estar en rango a no estarlo, no se compra con el cruce de medias que ya estaba dado: se espera un cruce nuevo (evita entrar tarde, después de la subida).
+    if (flPrev && !fl && cr) esp = true;
+    if (!cr) esp = false;
+    flPrev = fl; const frena = esp && !fl && cr; bloq[i] = frena;
     if (!st) { if (fl && r[i]) { st = 1; m = "R"; } else if (!fl && cr && !frena) { st = 1; m = "T"; } }
     else if (m === "T" && !cr) st = 0;
     else if (m === "R" && !r[i]) st = 0;
@@ -1385,7 +1387,7 @@ function detalleAcc(r) {
   const reciente = uo && ultCierre - uo.salida < 45 * 86400000 ? ` Ojo: la última operación se cerró el ${fechaT(uo.salida)} con ${pctT(uo.r)}.` : "";
   const porComprar = r.usaRango ? (r.pos < 0.2 ? `porque cerró en el ${Math.round(100 * r.pos)}% de su rango de 6 meses (la estrategia de rango compra por debajo de 20%)` : `porque la señal de rango sigue activa (compró abajo y todavía no llegó al 60% para vender)`) : `porque el cruce 50/200 está alcista (la media rápida está ${g} arriba de la lenta)${r.permisoOk && accModo !== "ninguno" ? " y hay permiso del filtro" : ""}${accEst === "auto" ? " y hoy no está en rango, así que se opera por tendencia" : ""}`;
   const porVender = r.usaRango ? (r.pos > 0.6 ? `porque subió al ${Math.round(100 * r.pos)}% de su rango (la estrategia de rango vende desde 60%)` : `porque cayó 8% o más desde la compra (stop de la estrategia de rango)`) : `porque ${!r.mediasOk ? "la media rápida quedó por debajo de la lenta" : "perdió el permiso del filtro"}`;
-  const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura, ${porComprar}.${reciente}` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura, ${porVender}.` : r.comprado ? `<b class="pos">Seguir comprado.</b>` : (r.bloqueada ? `<b class="neg">Esperar.</b> El cruce de medias está alcista, pero la acción estuvo en rango hace poco y hoy está en el ${Math.round(100 * r.pos)}% de su banda de 6 meses: no se compra por tendencia ahí arriba hasta que pasen 20 ruedas desde que dejó de estar en rango o el precio baje del 60%.` : r.rango ? `<b class="neg">Esperar.</b> Todavía no está cerca del piso de su rango.` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`);
+  const concl = r.comprarYa ? `<b class="pos">Corresponde comprar</b> en la próxima apertura, ${porComprar}.${reciente}` : r.venderYa ? `<b class="neg">Corresponde vender</b> en la próxima apertura, ${porVender}.` : r.comprado ? `<b class="pos">Seguir comprado.</b>` : (r.bloqueada ? `<b class="neg">Esperar.</b> La acción acaba de salir de un rango y el cruce de medias ya estaba alcista: no se compra con ese cruce (sería entrar tarde). Se espera un cruce nuevo, o sea que las medias vuelvan a cruzarse hacia arriba.` : r.rango ? `<b class="neg">Esperar.</b> Todavía no está cerca del piso de su rango.` : `<b class="neg">Esperar.</b> Falta ${!r.permisoOk && !r.mediasOk ? "el permiso y el cruce" : !r.permisoOk ? "el permiso" : "el cruce de medias"}.`);
   accFichas = [];
   const flecha = '<span class="fl">›</span>';
   const ops = r.ops.slice(-5).reverse().map(o => { accFichas.push({ t: `Operación ${o.r >= 0 ? "ganada" : "perdida"} ${pctT(o.r)}`, c: o.entrada, pc: o.pIn, cm: motivoOp(r, o.entrada, true, o, true), v: o.salida, pv: o.pOut, vm: motivoOp(r, o.salida, false, o, true) }); return `<tr class="opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span></td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}${flecha}</td></tr>`; }).join("");
