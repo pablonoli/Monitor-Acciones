@@ -41,6 +41,13 @@ label.campo { max-width: 100%; } label.campo select { min-width: 0; max-width: 1
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 .chips button .fuente { font-weight: 400; opacity: .8; font-size: 12px; margin-left: 6px; }
+.mia { width: 24px; height: 24px; min-height: 0; padding: 0; margin-right: 8px; border-radius: 50%; border: 1.5px solid var(--line); background: transparent; font-size: 13px; line-height: 1; vertical-align: middle; color: #fff; }
+.mia[aria-pressed="true"] { background: var(--long); border-color: var(--long); }
+.mibloque { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.mfila { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mfila label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); }
+.mfila input { font-size: 15px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text); min-width: 0; }
+.mini { align-self: flex-start; font-size: 13px; padding: 6px 12px; min-height: 32px; }
 .ajustes { margin-top: 12px; border: 1px dashed #cdbfa4; border-radius: 14px; padding: 0 14px; }
 .ajustes > summary { cursor: pointer; padding: 12px 0; font-size: 14px; font-weight: 500; color: var(--muted); }
 .ajustes[open] > summary { color: var(--text); }
@@ -786,6 +793,9 @@ const ACTIVOS_T = [
 let tendSel = guardado("tend_activos", ["BTC", "SOL", "HYPE", "MSTR"]).filter(id => ACTIVOS_T.some(a => a.id === id));
 let tendOrden = guardado("tend_orden", "fecha");
 let tendAnio = guardado("tend_anio", "todos");
+let accMias = guardado("acc_mias", {});   // mis compras: { símbolo: { p: precio, t: "AAAA-MM-DD" } } (se guardan solo en este navegador)
+const hoyISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+function guardarMias() { guardar("acc_mias", accMias); }
 let tendRango = guardado("tend_rango", "corto") === "2a" ? "2a" : "corto";
 const nBarrasT = () => tendRango === "2a" ? (tendTf === "1d" ? 730 : 4380) : 120;
 const txRangoT = r => r === "2a" ? "2 años" : tendTf === "1d" ? "4 meses" : "20 días";
@@ -1203,8 +1213,8 @@ function eficiencia(bars) {
   for (let i = 1; i < c.length; i++) rec += Math.abs(c[i] - c[i - 1]);
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
-const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"]];
-const ACC_TARJ = [["comprar", "Comprar hoy", ""], ["vender", "Vender hoy", "c-vender"], ["por", "A punto de comprar", "c-por"], ["fuerte", "Tendencia fuerte ▲", ""]], ACC_OTROS = [["todas", "Todas"], ["comprado", "Comprados"], ["rango", "En rango ↔"]];
+const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["mias", "Mis acciones"]];
+const ACC_TARJ = [["comprar", "Comprar hoy", ""], ["vender", "Vender hoy", "c-vender"], ["por", "A punto de comprar", "c-por"], ["fuerte", "Tendencia fuerte ▲", ""]], ACC_OTROS = [["todas", "Todas"], ["mias", "Mis acciones"], ["comprado", "Comprados"], ["rango", "En rango ↔"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
@@ -1353,7 +1363,7 @@ function haciaCruce(bars) {
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.parcialYa ? "VENDER ½" : r.mitad ? "COMPRADO ½" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : (r.venderYa || r.parcialYa) ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
@@ -1361,6 +1371,7 @@ function pintarAcc() {
   const comp = comparacionAcc(); { const el = $('accComp'); el.hidden = false; el.className = 'veredicto'; el.innerHTML = `<p><b>Las estrategias, sin filtro</b> (resultado promedio por acción desde enero 2024): ` + comp.ests.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b> (${f[2].toLocaleString('es-AR', { maximumFractionDigits: 1 })} operaciones por acción)`).join(' · ') + (accEst === "auto" ? "" : `. Con la estrategia elegida y distintos filtros: ` + comp.filas.map(f => `${f[0]} <b class='${f[1] >= 0 ? 'pos' : 'neg'}'>${pctT(f[1])}</b>`).join(' · ')) + `. Comprar y mantener: <b>${pctT(comp.man)}</b>. Ojo: es un período corto (menos de 3 años) y de mercado alcista: sirve para ver diferencias grandes, no para elegir lo que mejor le fue al pasado.</p>`; }
   const n = res.length, compr = res.filter(r => r.comprado).length, perm = res.filter(r => r.permisoOk).length;
   const comprar = res.filter(r => r.comprarYa).map(r => r.s), vender = res.filter(r => r.venderYa).map(r => r.s), mitad = res.filter(r => r.parcialYa).map(r => r.s);
+  const miasVender = res.filter(r => accMias[r.s] && (r.venderYa || r.parcialYa || !r.comprado)).map(r => r.s + (r.parcialYa ? " (½)" : ""));
   const ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   $("accSub").textContent = `${n} acciones con datos al cierre del ${ult}. La señal se decide con ese cierre y se ejecuta en la apertura de la próxima rueda (las ruedas de EE.UU. cierran a las 17:00 hora argentina).`;
   const viejo = accDatos.ultimo && (Date.now() - Date.parse(accDatos.ultimo + "T21:00:00Z")) > 5 * 86400000;
@@ -1372,7 +1383,7 @@ function pintarAcc() {
   } else $("accFiltroTxt").textContent = "Sin filtro: cada acción sigue solo su propio cruce de medias.";
   const hoy = $("accHoy"); hoy.hidden = false; hoy.className = "veredicto " + (comprar.length || vender.length || mitad.length ? "pos" : "");
   hoy.innerHTML = comprar.length || vender.length || mitad.length
-    ? `<p><b>Hoy:</b> ${[comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : "", vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : "", mitad.length ? "vender la mitad de <b class='neg'>" + lista2(mitad) + "</b> (llegó a +20%)" : ""].filter(Boolean).join(" · ")}. Son las que cambiaron de estado en el último cierre.</p>`
+    ? `<p><b>Hoy:</b> ${[comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : "", vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : "", mitad.length ? "vender la mitad de <b class='neg'>" + lista2(mitad) + "</b> (llegó a +20%)" : ""].filter(Boolean).join(" · ")}. Son las que cambiaron de estado en el último cierre.</p>${miasVender.length ? `<p>De <b>tus acciones</b>, la estrategia dice vender: <b class='neg'>${lista2(miasVender)}</b>.</p>` : ""}`
     : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${compr} de ${n} siguen comprados.</p>`;
   const est = res.reduce((a, r) => a + 1 + r.e, 0) / n - 1, man = res.reduce((a, r) => a + 1 + r.m, 0) / n - 1;
   $("accStats").innerHTML = [[`${compr}/${n}`, "comprados"], [`${perm}/${n}`, "con permiso"], [pctT(est), "estrategia promedio desde ene 2024"], [pctT(man), "comprar y mantener promedio"]].map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("");
@@ -1392,7 +1403,7 @@ function pintarFilasAcc() {
   $("accCuerpo").innerHTML = filas.map(r => {
     const abierta = accAbierta === r.s;
     return `<tr class="fila${abierta ? " abierta" : ""}" data-s="${r.s}" tabindex="0" aria-expanded="${abierta}">
-      <td class="iz sim">${r.s}${r.rango ? ' <span class="pill AVISO" style="font-size:11px;padding:1px 6px">↔ rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? ` <span class="alerta" title="Esta acción ya tuvo ${r.stopsRec} stop(s) en los últimos 3 meses y sigue cerca del piso de su rango">⚠ ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} reciente${r.stopsRec > 1 ? "s" : ""}</span>` : ""}</td>
+      <td class="iz sim"><button type="button" class="mia" data-mia="${r.s}" aria-pressed="${!!accMias[r.s]}" aria-label="${accMias[r.s] ? "Es una acción que compré" : "Marcar que compré " + r.s}" title="${accMias[r.s] ? "Mi compra" : "Marcar que la compré (con el precio de hoy)"}">${accMias[r.s] ? "✓" : ""}</button>${r.s}${accMias[r.s] ? `<br><span class="sub ${r.precio >= accMias[r.s].p ? "pos" : "neg"}" style="font-weight:600">mía ${pctT(r.precio / accMias[r.s].p - 1)}</span>` : ""}${r.rango ? ' <span class="pill AVISO" style="font-size:11px;padding:1px 6px">↔ rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? ` <span class="alerta" title="Esta acción ya tuvo ${r.stopsRec} stop(s) en los últimos 3 meses y sigue cerca del piso de su rango">⚠ ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} reciente${r.stopsRec > 1 ? "s" : ""}</span>` : ""}</td>
       <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
       ${r.rango ? `<td class="num">Rango ${Math.round(100 * r.pos)}%</td>` : `<td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>`}
       <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span>${r.por && r.rango ? `<br><span class="sub">en rango, en ${(100 * r.pos).toLocaleString("es-AR", { maximumFractionDigits: 0 })}% de la banda (compra bajo 20%)</span>` : r.por ? `<br><span class="sub">las medias están a ${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% de cruzar${r.faltan ? " (" + (r.faltan === 1 ? "1 rueda" : "unas " + r.faltan + " ruedas") + " al ritmo actual)" : ""}</span>` : accCumple(r, "naciente") ? `<br><span class="sub">${r.bloqueada ? "salió de un rango: espera un cruce nuevo" : r.rango ? "está en rango: espera zona de compra" : !r.mediasOk ? "las medias están a " + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% de cruzar" : "sin señal de compra todavía"}</span>` : ""}</td><td class="num">${fmt(r.precio)}</td>${r.t.abierta ? `<td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}<br><span class="sub">desde ${fmt(r.t.abierta.precio)}</span></td>` : `<td class="num sub">—</td>`}${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td></tr>` + (abierta ? detalleAcc(r) : "");
@@ -1433,6 +1444,17 @@ function ajustarDetalle() {
   const cols = document.querySelector("#accTabla tr.det > td > .cols"), sc = $("accTabla").closest(".scroll"); if (!cols || !sc) return;
   cols.style.width = ""; if (sc.scrollWidth > sc.clientWidth + 1) cols.style.width = (sc.clientWidth - 24) + "px";
 }
+function miBloque(r) {
+  const m = accMias[r.s];
+  if (!m) return `<div class="mibloque"><b>Mi compra</b><div class="sub">No marcaste esta acción. <button type="button" class="mini" data-mia-add="${r.s}">Marcar que la compré hoy</button></div></div>`;
+  const gan = r.precio / m.p - 1;
+  const est = r.venderYa ? `<b class="neg">vender</b> (hay señal de venta en el último cierre)` : r.parcialYa ? `<b class="neg">vender la mitad</b> (llegó a +20%)` : r.comprado ? `<b class="pos">seguir comprada</b>${r.mitad ? " (la estrategia ya vendió la mitad)" : ""}` : `<b class="neg">estar afuera</b>: la estrategia ya salió de esta acción`;
+  return `<div class="mibloque"><b>Mi compra</b>
+    <div class="mfila"><label>Precio de compra<input type="number" step="0.01" min="0" inputmode="decimal" value="${m.p}" data-mia-p="${r.s}"></label><label>Fecha<input type="date" value="${m.t}" max="${hoyISO()}" data-mia-t="${r.s}"></label></div>
+    <div>Hoy voy <b class="${gan >= 0 ? "pos" : "neg"}">${pctT(gan)}</b> <span class="sub">(precio de hoy ${fmt(r.precio)}, sin costos)</span></div>
+    <div>Según la estrategia: ${est}.</div>
+    <button type="button" class="mini" data-mia-del="${r.s}">Ya la vendí</button></div>`;
+}
 function detalleAcc(r) {
   const mer = accMercado, cuando = "en el último cierre";
   let permTxt = "Sin filtro: no hace falta permiso.";
@@ -1457,7 +1479,7 @@ function detalleAcc(r) {
     <div><canvas role="img" aria-label="Gráfico de ${r.s}: precio de 2 años, operaciones y señal de hoy"></canvas>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span><span><i class="v" style="background:var(--long);border-color:var(--long)"></i>Operación ganada</span><span><i class="v" style="background:var(--short);border-color:var(--short)"></i>perdida</span><span>Barra rayada: varias operaciones seguidas</span></div></div>
     <div>${r.det ? paso("¿Está en rango? (se mira 2 años)", r.det.corto ? "Todavía no hay 2 años de historia para evaluarlo: se opera por tendencia (cruce 50/200)." : `${r.det.vj >= 3 ? "✓" : "✕"} <b>Rebota entre piso y techo:</b> en 2 años el precio tuvo un piso de ${fmt(r.det.piso)}, un techo de ${fmt(r.det.techo)} y un promedio de ${fmt(r.det.media)}. La banda se divide en una zona de abajo (hasta ${fmt(r.det.piso + 0.2 * (r.det.techo - r.det.piso))}) y una zona de arriba (desde ${fmt(r.det.techo - 0.2 * (r.det.techo - r.det.piso))}): cada una es el 20% del ancho entre piso y techo (el mismo 20% de la compra). Fue ${r.det.vj} ${r.det.vj === 1 ? "vez" : "veces"} de una zona a la otra (hacen falta 3 o más).<br>${Math.abs(r.det.mov) < 0.25 ? "✓" : "✕"} <b>No tiene rumbo:</b> hace 2 años valía ${fmt(r.det.p0)} y hoy ${fmt(r.det.p1)}: cambió ${pctT(r.det.mov)}. Para ser rango tiene que haber cambiado menos de 25% (para arriba o para abajo) respecto de lo que valía hace 2 años.<br>${r.det.pend < 0.3 ? "✓" : "✕"} <b>Sin subida ni bajada fuerte de fondo:</b> si se traza una línea recta que acompañe al precio de los 2 años, esa línea ${r.det.incl >= 0 ? "sube" : "baja"} ${Math.abs(r.det.incl * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%. Esa ${r.det.incl >= 0 ? "subida" : "bajada"} es chica comparada con lo que el precio se mueve para arriba y para abajo: equivale al ${Math.round(100 * r.det.pend)}% de ese vaivén. Tiene que ser menos de 30%; si fuera más, el precio estaría en una ${r.det.incl >= 0 ? "subida" : "bajada"} sostenida y no en un rango.<br>${r.det.ok ? "<b>Está en rango:</b> se opera comprando abajo y vendiendo arriba." : r.rango ? "<b>Sigue en rango:</b> hoy alguna condición está un poco afuera, pero ya estaba en rango y solo sale si se pasa de límites más amplios (cambio de más de 35%, inclinación de más de 45% o menos de 2 viajes). Así no cambia de estrategia por un solo día." : "<b>No está en rango:</b> se opera por tendencia (cruce 50/200)."}`, r.rango) : ""}${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60% o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
-      <div class="sub" style="margin-top:10px;font-size:12px;color:var(--muted)">Tocá una operación para ver por qué se compró y se vendió.</div><div class="scroll"><table style="margin-top:4px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
+      ${miBloque(r)}<div class="sub" style="margin-top:10px;font-size:12px;color:var(--muted)">Tocá una operación para ver por qué se compró y se vendió.</div><div class="scroll"><table style="margin-top:4px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
   </div></td></tr>`;
 }
 async function cargarAcc() {
@@ -1483,11 +1505,26 @@ $("accTabla").querySelector("thead").addEventListener("click", e => {
   guardar("acc_ord", accOrd); pintarFilasAcc();
 });
 const accAlternar = tr => { if (!tr || !tr.dataset.s) return; accAbierta = accAbierta === tr.dataset.s ? null : tr.dataset.s; pintarFilasAcc(); };
-$("accCuerpo").addEventListener("click", e => { const op = e.target.closest("tr.opf"); if (op) { abrirFicha(+op.dataset.f); return; } accAlternar(e.target.closest("tr.fila")); });
+$("accCuerpo").addEventListener("click", e => {
+  const mb = e.target.closest("button.mia, button[data-mia-add], button[data-mia-del]");
+  if (mb) {
+    e.stopPropagation(); const s = mb.dataset.mia || mb.dataset.miaAdd || mb.dataset.miaDel, r = accRes.find(x => x.s === s);
+    if (mb.dataset.miaDel) delete accMias[s];
+    else if (!accMias[s] && r) accMias[s] = { p: +r.precio.toFixed(2), t: hoyISO() };
+    else if (mb.dataset.mia) accAbierta = s;
+    guardarMias(); pintarAcc(); return;
+  }
+  const op = e.target.closest("tr.opf"); if (op) { abrirFicha(+op.dataset.f); return; } accAlternar(e.target.closest("tr.fila")); });
 $("ficha").addEventListener("click", e => { if (e.target === $("ficha")) cerrarFicha(); });
 $("fichaX").addEventListener("click", cerrarFicha);
 document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarFicha(); });
-$("accCuerpo").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { const op = e.target.closest("tr.opf"); if (op) { e.preventDefault(); abrirFicha(+op.dataset.f); return; } e.preventDefault(); accAlternar(e.target.closest("tr.fila")); } });
+$("accCuerpo").addEventListener("change", e => {
+  const el = e.target, s = el.dataset.miaP || el.dataset.miaT; if (!s || !accMias[s]) return;
+  if (el.dataset.miaP) { const v = parseFloat(String(el.value).replace(",", ".")); if (v > 0) accMias[s].p = v; }
+  else if (el.value) accMias[s].t = el.value;
+  guardarMias(); pintarAcc();
+});
+$("accCuerpo").addEventListener("keydown", e => { if (e.target.closest("button.mia, button.mini, input")) return; if (e.key === "Enter" || e.key === " ") { const op = e.target.closest("tr.opf"); if (op) { e.preventDefault(); abrirFicha(+op.dataset.f); return; } e.preventDefault(); accAlternar(e.target.closest("tr.fila")); } });
 window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); ajustarDetalle(); if (cv && r) graficoTend(cv, r.t, accN, r.rango ? "rango" : true, 501); });
 cargarAcc();
 setInterval(cargarAcc, 30 * 60000);
