@@ -60,6 +60,8 @@ label.campo { max-width: 100%; } label.campo select { min-width: 0; max-width: 1
 .ftar button.c-vender { background: var(--short-bg); border-color: #e7c3bd; } .ftar button.c-vender .k, .ftar button.c-vender .v { color: var(--short); }
 .ftar button.c-por { background: #e3edf7; border-color: #bdd1e6; } .ftar button.c-por .k, .ftar button.c-por .v { color: var(--blue); }
 .ftar button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.sincro { margin-top: 8px; font-size: 13px; }
+.sincro button { min-height: 32px; padding: 4px 10px; font-size: 13px; }
 .fotros { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13.5px; }
 .fotros button { background: none; border: none; border-bottom: 1px solid transparent; border-radius: 0; padding: 4px 0; min-height: 32px; color: var(--muted); font-weight: 500; }
 .fotros button b { font-weight: 600; color: var(--text); margin-left: 4px; }
@@ -226,6 +228,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <div class="aviso" id="accAviso" hidden></div>
     <div class="veredicto" id="accHoy" hidden></div>
     <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
+    <div class="sincro"><button type="button" id="miasSync">☁ Sincronizar mis compras</button> <span class="sub" id="miasMsg" role="status"></span></div>
     <details class="ajustes" id="accAjustes">
       <summary>Ajustes y resultados de la estrategia</summary>
       <div class="controles">
@@ -795,7 +798,7 @@ let tendOrden = guardado("tend_orden", "fecha");
 let tendAnio = guardado("tend_anio", "todos");
 let accMias = guardado("acc_mias", {});   // mis compras: { símbolo: { p: precio, t: "AAAA-MM-DD" } } (se guardan solo en este navegador)
 const hoyISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
-function guardarMias() { guardar("acc_mias", accMias); }
+function guardarMias() { guardar("acc_mias", accMias); programarMias(); }
 let tendRango = guardado("tend_rango", "corto") === "2a" ? "2a" : "corto";
 const nBarrasT = () => tendRango === "2a" ? (tendTf === "1d" ? 730 : 4380) : 120;
 const txRangoT = r => r === "2a" ? "2 años" : tendTf === "1d" ? "4 meses" : "20 días";
@@ -1526,6 +1529,64 @@ $("accCuerpo").addEventListener("change", e => {
 });
 $("accCuerpo").addEventListener("keydown", e => { if (e.target.closest("button.mia, button.mini, input")) return; if (e.key === "Enter" || e.key === " ") { const op = e.target.closest("tr.opf"); if (op) { e.preventDefault(); abrirFicha(+op.dataset.f); return; } e.preventDefault(); accAlternar(e.target.closest("tr.fila")); } });
 window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); ajustarDetalle(); if (cv && r) graficoTend(cv, r.t, accN, r.rango ? "rango" : true, 501); });
+// Mis compras sincronizadas entre dispositivos: se guardan en data/mis_compras.json del repositorio (mismo token que las favoritas del Monitor P/E).
+// Leer no necesita token (repositorio público); guardar sí. Solo se guarda símbolo, precio y fecha.
+const REPO_M = "pablonoli/Monitor-Acciones", MIAS_API = `https://api.github.com/repos/${REPO_M}/contents/data/mis_compras.json`;
+const tkM = () => { try { return localStorage.getItem("gh_token"); } catch (_) { return null; } };
+const miasDecir = t => { $("miasMsg").textContent = t; };
+let miasSha = null, miasTimer = null;
+async function leerMiasRemoto() {
+  try {
+    const r = await fetch(MIAS_API + "?ref=main&t=" + Date.now(), { headers: { Accept: "application/vnd.github+json" } });
+    if (r.status === 404) { miasSha = null; return null; }
+    if (!r.ok) return undefined;
+    const j = await r.json(); miasSha = j.sha;
+    const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(String(j.content).replace(/\n/g, "")), c => c.charCodeAt(0))));
+    return o && typeof o === "object" && !Array.isArray(o) ? o : undefined;
+  } catch (_) { return undefined; }
+}
+async function subirMias(retry = true) {
+  const t = tkM(); if (!t) return "sin-token";
+  const body = { message: "Mis compras", branch: "main", content: btoa(unescape(encodeURIComponent(JSON.stringify(accMias, null, 1)))) };
+  if (miasSha) body.sha = miasSha;
+  try {
+    const r = await fetch(MIAS_API, { method: "PUT", headers: { Authorization: "Bearer " + t, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }, body: JSON.stringify(body) });
+    if (r.ok) { miasSha = (await r.json()).content.sha; return "ok"; }
+    if ((r.status === 409 || r.status === 422) && retry) { await leerMiasRemoto(); return subirMias(false); }
+    if (r.status === 401) { try { localStorage.removeItem("gh_token"); } catch (_) {} return "token"; }
+    if (r.status === 403 || r.status === 404) return "permiso";
+    return "error";
+  } catch (_) { return "red"; }
+}
+const miasErr = { token: "GitHub rechazó el token. Tocá «Sincronizar mis compras» y pegá uno nuevo.", permiso: "El token no tiene permiso Contents (lectura y escritura) sobre Monitor-Acciones.", error: "No se pudo guardar en GitHub. Quedan en este dispositivo.", red: "Sin conexión con GitHub: quedan en este dispositivo." };
+function programarMias() {
+  if (!tkM()) return;
+  clearTimeout(miasTimer);
+  miasTimer = setTimeout(async () => { const e = await subirMias(); miasDecir(e === "ok" ? "Guardado en GitHub ✓" : (miasErr[e] || "")); }, 900);
+}
+async function traerMias() {
+  const rem = await leerMiasRemoto();
+  if (rem && typeof rem === "object") {
+    if (tkM() || !Object.keys(accMias).length) { for (const k of Object.keys(accMias)) delete accMias[k]; Object.assign(accMias, rem); guardar("acc_mias", accMias); pintarAcc(); }
+  } else if (rem === null && tkM() && Object.keys(accMias).length) subirMias();
+}
+$("miasSync").addEventListener("click", async e => {
+  const btn = e.currentTarget;
+  if (!tkM()) {
+    const t = (prompt("Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.") || "").trim();
+    if (!t) return; try { localStorage.setItem("gh_token", t); } catch (_) {}
+  }
+  btn.disabled = true; miasDecir("Sincronizando…");
+  const rem = await leerMiasRemoto();
+  if (rem === undefined) { miasDecir("No pude leer GitHub. Probá de nuevo."); btn.disabled = false; return; }
+  const unidas = Object.assign({}, accMias, rem || {});
+  for (const k of Object.keys(accMias)) delete accMias[k]; Object.assign(accMias, unidas); guardar("acc_mias", accMias);
+  const st = await subirMias();
+  miasDecir(st === "ok" ? `Listo: ${Object.keys(accMias).length} compra(s) guardadas en GitHub. Ya las ves en tus otros aparatos.` : (miasErr[st] || "No se pudo sincronizar."));
+  pintarAcc(); btn.disabled = false;
+});
+traerMias();
+
 cargarAcc();
 setInterval(cargarAcc, 30 * 60000);
 </script>
