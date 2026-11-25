@@ -61,7 +61,12 @@ label.campo { max-width: 100%; } label.campo select { min-width: 0; max-width: 1
 .ftar button.c-por { background: #e3edf7; border-color: #bdd1e6; } .ftar button.c-por .k, .ftar button.c-por .v { color: var(--blue); }
 .ftar button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 .sincro { margin-top: 8px; font-size: 13px; }
-.sincro button { min-height: 32px; padding: 4px 10px; font-size: 13px; }
+.sincro button { background: none; border: none; border-bottom: 1px solid var(--line); border-radius: 0; min-height: 32px; padding: 4px 0; font-size: 13.5px; font-weight: 500; color: var(--muted); }
+.sincro button:hover { color: var(--accent-d); border-bottom-color: var(--accent); }
+.sincro .sub { margin-left: 8px; }
+#miasTok { margin-top: 10px; max-width: 460px; }
+#miasTok input { width: 100%; }
+.botfila { display: flex; gap: 8px; flex-wrap: wrap; }
 .fotros { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13.5px; }
 .fotros button { background: none; border: none; border-bottom: 1px solid transparent; border-radius: 0; padding: 4px 0; min-height: 32px; color: var(--muted); font-weight: 500; }
 .fotros button b { font-weight: 600; color: var(--text); margin-left: 4px; }
@@ -229,6 +234,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <div class="veredicto" id="accHoy" hidden></div>
     <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
     <div class="sincro"><button type="button" id="miasSync">☁ Sincronizar mis compras</button> <span class="sub" id="miasMsg" role="status"></span></div>
+    <div class="mibloque" id="miasTok" hidden><b>Conectar con GitHub (una sola vez)</b><span class="sub">Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.</span><div class="mfila"><input type="password" id="miasTokIn" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Token de GitHub"></div><div class="botfila"><button type="button" class="mini" id="miasTokOk">Guardar y sincronizar</button><button type="button" class="mini" id="miasTokNo">Cancelar</button></div></div>
     <details class="ajustes" id="accAjustes">
       <summary>Ajustes y resultados de la estrategia</summary>
       <div class="controles">
@@ -1570,13 +1576,8 @@ async function traerMias() {
     if (tkM() || !Object.keys(accMias).length) { for (const k of Object.keys(accMias)) delete accMias[k]; Object.assign(accMias, rem); guardar("acc_mias", accMias); pintarAcc(); }
   } else if (rem === null && tkM() && Object.keys(accMias).length) subirMias();
 }
-$("miasSync").addEventListener("click", async e => {
-  const btn = e.currentTarget;
-  if (!tkM()) {
-    const t = (prompt("Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.") || "").trim();
-    if (!t) return; try { localStorage.setItem("gh_token", t); } catch (_) {}
-  }
-  btn.disabled = true; miasDecir("Sincronizando…");
+async function sincronizarMias() {
+  const btn = $("miasSync"); btn.disabled = true; miasDecir("Sincronizando…");
   const rem = await leerMiasRemoto();
   if (rem === undefined) { miasDecir("No pude leer GitHub. Probá de nuevo."); btn.disabled = false; return; }
   const unidas = Object.assign({}, accMias, rem || {});
@@ -1584,7 +1585,15 @@ $("miasSync").addEventListener("click", async e => {
   const st = await subirMias();
   miasDecir(st === "ok" ? `Listo: ${Object.keys(accMias).length} compra(s) guardadas en GitHub. Ya las ves en tus otros aparatos.` : (miasErr[st] || "No se pudo sincronizar."));
   pintarAcc(); btn.disabled = false;
+}
+$("miasSync").addEventListener("click", () => { if (tkM()) sincronizarMias(); else { $("miasTok").hidden = false; $("miasTokIn").focus(); } });
+$("miasTokNo").addEventListener("click", () => { $("miasTok").hidden = true; $("miasTokIn").value = ""; });
+$("miasTokOk").addEventListener("click", () => {
+  const t = $("miasTokIn").value.trim(); if (!t) { $("miasTokIn").focus(); return; }
+  try { localStorage.setItem("gh_token", t); } catch (_) {}
+  $("miasTokIn").value = ""; $("miasTok").hidden = true; sincronizarMias();
 });
+$("miasTokIn").addEventListener("keydown", e => { if (e.key === "Enter") $("miasTokOk").click(); });
 traerMias();
 
 cargarAcc();
