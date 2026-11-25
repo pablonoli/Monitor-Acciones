@@ -1,0 +1,34 @@
+ROTACIÓN ENTRE SECTORES (11 ETFs con CEDEAR). Datos hasta 2026-11-25. Costo 0.15% por lado.
+Cuando ninguna regla marca sector, el dinero queda en SPY. Se opera al día siguiente de la señal.
+
+Regla                                            Anual  Peor caída  Rot./año
+Repunte: giro vs mercado (E1)                    -1,5%      -64,4%      31.6
+Repunte + sube solo (E2)                         +0,1%      -58,2%      30.4
+Repunte temprano: no corrió aún (E3)             +0,1%      -60,3%      29.5
+Mensual: 3 mejores de 6 meses (M1)               +7,3%      -46,4%       3.6
+Mensual: 3 con mejor fuerza vs mercado (M2)      +8,0%      -52,5%       4.8
+Los 11 sectores parejos                          +9,4%      -51,4%       0.0
+Comprar y mantener SPY                          +10,7%      -51,9%       0.0
+
+POR PERÍODO (rendimiento total de cada tramo)
+Regla                                            2008-12   2013-19   2020-22  2023-hoy
+Repunte: giro vs mercado (E1)                     -33,8%     -4,5%     +6,3%    +10,9%
+Repunte + sube solo (E2)                          -28,2%     +2,0%    +11,5%    +25,3%
+Repunte temprano: no corrió aún (E3)              -31,7%     +3,7%    +12,4%    +27,4%
+Mensual: 3 mejores de 6 meses (M1)                 -4,4%    +97,3%    +53,7%    +30,4%
+Mensual: 3 con mejor fuerza vs mercado (M2)       +14,1%    +69,9%    +48,8%    +48,1%
+Los 11 sectores parejos                           +16,2%   +124,9%    +27,2%    +64,0%
+Comprar y mantener SPY                             +8,6%   +159,4%    +24,6%    +94,2%
+
+ESTADO HOY (por sector)
+Sector                   1 mes  3 meses  6 meses   vs mercado 6m   Giro  Estado
+Salud XLV                +2,6%    +7,5%   +22,8%          +30,2%     no  REPUNTA (entra E3)
+Consumo básico XLP       +6,4%    +9,7%   +11,3%          +18,0%     no  REPUNTA (entra E3)
+Financiero XLF           +0,6%    -2,6%   +10,4%          +17,0%     no  repunta pero ya corrió
+Inmobiliario XLRE        +3,3%    -1,0%    +0,4%           +6,5%     no  repunta pero ya corrió
+Servicios públicos XLU   +1,8%    +1,7%    -1,0%           +5,0%     no  REPUNTA (entra E3)
+Consumo discrecional XLY   +1,0%    +0,8%    -4,1%           +1,7%     no  repunta pero ya corrió
+Energía XLE             -10,8%    -1,7%    +8,2%          +14,7%     sí  repunta pero ya corrió
+Materiales XLB           -1,9%    -4,1%    -0,3%           +5,7%     no  repunta pero ya corrió
+Comunicaciones XLC       +0,8%    -6,0%   -10,0%           -4,6%     sí  repunta pero ya corrió
+Industriales XLI         -4,0%    -9,6%    -6,8%           -1,2%     no  repunta pero ya corrió
