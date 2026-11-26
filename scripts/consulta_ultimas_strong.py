@@ -41,6 +41,44 @@ for s, df in datos.items():
                           stop=float(stop.iloc[i]), abre=abre, hoy=float(c.iloc[-1]), ruedas=len(x) - 1 - i))
 
 filas.sort(key=lambda r: r["fecha"], reverse=True)
+import datetime as dt
+desde, hasta = dt.date(2026, 1, 1), dt.date(2026, 8, 31)
+per = sorted([r for r in filas if desde <= r["fecha"] <= hasta], key=lambda r: (r["fecha"], r["s"]))
+def plan_a(s, i_sig, stop):
+    df = datos[s].dropna(subset=["Open", "High", "Low", "Close"])
+    if i_sig + 1 >= len(df):
+        return None, ""
+    e = float(df["Open"].iloc[i_sig + 1]); R = e - stop
+    if R <= 0:
+        return None, "abrió debajo del stop"
+    mitad, st, res = False, stop, 0.0
+    for k in range(i_sig + 1, min(i_sig + 21, len(df))):
+        o, h, lo, c = (float(df[col].iloc[k]) for col in ("Open", "High", "Low", "Close"))
+        peso = 0.5 if mitad else 1.0
+        if lo <= st:
+            sal = min(o, st)
+            return res + peso * (sal - e) / R, "stop" if not mitad else "mitad en +2R y resto al costo"
+        if not mitad and h >= e + 2 * R:
+            res += 0.5 * 2; mitad = True; st = e
+        if k == i_sig + 20:
+            return res + (0.5 if mitad else 1.0) * (c - e) / R, "rueda 20" + (" (mitad en +2R)" if mitad else "")
+    return res + (0.5 if mitad else 1.0) * (float(df["Close"].iloc[-1]) - e) / R, "abierta"
+lin = ["Señales Strong de enero a agosto 2026 (lista del dashboard). Resultado con Plan A, sin costos, en R (1R = el riesgo, $40.000 en tu ejemplo).",
+       "Ojo: es cada señal por separado; con $4.000.000 no alcanza para tomarlas todas si caen juntas.", "",
+       "fecha       acción   Z     ATR%  opc7  resultado   cómo terminó"]
+tot = tot7 = 0; n7 = 0
+for r in per:
+    df = datos[r["s"]].dropna(subset=["Open", "High", "Low", "Close"])
+    i = list(df.index.date).index(r["fecha"])
+    res, como = plan_a(r["s"], i, r["stop"])
+    o7 = r["atrp"] >= 0.02
+    if res is not None:
+        tot += res
+        if o7: tot7 += res; n7 += 1
+    lin.append(f"{r['fecha']}  {r['s']:<6} {r['z']:>4.2f}  {r['atrp']*100:>4.1f}%  {'sí' if o7 else 'no':<4}  {('%+.2fR' % res) if res is not None else '-':>8}   {como}")
+lin += ["", f"Total: {len(per)} señales, suma {tot:+.1f}R. Solo opción 7 (ATR >= 2%): {n7} señales, suma {tot7:+.1f}R."]
+open("data/consulta_strong_ene_ago.txt", "w").write("\n".join(lin) + "\n")
+print("\n".join(lin))
 out = ["Últimas 25 señales Strong (lista del dashboard). Último dato: " + str(max(d.index[-1].date() for d in datos.values())), ""]
 out.append("fecha       acción  cierre    Z     ATR%  opc7  compra(apertura sig.)  stop(mín20)  precio hoy  var% desde compra  ruedas")
 for r in filas[:25]:
