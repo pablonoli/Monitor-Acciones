@@ -1,0 +1,81 @@
+¿CUÁNTO SE PIERDE O SE GANA TOMANDO MENOS SEÑALES? Últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR. Plan A (cierra todo en la rueda 20).
+Plan A: entrada en la apertura siguiente, stop inicial = mínimo de 20 ruedas, mitad a +2R y stop al precio de compra, cierre al final de la rueda 20. Costo 0.15% por lado.
+Capital: 1% de riesgo por operación, sin apalancamiento (exposición máx. 100%: si no hay plata libre, la señal se saltea, aunque esté elegida).
+IMPORTANTE: aun 'tomando todas', el capital no alcanza para todas: de 2396 señales (39 por mes) se toman las que entran en el 100% de exposición.
+Por eso las estadísticas por operación (prom., med., gan., R) se calculan sobre las operaciones realmente tomadas.
+VERSIONES PROBADAS EN ESTA CORRIDA: 12. Marca '≈base' = diferencia de acumulado contra la versión 1 menor a 15 puntos: puede ser casualidad.
+SPY comprar y mantener: acumulado +67.0%, caída máx. -24.5%.
+LÍMITES: sesgo de selección (se elige la mejor entre varias); sesgo de supervivencia (lista de CEDEARs de hoy); las operaciones se superponen y no son independientes;
+Z y ATR % se miden el día de la señal (se conocen antes de comprar, no hay trampa de mirar el futuro).
+
+== RESULTADOS (5 años) ==
+Versión                                           | señales | toma. | por mes | abiertas |   prom. |    med. | gan. | R med |    acum. |  c. MTM | efec./mes | mes+ | peor mes | vs base
+1. Todas las señales (base)                       |    2396 |   940 |    15.4 |     13.3 |  +1.82% |  +0.52% |  53% | +0.09 |   +97.0% |  -21.1% |      105% |  57% |    -6.4% | 
+2. Solo Strong                                    |     653 |   527 |     8.6 |      7.6 |  +2.69% |  +0.21% |  51% | +0.13 |   +84.0% |  -15.1% |       63% |  57% |    -6.8% |  -13.0 pp  ≈base
+3. Solo volatilidad media (ATR 2% a 4%)           |    1254 |   741 |    12.1 |     10.5 |  +0.76% |  +0.63% |  53% | +0.07 |   +55.5% |  -17.8% |       91% |  51% |    -7.2% |  -41.5 pp
+4. Medias y altas (ATR > 2%)                      |    1861 |   943 |    15.5 |     13.5 |  +2.44% |  +0.89% |  54% | +0.13 |  +178.2% |  -23.6% |       98% |  61% |    -7.9% |  +81.2 pp
+5. Máx. 5 abiertas, prioridad mayor Z             |    2396 |   333 |     5.5 |      4.7 |  +1.28% |  +0.27% |  51% | +0.06 |   +20.8% |  -14.3% |       45% |  54% |    -5.5% |  -76.2 pp
+5. Máx. 5 abiertas, prioridad menor ATR %         |    2396 |   336 |     5.5 |      4.7 |  +1.33% |  +0.37% |  52% | +0.08 |   +27.8% |  -13.3% |       55% |  51% |    -4.7% |  -69.1 pp
+5. Máx. 10 abiertas, prioridad mayor Z            |    2396 |   636 |    10.4 |      9.0 |  +2.13% |  +0.87% |  54% | +0.11 |   +93.5% |  -17.8% |       84% |  64% |    -6.4% |   -3.4 pp  ≈base
+5. Máx. 10 abiertas, prioridad menor ATR %        |    2396 |   632 |    10.4 |      9.0 |  +1.55% |  +0.62% |  53% | +0.09 |   +70.5% |  -16.2% |       95% |  62% |    -6.6% |  -26.5 pp
+5. Máx. 15 abiertas, prioridad mayor Z            |    2396 |   871 |    14.3 |     12.4 |  +2.43% |  +0.72% |  53% | +0.12 |  +127.0% |  -21.0% |      102% |  59% |    -7.1% |  +30.1 pp
+5. Máx. 15 abiertas, prioridad menor ATR %        |    2396 |   822 |    13.5 |     11.6 |  +1.49% |  +0.50% |  52% | +0.08 |   +71.1% |  -20.0% |      104% |  51% |    -6.9% |  -25.9 pp
+6. Máx. 2 señales nuevas por semana (mayor Z)     |     494 |   487 |     8.0 |      6.9 |  +1.72% |  +0.43% |  52% | +0.07 |   +35.6% |  -22.4% |       60% |  54% |    -5.7% |  -61.4 pp
+7. La mejor (4) + solo Strong                     |     563 |   515 |     8.4 |      7.5 |  +3.47% |  +0.40% |  52% | +0.16 |  +115.4% |  -14.9% |       54% |  62% |    -6.2% |  +18.5 pp
+abiertas = promedio de posiciones abiertas a la vez; por mes = operaciones tomadas por mes; efec./mes = capital que vuelve a efectivo por mes.
+
+== OPERACIONES TOMADAS POR AÑO (por año de entrada) ==
+Versión                                               2021    2022    2023    2024    2025    2026
+1. Todas las señales (base)                             14     141     201     195     194     195
+2. Solo Strong                                           8      53     119     135     105     107
+3. Solo volatilidad media (ATR 2% a 4%)                 15     122     147     163     148     146
+4. Medias y altas (ATR > 2%)                            17     149     188     199     191     199
+5. Máx. 5 abiertas, prioridad mayor Z                    8      64      71      62      67      61
+5. Máx. 5 abiertas, prioridad menor ATR %                8      62      71      64      67      64
+5. Máx. 10 abiertas, prioridad mayor Z                  12     112     135     128     130     119
+5. Máx. 10 abiertas, prioridad menor ATR %              12     111     133     127     128     121
+5. Máx. 15 abiertas, prioridad mayor Z                  13     140     183     184     179     172
+5. Máx. 15 abiertas, prioridad menor ATR %              13     137     173     171     163     165
+6. Máx. 2 señales nuevas por semana (mayor Z)           10      87      99     101     101      89
+7. La mejor (4) + solo Strong                            8      51     109     139     102     106
+
+== RETORNO DEL CAPITAL POR AÑO (por año de cierre de las operaciones; SPY: año calendario) ==
+Versión                                                 2021      2022      2023      2024      2025      2026
+1. Todas las señales (base)                            +0.4%     -6.5%    +16.7%    +27.0%    +12.4%    +26.0%
+2. Solo Strong                                         -0.7%     +8.3%    +16.4%    +26.3%    +12.3%     +3.6%
+3. Solo volatilidad media (ATR 2% a 4%)                -0.4%     -9.3%    +18.8%    +21.9%    +10.7%     +7.3%
+4. Medias y altas (ATR > 2%)                           -0.6%    -12.7%    +30.4%    +43.1%    +22.0%    +40.8%
+5. Máx. 5 abiertas, prioridad mayor Z                  +0.4%     -7.6%     +1.4%    +18.2%     +8.9%     -0.2%
+5. Máx. 5 abiertas, prioridad menor ATR %              +0.4%     -0.9%     +4.8%    +10.7%    +12.2%     -1.3%
+5. Máx. 10 abiertas, prioridad mayor Z                 +0.4%     +1.0%    +15.0%    +44.4%     +7.8%     +6.6%
+5. Máx. 10 abiertas, prioridad menor ATR %             +0.4%     -0.7%    +12.2%    +30.5%    +10.6%     +5.6%
+5. Máx. 15 abiertas, prioridad mayor Z                 +0.4%     -1.5%    +15.5%    +44.2%    +12.9%    +22.0%
+5. Máx. 15 abiertas, prioridad menor ATR %             +0.4%     -5.2%    +15.9%    +23.2%     +7.9%    +16.7%
+6. Máx. 2 señales nuevas por semana (mayor Z)          -0.4%    -14.0%    +15.4%    +24.6%     +3.8%     +6.2%
+7. La mejor (4) + solo Strong                          -0.7%     +8.6%    +18.2%    +25.0%    +14.9%    +17.6%
+SPY comprar y mantener                                 +3.8%    -18.2%    +26.2%    +24.9%    +17.7%     +5.9%
+
+== POR MITADES (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) ==
+Versión                                           | 1.ª acum. | por mes | R med |  c. MTM || 2.ª acum. | por mes | R med |  c. MTM
+1. Todas las señales (base)                       |    +21.3% |    14.0 | +0.05 |  -21.1% ||    +62.4% |    15.9 | +0.12 |  -13.8%
+2. Solo Strong                                    |    +43.5% |     7.6 | +0.17 |   -8.9% ||    +28.2% |     9.4 | +0.10 |  -15.1%
+3. Solo volatilidad media (ATR 2% a 4%)           |    +25.6% |    11.4 | +0.07 |  -16.7% ||    +20.6% |    12.5 | +0.06 |  -17.9%
+4. Medias y altas (ATR > 2%)                      |    +41.7% |    14.2 | +0.10 |  -23.6% ||    +97.8% |    16.3 | +0.16 |  -18.9%
+5. Máx. 5 abiertas, prioridad mayor Z             |     +3.2% |     5.4 | +0.03 |  -14.3% ||    +21.8% |     5.5 | +0.12 |   -8.9%
+5. Máx. 5 abiertas, prioridad menor ATR %         |     +7.6% |     5.4 | +0.05 |  -13.3% ||    +14.7% |     5.6 | +0.08 |   -9.6%
+5. Máx. 10 abiertas, prioridad mayor Z            |    +41.6% |    10.1 | +0.13 |  -17.8% ||    +32.3% |    10.6 | +0.09 |  -14.2%
+5. Máx. 10 abiertas, prioridad menor ATR %        |    +23.0% |     9.9 | +0.07 |  -16.2% ||    +38.5% |    10.5 | +0.10 |  -11.5%
+5. Máx. 15 abiertas, prioridad mayor Z            |    +41.3% |    13.2 | +0.12 |  -21.0% ||    +56.9% |    14.6 | +0.11 |  -16.0%
+5. Máx. 15 abiertas, prioridad menor ATR %        |    +22.1% |    12.5 | +0.06 |  -20.0% ||    +44.8% |    13.7 | +0.11 |  -15.0%
+6. Máx. 2 señales nuevas por semana (mayor Z)     |    +11.2% |     7.6 | +0.05 |  -22.4% ||    +22.0% |     8.1 | +0.09 |  -11.5%
+7. La mejor (4) + solo Strong                     |    +41.9% |     7.5 | +0.16 |   -8.6% ||    +51.8% |     9.1 | +0.16 |  -14.9%
+  Puesto 1.ª mitad: 1 9.º, 2 1.º, 3 6.º, 4 3.º, 5-5z 12.º, 5-5a 11.º, 5-10z 4.º, 5-10a 7.º, 5-15z 5.º, 5-15a 8.º, 6 10.º, 7 2.º
+  Puesto 2.ª mitad: 1 2.º, 2 8.º, 3 11.º, 4 1.º, 5-5z 10.º, 5-5a 12.º, 5-10z 7.º, 5-10a 6.º, 5-15z 3.º, 5-15a 5.º, 6 9.º, 7 4.º
+  Le ganan a la base (1) en las DOS mitades: 4.
+
+== OPCIONES CON 5 A 10 OPERACIONES POR MES ==
+  7. La mejor (4) + solo Strong                     : 8.4 por mes, acumulado +115.4% (+18.5 pp contra la base), caída MTM -14.9%, abiertas 7.5
+  2. Solo Strong                                    : 8.6 por mes, acumulado +84.0% (-13.0 pp contra la base), caída MTM -15.1%, abiertas 7.6
+  6. Máx. 2 señales nuevas por semana (mayor Z)     : 8.0 por mes, acumulado +35.6% (-61.4 pp contra la base), caída MTM -22.4%, abiertas 6.9
+  5. Máx. 5 abiertas, prioridad menor ATR %         : 5.5 por mes, acumulado +27.8% (-69.1 pp contra la base), caída MTM -13.3%, abiertas 4.7
+  5. Máx. 5 abiertas, prioridad mayor Z             : 5.5 por mes, acumulado +20.8% (-76.2 pp contra la base), caída MTM -14.3%, abiertas 4.7
