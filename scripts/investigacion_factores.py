@@ -24,7 +24,7 @@ def tabla_cond(px, a, cond, nombres, hs=(21, 63)):
     """Rendimiento medio y % de veces positivo a h días, según la condición del día (cond: Series con etiquetas)."""
     L = [f"{'':<34}{'días':>7}" + "".join(f"{'a ' + str(h) + 'd':>9}{'%pos':>6}" for h in hs)]
     base = [fwd(px[a], h).dropna() for h in hs]
-    c = cond.reindex(px.index)
+    c = cond.reindex(px.index, method="ffill")
     for nom in nombres:
         idx = c[c == nom].index; row = f"{nom:<34}{len(idx):>7}"
         for f in base:
@@ -37,7 +37,7 @@ def tabla_cond(px, a, cond, nombres, hs=(21, 63)):
 
 
 def parte1(d):
-    L = []; vix = d["^VIX"]
+    L = []; vix = d["^VIX"].dropna()
     # 1) VIX
     cat = pd.cut(vix, [0, 15, 20, 25, 30, 40, 200], labels=["VIX < 15", "VIX 15-20", "VIX 20-25", "VIX 25-30", "VIX 30-40", "VIX > 40"]).astype(str)
     sp = (vix > vix.rolling(50).mean() * 1.3).map({True: "pico de miedo (VIX 30% sobre su promedio)", False: "sin pico"})
@@ -46,7 +46,7 @@ def parte1(d):
         px = d[[a]].dropna(); L += tabla_cond(px, a, cat, list(cat.unique()[:0]) or ["VIX < 15", "VIX 15-20", "VIX 20-25", "VIX 25-30", "VIX 30-40", "VIX > 40"])
         L += tabla_cond(px, a, sp, ["pico de miedo (VIX 30% sobre su promedio)"])[1:2]
     # 2) tasas y dólar
-    tn, dx = d["^TNX"], d["DX-Y.NYB"]; curva = d["^TNX"] - d["^IRX"]
+    tn, dx = d["^TNX"].dropna(), d["DX-Y.NYB"].dropna(); curva = (d["^TNX"] - d["^IRX"]).dropna()
     conds = {
         "Tasa 10 años sube (sobre su prom. 200d)": (tn > tn.rolling(200).mean()).map({True: "sube", False: "baja"}),
         "Tasa 10 años: cambio de 3 meses": (tn - tn.shift(63)).apply(lambda x: np.nan if pd.isna(x) else ("sube más de 0,5 pt" if x > 0.5 else ("baja más de 0,5 pt" if x < -0.5 else "estable"))),
