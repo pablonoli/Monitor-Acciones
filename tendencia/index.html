@@ -1558,7 +1558,7 @@ const numIn = v => { const x = parseFloat(String(v).replace(",", ".")); return i
 const sU = x => "US$ " + fmt(x), sP = x => (100 * x).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "%";
 let simR = null;
 // Ratios de CEDEAR más comunes: la estimación se redondea al más cercano; si queda a más de 10% de todos, se pide verificar en el broker.
-const RATIOS = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 16, 20, 24, 25, 30, 32, 35, 40, 48, 50, 58, 60, 72, 80, 100, 120, 144, 150, 200, 240, 300];
+const RATIOS = [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 30, 32, 35, 40, 48, 50, 58, 60, 72, 80, 100, 120, 144, 150, 200, 240, 300];
 const sAR = (x, d = 0) => "$ " + x.toLocaleString("es-AR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fechaCorta = f => { const d = new Date(f); return isNaN(d) ? "" : d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" }); };
 function estimarRatio(r) {
