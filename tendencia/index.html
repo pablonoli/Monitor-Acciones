@@ -180,7 +180,7 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
 .simhd { font-size: 13px; color: var(--muted); margin: -4px 0 12px; } .simhd b { color: var(--text); font-weight: 600; }
 .simed { background: none; border: 0; padding: 0; min-height: 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--accent-d); text-decoration: underline; cursor: pointer; }
 #simEd { margin-bottom: 12px; padding: 12px 12px 2px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); } #simEd[hidden] { display: none; }
-.simcards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.simcards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; } .sc.ancho { grid-column: 1 / -1; }
 .sc { border-radius: 12px; padding: 12px; background: #efe9dc; min-width: 0; } .sc.rojo { background: var(--short-bg); } .sc.verde { background: var(--long-bg); }
 .sc .t { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); } .sc.rojo .t, .sc.rojo .g { color: var(--short); } .sc.verde .t, .sc.verde .g { color: var(--long); }
 .sc .g { font-family: var(--font-head); font-size: 20px; font-weight: 600; line-height: 1.2; margin: 4px 0 2px; overflow-wrap: anywhere; }
@@ -1460,10 +1460,14 @@ function pintarAcc() {
 }
 let accMercado = null;
 const fCorta = x => x.split("-").reverse().slice(0, 2).join("/");
+const RUEDAS_TOPE = 20;   // salida por tiempo del plan: cerrar todo al cierre de la rueda 20 desde la entrada
+// [fecha de cierre ISO, ruedas que quedan contando la de entrada] de una señal, o null (datos viejos sin fecha de cierre)
+const salidaTiempo = sen => sen && sen[8] ? [sen[8], Math.max(0, RUEDAS_TOPE - (sen[7] || 0))] : null;
 function celdaSenal(r) {
   if (!r.sen) return `<td class="iz sub">—</td>`;
   const [f, st, , , zmax, zmin] = r.sen;
-  return `<td class="iz"><span class="vsen${st ? " fuerte" : ""}">${st ? "Verde Strong" : "Verde"}</span><br><span class="sub">${fCorta(f)} · zona ${fmt(zmax)}–${fmt(zmin)}</span></td>`;
+  const sal = salidaTiempo(r.sen);
+  return `<td class="iz"><span class="vsen${st ? " fuerte" : ""}">${st ? "Verde Strong" : "Verde"}</span><br><span class="sub">${fCorta(f)} · zona ${fmt(zmax)}–${fmt(zmin)}</span>${sal ? `<br><span class="sub">cerrar todo el ${fCorta(sal[0])} · quedan ${sal[1]} ruedas</span>` : ""}</td>`;
 }
 function celdaTecho(r) {
   if (!r.techo) return `<td class="num sub">—</td>`;
@@ -1476,7 +1480,7 @@ function pintarSenHoy() {
   const fd = accDatos.ultimo.split("-").reverse().join("/");
   el.hidden = false; el.className = hoy.length ? "" : "vacio";
   el.innerHTML = hoy.length
-    ? `<h2>Señales nuevas hoy · círculo verde (cierre del ${fd})</h2><div class="chips">${hoy.map(r => `<button type="button" data-senir="${r.s}"><b>${r.s}</b><span class="vsen${r.sen[1] ? " fuerte" : ""}">${r.sen[1] ? "Strong" : "Verde"}</span><span class="sub">${fmt(r.precio)} · zona ${fmt(r.sen[4])}–${fmt(r.sen[5])}</span></button>`).join("")}</div>`
+    ? `<h2>Señales nuevas hoy · círculo verde (cierre del ${fd})</h2><div class="chips">${hoy.map(r => `<button type="button" data-senir="${r.s}"><b>${r.s}</b><span class="vsen${r.sen[1] ? " fuerte" : ""}">${r.sen[1] ? "Strong" : "Verde"}</span><span class="sub">${fmt(r.precio)} · zona ${fmt(r.sen[4])}–${fmt(r.sen[5])}${r.sen[8] ? ` · cerrar todo el ${fCorta(r.sen[8])}` : ""}</span></button>`).join("")}</div>`
     : `<h2>Señales nuevas hoy: ninguna acción dio círculo verde en el cierre del ${fd}.</h2>`;
 }
 function pintarFilasAcc() {
@@ -1622,14 +1626,14 @@ function estimarRatio(r) {
   return { crudo, estandar: best, lejos: Math.abs(crudo - best) / best > 0.10 };
 }
 let simSel = "atr";
-const IC = { cart: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L19 8H6.2"/><circle cx="9" cy="19.5" r="1.2"/><circle cx="17" cy="19.5" r="1.2"/></svg>', bell: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>', meta: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>', escudo: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z"/></svg>' };
+const IC = { cart: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L19 8H6.2"/><circle cx="9" cy="19.5" r="1.2"/><circle cx="17" cy="19.5" r="1.2"/></svg>', bell: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>', meta: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>', reloj: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', escudo: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z"/></svg>' };
 function abrirSim(s) {
   const r = accRes.find(x => x.s === s); if (!r) return;
   $("fichaT").textContent = "Simular " + s;
   if (r.atr == null) { $("fichaB").innerHTML = `<p>Todavía no hay datos de ATR para ${s}. Se cargan con la próxima actualización diaria.</p>`; $("ficha").hidden = false; return; }
   simR = r; const alta = r.atrp > 0.04, cap = guardado("sim_capital", 10000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   const ccl = accDatos.ccl, ced = accDatos.cedear && accDatos.cedear[s], est = estimarRatio(r), vn = volNivel(r.atrp);
-  simSel = ["atr", "min", "man"].includes(guardado("sim_stop", "atr")) ? guardado("sim_stop", "atr") : "atr";
+  simSel = ["atr", "min", "man"].includes(guardado("sim_stop", "min")) ? guardado("sim_stop", "min") : "min";   // por defecto el amplio (mín. 20 ruedas), que es el que se probó
   const stopIni = r.precio * (1 - 2.5 * r.atrp);
   $("fichaT").innerHTML = `Simular ${s} <span class="volt ${vn[1]}">Volatilidad ${vn[0].toLowerCase()} · ${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</span>`;
   const inp = (id, et, v, ph) => `<label>${et}<input id="${id}" type="number" min="0" step="any" inputmode="decimal" value="${v}"${ph ? ` placeholder="${ph}"` : ""}></label>`;
@@ -1665,7 +1669,7 @@ function calcSim() {
   const vacioOpc = () => ["atr", "min", "man"].forEach(k => { const d = $("simOd_" + k), c = $("simOc_" + k); if (d) d.textContent = ""; c.textContent = ""; });
   const card = (cl, ic, t, g, sb) => `<div class="sc ${cl}"><div class="t">${ic}<span>${t}</span></div><div class="g">${g}</div><div class="sb">${sb}</div></div>`;
   if (!ok) {
-    cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "");
+    cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "") + card("ancho", IC.reloj, "Cerrar todo", "—", "");
     esc.innerHTML = ""; vacioOpc(); chk.className = "simchk bad"; chk.textContent = "✕ Completá capital, riesgo, entrada, multiplicador y objetivo con números mayores a cero."; el.innerHTML = ""; return;
   }
   guardar("sim_capital", cap);
@@ -1688,7 +1692,7 @@ function calcSim() {
   { const o = O.man; $("simOc_man").textContent = o.v ? `−${sP(o.dist)} · ${nf(o.atrs)} ATR · ${nCtxt(o)}` : (isNaN(o.st) ? "escribí un precio" : "tiene que ser menor a la entrada"); }
   const S = O[sel];
   if (!S.v) {
-    cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "");
+    cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "") + card("ancho", IC.reloj, "Cerrar todo", "—", "");
     esc.innerHTML = ""; chk.className = "simchk bad"; chk.textContent = "✕ Ese stop no sirve: tiene que ser un precio positivo menor a la entrada."; el.innerHTML = ""; return;
   }
   const rpa = S.rpa, objP = ent + objM * rpa, dObj = (objP - ent) / ent;
@@ -1699,11 +1703,14 @@ function calcSim() {
     montoUsd = pc ? (ccl > 0 ? montoAR / ccl : null) : nC / rat * ent;
   }
   const conc = montoUsd != null && montoUsd > 0.25 * cap;
+  const salT = salidaTiempo(r.sen);   // si la acción tiene señal reciente, la fecha exacta; si no, «a las 20 ruedas»
   cards.innerHTML = card("", IC.cart, "Comprar", rat > 0 ? `${nC.toLocaleString("es-AR")} CEDEARs` : "—",
       rat > 0 ? `${montoAR != null ? sAR(montoAR) : "falta el CCL"}${montoUsd != null ? ` (≈ US$ ${nf(montoUsd, 0)}) · <span class="${conc ? "w" : ""}">${sP(montoUsd / cap)} del capital${montoUsd > cap ? " (supera tu capital)" : conc ? " (concentrado)" : ""}</span>` : ""}` : "completá el ratio en Editar")
     + card("rojo", IC.bell, "Alerta de stop", sU(S.st), `−${sP(S.dist)} · si salta, vender todo`)
     + card("verde", IC.meta, "Vender la mitad", sU(objP), `+${sP(dObj)} · ${rat > 0 ? (mitad >= 1 ? `vender ${mitad.toLocaleString("es-AR")}` : "no se puede dividir") + ", " : ""}stop a la entrada`)
-    + card("", IC.escudo, "Pérdida máxima", sU(perd), `${sP(perd / cap)} del capital${rat > 0 ? "" : " (como máximo)"}`);
+    + card("", IC.escudo, "Pérdida máxima", sU(perd), `${sP(perd / cap)} del capital${rat > 0 ? "" : " (como máximo)"}`)
+    + card("ancho", IC.reloj, "Cerrar todo", salT ? `El ${fCorta(salT[0])}` : `A las ${RUEDAS_TOPE} ruedas`,
+        `${salT ? `al cierre de la rueda ${RUEDAS_TOPE} desde la entrada (quedan ${salT[1]}) · ` : `${RUEDAS_TOPE} ruedas después de comprar, contando el día de compra (unas 4 semanas) · `}si no saltó el stop, vender lo que quede`);
   const tot = rpa + objM * rpa, pe = 100 * rpa / tot;
   esc.innerHTML = `<div class="esc"><div class="escl"><span style="left:0">Stop ${fmt(S.st)}</span><span class="mid" style="left:${Math.min(70, Math.max(30, pe))}%">Entrada ${fmt(ent)}</span><span style="right:0">Objetivo ${fmt(objP)}</span></div>
     <div class="escb"><i class="r" style="flex:${rpa}"></i><i class="g" style="flex:${objM * rpa}"></i></div>
@@ -1732,6 +1739,7 @@ function calcSim() {
     + fila("Pérdida máxima real si toca el stop", `<span class="neg">−${sU(perd)}</span> · ${sP(perd / cap)} del capital`)
     + fila("Stop equivalente por CEDEAR (referencia)", ccl > 0 ? sAR(S.st * ccl / rat, 2) : "completá el dólar CCL");
   h += fila(`Objetivo para vender la mitad (entrada + ${nf(objM)} × riesgo)`, `<span class="pos">${sU(objP)} · +${sP(dObj)}</span>`);
+  { const sal = salidaTiempo(r.sen); h += fila(`Salida por tiempo (cierre de la rueda ${RUEDAS_TOPE} desde la entrada)`, sal ? `${fCorta(sal[0])} · quedan ${sal[1]} ruedas` : `${RUEDAS_TOPE} ruedas después de comprar`); }
   el.innerHTML = h + `<p class="sub" style="margin:10px 0 0">El stop se controla sobre la acción en USD; el CEDEAR también se mueve con el dólar. Es una cuenta de referencia: no incluye comisiones ni saltos de precio (si abre muy por debajo del stop, la pérdida real puede ser mayor).</p>`;
 }
 function simElegir(m, foco) {
