@@ -1,0 +1,14 @@
+IBIT: datos desde 11/01/2024 hasta 25/11/2026. Hoy 34.07, SMA 200 40.79
+
+Señales verdes (ruptura con fuerza y arriba de la SMA 200):
+28/10/2024  verde   Z 1.61  ATR 3.5%  cierre 39.67  |  compra 29/10/2024 a 40.56, stop 33.47; mitad 21/11/2024 a 54.75; vende 25/11/2024 a 54.02 (rueda 20) -> +1.95R = +77.942 pesos (+34.1%)
+06/11/2024  STRONG  Z 3.37  ATR 4.0%  cierre 43.40  |  compra 07/11/2024 a 42.71, stop 33.47; vende 05/12/2024 a 56.40 (rueda 20) -> +1.48R = +59.232 pesos (+32.1%)
+11/11/2024  STRONG  Z 4.18  ATR 4.7%  cierre 49.57  |  compra 12/11/2024 a 49.02, stop 36.88; vende 10/12/2024 a 54.90 (rueda 20) -> +0.48R = +19.366 pesos (+12.0%)
+08/05/2025  verde   Z 1.71  ATR 2.9%  cierre 57.62  |  compra 09/05/2025 a 58.56, stop 44.51; vende 06/06/2025 a 59.26 (rueda 20) -> +0.05R = +1.992 pesos (+1.2%)
+03/09/2026  verde   Z 2.61  ATR 3.7%  cierre 46.35  |  compra 04/09/2026 a 44.91, stop 35.37; vende 02/10/2026 a 47.73 (rueda 20) -> +0.30R = +11.818 pesos (+6.3%)
+21/09/2026  verde   Z 2.58  ATR 3.5%  cierre 49.01  |  compra 22/09/2026 a 48.52, stop 42.37; vende 19/10/2026 a 46.30 (rueda 20) -> -0.36R = -14.439 pesos (-4.6%)
+
+Rupturas con fuerza que el filtro bloqueó por estar debajo de la SMA 200 (últimas 10):
+19/07/2024  Z 1.84  cierre 38.40  SMA200 nan
+22/04/2026  Z 1.90  cierre 44.75  SMA200 54.08
+19/08/2026  Z 2.80  cierre 38.78  SMA200 43.19
