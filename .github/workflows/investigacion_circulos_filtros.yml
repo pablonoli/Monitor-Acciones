@@ -1,0 +1,30 @@
+name: Investigación círculos verdes con filtros
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/investigacion_circulos_filtros.py"
+      - ".github/workflows/investigacion_circulos_filtros.yml"
+permissions:
+  contents: write
+concurrency:
+  group: datos
+  cancel-in-progress: false
+jobs:
+  investigar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install yfinance pandas numpy
+      - run: python scripts/investigacion_circulos_filtros.py 5
+      - name: Guardar resultado
+        run: |
+          git config user.name "datos-bot"
+          git config user.email "datos-bot@users.noreply.github.com"
+          git add data/investigacion_circulos_filtros.txt
+          git commit -m "Investigación círculos con filtros $(date -u +%F)" || echo "sin cambios"
+          git pull --rebase origin main || true
+          git push

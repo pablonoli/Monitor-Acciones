@@ -10,13 +10,13 @@ HORIZ = [5, 10, 20, 40]
 MAXR = 60
 
 
-def bajar(simbolos):
+def bajar(simbolos, inicio="2023-01-01"):
     out = {}
     for i in range(0, len(simbolos), 20):
         lote = simbolos[i:i + 20]
         for intento in range(3):
             try:
-                d = yf.download(lote, start="2023-01-01", interval="1d", auto_adjust=False, progress=False, group_by="ticker", threads=False)
+                d = yf.download(lote, start=inicio, interval="1d", auto_adjust=False, progress=False, group_by="ticker", threads=False)
                 for s in lote:
                     x = d[s][["Open", "High", "Low", "Close", "Volume"]].dropna(subset=["Open", "High", "Low", "Close"])
                     if len(x) > 250: out[s] = x
@@ -36,7 +36,8 @@ def preparar(x):
     tr = pd.concat([h - l, (h - cant).abs(), (l - cant).abs()], axis=1).max(axis=1)
     atrp = (tr / c).rolling(14).mean()
     low20 = l.rolling(20).min()
-    return dict(O=x["Open"].values, H=h.values, L=l.values, C=c.values, f=x.index, verde=verde.values, strong=strong.values, atrp=atrp.values, low20=low20.values)
+    sma50, sma200 = c.rolling(50).mean(), c.rolling(200).mean()
+    return dict(sma50=sma50.values, sma200=sma200.values, O=x["Open"].values, H=h.values, L=l.values, C=c.values, f=x.index, verde=verde.values, strong=strong.values, atrp=atrp.values, low20=low20.values)
 
 
 def neto(entrada, salida):
