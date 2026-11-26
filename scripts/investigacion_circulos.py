@@ -72,7 +72,7 @@ def plan(P, e, stop):
 
 
 def corto(vals):
-    r = resumen(vals).split("|")
+    r = resumen(vals or []).split("|")
     return r[1].strip() if len(r) > 1 else "sin datos"
 
 
@@ -82,13 +82,14 @@ def resumen(vals):
     return f"{len(v):>5} ops | promedio {100 * v.mean():+6.2f}% | mediana {100 * np.median(v):+6.2f}% | ganadoras {100 * (v > 0).mean():4.0f}% | mejor {100 * v.max():+6.1f}% | peor {100 * v.min():+6.1f}%"
 
 
-def main():
+def main(meses=6):
     d = json.load(open("data/tendencia_acciones.json"))
     simbolos = sorted(d["cedear"].keys())
     datos = {s: preparar(x) for s, x in bajar(simbolos).items()}
-    ult = max(P["f"][-1] for P in datos.values()); ini = ult - pd.DateOffset(months=6)
-    L = [f"CÍRCULOS VERDES EN CEDEARs, últimos 6 meses ({ini.date()} a {ult.date()}). {len(datos)} acciones con CEDEAR. Entrada: apertura de la rueda siguiente. Costo {100 * COSTO:.2f}% por lado. Precios en USD de la acción.", ""]
+    ult = max(P["f"][-1] for P in datos.values()); ini = ult - pd.DateOffset(months=meses)
+    L = [f"CÍRCULOS VERDES EN CEDEARs, últimos {meses} meses ({ini.date()} a {ult.date()}). {len(datos)} acciones con CEDEAR. Entrada: apertura de la rueda siguiente. Costo {100 * COSTO:.2f}% por lado. Precios en USD de la acción.", ""]
     ops, base = [], {k: [] for k in ["h5", "h10", "h20", "h40", "hoy", "pa", "pm"]}
+    base_mes = {}
     for s, P in datos.items():
         f = P["f"]; n = len(f)
         for i in range(210, n - 1):
@@ -96,7 +97,9 @@ def main():
             e = i + 1
             for k, hz in (("h5", 5), ("h10", 10), ("h20", 20), ("h40", 40)):
                 r = fijo(P, e, hz)
-                if r is not None: base[k].append(r)
+                if r is not None:
+                    base[k].append(r)
+                    if k == "h20": base_mes.setdefault(f[i].strftime("%Y-%m"), []).append(r)
             base["hoy"].append(hasta_hoy(P, e))
             if not np.isnan(P["atrp"][i]):
                 pa = plan(P, e, P["O"][e] * (1 - 2.5 * P["atrp"][i])); pm = plan(P, e, P["low20"][i])
@@ -130,15 +133,15 @@ def main():
     L.append("== POR MES DE LA SEÑAL ==")
     for m in sorted({o["f"][:7] for o in ops}):
         g = [o for o in ops if o["f"][:7] == m]
-        L.append(f"  {m}: {len(g):>3} señales | a 20 ruedas: " + corto([o["h20"] for o in g]) + " | hasta hoy: " + corto([o["hoy"] for o in g]))
+        L.append(f"  {m}: {len(g):>3} señales | a 20 ruedas: " + corto([o["h20"] for o in g]) + " | hasta hoy: " + corto([o["hoy"] for o in g]) + " || base a 20 ruedas: " + corto(base_mes.get(m)))
     L.append("")
     L.append("== LISTA DE SEÑALES (fecha, acción, tipo, entrada, a 10 ruedas, a 20 ruedas, hasta hoy, plan ATR) ==")
     for o in sorted(ops, key=lambda x: x["f"]):
         g = lambda v: f"{100 * v:+6.1f}%" if v is not None else "     —"
         L.append(f"  {o['f']} {o['s']:<6} {'Strong' if o['strong'] else 'Verde ':<6} US${o['ent']:>8.2f} | {g(o['h10'])} | {g(o['h20'])} | {g(o['hoy'])} | {g(o['pa'][0]) if o['pa'] else '     —'} ({o['pa'][2] if o['pa'] else ''})")
     txt = "\n".join(L)
-    open("data/investigacion_circulos.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
+    open("data/investigacion_circulos.txt" if meses == 6 else f"data/investigacion_circulos_{meses}m.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
 
 
 if __name__ == "__main__":
-    main()
+    main(int(sys.argv[1]) if len(sys.argv) > 1 else 6)
