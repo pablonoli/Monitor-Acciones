@@ -1,0 +1,30 @@
+name: Investigación miedo 10
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/investigacion_miedo10.py"
+      - ".github/workflows/investigacion_miedo10.yml"
+permissions:
+  contents: write
+concurrency:
+  group: datos
+  cancel-in-progress: false
+jobs:
+  investigar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install yfinance pandas numpy
+      - run: python scripts/investigacion_miedo10.py
+      - name: Guardar resultado
+        run: |
+          git config user.name "datos-bot"
+          git config user.email "datos-bot@users.noreply.github.com"
+          git add data/investigacion_miedo10.txt
+          git commit -m "Investigación miedo 10 $(date -u +%F)" || echo "sin cambios"
+          git pull --rebase origin main || true
+          git push
