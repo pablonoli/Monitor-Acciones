@@ -3,6 +3,8 @@ y las guarda en data/tendencia_acciones.json para el dashboard de tendencia (ten
 
 Además guarda "atr": {símbolo: [ATR de 14 ruedas en USD, mínimo de los últimos 20 mínimos diarios, ATR % (promedio de rango verdadero / cierre del mismo día, 14 ruedas)]} para la columna ATR % y el simulador de posición.
 
+Además guarda "ccl" (dólar contado con liquidación, dolarapi.com) y "cedear" ({símbolo: [último cierre en pesos del CEDEAR en BYMA vía Yahoo (ticker .BA), fecha]}) para el simulador.
+
 Formato compacto: por cada símbolo, un texto con una vela por tramo separado por coma: "día.apertura.cierre", todo en base 36.
  - día: el primero es el día absoluto (días desde 1970); los demás, la diferencia con la vela anterior.
  - apertura: diferencia, en centavos, con el cierre anterior (la primera, el valor absoluto), en zigzag (negativos impares).
@@ -57,6 +59,48 @@ def volatilidad(df):
     atr = tr.ewm(alpha=1 / 14, adjust=False).mean().iloc[-1]
     atrp = (tr / x["Close"].iloc[1:]).iloc[-14:].mean()
     return [round(float(atr), 3), round(float(x["Low"].iloc[-20:].min()), 2), round(float(atrp), 5)]
+
+
+def bajar_ccl(previo):
+    """Dólar contado con liquidación (dolarapi.com). Si falla, se conserva el valor anterior (con su fecha)."""
+    try:
+        import urllib.request
+        req = urllib.request.Request("https://dolarapi.com/v1/dolares/contadoconliqui", headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=25) as r:
+            j = json.load(r)
+        v = float(j["venta"]); c = float(j.get("compra") or v)
+        if v > 0:
+            return {"c": c, "v": v, "f": j.get("fechaActualizacion") or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "fuente": "dolarapi.com"}
+    except Exception as e:
+        print("CCL no disponible:", e, file=sys.stderr)
+    return previo
+
+
+def bajar_cedears(acciones, previo):
+    """Último cierre en pesos del CEDEAR de cada acción (Yahoo, ticker con sufijo .BA): {símbolo: [precio, fecha]}. Si no se consigue, se conserva lo anterior solo si tiene 10 días o menos."""
+    mapa = {s: s.replace("-", "").replace(".", "") + ".BA" for s in acciones}
+    inv = {v: k for k, v in mapa.items()}; tk = list(inv); out = {}
+    for i in range(0, len(tk), LOTE):
+        lote = tk[i:i + LOTE]
+        try:
+            d = yf.download(lote, period="10d", interval="1d", auto_adjust=False, progress=False, group_by="ticker", threads=True)
+            for t in lote:
+                try:
+                    x = (d[t] if isinstance(d.columns, pd.MultiIndex) else d)["Close"].dropna()
+                    if len(x) and float(x.iloc[-1]) > 0:
+                        out[inv[t]] = [round(float(x.iloc[-1]), 2), pd.Timestamp(x.index[-1]).strftime("%Y-%m-%d")]
+                except Exception:
+                    pass
+        except Exception as e:
+            print("lote de CEDEARs falló:", e, file=sys.stderr)
+    hoy = dt.date.today()
+    for s, v in (previo or {}).items():
+        if s not in out:
+            try:
+                if (hoy - dt.date.fromisoformat(v[1])).days <= 10: out[s] = v
+            except Exception:
+                pass
+    return out
 
 
 def limpiar(s, x):
@@ -116,10 +160,10 @@ def main():
     filtro = cfg["filtro"]
     acciones = [a for a in dict.fromkeys(favoritas + cfg.get("extras", [])) if a != filtro]
     simbolos = [filtro] + acciones
-    previo, previo_atr = {}, {}
+    previo, previo_atr, previo_ccl, previo_ced = {}, {}, None, {}
     if os.path.exists(RUTA_SALIDA):
         try:
-            _p = json.load(open(RUTA_SALIDA)); previo, previo_atr = _p.get("t", {}), _p.get("atr", {})
+            _p = json.load(open(RUTA_SALIDA)); previo, previo_atr, previo_ccl, previo_ced = _p.get("t", {}), _p.get("atr", {}), _p.get("ccl"), _p.get("cedear", {})
         except Exception:
             previo = {}
     datos = {}
@@ -167,7 +211,12 @@ def main():
         vix = [[i.strftime("%Y-%m-%d"), round(float(r["Close"]), 2), round(float(r["High"]), 2)] for i, r in h.iterrows()]
     except Exception as e:
         print("VIX no disponible:", e, file=sys.stderr)
-    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "atr": atr, "t": t}
+    ccl = bajar_ccl(previo_ccl)
+    try:
+        cedear = bajar_cedears([a for a in acciones if a in t], previo_ced)
+    except Exception as e:
+        print("CEDEARs no disponibles:", e, file=sys.stderr); cedear = previo_ced
+    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "atr": atr, "ccl": ccl, "cedear": cedear, "t": t}
     with open(RUTA_SALIDA, "w") as f:
         json.dump(salida, f, separators=(",", ":"))
         f.write("\n")
