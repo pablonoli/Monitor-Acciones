@@ -85,8 +85,11 @@ def parte1(d):
 def sma(x, n): return x.rolling(n, min_periods=n).mean()
 
 
+DEMORA = 1   # días entre que sale la señal (al cierre) y la compra: 1 = al cierre del mismo día, 2 = al cierre del día siguiente
+
+
 def simular(px, senal):
-    r = px.pct_change().fillna(0.0); pos = senal.shift(1).fillna(False).astype(float)
+    r = px.pct_change().fillna(0.0); pos = senal.shift(DEMORA).fillna(False).astype(float)
     rot = pos.diff().abs().fillna(0.0)
     return pos * r - COSTO * rot, pos, rot
 
