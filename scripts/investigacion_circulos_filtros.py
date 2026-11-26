@@ -20,7 +20,7 @@ def trade(P, i, spy_ok):
     if pl is None or np.isnan(P["atrp"][i]) or np.isnan(P["sma200"][i]): return None
     ret = pl[0]; riesgo = (ent - stop) / ent
     flags = (1 if spy_ok[i] else 0) | (2 if P["sma50"][i] > P["sma200"][i] else 0) | (4 if P["atrp"][i] < 0.04 else 0)
-    return dict(f=P["f"][i], fe=P["f"][e], ret=ret, rnet=ret / riesgo, fl=flags, anio=P["f"][i].year)
+    return dict(f=P["f"][i], fe=P["f"][e], fx=P["f"][e + pl[3] - 1], riesgo=riesgo, ret=ret, rnet=ret / riesgo, fl=flags, anio=P["f"][i].year)
 
 
 def racha(v):
@@ -30,14 +30,37 @@ def racha(v):
     return mx
 
 
+def sim(df, riesgo_op=0.01, tope=1.0):
+    """Capital realista sin apalancamiento: cada operación arriesga 1% del capital (tamaño = 1% / distancia al stop), con tope de exposición total del 100%;
+    si no hay lugar, se saltea la señal. El capital se actualiza al cerrar cada operación (no se mide la caída intermedia). Devuelve (tomadas, acumulado, caída máx, {año: retorno})."""
+    import heapq
+    df = df.sort_values(["fe", "s"]); eq, expo, ab, tom = 1.0, 0.0, [], 0
+    eventos = []; pico = 1.0; dd = 0.0; n = 0
+    def cerrar(hasta):
+        nonlocal eq, expo, pico, dd
+        while ab and (hasta is None or ab[0][0] <= hasta):
+            fx, _, tam, pnl = heapq.heappop(ab); eq += pnl; expo -= tam; pico = max(pico, eq); dd = min(dd, eq / pico - 1); eventos.append((fx, eq))
+    for r in df.itertuples():
+        cerrar(r.fe)
+        tam = min(riesgo_op / r.riesgo, tope - expo)
+        if tam < 0.02: continue
+        n += 1; expo += tam; heapq.heappush(ab, (r.fx, n, tam, eq * tam * r.ret))
+        tom += 1
+    cerrar(None)
+    por, prev = {}, 1.0
+    for a in sorted({e[0].year for e in eventos}):
+        fin = [e[1] for e in eventos if e[0].year == a][-1]; por[a] = fin / prev - 1; prev = fin
+    return tom, eq - 1, dd, por
+
+
 def fila(df, capital=True):
     if not len(df): return "   0 ops"
     df = df.sort_values(["fe", "s"]) if "s" in df else df.sort_values("fe")
     r, R = df["ret"].values, df["rnet"].values
     t = f"{len(df):>5} | {100 * r.mean():+6.2f}% | {100 * np.median(r):+6.2f}% | {100 * (r > 0).mean():4.0f}% | {R.mean():+5.2f}"
     if capital:
-        eq = np.cumprod(1 + 0.01 * R); pico = np.maximum.accumulate(np.r_[1, eq])[1:]
-        t += f" | {racha(r):>4} | {100 * (eq[-1] - 1):+7.1f}% | {100 * ((eq / pico - 1).min()):+6.1f}%"
+        tom, acu, dd, _ = sim(df)
+        t += f" | {racha(r):>4} | {tom:>5} | {100 * acu:+8.1f}% | {100 * dd:+6.1f}%"
     return t
 
 
@@ -60,14 +83,14 @@ def main(anios=5):
     S, B = pd.DataFrame(sig), pd.DataFrame(base)
     L = [f"CÍRCULOS VERDES EN CEDEARs CON FILTROS, últimos {anios} años ({ini.date()} a {ult.date()}). {len(datos)} acciones con CEDEAR. Plan con stop amplio (mín. 20 ruedas), mitad a +2R, stop a la entrada, máx. 60 ruedas. Costo {100 * I.COSTO:.2f}% por lado.",
          "Límites: la lista de acciones es la de hoy (hay sesgo hacia las que sobrevivieron y subieron); las operaciones se ordenan por fecha de entrada y se suponen independientes (en la realidad se superponen).",
-         "R = resultado neto / distancia al stop. Capital: cada operación arriesga 1% del capital actual (resultado = 1% × R), compuesto en orden de entrada.", ""]
-    enc = f"{'Versión':<44}| {'ops':>5} | {'prom.':>7} | {'mediana':>7} | {'gan.':>4} | {'R med':>5} | {'racha':>4} | {'acumulado':>8} | {'caída máx':>9}"
+         "R = resultado neto / distancia al stop. Capital: cada operación arriesga 1% del capital (tamaño = 1% / distancia al stop), sin apalancamiento (exposición total máxima 100%: si no hay lugar, se saltea la señal), se actualiza al cerrar cada operación. La caída máxima se mide solo con operaciones cerradas.", ""]
+    enc = f"{'Versión':<44}| {'ops':>5} | {'prom.':>7} | {'mediana':>7} | {'gan.':>4} | {'R med':>5} | {'racha':>4} | {'toma.':>5} | {'acumulado':>9} | {'caída máx':>9}"
     L += ["== SEÑALES VERDES CON CADA FILTRO ==", enc]
     mascaras = [0, 1, 2, 4, 3, 5, 6, 7]
     for m in mascaras:
         sub = S[(S["fl"] & m) == m]
         L.append(f"{nom(m):<44}| " + fila(sub))
-    L += ["", "== LÍNEA DE BASE: cualquier acción, cualquier día, mismo plan y mismo filtro (sin círculo verde) ==", enc.replace("| racha | acumulado | caída máx", "")]
+    L += ["", "== LÍNEA DE BASE: cualquier acción, cualquier día, mismo plan y mismo filtro (sin círculo verde) ==", enc.split("| racha")[0]]
     for m in mascaras:
         sub = B[(B["fl"] & m) == m]
         L.append(f"{nom(m):<44}| " + fila(sub, capital=False))
@@ -82,13 +105,13 @@ def main(anios=5):
         for a in anios_l:
             s1, b1 = S[(S["anio"] == a) & ((S["fl"] & m) == m)], B[(B["anio"] == a) & ((B["fl"] & m) == m)]
             L.append(f"   {a}{' (parcial)' if a in (ini.year, ult.year) else '':<12}señal {len(s1):>4} ops {100 * s1['ret'].mean() if len(s1) else float('nan'):+7.2f}%, gan. {100 * (s1['ret'] > 0).mean() if len(s1) else float('nan'):3.0f}%, R {s1['rnet'].mean() if len(s1) else float('nan'):+5.2f} | base {len(b1):>6} ops {100 * b1['ret'].mean() if len(b1) else float('nan'):+7.2f}%")
-    L += ["", "== ACUMULADO POR AÑO (1% de riesgo por operación) =="]
+    L += ["", "== RETORNO DEL CAPITAL POR AÑO (1% de riesgo por operación, sin apalancamiento, por año de cierre de las operaciones) =="]
     L.append(f"{'Versión':<44}" + "".join(f"{a:>10}" for a in anios_l))
+    por = {m: sim(S[(S["fl"] & m) == m])[3] for m in mascaras}
     for m in mascaras:
         cel = []
         for a in anios_l:
-            s1 = S[(S["anio"] == a) & ((S["fl"] & m) == m)].sort_values(["fe", "s"])
-            cel.append(f"{100 * (np.prod(1 + 0.01 * s1['rnet'].values) - 1):+9.1f}%" if len(s1) else f"{'—':>10}")
+            cel.append(f"{100 * por[m].get(a, float('nan')):+9.1f}%")
         L.append(f"{nom(m):<44}" + "".join(cel))
     txt = "\n".join(L); open("data/investigacion_circulos_filtros.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
 
