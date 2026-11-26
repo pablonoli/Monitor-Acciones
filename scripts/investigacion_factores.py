@@ -113,6 +113,10 @@ def parte2(d):
             "+ dólar débil (bajo prom. 100d)": base & (x < sma(x, 100)),
             "+ tasa 10a no sube fuerte (3m < +0,5pt)": base & ((t - t.shift(63)) < 0.5),
             "+ VIX bajo 25 y dólar débil": base & (v < 25) & (x < sma(x, 100)),
+            "+ dólar no sube más de 3% (3 meses)": base & ((x / x.shift(63) - 1) < 0.03),
+            "+ dólar no sube >3% y tasa no sube >0,5pt": base & ((x / x.shift(63) - 1) < 0.03) & ((t - t.shift(63)) < 0.5),
+            "O comprar el miedo (también si VIX > 30)": base | (v > 30),
+            "O comprar el miedo (también si VIX > 35)": base | (v > 35),
             "+ solo nov-abril": base & ((idx.month >= 11) | (idx.month <= 4)),
             "Comprar y mantener": pd.Series(True, index=idx),
         }
