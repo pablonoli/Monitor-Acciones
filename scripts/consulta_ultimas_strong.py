@@ -90,3 +90,56 @@ for r in filas[:25]:
                f"{(r['abre'] or float('nan')):>10.2f}            {r['stop']:>9.2f}   {r['hoy']:>9.2f}   {var:>+7.1f}%           {r['ruedas']}")
 open("data/consulta_ultimas_strong.txt", "w").write("\n".join(out) + "\n")
 print("\n".join(out))
+
+
+# ---- Detalle de cada operación: fechas y precios de compra y venta ----
+def detalle(s, i_sig, stop):
+    df = datos[s].dropna(subset=["Open", "High", "Low", "Close"])
+    if i_sig + 1 >= len(df):
+        return None
+    f = lambda k: df.index[k].date().strftime("%d/%m")
+    e = float(df["Open"].iloc[i_sig + 1]); R = e - stop
+    if R <= 0:
+        return None
+    d = dict(compra=f(i_sig + 1), pc=e, stop=stop, obj=e + 2 * R, mitad=None)
+    mitad, st, res = False, stop, 0.0
+    for k in range(i_sig + 1, min(i_sig + 21, len(df))):
+        o, h, lo, c = (float(df[col].iloc[k]) for col in ("Open", "High", "Low", "Close"))
+        if lo <= st:
+            sal = min(o, st)
+            d.update(venta=f(k), pv=sal, como=("tocó el stop" if not mitad else "volvió al precio de compra (stop movido)"))
+            res += (0.5 if mitad else 1.0) * (sal - e) / R
+            d["R"] = res; return d
+        if not mitad and h >= e + 2 * R:
+            res += 1.0; mitad = True; st = e; d["mitad"] = (f(k), e + 2 * R)
+        if k == i_sig + 20:
+            res += (0.5 if mitad else 1.0) * (c - e) / R
+            d.update(venta=f(k), pv=c, como="cierre en la rueda 20"); d["R"] = res; return d
+    d.update(venta="abierta", pv=float(df["Close"].iloc[-1]), como="sigue abierta")
+    d["R"] = res + (0.5 if mitad else 1.0) * (d["pv"] - e) / R
+    return d
+
+det = []
+for r in per:
+    df = datos[r["s"]].dropna(subset=["Open", "High", "Low", "Close"])
+    i = list(df.index.date).index(r["fecha"])
+    d = detalle(r["s"], i, r["stop"])
+    if d:
+        d["s"] = r["s"]; d["senal"] = r["fecha"].strftime("%d/%m"); det.append(d)
+
+def txt(d):
+    tam = 40000 / ((d["pc"] - d["stop"]) / d["pc"])
+    pct = d["R"] * (d["pc"] - d["stop"]) / d["pc"] * 100
+    l = [f"{d['s']}  señal {d['senal']}  ->  {d['R']*40000:+,.0f} pesos ({pct:+.1f}%)".replace(",", "."),
+         f"   Compra {d['compra']} a US$ {d['pc']:.2f} (posición de unos ${tam:,.0f}). Stop US$ {d['stop']:.2f}, objetivo +2R US$ {d['obj']:.2f}.".replace(",", ".")]
+    if d["mitad"]:
+        l.append(f"   Vende la mitad el {d['mitad'][0]} a US$ {d['mitad'][1]:.2f} (+2R) y sube el stop al precio de compra.")
+    l.append(f"   Vende {'el resto' if d['mitad'] else 'todo'} el {d['venta']} a US$ {d['pv']:.2f}: {d['como']}.")
+    return "\n".join(l)
+
+orden = sorted(det, key=lambda d: -d["R"])
+sal = ["LAS 10 MÁS GANADORAS Y LAS 10 MÁS PERDEDORAS (Strong, enero a agosto 2026, Plan A, $40.000 de riesgo, sin costos)", "",
+       "=== 10 MÁS GANADORAS ==="] + [txt(d) + "\n" for d in orden[:10]] + ["=== 10 MÁS PERDEDORAS ==="] + [txt(d) + "\n" for d in orden[::-1][:10]]
+sal += ["=== TODAS, POR FECHA ==="] + [txt(d) + "\n" for d in det]
+open("data/consulta_strong_detalle.txt", "w").write("\n".join(sal) + "\n")
+print("\n".join(sal[:60]))
