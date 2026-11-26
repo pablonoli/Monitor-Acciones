@@ -1,17 +1,17 @@
 CÍRCULOS VERDES EN CEDEARs CON FILTROS, últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR. Plan con stop amplio (mín. 20 ruedas), mitad a +2R, stop a la entrada, máx. 60 ruedas. Costo 0.15% por lado.
 Límites: la lista de acciones es la de hoy (hay sesgo hacia las que sobrevivieron y subieron); las operaciones se ordenan por fecha de entrada y se suponen independientes (en la realidad se superponen).
-R = resultado neto / distancia al stop. Capital: cada operación arriesga 1% del capital actual (resultado = 1% × R), compuesto en orden de entrada.
+R = resultado neto / distancia al stop. Capital: cada operación arriesga 1% del capital (tamaño = 1% / distancia al stop), sin apalancamiento (exposición total máxima 100%: si no hay lugar, se saltea la señal), se actualiza al cerrar cada operación. La caída máxima se mide solo con operaciones cerradas.
 
 == SEÑALES VERDES CON CADA FILTRO ==
-Versión                                     |   ops |   prom. | mediana | gan. | R med | racha | acumulado | caída máx
-Sin filtro                                  |  2396 |  +3.42% |  +0.51% |   51% | +0.19 |   28 | +8284.7% |  -53.7%
-SPY>SMA200                                  |  2145 |  +3.52% |  +0.53% |   51% | +0.21 |   28 | +6822.4% |  -53.6%
-SMA50>SMA200                                |  1826 |  +3.88% |  +0.86% |   52% | +0.23 |   27 | +5385.8% |  -42.2%
-ATR%<4%                                     |  1789 |  +2.14% |  +0.53% |   51% | +0.17 |   20 | +1813.0% |  -44.5%
-SPY>SMA200 + SMA50>SMA200                   |  1675 |  +3.77% |  +0.74% |   52% | +0.23 |   27 | +3759.3% |  -42.2%
-SPY>SMA200 + ATR%<4%                        |  1600 |  +2.48% |  +0.70% |   52% | +0.20 |   20 | +1994.9% |  -42.5%
-SMA50>SMA200 + ATR%<4%                      |  1357 |  +2.65% |  +0.86% |   53% | +0.21 |   20 | +1421.4% |  -36.6%
-SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  1242 |  +2.84% |  +0.87% |   53% | +0.22 |   20 | +1322.8% |  -36.6%
+Versión                                     |   ops |   prom. | mediana | gan. | R med | racha | toma. | acumulado | caída máx
+Sin filtro                                  |  2396 |  +3.42% |  +0.51% |   51% | +0.19 |   28 |   429 |    +26.5% |  -24.7%
+SPY>SMA200                                  |  2145 |  +3.52% |  +0.53% |   51% | +0.21 |   28 |   353 |    +40.7% |  -16.3%
+SMA50>SMA200                                |  1826 |  +3.88% |  +0.86% |   52% | +0.23 |   27 |   426 |    +57.2% |  -13.4%
+ATR%<4%                                     |  1789 |  +2.14% |  +0.53% |   51% | +0.17 |   20 |   346 |    +14.5% |  -18.9%
+SPY>SMA200 + SMA50>SMA200                   |  1675 |  +3.77% |  +0.74% |   52% | +0.23 |   27 |   355 |    +74.2% |  -17.5%
+SPY>SMA200 + ATR%<4%                        |  1600 |  +2.48% |  +0.70% |   52% | +0.20 |   20 |   287 |    +30.1% |  -10.3%
+SMA50>SMA200 + ATR%<4%                      |  1357 |  +2.65% |  +0.86% |   53% | +0.21 |   20 |   341 |    +41.1% |  -18.5%
+SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  1242 |  +2.84% |  +0.87% |   53% | +0.22 |   20 |   275 |    +60.0% |  -13.3%
 
 == LÍNEA DE BASE: cualquier acción, cualquier día, mismo plan y mismo filtro (sin círculo verde) ==
 Versión                                     |   ops |   prom. | mediana | gan. | R med 
@@ -92,13 +92,13 @@ SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  +1.37 pp  (señal +2.84% vs base 
    2025            señal  249 ops   +6.52%, gan.  60%, R +0.48 | base  13098 ops   +2.74%
    2026 (parcial)  señal  275 ops   +0.99%, gan.  51%, R +0.08 | base  10663 ops   -0.63%
 
-== ACUMULADO POR AÑO (1% de riesgo por operación) ==
+== RETORNO DEL CAPITAL POR AÑO (1% de riesgo por operación, sin apalancamiento, por año de cierre de las operaciones) ==
 Versión                                           2021      2022      2023      2024      2025      2026
-Sin filtro                                      -13.5%    -33.4%   +191.2%   +354.6%   +513.8%    +79.1%
-SPY>SMA200                                      -13.5%    -19.1%   +146.5%   +354.6%   +496.3%    +48.1%
-SMA50>SMA200                                     -8.9%    -14.0%   +117.4%   +289.8%   +307.5%   +102.7%
-ATR%<4%                                          -8.9%    -26.6%   +120.5%   +197.1%   +296.9%    +10.1%
-SPY>SMA200 + SMA50>SMA200                        -8.9%    -13.3%    +79.1%   +289.8%   +291.2%    +78.8%
-SPY>SMA200 + ATR%<4%                             -8.9%    -12.8%    +95.3%   +197.1%   +299.7%    +13.7%
-SMA50>SMA200 + ATR%<4%                           -4.0%    -11.0%    +75.0%   +165.0%   +221.9%    +19.3%
-SPY>SMA200 + SMA50>SMA200 + ATR%<4%              -4.0%     -8.3%    +53.6%   +165.0%   +222.4%    +23.2%
+Sin filtro                                       +nan%    -22.9%     +5.5%     +7.8%    +18.2%    +22.0%
+SPY>SMA200                                       +nan%    -10.1%     +1.8%    +15.0%    +14.7%    +16.5%
+SMA50>SMA200                                     +nan%     -6.9%     +3.6%    +14.7%    +24.9%    +13.9%
+ATR%<4%                                          +nan%    -16.4%     +1.8%    +10.3%    +11.3%     +9.6%
+SPY>SMA200 + SMA50>SMA200                        +nan%     -8.8%     -0.8%    +21.8%    +31.3%    +20.4%
+SPY>SMA200 + ATR%<4%                             +nan%     -4.7%     +0.8%    +19.7%     +6.2%     +6.5%
+SMA50>SMA200 + ATR%<4%                           +nan%     -5.3%     -7.4%    +21.2%    +16.6%    +13.9%
+SPY>SMA200 + SMA50>SMA200 + ATR%<4%              +nan%     -3.4%     +0.3%    +18.9%    +25.9%    +10.3%
