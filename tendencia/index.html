@@ -1397,7 +1397,7 @@ function pintarAcc() {
     ? `<p><b>Hoy:</b> ${[comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : "", vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : "", mitad.length ? "vender la mitad de <b class='neg'>" + lista2(mitad) + "</b> (llegó a +20%)" : ""].filter(Boolean).join(" · ")}. Son las que cambiaron de estado en el último cierre.</p>${miasVender.length ? `<p>De <b>tus acciones</b>, la estrategia dice vender: <b class='neg'>${lista2(miasVender)}</b>.</p>` : ""}`
     : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${compr} de ${n} siguen comprados.</p>`;
   { // miedo del mercado: VIX (cierre y máximo del día). Aviso si en la última rueda tocó más de 30
-    const el = $("accMiedo"), vx = accDatos.vix || [];
+    const el = $("accMiedo"), vx = (accDatos.vix || []).filter(x => !accDatos.ultimo || x[0] <= accDatos.ultimo);
     if (!vx.length) el.hidden = true;
     else {
       const [d, c, m] = vx[vx.length - 1], fd = x => x.split("-").reverse().slice(0, 2).join("/"), tocan = vx.filter(x => x[2] > 30), activo = m > 30;
