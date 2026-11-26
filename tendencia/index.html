@@ -1700,7 +1700,7 @@ function calcSim() {
   }
   const conc = montoUsd != null && montoUsd > 0.25 * cap;
   cards.innerHTML = card("", IC.cart, "Comprar", rat > 0 ? `${nC.toLocaleString("es-AR")} CEDEARs` : "—",
-      rat > 0 ? `${montoAR != null ? sAR(montoAR) : "falta el CCL"}${montoUsd != null ? ` · <span class="${conc ? "w" : ""}">${sP(montoUsd / cap)} del capital${montoUsd > cap ? " (supera tu capital)" : conc ? " (concentrado)" : ""}</span>` : ""}` : "completá el ratio en Editar")
+      rat > 0 ? `${montoAR != null ? sAR(montoAR) : "falta el CCL"}${montoUsd != null ? ` (≈ US$ ${nf(montoUsd, 0)}) · <span class="${conc ? "w" : ""}">${sP(montoUsd / cap)} del capital${montoUsd > cap ? " (supera tu capital)" : conc ? " (concentrado)" : ""}</span>` : ""}` : "completá el ratio en Editar")
     + card("rojo", IC.bell, "Alerta de stop", sU(S.st), `−${sP(S.dist)} · si salta, vender todo`)
     + card("verde", IC.meta, "Vender la mitad", sU(objP), `+${sP(dObj)} · ${rat > 0 ? (mitad >= 1 ? `vender ${mitad.toLocaleString("es-AR")}` : "no se puede dividir") + ", " : ""}stop a la entrada`)
     + card("", IC.escudo, "Pérdida máxima", sU(perd), `${sP(perd / cap)} del capital${rat > 0 ? "" : " (como máximo)"}`);
