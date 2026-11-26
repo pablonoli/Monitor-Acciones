@@ -115,18 +115,22 @@ def main(anios=5):
     sx = I.bajar(["SPY"], ini_dl)["SPY"]; spy_ok_s = (sx["Close"] > sx["Close"].rolling(200).mean())
     ult = max(P["f"][-1] for P in datos.values()); ini = ult - pd.DateOffset(years=anios)
     dias = [x for x in sx.index if ini <= x <= ult]
-    sig, base = [], []
+    sig, base, cruz = [], [], []
     for s, P in datos.items():
         ok = spy_ok_s.reindex(P["f"], method="ffill").fillna(False).values
         n = len(P["f"])
         for i in range(210, n - 1):
             if P["f"][i] < ini: continue
-            t = trade(P, i, ok, camino=bool(P["verde"][i]))
+            es_cruce = bool(P["sma50"][i] > P["sma200"][i] and P["sma50"][i - 1] <= P["sma200"][i - 1])   # la SMA 50 cruza por encima de la 200 en el cierre de i
+            t = trade(P, i, ok, camino=bool(P["verde"][i]) or es_cruce)
             if t is None: continue
             t["s"] = s
             if P["verde"][i]: sig.append(dict(t, strong=bool(P["strong"][i])))
+            if es_cruce: cruz.append(dict(t))
             base.append({k: v for k, v in t.items() if k not in ("path", "dts")})
-    S, B = pd.DataFrame(sig), pd.DataFrame(base)
+    S, B, C = pd.DataFrame(sig), pd.DataFrame(base), pd.DataFrame(cruz)
+    # versiones: (nombre, DataFrame, máscara de filtros)
+    VER = [(nom(m), S, m) for m in [0, 1, 2, 4, 3, 5, 6, 7]] + [("CRUCE DORADO (sin círculo verde)", C, 0), ("CRUCE DORADO + SPY>SMA200", C, 1)]
     L = [f"CÍRCULOS VERDES EN CEDEARs CON FILTROS, últimos {anios} años ({ini.date()} a {ult.date()}). {len(datos)} acciones con CEDEAR. Plan con stop amplio (mín. 20 ruedas), mitad a +2R, stop a la entrada, máx. 60 ruedas. Costo {100 * I.COSTO:.2f}% por lado.",
          "Límites: la lista de acciones es la de hoy (hay sesgo hacia las que sobrevivieron y subieron); en prom./mediana/R cada operación cuenta igual.",
          "R = resultado neto / distancia al stop. Capital: cada operación arriesga 1% del capital (tamaño = 1% / distancia al stop), sin apalancamiento (exposición total máxima 100%: si no hay lugar, se saltea la señal; 'toma.' = operaciones realmente tomadas), el capital se actualiza al cerrar cada operación.",
@@ -136,9 +140,10 @@ def main(anios=5):
     sb_acu, sb_dd, sb_por = spy_bh(ini, ult, ini_dl)
     L += ["== SEÑALES VERDES CON CADA FILTRO (el plan con 1% de riesgo por operación) ==", enc]
     res = {}
-    for m in mascaras:
-        sub = S[(S["fl"] & m) == m]; res[m] = sim(sub)
-        L.append(f"{nom(m):<44}| " + fila(sub, dias))
+    for nombre, D, m in VER:
+        sub = D[(D["fl"] & m) == m]; res[nombre] = sim(sub)
+        if nombre.startswith("CRUCE") and nombre.endswith("(sin círculo verde)"): L.append("-- entrada el día después del cruce de la SMA 50 sobre la SMA 200 (sin círculo verde), mismo plan --")
+        L.append(f"{nombre:<44}| " + fila(sub, dias))
     L.append(f"{'SPY comprar y mantener (retorno total)':<44}|     — |       — |       — |    — |     — |    — |     — | {100 * sb_acu:+8.1f}% | {100 * sb_dd:+6.1f}% | {100 * sb_dd:+7.1f}%")
     L += ["", "== LÍNEA DE BASE: cualquier acción, cualquier día, mismo plan y mismo filtro (sin círculo verde) ==", enc.split("| racha")[0]]
     for m in mascaras:
@@ -148,24 +153,32 @@ def main(anios=5):
     for m in mascaras:
         a, b = S[(S["fl"] & m) == m]["ret"], B[(B["fl"] & m) == m]["ret"]
         L.append(f"{nom(m):<44}| {100 * (a.mean() - b.mean()):+6.2f} pp  (señal {100 * a.mean():+.2f}% vs base {100 * b.mean():+.2f}%)" if len(a) else f"{nom(m):<44}| sin operaciones")
-    anios_l = sorted(S["anio"].unique())
+    for nombre, m_base in (("CRUCE DORADO (sin círculo verde)", 2), ("CRUCE DORADO + SPY>SMA200", 3)):
+        a = C[(C["fl"] & (1 if "SPY" in nombre else 0)) == (1 if "SPY" in nombre else 0)]["ret"]; b = B[(B["fl"] & m_base) == m_base]["ret"]
+        L.append(f"{nombre:<44}| {100 * (a.mean() - b.mean()):+6.2f} pp  (cruce {100 * a.mean():+.2f}% vs base {nom(m_base)} {100 * b.mean():+.2f}%)")
+    anios_l = sorted(set(S["anio"].unique()) | set(C["anio"].unique()))
     L += ["", "== POR AÑO DE LA SEÑAL: cantidad de operaciones y promedio por operación (señal | base con el mismo filtro) =="]
     for m in mascaras:
         L.append(f"-- {nom(m)}")
         for a in anios_l:
             s1, b1 = S[(S["anio"] == a) & ((S["fl"] & m) == m)], B[(B["anio"] == a) & ((B["fl"] & m) == m)]
             L.append(f"   {a}{' (parcial)' if a in (ini.year, ult.year) else '':<12}señal {len(s1):>4} ops {100 * s1['ret'].mean() if len(s1) else float('nan'):+7.2f}%, gan. {100 * (s1['ret'] > 0).mean() if len(s1) else float('nan'):3.0f}%, R {s1['rnet'].mean() if len(s1) else float('nan'):+5.2f} | base {len(b1):>6} ops {100 * b1['ret'].mean() if len(b1) else float('nan'):+7.2f}%")
+    for nombre, D, m in VER[8:]:
+        L.append(f"-- {nombre}")
+        for a in anios_l:
+            s1 = D[(D["anio"] == a) & ((D["fl"] & m) == m)]
+            L.append(f"   {a}{' (parcial)' if a in (ini.year, ult.year) else '':<12}cruce {len(s1):>4} ops {100 * s1['ret'].mean() if len(s1) else float('nan'):+7.2f}%, gan. {100 * (s1['ret'] > 0).mean() if len(s1) else float('nan'):3.0f}%, R {s1['rnet'].mean() if len(s1) else float('nan'):+5.2f}")
     L += ["", "== RETORNO DEL CAPITAL POR AÑO (1% de riesgo por operación, sin apalancamiento, por año de cierre de las operaciones; SPY: retorno total del año calendario) =="]
     ya = sorted(set(anios_l) | set(sb_por))
     L.append(f"{'Versión':<44}" + "".join(f"{a:>10}" for a in ya))
-    for m in mascaras:
-        L.append(f"{nom(m):<44}" + "".join(f"{100 * res[m]['por'][a]:+9.1f}%" if a in res[m]["por"] else f"{'—':>10}" for a in ya))
+    for nombre, D, m in VER:
+        L.append(f"{nombre:<44}" + "".join(f"{100 * res[nombre]['por'][a]:+9.1f}%" if a in res[nombre]["por"] else f"{'—':>10}" for a in ya))
     L.append(f"{'SPY comprar y mantener':<44}" + "".join(f"{100 * sb_por[a]:+9.1f}%" if a in sb_por else f"{'—':>10}" for a in ya))
     L += ["", f"== OPERACIONES ABIERTAS A LA VEZ y EXPOSICIÓN (días de rueda de la ventana: {len(dias)}) =="]
     L.append(f"{'Versión':<44}| {'abiertas prom.':>14} | {'prom. con pos.':>14} | {'máx.':>4} | {'exposición prom.':>16} | {'exposición máx.':>15} | {'peor caída MTM el':>17}")
-    for m in mascaras:
-        mm = mercado(res[m], dias)
-        L.append(f"{nom(m):<44}| {mm[1]:>14.1f} | {mm[2]:>14.1f} | {mm[3]:>4} | {100 * mm[4]:>15.0f}% | {100 * mm[5]:>14.0f}% | {str(mm[6].date()) if mm[6] is not None else '—':>17}")
+    for nombre, D, m in VER:
+        mm = mercado(res[nombre], dias)
+        L.append(f"{nombre:<44}| {mm[1]:>14.1f} | {mm[2]:>14.1f} | {mm[3]:>4} | {100 * mm[4]:>15.0f}% | {100 * mm[5]:>14.0f}% | {str(mm[6].date()) if mm[6] is not None else '—':>17}")
     txt = "\n".join(L); open("data/investigacion_circulos_filtros.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
 
 
