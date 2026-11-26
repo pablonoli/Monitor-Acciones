@@ -5,6 +5,12 @@ Además guarda "atr": {símbolo: [ATR de 14 ruedas en USD, mínimo de los últim
 
 Además guarda "ccl" (dólar contado con liquidación, dolarapi.com) y "cedear" ({símbolo: [último cierre en pesos del CEDEAR en BYMA vía Yahoo (ticker .BA), fecha]}) para el simulador.
 
+Además guarda "tec": {símbolo: máximo de las últimas 20 ruedas (con la de hoy), para poner alertas de precio} y "sen": {símbolo: [fecha, strong (0/1), cierre, techo roto, zona máx., zona mín., Z-score, ruedas atrás]} con el último «círculo verde»
+(ruptura alcista válida) de las últimas 5 ruedas. Reglas, con velas diarias:
+ - techo = máximo de las 20 ruedas anteriores (sin la de hoy); momentum = cierre − cierre de ayer; Z = (momentum − promedio de 50) / desvío de 50 ruedas (población);
+ - ruptura = cierre > techo, cierre de ayer ≤ techo de ayer y Z > 1,5; verde = ruptura con el cierre sobre la SMA 200;
+ - strong = verde con Z > 2,5 y volumen > 1,5 × promedio de volumen de 20 ruedas (con la de hoy); zona = máximo y mínimo de la vela anterior a la ruptura.
+
 Formato compacto: por cada símbolo, un texto con una vela por tramo separado por coma: "día.apertura.cierre", todo en base 36.
  - día: el primero es el día absoluto (días desde 1970); los demás, la diferencia con la vela anterior.
  - apertura: diferencia, en centavos, con el cierre anterior (la primera, el valor absoluto), en zigzag (negativos impares).
@@ -61,6 +67,30 @@ def volatilidad(df):
     return [round(float(atr), 3), round(float(x["Low"].iloc[-20:].min()), 2), round(float(atrp), 5)]
 
 
+def senal_verde(df, ruedas=5):
+    """Devuelve (techo de las últimas 20 ruedas con la de hoy, señal) con la señal más reciente de las últimas `ruedas` ruedas, o None.
+    señal = [fecha ISO, strong 0/1, cierre, techo roto, zona máx., zona mín., Z-score, ruedas atrás (0 = hoy)]."""
+    x = df[["High", "Low", "Close", "Volume"]].copy()
+    x = x.dropna(subset=["High", "Low", "Close"])
+    if len(x) < 205:
+        return None
+    c, h = x["Close"], x["High"]
+    techo20 = round(float(h.iloc[-20:].max()), 2)
+    techo = h.shift(1).rolling(20).max()                   # máximo de las 20 ruedas anteriores
+    mom = c.diff()
+    z = (mom - mom.rolling(50).mean()) / mom.rolling(50).std(ddof=0)
+    ruptura = (c > techo) & (c.shift(1) <= techo.shift(1)) & (z > 1.5)
+    verde = ruptura & (c > c.rolling(200).mean())
+    vol = x["Volume"]
+    strong = verde & (z > 2.5) & (vol > 1.5 * vol.rolling(20).mean())
+    for atras in range(ruedas):
+        i = len(x) - 1 - atras
+        if bool(verde.iloc[i]):
+            return techo20, [pd.Timestamp(x.index[i]).date().isoformat(), int(bool(strong.iloc[i])), round(float(c.iloc[i]), 2), round(float(techo.iloc[i]), 2),
+                             round(float(h.iloc[i - 1]), 2), round(float(x["Low"].iloc[i - 1]), 2), round(float(z.iloc[i]), 2), atras]
+    return techo20, None
+
+
 def bajar_ccl(previo):
     """Dólar contado con liquidación (dolarapi.com). Si falla, se conserva el valor anterior (con su fecha)."""
     try:
@@ -106,7 +136,7 @@ def bajar_cedears(acciones, previo):
 def limpiar(s, x):
     """Deja solo Open y Close completos. A veces Yahoo manda la vela del último día con el cierre vacío (todavía sin consolidar)
     aunque la rueda ya terminó: en ese caso se toma el último precio de ese día de las velas de 5 minutos."""
-    x = x[["Open", "High", "Low", "Close"]]
+    x = x[["Open", "High", "Low", "Close", "Volume"]]
     try:
         if len(x) and pd.isna(x["Close"].iloc[-1]):
             dia = pd.Timestamp(x.index[-1]).date(); ahora = dt.datetime.now(dt.timezone.utc)
@@ -116,10 +146,11 @@ def limpiar(s, x):
                 if len(h):
                     x = x.copy(); x.iloc[-1, x.columns.get_loc("Close")] = float(h["Close"].iloc[-1])
                     if pd.isna(x["Open"].iloc[-1]): x.iloc[-1, x.columns.get_loc("Open")] = float(h["Open"].iloc[0])
+                    if pd.isna(x["Volume"].iloc[-1]): x.iloc[-1, x.columns.get_loc("Volume")] = float(h["Volume"].sum())
                     print(s, "cierre del", dia, "completado con el último precio del día:", round(float(h["Close"].iloc[-1]), 2))
     except Exception as e:
         print(s, "no se pudo completar el cierre:", e, file=sys.stderr)
-    return x.dropna()
+    return x.dropna(subset=["Open", "High", "Low", "Close"])
 
 
 def bajar_lote(simbolos):
@@ -187,7 +218,7 @@ def main():
         sys.exit(f"No se pudo bajar {filtro}: no se guarda nada.")
     # Sin el pico de hoy: si el mercado todavía está abierto, la última vela no está completa.
     ahora = dt.datetime.now(dt.timezone.utc)
-    t, chk, fallas, atr = {}, {}, [], {}
+    t, chk, fallas, atr, tec, sen = {}, {}, [], {}, {}, {}
     for s in simbolos:
         if s in datos:
             x = datos[s]
@@ -196,6 +227,13 @@ def main():
                 x = x.iloc[:-1]
             t[s], n, d, c = codificar(x)
             chk[s] = [n, d, c]
+            try:
+                sv = senal_verde(x)
+                if sv:
+                    tec[s] = sv[0]
+                    if sv[1]: sen[s] = sv[1]
+            except Exception as e:
+                print(s, "señal no calculada:", e, file=sys.stderr)
             v = volatilidad(x)
             if v: atr[s] = v
             elif s in previo_atr: atr[s] = previo_atr[s]
@@ -216,10 +254,11 @@ def main():
         cedear = bajar_cedears([a for a in acciones if a in t], previo_ced)
     except Exception as e:
         print("CEDEARs no disponibles:", e, file=sys.stderr); cedear = previo_ced
-    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "atr": atr, "ccl": ccl, "cedear": cedear, "t": t}
+    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "atr": atr, "ccl": ccl, "cedear": cedear, "tec": tec, "sen": sen, "t": t}
     with open(RUTA_SALIDA, "w") as f:
         json.dump(salida, f, separators=(",", ":"))
         f.write("\n")
+    print(f"Círculos verdes en las últimas 5 ruedas: {len(sen)} ({', '.join(k + ' ' + v[0] + (' strong' if v[1] else '') for k, v in sen.items()) or 'ninguno'})")
     print(f"{len(t)} símbolos guardados, último día {salida['ultimo']}, {os.path.getsize(RUTA_SALIDA) // 1024} KB. Problemas: {fallas or 'ninguno'}")
 
 

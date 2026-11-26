@@ -157,6 +157,15 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
 @media (min-width: 700px) { #ficha { align-items: center; } #ficha .hoja { border-radius: 16px; } }
 #ficha .hoja { max-height: 92vh; overflow-y: auto; }
 .volt { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; margin-left: 6px; vertical-align: 1px; }
+.vsen { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 99px; background: var(--long-bg); color: var(--long); border: 1px solid var(--long); white-space: nowrap; }
+.vsen.fuerte { background: var(--long); color: #fff; }
+.fotros button.c-verde { color: var(--long); font-weight: 700; }
+#senHoy { border-left: 5px solid var(--long); background: var(--long-bg); border-radius: 14px; padding: 12px 16px; margin: 0 0 14px; }
+#senHoy.vacio { border-left-color: var(--line); background: var(--panel); }
+#senHoy h2 { font-size: 15px; margin: 0 0 6px; } #senHoy.vacio h2 { margin: 0; font-weight: 500; font-size: 14px; color: var(--muted); }
+#senHoy .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+#senHoy .chips button { display: inline-flex; align-items: baseline; gap: 6px; background: var(--panel); border: 1px solid var(--long); border-radius: 12px; padding: 6px 12px; min-height: 0; color: var(--text); }
+#senHoy .chips button b { font-size: 15px; } #senHoy .chips .sub { font-size: 12px; }
 .volt.baja { background: var(--long-bg); color: var(--long); } .volt.media { background: #fff1cc; color: #7a5200; } .volt.alta { background: var(--short-bg); color: var(--short); }
 button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space: nowrap; }
 .simf { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -192,6 +201,8 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
       <button id="btnSonido" type="button">Activar sonido</button>
     </div>
   </div>
+
+  <div id="senHoy" hidden></div>
 
   <section class="hero" id="tend" aria-live="polite">
     <div class="hcol">
@@ -272,7 +283,7 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
       <table id="accTabla">
         <thead><tr>
           <th class="iz" data-k="s">Símbolo</th><th class="iz" data-k="est">Hoy</th><th class="iz" data-k="perm">Permiso</th><th data-k="gap">Medias</th>
-          <th data-k="tend">Tendencia (6 meses)</th><th data-k="precio">Último cierre</th><th data-k="atr">ATR %</th><th data-k="actual">Compra actual</th><th data-k="e">Estrategia</th><th data-k="m">Comprar y mantener</th><th data-k="n">Operaciones</th><th>Simular</th>
+          <th data-k="tend">Tendencia (6 meses)</th><th data-k="precio">Último cierre</th><th data-k="atr">ATR %</th><th class="iz" data-k="senal">Señal</th><th data-k="techo">Techo 20 ruedas</th><th data-k="actual">Compra actual</th><th data-k="e">Estrategia</th><th data-k="m">Comprar y mantener</th><th data-k="n">Operaciones</th><th>Simular</th>
         </tr></thead>
         <tbody id="accCuerpo"></tbody>
       </table>
@@ -1241,8 +1252,8 @@ function eficiencia(bars) {
   for (let i = 1; i < c.length; i++) rec += Math.abs(c[i] - c[i - 1]);
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
-const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["mias", "Mis acciones"]];
-const ACC_TARJ = [["comprar", "Comprar hoy", ""], ["vender", "Vender hoy", "c-vender"], ["por", "A punto de comprar", "c-por"], ["fuerte", "Tendencia fuerte ▲", ""]], ACC_OTROS = [["todas", "Todas"], ["mias", "Mis acciones"], ["comprado", "Comprados"], ["rango", "En rango ↔"]];
+const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["mias", "Mis acciones"], ["senal", "Con señal verde"]];
+const ACC_TARJ = [["comprar", "Comprar hoy", ""], ["vender", "Vender hoy", "c-vender"], ["por", "A punto de comprar", "c-por"], ["fuerte", "Tendencia fuerte ▲", ""]], ACC_OTROS = [["todas", "Todas"], ["senal", "● Con señal verde", "c-verde"], ["mias", "Mis acciones"], ["comprado", "Comprados"], ["rango", "En rango ↔"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
@@ -1368,7 +1379,7 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const bloqueada = auto && !comprado && !!(bars.__autoBloq || [])[bars.length - 1];
     const modoAct = auto ? (bars.__autoModo || [])[bars.length - 1] || "" : "", usaRango = modoAct === "R";
     res.push({ s, t, parcialYa: !!t.parcialYa, mitad: t.fraccion > 0 && t.fraccion < 1, propio, rango, modoAct, usaRango, bloqueada, por, faltan: hc.faltan, det: auto ? enRangoInfo(bars, bars.length - 1) : null, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
-      ...eficiencia(bars), precio: bars[bars.length - 1].close, atr: d.atr && d.atr[s] ? d.atr[s][0] : null, low20: d.atr && d.atr[s] ? d.atr[s][1] : null, atrp: d.atr && d.atr[s] ? (d.atr[s][2] ?? d.atr[s][0] / bars[bars.length - 1].close) : null, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
+      ...eficiencia(bars), precio: bars[bars.length - 1].close, atr: d.atr && d.atr[s] ? d.atr[s][0] : null, low20: d.atr && d.atr[s] ? d.atr[s][1] : null, atrp: d.atr && d.atr[s] ? (d.atr[s][2] ?? d.atr[s][0] / bars[bars.length - 1].close) : null, sen: d.sen && d.sen[s] ? d.sen[s] : null, techo: d.tec && d.tec[s] ? d.tec[s] : null, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
 }
@@ -1391,7 +1402,7 @@ function haciaCruce(bars) {
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.parcialYa ? "VENDER ½" : r.mitad ? "COMPRADO ½" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : (r.venderYa || r.parcialYa) ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "senal" && !!r.sen) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
@@ -1427,15 +1438,36 @@ function pintarAcc() {
   const est = res.reduce((a, r) => a + 1 + r.e, 0) / n - 1, man = res.reduce((a, r) => a + 1 + r.m, 0) / n - 1;
   $("accStats").innerHTML = [[`${compr}/${n}`, "comprados"], [`${perm}/${n}`, "con permiso"], [pctT(est), "estrategia promedio desde ene 2024"], [pctT(man), "comprar y mantener promedio"]].map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("");
   const nF = id => res.filter(r => accCumple(r, id)).length;
-  $("accFiltros").innerHTML = `<div class="ftar">${ACC_TARJ.map(([id, tx, cl]) => `<button type="button" class="${cl}" data-f="${id}" aria-pressed="${id === accFiltro}"><span class="k">${tx}</span><span class="v">${nF(id)}</span></button>`).join("")}</div><div class="fotros">${ACC_OTROS.map(([id, tx]) => `<button type="button" data-f="${id}" aria-pressed="${id === accFiltro}">${tx}<b>${nF(id)}</b></button>`).join("")}</div>`;
+  $("accFiltros").innerHTML = `<div class="ftar">${ACC_TARJ.map(([id, tx, cl]) => `<button type="button" class="${cl}" data-f="${id}" aria-pressed="${id === accFiltro}"><span class="k">${tx}</span><span class="v">${nF(id)}</span></button>`).join("")}</div><div class="fotros">${ACC_OTROS.map(([id, tx, cl]) => `<button type="button" class="${cl || ""}" data-f="${id}" aria-pressed="${id === accFiltro}">${tx}<b>${nF(id)}</b></button>`).join("")}</div>`;
+  pintarSenHoy();
   pintarFilasAcc();
 }
 let accMercado = null;
+const fCorta = x => x.split("-").reverse().slice(0, 2).join("/");
+function celdaSenal(r) {
+  if (!r.sen) return `<td class="iz sub">—</td>`;
+  const [f, st, , , zmax, zmin] = r.sen;
+  return `<td class="iz"><span class="vsen${st ? " fuerte" : ""}">${st ? "Verde Strong" : "Verde"}</span><br><span class="sub">${fCorta(f)} · zona ${fmt(zmax)}–${fmt(zmin)}</span></td>`;
+}
+function celdaTecho(r) {
+  if (!r.techo) return `<td class="num sub">—</td>`;
+  const d = r.techo / r.precio - 1;
+  return `<td class="num">${fmt(r.techo)}<br><span class="sub">${d < 0.0005 ? "en el cierre" : "a " + (100 * d).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% sobre el cierre"}</span></td>`;
+}
+function pintarSenHoy() {
+  const el = $("senHoy"); if (!accDatos || !accDatos.ultimo) { el.hidden = true; return; }
+  const hoy = accRes.filter(r => r.sen && r.sen[0] === accDatos.ultimo).sort((a, b) => b.sen[1] - a.sen[1] || (a.s < b.s ? -1 : 1));
+  const fd = accDatos.ultimo.split("-").reverse().join("/");
+  el.hidden = false; el.className = hoy.length ? "" : "vacio";
+  el.innerHTML = hoy.length
+    ? `<h2>Señales nuevas hoy · círculo verde (cierre del ${fd})</h2><div class="chips">${hoy.map(r => `<button type="button" data-senir="${r.s}"><b>${r.s}</b><span class="vsen${r.sen[1] ? " fuerte" : ""}">${r.sen[1] ? "Strong" : "Verde"}</span><span class="sub">${fmt(r.precio)} · zona ${fmt(r.sen[4])}–${fmt(r.sen[5])}</span></button>`).join("")}</div>`
+    : `<h2>Señales nuevas hoy: ninguna acción dio círculo verde en el cierre del ${fd}.</h2>`;
+}
 function pintarFilasAcc() {
   const q = accBusca.trim().toUpperCase();
   let filas = accRes.filter(r => accCumple(r, accFiltro) && (!q || r.s.includes(q)));
   const k = accOrd.k, dir = accOrd.asc ? 1 : -1;
-  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, tend: r => r.dir * r.ef, precio: r => r.precio, atr: r => r.atrp ?? -1, actual: r => r.t.abierta ? r.t.actual : -9, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
+  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, tend: r => r.dir * r.ef, precio: r => r.precio, atr: r => r.atrp ?? -1, senal: r => r.sen ? (r.sen[1] ? 2 : 1) * 1e6 + Date.parse(r.sen[0]) / 1e6 : 0, techo: r => r.techo ? r.techo / r.precio - 1 : 9, actual: r => r.t.abierta ? r.t.actual : -9, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
   filas.sort((a, b) => { const x = clave(a), y = clave(b); return (x < y ? -1 : x > y ? 1 : 0) * dir || (a.s < b.s ? -1 : 1); });
   document.querySelectorAll("#accTabla th[data-k]").forEach(th => { th.classList.toggle("ord", th.dataset.k === k); th.classList.toggle("asc", th.dataset.k === k && accOrd.asc); });
   const pc = x => `<td class="num ${x >= 0 ? "pos" : "neg"}">${pctT(x)}</td>`;
@@ -1445,9 +1477,9 @@ function pintarFilasAcc() {
       <td class="iz sim"><button type="button" class="mia" data-mia="${r.s}" aria-pressed="${!!accMias[r.s]}" aria-label="${accMias[r.s] ? "Es una acción que compré" : "Marcar que compré " + r.s}" title="${accMias[r.s] ? "Mi compra" : "Marcar que la compré (con el precio de hoy)"}">${accMias[r.s] ? "✓" : ""}</button>${r.s}${accMias[r.s] ? `<br><span class="sub ${r.precio >= accMias[r.s].p ? "pos" : "neg"}" style="font-weight:600">mía ${pctT(r.precio / accMias[r.s].p - 1)}</span>` : ""}${r.rango ? ' <span class="pill AVISO" style="font-size:11px;padding:1px 6px">↔ rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? ` <span class="alerta" title="Esta acción ya tuvo ${r.stopsRec} stop(s) en los últimos 3 meses y sigue cerca del piso de su rango">⚠ ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} reciente${r.stopsRec > 1 ? "s" : ""}</span>` : ""}</td>
       <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
       ${r.rango ? `<td class="num">Rango ${Math.round(100 * r.pos)}%</td>` : `<td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>`}
-      <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span>${r.por && r.rango ? `<br><span class="sub">en rango, en ${(100 * r.pos).toLocaleString("es-AR", { maximumFractionDigits: 0 })}% de la banda (compra bajo 20%)</span>` : r.por ? `<br><span class="sub">las medias están a ${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% de cruzar${r.faltan ? " (" + (r.faltan === 1 ? "1 rueda" : "unas " + r.faltan + " ruedas") + " al ritmo actual)" : ""}</span>` : accCumple(r, "naciente") ? `<br><span class="sub">${r.bloqueada ? "salió de un rango: espera un cruce nuevo" : r.rango ? "está en rango: espera zona de compra" : !r.mediasOk ? "las medias están a " + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% de cruzar" : "sin señal de compra todavía"}</span>` : ""}</td><td class="num">${fmt(r.precio)}</td><td class="num">${r.atrp != null ? `${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% <span class="volt ${volNivel(r.atrp)[1]}">${volNivel(r.atrp)[0]}</span>` : `<span class="sub">—</span>`}</td>${r.t.abierta ? `<td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}<br><span class="sub">desde ${fmt(r.t.abierta.precio)}</span></td>` : `<td class="num sub">—</td>`}${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td><td><button type="button" class="simb" data-sim="${r.s}" aria-label="Simular una compra de ${r.s}">Simular</button></td></tr>` + (abierta ? detalleAcc(r) : "");
-  }).join("") || `<tr><td class="iz" colspan="12">No hay acciones para mostrar con ese filtro.</td></tr>`;
-  $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes. «ATR %» es cuánto se movió la acción por día, en promedio de las últimas 14 ruedas (el rango de cada día sobre el cierre de ese mismo día): baja (menos de 2%), media (2% a 4%) o alta (más de 4%).`;
+      <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span>${r.por && r.rango ? `<br><span class="sub">en rango, en ${(100 * r.pos).toLocaleString("es-AR", { maximumFractionDigits: 0 })}% de la banda (compra bajo 20%)</span>` : r.por ? `<br><span class="sub">las medias están a ${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% de cruzar${r.faltan ? " (" + (r.faltan === 1 ? "1 rueda" : "unas " + r.faltan + " ruedas") + " al ritmo actual)" : ""}</span>` : accCumple(r, "naciente") ? `<br><span class="sub">${r.bloqueada ? "salió de un rango: espera un cruce nuevo" : r.rango ? "está en rango: espera zona de compra" : !r.mediasOk ? "las medias están a " + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% de cruzar" : "sin señal de compra todavía"}</span>` : ""}</td><td class="num">${fmt(r.precio)}</td><td class="num">${r.atrp != null ? `${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% <span class="volt ${volNivel(r.atrp)[1]}">${volNivel(r.atrp)[0]}</span>` : `<span class="sub">—</span>`}</td>${celdaSenal(r)}${celdaTecho(r)}${r.t.abierta ? `<td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}<br><span class="sub">desde ${fmt(r.t.abierta.precio)}</span></td>` : `<td class="num sub">—</td>`}${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td><td><button type="button" class="simb" data-sim="${r.s}" aria-label="Simular una compra de ${r.s}">Simular</button></td></tr>` + (abierta ? detalleAcc(r) : "");
+  }).join("") || `<tr><td class="iz" colspan="14">No hay acciones para mostrar con ese filtro.</td></tr>`;
+  $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes. «Señal» marca los círculos verdes de las últimas 5 ruedas (ruptura del máximo de las 20 ruedas anteriores con momentum fuerte y por encima de la media de 200; «Strong» si además el volumen es más de 1,5 veces el promedio), con la fecha y la zona (máximo y mínimo de la vela anterior a la ruptura). «Techo 20 ruedas» es el máximo de las últimas 20 ruedas: el precio donde conviene poner la alerta en Webull, y a qué distancia está del último cierre. «ATR %» es cuánto se movió la acción por día, en promedio de las últimas 14 ruedas (el rango de cada día sobre el cierre de ese mismo día): baja (menos de 2%), media (2% a 4%) o alta (más de 4%).`;
   if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); ajustarDetalle(); if (r && cv) graficoTend(cv, r.t, accN, r.rango ? "rango" : true, 501); }
 }
 // Por qué se compró o vendió en cada operación: se mira la rueda anterior a la ejecución (la señal sale al cierre y se ejecuta en la apertura siguiente).
@@ -1514,7 +1546,7 @@ function detalleAcc(r) {
   const ops = r.ops.slice(-5).reverse().map(o => { accFichas.push({ t: `Operación ${o.r >= 0 ? "ganada" : "perdida"} ${pctT(o.r)}`, c: o.entrada, pc: o.pIn, cm: motivoOp(r, o.entrada, true, o, true), v: o.salida, pv: o.pOut, vm: motivoOp(r, o.salida, false, o, true) }); return `<tr class="opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span>${(o.parciales || []).map(x => `<br><span class="sub">½ el ${fechaT(x.t)} a ${fmt(x.precio)}</span>`).join("")}</td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}${flecha}</td></tr>`; }).join("");
   let ab = "";
   if (r.t.abierta) { accFichas.push({ t: `Operación abierta ${pctT(r.t.actual)}`, c: r.t.abierta.t, pc: r.t.abierta.precio, cm: motivoOp(r, r.t.abierta.t, true, null, true), ab: true }); ab = `<tr class="abierta opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta${(r.t.abierta.parciales || []).map(x => `<br><span class="sub">½ vendida el ${fechaT(x.t)} a ${fmt(x.precio)} (+20%)</span>`).join("")}</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}${flecha}</td></tr>`; }
-  return `<tr class="det"><td colspan="12"><div class="cols">
+  return `<tr class="det"><td colspan="14"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}: precio de 2 años, operaciones y señal de hoy"></canvas>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span><span><i class="v" style="background:var(--long);border-color:var(--long)"></i>Operación ganada</span><span><i class="v" style="background:var(--short);border-color:var(--short)"></i>perdida</span><span>Barra rayada: varias operaciones seguidas</span></div></div>
     <div>${r.det ? paso("¿Está en rango? (se mira 2 años)", r.det.corto ? "Todavía no hay 2 años de historia para evaluarlo: se opera por tendencia (cruce 50/200)." : `${r.det.vj >= 3 ? "✓" : "✕"} <b>Rebota entre piso y techo:</b> en 2 años el precio tuvo un piso de ${fmt(r.det.piso)}, un techo de ${fmt(r.det.techo)} y un promedio de ${fmt(r.det.media)}. La banda se divide en una zona de abajo (hasta ${fmt(r.det.piso + 0.2 * (r.det.techo - r.det.piso))}) y una zona de arriba (desde ${fmt(r.det.techo - 0.2 * (r.det.techo - r.det.piso))}): cada una es el 20% del ancho entre piso y techo (el mismo 20% de la compra). Fue ${r.det.vj} ${r.det.vj === 1 ? "vez" : "veces"} de una zona a la otra (hacen falta 3 o más).<br>${Math.abs(r.det.mov) < 0.25 ? "✓" : "✕"} <b>No tiene rumbo:</b> hace 2 años valía ${fmt(r.det.p0)} y hoy ${fmt(r.det.p1)}: cambió ${pctT(r.det.mov)}. Para ser rango tiene que haber cambiado menos de 25% (para arriba o para abajo) respecto de lo que valía hace 2 años.<br>${r.det.pend < 0.3 ? "✓" : "✕"} <b>Sin subida ni bajada fuerte de fondo:</b> si se traza una línea recta que acompañe al precio de los 2 años, esa línea ${r.det.incl >= 0 ? "sube" : "baja"} ${Math.abs(r.det.incl * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%. Esa ${r.det.incl >= 0 ? "subida" : "bajada"} es chica comparada con lo que el precio se mueve para arriba y para abajo: equivale al ${Math.round(100 * r.det.pend)}% de ese vaivén. Tiene que ser menos de 30%; si fuera más, el precio estaría en una ${r.det.incl >= 0 ? "subida" : "bajada"} sostenida y no en un rango.<br>${r.det.ok ? "<b>Está en rango:</b> se opera comprando abajo y vendiendo arriba." : r.rango ? "<b>Sigue en rango:</b> hoy alguna condición está un poco afuera, pero ya estaba en rango y solo sale si se pasa de límites más amplios (cambio de más de 35%, inclinación de más de 45% o menos de 2 viajes). Así no cambia de estrategia por un solo día." : "<b>No está en rango:</b> se opera por tendencia (cruce 50/200)."}`, r.rango) : ""}${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60% o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
@@ -1537,6 +1569,7 @@ $("accEst").addEventListener("change", e => { accEst = e.target.value; guardar("
 $("accN").addEventListener("change", e => { accN = +e.target.value; guardar("acc_n", accN); pintarAcc(); });
 $("accModo").addEventListener("change", e => { accModo = e.target.value; guardar("acc_modo", accModo); pintarAcc(); });
 $("accBusca").addEventListener("input", e => { accBusca = e.target.value; pintarFilasAcc(); });
+$("senHoy").addEventListener("click", e => { const b = e.target.closest("button[data-senir]"); if (!b) return; accFiltro = "senal"; guardar("acc_filtro", accFiltro); accAbierta = b.dataset.senir; pintarAcc(); const f = document.querySelector(`#accTabla tr.fila[data-s="${b.dataset.senir}"]`); if (f) f.scrollIntoView({ block: "center", behavior: "smooth" }); });
 $("accFiltros").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; accFiltro = (b.dataset.f === accFiltro && b.closest(".ftar")) ? "todas" : b.dataset.f; guardar("acc_filtro", accFiltro); pintarAcc(); });
 $("accTabla").querySelector("thead").addEventListener("click", e => {
   const th = e.target.closest("th[data-k]"); if (!th) return;

@@ -7,10 +7,12 @@ on:
     paths:                    # al cambiar la lista de acciones o el script, se actualiza en el momento
       - ".github/workflows/tendencia.yml"
       - "scripts/tendencia.py"
+      - "scripts/avisar_senales.py"
       - "data/tendencia_tickers.json"
       - "data/favoritas.json"
 permissions:
   contents: write
+  issues: write
 concurrency:
   group: datos
   cancel-in-progress: false
@@ -24,11 +26,16 @@ jobs:
         with: { python-version: "3.12" }
       - run: pip install yfinance pandas
       - run: python scripts/tendencia.py
+      - name: Avisar círculos verdes nuevos (issue)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: python scripts/avisar_senales.py
       - name: Guardar resultado
         run: |
           git config user.name "datos-bot"
           git config user.email "datos-bot@users.noreply.github.com"
-          git add data/tendencia_acciones.json
+          git add data/tendencia_acciones.json data/senales_avisadas.json
           git commit -m "Tendencia acciones $(date -u +%F)" || echo "sin cambios"
           git pull --rebase origin main || true
           git push
