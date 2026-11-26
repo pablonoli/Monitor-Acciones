@@ -1,0 +1,26 @@
+PLAN A vs PLAN D en las Strong de enero a agosto 2026 ($40.000 de riesgo, sin costos)
+Plan D: igual que A, pero si en la rueda 20 va +1R o más, sigue hasta la rueda 40 (o hasta el stop).
+
+Operaciones que siguieron hasta la 40: 17 de 99
+
+acción señal  compra          venta A               venta D                        A (%/pesos)        D (%/pesos)       diferencia
+ASML  02/01  05/01 a 1211.22  02/02 a 1441.39   03/03 a 1360.94 (cierre en la rueda 40)   +19.0% +45.757   +12.4% +29.764   -15.993
+MU    02/01  05/01 a 325.13  02/02 a 437.80   03/03 a 379.68 (cierre en la rueda 40)   +34.7% +43.569   +16.8% +21.094   -22.475
+SNDK  06/01  07/01 a 42.61  04/02 a 73.07   05/03 a 70.70 (cierre en la rueda 40)   +77.2% +74.470   +74.4% +71.788   -2.682
+TXN   06/01  07/01 a 188.47  04/02 a 222.92   05/03 a 197.98 (cierre en la rueda 40)   +17.1% +85.842   +10.5% +52.655   -33.187
+WDC   06/01  07/01 a 211.99  04/02 a 269.41   05/03 a 259.03 (cierre en la rueda 40)   +27.1% +49.372   +33.0% +60.224   +10.851
+LMT   09/01  12/01 a 548.96  09/02 a 638.29   10/03 a 651.22 (cierre en la rueda 40)   +16.3% +41.209   +18.6% +47.173   +5.965
+ITUB  21/01  22/01 a 7.98  19/02 a 9.27   19/03 a 8.12 (cierre en la rueda 40)   +16.2% +45.841   +1.8% +4.975   -40.866
+MRVL  06/03  09/03 a 87.93  06/04 a 109.51   04/05 a 163.66 (cierre en la rueda 40)   +24.5% +68.022   +57.5% +159.354   +91.332
+ARM   25/03  26/03 a 157.35  23/04 a 204.61   21/05 a 298.23 (cierre en la rueda 40)   +30.0% +41.015   +74.1% +101.133   +60.117
+QCOM  30/04  01/05 a 179.13  29/05 a 251.02   29/06 a 188.72 (cierre en la rueda 40)   +40.1% +50.326   +5.4% +6.713   -43.612
+DELL  06/05  07/05 a 235.26  04/06 a 422.05   06/07 a 411.80 (cierre en la rueda 40)   +64.5% +104.123   +62.3% +100.604   -3.519
+CRWD  07/05  08/05 a 124.79  05/06 a 167.76   07/07 a 194.62 (cierre en la rueda 40)   +44.2% +65.514   +55.0% +81.469   +15.955
+PANW  07/05  08/05 a 194.85  05/06 a 272.05   07/07 a 337.04 (cierre en la rueda 40)   +42.2% +75.437   +58.8% +105.270   +29.832
+DELL  08/05  11/05 a 253.60  08/06 a 400.77   08/07 a 431.97 (cierre en la rueda 40)   +59.2% +78.426   +65.4% +86.572   +8.146
+ARM   20/05  21/05 a 266.89  18/06 a 439.46   15/07 a 266.89 (volvió al precio de compra)   +60.3% +86.193   +28.0% +40.000   -46.193
+GS    20/05  21/05 a 982.21  18/06 a 1096.56   20/07 a 1055.03 (cierre en la rueda 40)   +11.6% +54.969   +12.2% +57.503   +2.533
+DELL  22/05  26/05 a 300.25  23/06 a 427.78   22/07 a 441.80 (cierre en la rueda 40)   +42.5% +51.315   +47.1% +56.956   +5.641
+
+De las 17 que siguieron: 9 mejoraron y 8 empeoraron.
+Total Plan A: +24.9R = +994.286 pesos.   Total Plan D: +25.4R = +1.016.132 pesos.   Diferencia: +21.846.
