@@ -71,6 +71,11 @@ def plan(P, e, stop):
     return rr, (P["C"][j] - ent) / R, fin, j - e + 1
 
 
+def corto(vals):
+    r = resumen(vals).split("|")
+    return r[1].strip() if len(r) > 1 else "sin datos"
+
+
 def resumen(vals):
     v = np.array([x for x in vals if x is not None], dtype=float)
     if not len(v): return "sin datos"
@@ -125,7 +130,7 @@ def main():
     L.append("== POR MES DE LA SEÑAL ==")
     for m in sorted({o["f"][:7] for o in ops}):
         g = [o for o in ops if o["f"][:7] == m]
-        L.append(f"  {m}: {len(g):>3} señales | a 20 ruedas: " + resumen([o["h20"] for o in g]).split("|")[1].strip() + " | hasta hoy: " + resumen([o["hoy"] for o in g]).split("|")[1].strip())
+        L.append(f"  {m}: {len(g):>3} señales | a 20 ruedas: " + corto([o["h20"] for o in g]) + " | hasta hoy: " + corto([o["hoy"] for o in g]))
     L.append("")
     L.append("== LISTA DE SEÑALES (fecha, acción, tipo, entrada, a 10 ruedas, a 20 ruedas, hasta hoy, plan ATR) ==")
     for o in sorted(ops, key=lambda x: x["f"]):
