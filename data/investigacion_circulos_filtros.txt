@@ -139,3 +139,29 @@ SMA50>SMA200 + ATR%<4%                      |           12.5 |           12.5 | 
 SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |           10.2 |           11.1 |   16 |              79% |            100% |        2023-03-28
 CRUCE DORADO (sin círculo verde)            |            7.7 |            7.8 |   16 |              73% |            100% |        2022-12-28
 CRUCE DORADO + SPY>SMA200                   |            6.6 |            7.5 |   16 |              61% |            100% |        2025-04-08
+
+== FLUJO DE CAJA (qué tan rápido vuelve la plata a efectivo) ==
+-- Sin filtro
+  Operaciones tomadas: 429. Ruedas hasta cerrar: mediana 60, promedio 45.9; cerradas en 5 ruedas o menos 1%, en 10 o menos 7%, en 20 o menos 17%, llegaron al máximo de 60 ruedas 58%.
+  Duración promedio: ganadoras 57.5 ruedas, perdedoras 35.6 ruedas. Vendieron la mitad (llegaron a +2R): 18% de las operaciones.
+  Capital que vuelve a efectivo por mes (% del capital; puede pasar de 100% porque la plata se vuelve a invertir): promedio 45%, mediana 45%, mínimo 0%, máximo 140%.
+  Ganancia realizada por mes (% del capital, 61 meses): promedio +0.47%, mediana +0.51%, peor -9.2%, mejor +10.2%; meses positivos 54%, negativos 41%.
+  Meses seguidos sin ganancia (≤ 0): máximo 5. Meses sin ninguna operación cerrada: 3. Días de rueda sin ninguna operación abierta: 0% (la racha más larga fue de 1 ruedas).
+-- SPY>SMA200 + SMA50>SMA200
+  Operaciones tomadas: 355. Ruedas hasta cerrar: mediana 60, promedio 47.5; cerradas en 5 ruedas o menos 1%, en 10 o menos 6%, en 20 o menos 13%, llegaron al máximo de 60 ruedas 61%.
+  Duración promedio: ganadoras 57.9 ruedas, perdedoras 35.2 ruedas. Vendieron la mitad (llegaron a +2R): 21% de las operaciones.
+  Capital que vuelve a efectivo por mes (% del capital; puede pasar de 100% porque la plata se vuelve a invertir): promedio 37%, mediana 40%, mínimo 0%, máximo 131%.
+  Ganancia realizada por mes (% del capital, 61 meses): promedio +0.99%, mediana +0.00%, peor -7.4%, mejor +12.8%; meses positivos 48%, negativos 36%.
+  Meses seguidos sin ganancia (≤ 0): máximo 12. Meses sin ninguna operación cerrada: 10. Días de rueda sin ninguna operación abierta: 9% (la racha más larga fue de 108 ruedas).
+-- SPY>SMA200 + SMA50>SMA200 + ATR%<4%
+  Operaciones tomadas: 275. Ruedas hasta cerrar: mediana 60, promedio 47.5; cerradas en 5 ruedas o menos 1%, en 10 o menos 5%, en 20 o menos 14%, llegaron al máximo de 60 ruedas 62%.
+  Duración promedio: ganadoras 58.2 ruedas, perdedoras 34.6 ruedas. Vendieron la mitad (llegaron a +2R): 20% de las operaciones.
+  Capital que vuelve a efectivo por mes (% del capital; puede pasar de 100% porque la plata se vuelve a invertir): promedio 36%, mediana 35%, mínimo 0%, máximo 117%.
+  Ganancia realizada por mes (% del capital, 61 meses): promedio +0.83%, mediana +0.19%, peor -6.6%, mejor +11.8%; meses positivos 52%, negativos 33%.
+  Meses seguidos sin ganancia (≤ 0): máximo 8. Meses sin ninguna operación cerrada: 9. Días de rueda sin ninguna operación abierta: 8% (la racha más larga fue de 104 ruedas).
+-- CRUCE DORADO + SPY>SMA200
+  Operaciones tomadas: 223. Ruedas hasta cerrar: mediana 51, promedio 38.2; cerradas en 5 ruedas o menos 13%, en 10 o menos 19%, en 20 o menos 34%, llegaron al máximo de 60 ruedas 48%.
+  Duración promedio: ganadoras 55.3 ruedas, perdedoras 26.0 ruedas. Vendieron la mitad (llegaron a +2R): 19% de las operaciones.
+  Capital que vuelve a efectivo por mes (% del capital; puede pasar de 100% porque la plata se vuelve a invertir): promedio 44%, mediana 37%, mínimo 0%, máximo 192%.
+  Ganancia realizada por mes (% del capital, 61 meses): promedio +0.10%, mediana +0.00%, peor -5.7%, mejor +9.4%; meses positivos 38%, negativos 49%.
+  Meses seguidos sin ganancia (≤ 0): máximo 12. Meses sin ninguna operación cerrada: 8. Días de rueda sin ninguna operación abierta: 12% (la racha más larga fue de 146 ruedas).
