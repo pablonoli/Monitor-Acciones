@@ -1,0 +1,495 @@
+LAS 10 MÁS GANADORAS Y LAS 10 MÁS PERDEDORAS (Strong, enero a agosto 2026, Plan A, $40.000 de riesgo, sin costos)
+
+=== 10 MÁS GANADORAS ===
+DELL  señal 06/05  ->  +104.123 pesos (+64.5%)
+   Compra 07/05 a US$ 235.26 (posición de unos $161.524). Stop US$ 177.00. objetivo +2R US$ 351.78.
+   Vende la mitad el 29/05 a US$ 351.78 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 04/06 a US$ 422.05: cierre en la rueda 20.
+
+ARM  señal 20/05  ->  +86.193 pesos (+60.3%)
+   Compra 21/05 a US$ 266.89 (posición de unos $142.887). Stop US$ 192.18. objetivo +2R US$ 416.32.
+   Vende la mitad el 01/06 a US$ 416.32 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 18/06 a US$ 439.46: cierre en la rueda 20.
+
+TXN  señal 06/01  ->  +85.842 pesos (+17.1%)
+   Compra 07/01 a US$ 188.47 (posición de unos $501.584). Stop US$ 173.44. objetivo +2R US$ 218.53.
+   Vende la mitad el 29/01 a US$ 218.53 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 04/02 a US$ 222.92: cierre en la rueda 20.
+
+DELL  señal 08/05  ->  +78.426 pesos (+59.2%)
+   Compra 11/05 a US$ 253.60 (posición de unos $132.428). Stop US$ 177.00. objetivo +2R US$ 406.80.
+   Vende la mitad el 29/05 a US$ 406.80 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 08/06 a US$ 400.77: cierre en la rueda 20.
+
+PANW  señal 07/05  ->  +75.437 pesos (+42.2%)
+   Compra 08/05 a US$ 194.85 (posición de unos $178.885). Stop US$ 151.28. objetivo +2R US$ 281.99.
+   Vende la mitad el 29/05 a US$ 281.99 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 05/06 a US$ 272.05: cierre en la rueda 20.
+
+SNDK  señal 06/01  ->  +74.470 pesos (+77.2%)
+   Compra 07/01 a US$ 42.61 (posición de unos $96.444). Stop US$ 24.94. objetivo +2R US$ 77.96.
+   Vende la mitad el 30/01 a US$ 77.96 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 04/02 a US$ 73.07: cierre en la rueda 20.
+
+MRVL  señal 06/03  ->  +68.022 pesos (+24.5%)
+   Compra 09/03 a US$ 87.93 (posición de unos $277.163). Stop US$ 75.24. objetivo +2R US$ 113.31.
+   Vende todo el 06/04 a US$ 109.51: cierre en la rueda 20.
+
+CRWD  señal 07/05  ->  +65.514 pesos (+44.2%)
+   Compra 08/05 a US$ 124.79 (posición de unos $148.228). Stop US$ 91.12. objetivo +2R US$ 192.15.
+   Vende la mitad el 01/06 a US$ 192.15 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 05/06 a US$ 167.76: cierre en la rueda 20.
+
+GS  señal 20/05  ->  +54.969 pesos (+11.6%)
+   Compra 21/05 a US$ 982.21 (posición de unos $472.159). Stop US$ 899.00. objetivo +2R US$ 1148.63.
+   Vende todo el 18/06 a US$ 1096.56: cierre en la rueda 20.
+
+DELL  señal 22/05  ->  +51.315 pesos (+42.5%)
+   Compra 26/05 a US$ 300.25 (posición de unos $120.813). Stop US$ 200.84. objetivo +2R US$ 499.07.
+   Vende todo el 23/06 a US$ 427.78: cierre en la rueda 20.
+
+=== 10 MÁS PERDEDORAS ===
+JD  señal 13/05  ->  -43.707 pesos (-12.7%)
+   Compra 14/05 a US$ 33.31 (posición de unos $343.012). Stop US$ 29.43. objetivo +2R US$ 41.08.
+   Vende todo el 28/05 a US$ 29.07: tocó el stop.
+
+ISRG  señal 06/01  ->  -42.703 pesos (-9.9%)
+   Compra 07/01 a US$ 592.89 (posición de unos $429.630). Stop US$ 537.69. objetivo +2R US$ 703.29.
+   Vende todo el 14/01 a US$ 533.96: tocó el stop.
+
+GS  señal 14/07  ->  -40.000 pesos (-12.7%)
+   Compra 15/07 a US$ 1148.42 (posición de unos $315.890). Stop US$ 1003.00. objetivo +2R US$ 1439.26.
+   Vende todo el 29/07 a US$ 1003.00: tocó el stop.
+
+BIDU  señal 13/05  ->  -40.000 pesos (-17.3%)
+   Compra 14/05 a US$ 143.98 (posición de unos $230.552). Stop US$ 119.00. objetivo +2R US$ 193.94.
+   Vende todo el 08/06 a US$ 119.00: tocó el stop.
+
+B  señal 11/05  ->  -40.000 pesos (-17.8%)
+   Compra 12/05 a US$ 46.35 (posición de unos $225.000). Stop US$ 38.11. objetivo +2R US$ 62.83.
+   Vende todo el 09/06 a US$ 38.11: tocó el stop.
+
+NEE  señal 23/04  ->  -40.000 pesos (-7.5%)
+   Compra 24/04 a US$ 97.24 (posición de unos $529.919). Stop US$ 89.90. objetivo +2R US$ 111.92.
+   Vende todo el 18/05 a US$ 89.90: tocó el stop.
+
+DIA  señal 06/02  ->  -40.000 pesos (-3.2%)
+   Compra 09/02 a US$ 500.11 (posición de unos $1.261.313). Stop US$ 484.25. objetivo +2R US$ 531.83.
+   Vende todo el 02/03 a US$ 484.25: tocó el stop.
+
+MS  señal 15/01  ->  -40.000 pesos (-9.4%)
+   Compra 16/01 a US$ 190.56 (posición de unos $423.938). Stop US$ 172.58. objetivo +2R US$ 226.52.
+   Vende todo el 12/02 a US$ 172.58: tocó el stop.
+
+XLF  señal 05/01  ->  -40.000 pesos (-5.0%)
+   Compra 06/01 a US$ 56.04 (posición de unos $792.084). Stop US$ 53.21. objetivo +2R US$ 61.70.
+   Vende todo el 20/01 a US$ 53.21: tocó el stop.
+
+GS  señal 15/01  ->  -25.960 pesos (-7.0%)
+   Compra 16/01 a US$ 973.00 (posición de unos $372.226). Stop US$ 868.44. objetivo +2R US$ 1182.12.
+   Vende todo el 13/02 a US$ 905.14: cierre en la rueda 20.
+
+=== TODAS, POR FECHA ===
+ASML  señal 02/01  ->  +45.757 pesos (+19.0%)
+   Compra 05/01 a US$ 1211.22 (posición de unos $240.787). Stop US$ 1010.01. objetivo +2R US$ 1613.64.
+   Vende todo el 02/02 a US$ 1441.39: cierre en la rueda 20.
+
+BIDU  señal 02/01  ->  +5.735 pesos (+2.7%)
+   Compra 05/01 a US$ 144.67 (posición de unos $212.750). Stop US$ 117.47. objetivo +2R US$ 199.07.
+   Vende todo el 02/02 a US$ 148.57: cierre en la rueda 20.
+
+EEM  señal 02/01  ->  +26.833 pesos (+4.8%)
+   Compra 05/01 a US$ 56.59 (posición de unos $564.489). Stop US$ 52.58. objetivo +2R US$ 64.61.
+   Vende todo el 02/02 a US$ 59.28: cierre en la rueda 20.
+
+MU  señal 02/01  ->  +43.569 pesos (+34.7%)
+   Compra 05/01 a US$ 325.13 (posición de unos $125.727). Stop US$ 221.69. objetivo +2R US$ 532.01.
+   Vende todo el 02/02 a US$ 437.80: cierre en la rueda 20.
+
+TSM  señal 02/01  ->  +7.925 pesos (+3.3%)
+   Compra 05/01 a US$ 330.40 (posición de unos $238.901). Stop US$ 275.08. objetivo +2R US$ 441.04.
+   Vende todo el 02/02 a US$ 341.36: cierre en la rueda 20.
+
+NU  señal 05/01  ->  +0 pesos (+0.0%)
+   Compra 06/01 a US$ 18.12 (posición de unos $286.482). Stop US$ 15.59. objetivo +2R US$ 23.18.
+   Vende todo el 03/02 a US$ 18.12: cierre en la rueda 20.
+
+XLF  señal 05/01  ->  -40.000 pesos (-5.0%)
+   Compra 06/01 a US$ 56.04 (posición de unos $792.084). Stop US$ 53.21. objetivo +2R US$ 61.70.
+   Vende todo el 20/01 a US$ 53.21: tocó el stop.
+
+ISRG  señal 06/01  ->  -42.703 pesos (-9.9%)
+   Compra 07/01 a US$ 592.89 (posición de unos $429.630). Stop US$ 537.69. objetivo +2R US$ 703.29.
+   Vende todo el 14/01 a US$ 533.96: tocó el stop.
+
+MU  señal 06/01  ->  +13.003 pesos (+11.4%)
+   Compra 07/01 a US$ 340.71 (posición de unos $114.505). Stop US$ 221.69. objetivo +2R US$ 578.75.
+   Vende todo el 04/02 a US$ 379.40: cierre en la rueda 20.
+
+SNDK  señal 06/01  ->  +74.470 pesos (+77.2%)
+   Compra 07/01 a US$ 42.61 (posición de unos $96.444). Stop US$ 24.94. objetivo +2R US$ 77.96.
+   Vende la mitad el 30/01 a US$ 77.96 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 04/02 a US$ 73.07: cierre en la rueda 20.
+
+TXN  señal 06/01  ->  +85.842 pesos (+17.1%)
+   Compra 07/01 a US$ 188.47 (posición de unos $501.584). Stop US$ 173.44. objetivo +2R US$ 218.53.
+   Vende la mitad el 29/01 a US$ 218.53 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 04/02 a US$ 222.92: cierre en la rueda 20.
+
+WDC  señal 06/01  ->  +49.372 pesos (+27.1%)
+   Compra 07/01 a US$ 211.99 (posición de unos $182.279). Stop US$ 165.47. objetivo +2R US$ 305.03.
+   Vende todo el 04/02 a US$ 269.41: cierre en la rueda 20.
+
+F  señal 08/01  ->  -17.054 pesos (-3.8%)
+   Compra 09/01 a US$ 14.35 (posición de unos $444.961). Stop US$ 13.06. objetivo +2R US$ 16.93.
+   Vende todo el 06/02 a US$ 13.80: cierre en la rueda 20.
+
+ASML  señal 09/01  ->  +28.194 pesos (+13.8%)
+   Compra 12/01 a US$ 1256.06 (posición de unos $204.196). Stop US$ 1010.01. objetivo +2R US$ 1748.16.
+   Vende todo el 09/02 a US$ 1429.49: cierre en la rueda 20.
+
+INTC  señal 09/01  ->  +25.834 pesos (+13.6%)
+   Compra 12/01 a US$ 44.24 (posición de unos $190.484). Stop US$ 34.95. objetivo +2R US$ 62.82.
+   Vende todo el 09/02 a US$ 50.24: cierre en la rueda 20.
+
+LMT  señal 09/01  ->  +41.209 pesos (+16.3%)
+   Compra 12/01 a US$ 548.96 (posición de unos $253.239). Stop US$ 462.25. objetivo +2R US$ 722.38.
+   Vende todo el 09/02 a US$ 638.29: cierre en la rueda 20.
+
+BABA  señal 12/01  ->  +1.997 pesos (+0.6%)
+   Compra 13/01 a US$ 165.50 (posición de unos $327.237). Stop US$ 145.27. objetivo +2R US$ 205.96.
+   Vende todo el 10/02 a US$ 166.51: cierre en la rueda 20.
+
+FXI  señal 12/01  ->  -12.388 pesos (-2.1%)
+   Compra 13/01 a US$ 40.36 (posición de unos $602.388). Stop US$ 37.68. objetivo +2R US$ 45.72.
+   Vende todo el 10/02 a US$ 39.53: cierre en la rueda 20.
+
+GS  señal 15/01  ->  -25.960 pesos (-7.0%)
+   Compra 16/01 a US$ 973.00 (posición de unos $372.226). Stop US$ 868.44. objetivo +2R US$ 1182.12.
+   Vende todo el 13/02 a US$ 905.14: cierre en la rueda 20.
+
+MS  señal 15/01  ->  -40.000 pesos (-9.4%)
+   Compra 16/01 a US$ 190.56 (posición de unos $423.938). Stop US$ 172.58. objetivo +2R US$ 226.52.
+   Vende todo el 12/02 a US$ 172.58: tocó el stop.
+
+GLD  señal 20/01  ->  +8.855 pesos (+2.6%)
+   Compra 21/01 a US$ 446.87 (posición de unos $346.814). Stop US$ 395.33. objetivo +2R US$ 549.95.
+   Vende todo el 18/02 a US$ 458.28: cierre en la rueda 20.
+
+INTC  señal 21/01  ->  -19.917 pesos (-17.7%)
+   Compra 22/01 a US$ 54.21 (posición de unos $112.586). Stop US$ 34.95. objetivo +2R US$ 92.73.
+   Vende todo el 19/02 a US$ 44.62: cierre en la rueda 20.
+
+ITUB  señal 21/01  ->  +45.841 pesos (+16.2%)
+   Compra 22/01 a US$ 7.98 (posición de unos $283.574). Stop US$ 6.85. objetivo +2R US$ 10.23.
+   Vende todo el 19/02 a US$ 9.27: cierre en la rueda 20.
+
+PBR  señal 21/01  ->  +39.816 pesos (+15.9%)
+   Compra 22/01 a US$ 13.60 (posición de unos $250.691). Stop US$ 11.43. objetivo +2R US$ 17.94.
+   Vende todo el 19/02 a US$ 15.76: cierre en la rueda 20.
+
+PBR  señal 27/01  ->  +15.198 pesos (+9.4%)
+   Compra 28/01 a US$ 15.27 (posición de unos $161.161). Stop US$ 11.48. objetivo +2R US$ 22.85.
+   Vende todo el 25/02 a US$ 16.71: cierre en la rueda 20.
+
+HMY  señal 28/01  ->  -18.550 pesos (-12.0%)
+   Compra 29/01 a US$ 25.62 (posición de unos $154.804). Stop US$ 19.00. objetivo +2R US$ 38.86.
+   Vende todo el 26/02 a US$ 22.55: cierre en la rueda 20.
+
+TXN  señal 28/01  ->  -3.510 pesos (-1.7%)
+   Compra 29/01 a US$ 216.40 (posición de unos $201.490). Stop US$ 173.44. objetivo +2R US$ 302.32.
+   Vende todo el 26/02 a US$ 212.63: cierre en la rueda 20.
+
+META  señal 29/01  ->  -24.885 pesos (-10.9%)
+   Compra 30/01 a US$ 727.50 (posición de unos $228.235). Stop US$ 600.00. objetivo +2R US$ 982.50.
+   Vende todo el 27/02 a US$ 648.18: cierre en la rueda 20.
+
+VZ  señal 30/01  ->  +36.610 pesos (+12.1%)
+   Compra 02/02 a US$ 44.58 (posición de unos $302.237). Stop US$ 38.68. objetivo +2R US$ 56.38.
+   Vende todo el 02/03 a US$ 49.98: cierre en la rueda 20.
+
+XOM  señal 03/02  ->  +8.820 pesos (+4.0%)
+   Compra 04/02 a US$ 144.12 (posición de unos $223.010). Stop US$ 118.27. objetivo +2R US$ 195.82.
+   Vende todo el 04/03 a US$ 149.82: cierre en la rueda 20.
+
+AMGN  señal 04/02  ->  +1.628 pesos (+0.5%)
+   Compra 05/02 a US$ 365.73 (posición de unos $318.441). Stop US$ 319.79. objetivo +2R US$ 457.61.
+   Vende todo el 05/03 a US$ 367.60: cierre en la rueda 20.
+
+DIA  señal 06/02  ->  -40.000 pesos (-3.2%)
+   Compra 09/02 a US$ 500.11 (posición de unos $1.261.313). Stop US$ 484.25. objetivo +2R US$ 531.83.
+   Vende todo el 02/03 a US$ 484.25: tocó el stop.
+
+MCD  señal 12/02  ->  -8.040 pesos (-1.8%)
+   Compra 13/02 a US$ 332.50 (posición de unos $442.596). Stop US$ 302.45. objetivo +2R US$ 392.60.
+   Vende todo el 13/03 a US$ 326.46: cierre en la rueda 20.
+
+AMAT  señal 13/02  ->  -3.036 pesos (-1.4%)
+   Compra 17/02 a US$ 351.00 (posición de unos $221.068). Stop US$ 287.49. objetivo +2R US$ 478.02.
+   Vende todo el 16/03 a US$ 346.18: cierre en la rueda 20.
+
+DELL  señal 27/02  ->  +28.178 pesos (+17.1%)
+   Compra 02/03 a US$ 146.76 (posición de unos $165.084). Stop US$ 111.20. objetivo +2R US$ 217.88.
+   Vende todo el 27/03 a US$ 171.81: cierre en la rueda 20.
+
+TGT  señal 03/03  ->  -7.683 pesos (-2.2%)
+   Compra 04/03 a US$ 123.96 (posición de unos $345.052). Stop US$ 109.59. objetivo +2R US$ 152.70.
+   Vende todo el 31/03 a US$ 121.20: cierre en la rueda 20.
+
+MRVL  señal 06/03  ->  +68.022 pesos (+24.5%)
+   Compra 09/03 a US$ 87.93 (posición de unos $277.163). Stop US$ 75.24. objetivo +2R US$ 113.31.
+   Vende todo el 06/04 a US$ 109.51: cierre en la rueda 20.
+
+PBR  señal 06/03  ->  +35.389 pesos (+15.8%)
+   Compra 09/03 a US$ 18.02 (posición de unos $224.548). Stop US$ 14.81. objetivo +2R US$ 24.44.
+   Vende todo el 06/04 a US$ 20.86: cierre en la rueda 20.
+
+NBIS  señal 11/03  ->  +37.061 pesos (+25.0%)
+   Compra 12/03 a US$ 109.09 (posición de unos $148.422). Stop US$ 79.69. objetivo +2R US$ 167.89.
+   Vende todo el 09/04 a US$ 136.33: cierre en la rueda 20.
+
+ARM  señal 25/03  ->  +41.015 pesos (+30.0%)
+   Compra 26/03 a US$ 157.35 (posición de unos $136.559). Stop US$ 111.26. objetivo +2R US$ 249.53.
+   Vende todo el 23/04 a US$ 204.61: cierre en la rueda 20.
+
+JD  señal 14/04  ->  +4.439 pesos (+1.4%)
+   Compra 15/04 a US$ 31.05 (posición de unos $313.241). Stop US$ 27.08. objetivo +2R US$ 38.98.
+   Vende todo el 12/05 a US$ 31.49: cierre en la rueda 20.
+
+UNH  señal 21/04  ->  +16.167 pesos (+10.9%)
+   Compra 22/04 a US$ 350.88 (posición de unos $147.879). Stop US$ 255.97. objetivo +2R US$ 540.70.
+   Vende todo el 19/05 a US$ 389.24: cierre en la rueda 20.
+
+BA  señal 22/04  ->  -8.504 pesos (-4.0%)
+   Compra 23/04 a US$ 231.51 (posición de unos $211.473). Stop US$ 187.72. objetivo +2R US$ 319.09.
+   Vende todo el 20/05 a US$ 222.20: cierre en la rueda 20.
+
+NEE  señal 23/04  ->  -40.000 pesos (-7.5%)
+   Compra 24/04 a US$ 97.24 (posición de unos $529.919). Stop US$ 89.90. objetivo +2R US$ 111.92.
+   Vende todo el 18/05 a US$ 89.90: tocó el stop.
+
+INTC  señal 24/04  ->  +33.615 pesos (+43.2%)
+   Compra 27/04 a US$ 83.67 (posición de unos $77.760). Stop US$ 40.63. objetivo +2R US$ 169.75.
+   Vende todo el 22/05 a US$ 119.84: cierre en la rueda 20.
+
+KO  señal 28/04  ->  +34.031 pesos (+4.1%)
+   Compra 29/04 a US$ 78.37 (posición de unos $820.628). Stop US$ 74.55. objetivo +2R US$ 86.01.
+   Vende todo el 27/05 a US$ 81.62: cierre en la rueda 20.
+
+INTC  señal 29/04  ->  +19.984 pesos (+26.5%)
+   Compra 30/04 a US$ 95.60 (posición de unos $75.543). Stop US$ 44.98. objetivo +2R US$ 196.84.
+   Vende todo el 28/05 a US$ 120.89: cierre en la rueda 20.
+
+SBUX  señal 29/04  ->  -11.041 pesos (-4.5%)
+   Compra 30/04 a US$ 105.55 (posición de unos $242.783). Stop US$ 88.16. objetivo +2R US$ 140.33.
+   Vende todo el 28/05 a US$ 100.75: cierre en la rueda 20.
+
+V  señal 29/04  ->  -7.502 pesos (-2.2%)
+   Compra 30/04 a US$ 332.12 (posición de unos $347.497). Stop US$ 293.89. objetivo +2R US$ 408.58.
+   Vende todo el 28/05 a US$ 324.95: cierre en la rueda 20.
+
+CAT  señal 30/04  ->  -4.356 pesos (-2.3%)
+   Compra 01/05 a US$ 896.84 (posición de unos $186.289). Stop US$ 704.27. objetivo +2R US$ 1281.98.
+   Vende todo el 29/05 a US$ 875.87: cierre en la rueda 20.
+
+GOOGL  señal 30/04  ->  -560 pesos (-0.3%)
+   Compra 01/05 a US$ 381.63 (posición de unos $165.602). Stop US$ 289.45. objetivo +2R US$ 565.99.
+   Vende todo el 29/05 a US$ 380.34: cierre en la rueda 20.
+
+QCOM  señal 30/04  ->  +50.326 pesos (+40.1%)
+   Compra 01/05 a US$ 179.13 (posición de unos $125.397). Stop US$ 121.99. objetivo +2R US$ 293.41.
+   Vende todo el 29/05 a US$ 251.02: cierre en la rueda 20.
+
+ABEV  señal 05/05  ->  -19.661 pesos (-8.5%)
+   Compra 06/05 a US$ 3.43 (posición de unos $232.542). Stop US$ 2.84. objetivo +2R US$ 4.61.
+   Vende todo el 03/06 a US$ 3.14: cierre en la rueda 20.
+
+AMD  señal 06/05  ->  +22.804 pesos (+25.4%)
+   Compra 07/05 a US$ 417.07 (posición de unos $89.615). Stop US$ 230.91. objetivo +2R US$ 789.39.
+   Vende todo el 04/06 a US$ 523.20: cierre en la rueda 20.
+
+BIDU  señal 06/05  ->  -7.219 pesos (-4.3%)
+   Compra 07/05 a US$ 140.81 (posición de unos $169.141). Stop US$ 107.51. objetivo +2R US$ 207.41.
+   Vende todo el 04/06 a US$ 134.80: cierre en la rueda 20.
+
+DELL  señal 06/05  ->  +104.123 pesos (+64.5%)
+   Compra 07/05 a US$ 235.26 (posición de unos $161.524). Stop US$ 177.00. objetivo +2R US$ 351.78.
+   Vende la mitad el 29/05 a US$ 351.78 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 04/06 a US$ 422.05: cierre en la rueda 20.
+
+HUT  señal 06/05  ->  +20.338 pesos (+21.6%)
+   Compra 07/05 a US$ 105.11 (posición de unos $94.358). Stop US$ 60.55. objetivo +2R US$ 194.22.
+   Vende todo el 04/06 a US$ 127.76: cierre en la rueda 20.
+
+CRWD  señal 07/05  ->  +65.514 pesos (+44.2%)
+   Compra 08/05 a US$ 124.79 (posición de unos $148.228). Stop US$ 91.12. objetivo +2R US$ 192.15.
+   Vende la mitad el 01/06 a US$ 192.15 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 05/06 a US$ 167.76: cierre en la rueda 20.
+
+PANW  señal 07/05  ->  +75.437 pesos (+42.2%)
+   Compra 08/05 a US$ 194.85 (posición de unos $178.885). Stop US$ 151.28. objetivo +2R US$ 281.99.
+   Vende la mitad el 29/05 a US$ 281.99 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 05/06 a US$ 272.05: cierre en la rueda 20.
+
+DELL  señal 08/05  ->  +78.426 pesos (+59.2%)
+   Compra 11/05 a US$ 253.60 (posición de unos $132.428). Stop US$ 177.00. objetivo +2R US$ 406.80.
+   Vende la mitad el 29/05 a US$ 406.80 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 08/06 a US$ 400.77: cierre en la rueda 20.
+
+INTC  señal 08/05  ->  -11.984 pesos (-15.7%)
+   Compra 11/05 a US$ 130.88 (posición de unos $76.104). Stop US$ 62.09. objetivo +2R US$ 268.46.
+   Vende todo el 08/06 a US$ 110.27: cierre en la rueda 20.
+
+MU  señal 08/05  ->  +16.261 pesos (+19.7%)
+   Compra 11/05 a US$ 792.98 (posición de unos $82.499). Stop US$ 408.50. objetivo +2R US$ 1561.94.
+   Vende todo el 08/06 a US$ 949.28: cierre en la rueda 20.
+
+B  señal 11/05  ->  -40.000 pesos (-17.8%)
+   Compra 12/05 a US$ 46.35 (posición de unos $225.000). Stop US$ 38.11. objetivo +2R US$ 62.83.
+   Vende todo el 09/06 a US$ 38.11: tocó el stop.
+
+QCOM  señal 11/05  ->  -9.888 pesos (-10.6%)
+   Compra 12/05 a US$ 229.84 (posición de unos $93.062). Stop US$ 131.05. objetivo +2R US$ 427.42.
+   Vende todo el 09/06 a US$ 205.42: cierre en la rueda 20.
+
+BIDU  señal 13/05  ->  -40.000 pesos (-17.3%)
+   Compra 14/05 a US$ 143.98 (posición de unos $230.552). Stop US$ 119.00. objetivo +2R US$ 193.94.
+   Vende todo el 08/06 a US$ 119.00: tocó el stop.
+
+F  señal 13/05  ->  +16.769 pesos (+7.0%)
+   Compra 14/05 a US$ 13.75 (posición de unos $240.175). Stop US$ 11.46. objetivo +2R US$ 18.33.
+   Vende todo el 11/06 a US$ 14.71: cierre en la rueda 20.
+
+JD  señal 13/05  ->  -43.707 pesos (-12.7%)
+   Compra 14/05 a US$ 33.31 (posición de unos $343.012). Stop US$ 29.43. objetivo +2R US$ 41.08.
+   Vende todo el 28/05 a US$ 29.07: tocó el stop.
+
+NBIS  señal 13/05  ->  +4.395 pesos (+4.2%)
+   Compra 14/05 a US$ 213.38 (posición de unos $105.795). Stop US$ 132.70. objetivo +2R US$ 374.73.
+   Vende todo el 11/06 a US$ 222.24: cierre en la rueda 20.
+
+YPF  señal 18/05  ->  +18.899 pesos (+6.8%)
+   Compra 19/05 a US$ 47.98 (posición de unos $278.145). Stop US$ 41.08. objetivo +2R US$ 61.78.
+   Vende todo el 16/06 a US$ 51.24: cierre en la rueda 20.
+
+ARM  señal 20/05  ->  +86.193 pesos (+60.3%)
+   Compra 21/05 a US$ 266.89 (posición de unos $142.887). Stop US$ 192.18. objetivo +2R US$ 416.32.
+   Vende la mitad el 01/06 a US$ 416.32 (+2R) y sube el stop al precio de compra.
+   Vende el resto el 18/06 a US$ 439.46: cierre en la rueda 20.
+
+GS  señal 20/05  ->  +54.969 pesos (+11.6%)
+   Compra 21/05 a US$ 982.21 (posición de unos $472.159). Stop US$ 899.00. objetivo +2R US$ 1148.63.
+   Vende todo el 18/06 a US$ 1096.56: cierre en la rueda 20.
+
+DELL  señal 22/05  ->  +51.315 pesos (+42.5%)
+   Compra 26/05 a US$ 300.25 (posición de unos $120.813). Stop US$ 200.84. objetivo +2R US$ 499.07.
+   Vende todo el 23/06 a US$ 427.78: cierre en la rueda 20.
+
+FSLR  señal 28/05  ->  -22.476 pesos (-21.0%)
+   Compra 29/05 a US$ 302.65 (posición de unos $106.991). Stop US$ 189.50. objetivo +2R US$ 528.95.
+   Vende todo el 26/06 a US$ 239.07: cierre en la rueda 20.
+
+IBM  señal 29/05  ->  -16.169 pesos (-13.8%)
+   Compra 01/06 a US$ 322.55 (posición de unos $117.067). Stop US$ 212.34. objetivo +2R US$ 542.97.
+   Vende todo el 29/06 a US$ 278.00: cierre en la rueda 20.
+
+PANW  señal 29/05  ->  +17.245 pesos (+16.3%)
+   Compra 01/06 a US$ 285.43 (posición de unos $105.695). Stop US$ 177.41. objetivo +2R US$ 501.47.
+   Vende todo el 29/06 a US$ 332.00: cierre en la rueda 20.
+
+ASML  señal 11/06  ->  -11.969 pesos (-6.6%)
+   Compra 12/06 a US$ 1847.62 (posición de unos $181.893). Stop US$ 1441.31. objetivo +2R US$ 2660.24.
+   Vende todo el 13/07 a US$ 1726.04: cierre en la rueda 20.
+
+GGAL  señal 11/06  ->  -10.375 pesos (-7.4%)
+   Compra 12/06 a US$ 55.49 (posición de unos $141.106). Stop US$ 39.76. objetivo +2R US$ 86.95.
+   Vende todo el 13/07 a US$ 51.41: cierre en la rueda 20.
+
+LRCX  señal 11/06  ->  -12.320 pesos (-8.2%)
+   Compra 12/06 a US$ 359.39 (posición de unos $150.247). Stop US$ 263.71. objetivo +2R US$ 550.75.
+   Vende todo el 13/07 a US$ 329.92: cierre en la rueda 20.
+
+AMAT  señal 25/06  ->  -20.829 pesos (-16.6%)
+   Compra 26/06 a US$ 642.76 (posición de unos $125.699). Stop US$ 438.22. objetivo +2R US$ 1051.84.
+   Vende todo el 24/07 a US$ 536.25: cierre en la rueda 20.
+
+LLY  señal 26/06  ->  -5.919 pesos (-2.1%)
+   Compra 29/06 a US$ 1222.78 (posición de unos $286.651). Stop US$ 1052.15. objetivo +2R US$ 1564.04.
+   Vende todo el 27/07 a US$ 1197.53: cierre en la rueda 20.
+
+GS  señal 14/07  ->  -40.000 pesos (-12.7%)
+   Compra 15/07 a US$ 1148.42 (posición de unos $315.890). Stop US$ 1003.00. objetivo +2R US$ 1439.26.
+   Vende todo el 29/07 a US$ 1003.00: tocó el stop.
+
+PYPL  señal 15/07  ->  +11.017 pesos (+6.8%)
+   Compra 16/07 a US$ 55.41 (posición de unos $161.076). Stop US$ 41.65. objetivo +2R US$ 82.93.
+   Vende todo el 12/08 a US$ 59.20: cierre en la rueda 20.
+
+LMT  señal 23/07  ->  +1.419 pesos (+0.5%)
+   Compra 24/07 a US$ 568.59 (posición de unos $279.268). Stop US$ 487.15. objetivo +2R US$ 731.47.
+   Vende todo el 20/08 a US$ 571.48: cierre en la rueda 20.
+
+KO  señal 28/07  ->  +15.294 pesos (+3.4%)
+   Compra 29/07 a US$ 88.65 (posición de unos $453.453). Stop US$ 80.83. objetivo +2R US$ 104.29.
+   Vende todo el 25/08 a US$ 91.64: cierre en la rueda 20.
+
+MSFT  señal 30/07  ->  +28.733 pesos (+12.2%)
+   Compra 31/07 a US$ 450.00 (posición de unos $234.834). Stop US$ 373.35. objetivo +2R US$ 603.30.
+   Vende todo el 27/08 a US$ 505.06: cierre en la rueda 20.
+
+AMZN  señal 31/07  ->  -9.100 pesos (-4.3%)
+   Compra 03/08 a US$ 278.29 (posición de unos $213.535). Stop US$ 226.16. objetivo +2R US$ 382.55.
+   Vende todo el 28/08 a US$ 266.43: cierre en la rueda 20.
+
+PLTR  señal 04/08  ->  +16.250 pesos (+11.1%)
+   Compra 05/08 a US$ 162.00 (posición de unos $146.905). Stop US$ 117.89. objetivo +2R US$ 250.22.
+   Vende todo el 01/09 a US$ 179.92: cierre en la rueda 20.
+
+AMGN  señal 05/08  ->  +19.488 pesos (+7.0%)
+   Compra 06/08 a US$ 413.72 (posición de unos $276.875). Stop US$ 353.95. objetivo +2R US$ 533.26.
+   Vende todo el 02/09 a US$ 442.84: cierre en la rueda 20.
+
+BKNG  señal 05/08  ->  -8.454 pesos (-3.8%)
+   Compra 06/08 a US$ 207.45 (posición de unos $223.425). Stop US$ 170.31. objetivo +2R US$ 281.73.
+   Vende todo el 02/09 a US$ 199.60: cierre en la rueda 20.
+
+SHOP  señal 05/08  ->  -2.242 pesos (-1.3%)
+   Compra 06/08 a US$ 143.70 (posición de unos $176.076). Stop US$ 111.06. objetivo +2R US$ 208.99.
+   Vende todo el 02/09 a US$ 141.87: cierre en la rueda 20.
+
+ABNB  señal 07/08  ->  +3.025 pesos (+1.8%)
+   Compra 10/08 a US$ 178.69 (posición de unos $166.339). Stop US$ 135.72. objetivo +2R US$ 264.63.
+   Vende todo el 04/09 a US$ 181.94: cierre en la rueda 20.
+
+NBIS  señal 12/08  ->  -9.979 pesos (-10.7%)
+   Compra 13/08 a US$ 255.47 (posición de unos $93.178). Stop US$ 145.80. objetivo +2R US$ 474.81.
+   Vende todo el 10/09 a US$ 228.11: cierre en la rueda 20.
+
+NU  señal 14/08  ->  -19.507 pesos (-6.4%)
+   Compra 17/08 a US$ 15.40 (posición de unos $303.448). Stop US$ 13.37. objetivo +2R US$ 19.46.
+   Vende todo el 14/09 a US$ 14.41: cierre en la rueda 20.
+
+AEM  señal 19/08  ->  -1.909 pesos (-1.5%)
+   Compra 20/08 a US$ 204.45 (posición de unos $126.692). Stop US$ 139.90. objetivo +2R US$ 333.55.
+   Vende todo el 17/09 a US$ 201.37: cierre en la rueda 20.
+
+MRK  señal 19/08  ->  -5.912 pesos (-2.4%)
+   Compra 20/08 a US$ 150.78 (posición de unos $245.570). Stop US$ 126.22. objetivo +2R US$ 199.90.
+   Vende todo el 17/09 a US$ 147.15: cierre en la rueda 20.
+
+HOOD  señal 21/08  ->  +28.384 pesos (+15.4%)
+   Compra 24/08 a US$ 106.86 (posición de unos $184.431). Stop US$ 83.68. objetivo +2R US$ 153.21.
+   Vende todo el 21/09 a US$ 123.30: cierre en la rueda 20.
+
+CRM  señal 27/08  ->  -8.960 pesos (-6.6%)
+   Compra 28/08 a US$ 250.47 (posición de unos $136.422). Stop US$ 177.03. objetivo +2R US$ 397.35.
+   Vende todo el 25/09 a US$ 234.02: cierre en la rueda 20.
+
+CRWD  señal 27/08  ->  +20.345 pesos (+10.5%)
+   Compra 28/08 a US$ 228.23 (posición de unos $194.280). Stop US$ 181.24. objetivo +2R US$ 322.21.
+   Vende todo el 25/09 a US$ 252.13: cierre en la rueda 20.
+
+NVDA  señal 27/08  ->  -2.826 pesos (-1.0%)
+   Compra 28/08 a US$ 227.36 (posición de unos $280.605). Stop US$ 194.95. objetivo +2R US$ 292.18.
+   Vende todo el 25/09 a US$ 225.07: cierre en la rueda 20.
+
