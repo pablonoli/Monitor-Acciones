@@ -19,13 +19,13 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install yfinance pandas numpy
-      - run: python scripts/investigacion_miedo10.py 1
-      - run: python scripts/investigacion_miedo10.py 2
+      - run: python scripts/investigacion_miedo10.py 1 toca
+      - run: python scripts/investigacion_miedo10.py 2 toca
       - name: Guardar resultado
         run: |
           git config user.name "datos-bot"
           git config user.email "datos-bot@users.noreply.github.com"
-          git add data/investigacion_miedo10_d1.txt data/investigacion_miedo10_d2.txt
+          git add data/investigacion_miedo10_toca_d1.txt data/investigacion_miedo10_toca_d2.txt
           git commit -m "Investigación miedo 10 $(date -u +%F)" || echo "sin cambios"
           git pull --rebase origin main || true
           git push
