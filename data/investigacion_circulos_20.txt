@@ -1,0 +1,68 @@
+¿QUÉ HACER A LAS 20 RUEDAS CON LOS CÍRCULOS VERDES? Últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR.
+Plan base: entrada en la apertura siguiente, stop inicial = mínimo de 20 ruedas, mitad a +2R y stop al precio de compra. Costo 0.15% por lado. Stop antes que objetivo en la misma vela; gaps al open.
+Capital: 1% de riesgo por operación (tamaño = 1% / distancia al stop), sin apalancamiento (exposición máx. 100%: si no hay lugar, se saltea la señal), se actualiza al cerrar.
+Columnas: ops = señales; toma. = operaciones realmente tomadas con el capital; prom./med./gan./R = por operación (cada una cuenta igual); dur. = mediana de ruedas hasta cerrar;
+acum. = resultado acumulado del capital; c. MTM = peor caída valuando las abiertas a mercado; efec./mes = capital que vuelve a efectivo por mes; mes+ = % de meses con ganancia realizada; peor mes = peor mes realizado.
+SPY comprar y mantener: acumulado +67.0%, caída máx. -24.5%.
+LÍMITES: se probaron solo 5 variantes elegidas de antemano y se muestra cuál dio mejor (sesgo de selección: la ganadora probablemente rinda algo menos de lo que muestra);
+la lista de CEDEARs es la de hoy (sesgo de supervivencia: faltan acciones que se hundieron o dejaron de cotizar); las operaciones se superponen y no son independientes.
+
+== SIN FILTRO ==
+Versión                                                 |  ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | gan./mes | mes+ | peor mes
+A. Cerrar todo a las 20 ruedas, siempre                 | 2396 |   940 |  +1.92% |  +0.66% |  53% | +0.10 |   20 |   +97.0% |  -21.1% |      105% |   +1.21% |  57% |    -6.4%
+B. A las 20: si gana, sigue con stop en compra hasta 40 | 2396 |   687 |  +2.09% |  -0.39% |  30% | +0.11 |   21 |   +69.0% |  -22.1% |       76% |   +1.00% |  49% |    -7.6%
+C. A las 20: si gana, sigue con stop en compra hasta 60 | 2396 |   571 |  +2.33% |  -0.47% |  25% | +0.13 |   21 |   +83.7% |  -22.7% |       63% |   +1.15% |  46% |    -7.4%
+D. A las 20: si está en +1R o más, sigue hasta 40       | 2396 |   828 |  +2.06% |  +0.37% |  52% | +0.11 |   20 |  +110.7% |  -18.0% |       94% |   +1.32% |  64% |    -6.4%
+E. Referencia: sin límite en la 20 (máx. 60)            | 2396 |   429 |  +3.42% |  +0.51% |  51% | +0.19 |   60 |   +26.5% |  -27.9% |       45% |   +0.47% |  54% |    -9.2%
+
+== SPY POR ENCIMA DE SU SMA 200 ==
+Versión                                                 |  ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | gan./mes | mes+ | peor mes
+A. Cerrar todo a las 20 ruedas, siempre                 | 2145 |   774 |  +1.90% |  +0.52% |  52% | +0.10 |   20 |   +80.7% |  -28.1% |       89% |   +1.05% |  52% |    -6.4%
+B. A las 20: si gana, sigue con stop en compra hasta 40 | 2145 |   581 |  +2.13% |  -0.44% |  30% | +0.12 |   21 |   +42.3% |  -21.6% |       65% |   +0.65% |  43% |    -7.7%
+C. A las 20: si gana, sigue con stop en compra hasta 60 | 2145 |   480 |  +2.32% |  -0.52% |  26% | +0.14 |   21 |   +66.7% |  -22.0% |       55% |   +0.91% |  51% |    -5.1%
+D. A las 20: si está en +1R o más, sigue hasta 40       | 2145 |   696 |  +2.00% |  +0.23% |  51% | +0.10 |   20 |   +62.8% |  -27.6% |       80% |   +0.87% |  51% |    -5.4%
+E. Referencia: sin límite en la 20 (máx. 60)            | 2145 |   353 |  +3.52% |  +0.53% |  51% | +0.21 |   60 |   +40.7% |  -21.6% |       38% |   +0.63% |  49% |    -8.7%
+
+== RETORNO DEL CAPITAL POR AÑO (1% de riesgo por operación; por año de cierre de las operaciones; SPY: retorno total del año calendario) ==
+Versión                                                             2021      2022      2023      2024      2025      2026
+A. cierra en la 20 (sin filtro)                                    +0.4%     -6.5%    +16.7%    +27.0%    +12.4%    +26.0%
+B. si gana sigue hasta 40 (sin filtro)                             -0.2%     -9.4%    +15.3%    +13.0%     +3.1%    +39.2%
+C. si gana sigue hasta 60 (sin filtro)                             -0.2%    -14.7%    +13.9%    +11.0%    +16.4%    +46.7%
+D. si está en +1R sigue hasta 40 (sin filtro)                      +0.4%     -3.8%    +10.1%    +29.6%    +10.9%    +37.9%
+E. sin límite (60) (sin filtro)                                        —    -22.9%     +5.5%     +7.8%    +18.2%    +22.0%
+A. cierra en la 20 (SPY>SMA200)                                    +0.4%    -11.9%     +1.4%    +33.5%    +12.2%    +34.5%
+B. si gana sigue hasta 40 (SPY>SMA200)                             -0.2%    -11.7%     -0.5%    +27.4%     +5.9%    +20.3%
+C. si gana sigue hasta 60 (SPY>SMA200)                             -0.2%    -12.4%     -3.8%    +17.1%    +23.4%    +37.3%
+D. si está en +1R sigue hasta 40 (SPY>SMA200)                      +0.4%    -12.5%     -4.0%    +33.2%    +13.3%    +28.0%
+E. sin límite (60) (SPY>SMA200)                                        —    -10.1%     +1.8%    +15.0%    +14.7%    +16.5%
+SPY comprar y mantener                                             +3.8%    -18.2%    +26.2%    +24.9%    +17.7%     +5.9%
+
+== ROBUSTEZ: LOS 5 AÑOS PARTIDOS EN DOS MITADES (primera: señales hasta 2024-05-26; segunda: desde ahí). El capital vuelve a empezar (100%) en cada mitad. ==
+Versión                                                 | 1.ª: acum. | R med |  c. MTM | mes+ || 2.ª: acum. | R med |  c. MTM | mes+
+A. cierra en la 20 (sin filtro)                         |     +21.3% | +0.07 |  -21.1% |  48% ||     +62.4% | +0.12 |  -13.8% |  65%
+B. si gana sigue hasta 40 (sin filtro)                  |     +11.2% | +0.09 |  -22.1% |  48% ||     +52.7% | +0.13 |  -17.8% |  48%
+C. si gana sigue hasta 60 (sin filtro)                  |     +10.2% | +0.11 |  -22.7% |  42% ||     +74.1% | +0.15 |  -20.4% |  61%
+D. si está en +1R sigue hasta 40 (sin filtro)           |     +19.9% | +0.07 |  -18.0% |  58% ||     +66.3% | +0.14 |  -15.4% |  65%
+E. sin límite (60) (sin filtro)                         |      -8.4% | +0.14 |  -27.9% |  45% ||     +54.6% | +0.23 |  -17.5% |  55%
+A. cierra en la 20 (SPY>SMA200)                         |      +3.1% | +0.06 |  -28.1% |  32% ||     +71.8% | +0.12 |  -13.6% |  68%
+B. si gana sigue hasta 40 (SPY>SMA200)                  |      +2.7% | +0.10 |  -21.6% |  29% ||     +37.9% | +0.12 |  -16.8% |  55%
+C. si gana sigue hasta 60 (SPY>SMA200)                  |      -4.6% | +0.13 |  -22.0% |  35% ||     +64.1% | +0.14 |  -16.2% |  65%
+D. si está en +1R sigue hasta 40 (SPY>SMA200)           |      -5.7% | +0.05 |  -27.6% |  32% ||     +57.9% | +0.13 |  -18.1% |  65%
+E. sin límite (60) (SPY>SMA200)                         |      +8.2% | +0.18 |  -20.1% |  35% ||     +63.6% | +0.22 |  -19.3% |  61%
+  Orden por acumulado (sin filtro): primera mitad A > D > B > C > E | segunda mitad C > D > A > E > B
+  Orden por acumulado (SPY>SMA200): primera mitad E > A > B > C > D | segunda mitad A > C > E > D > B
+
+== QUÉ PASÓ DESPUÉS DE LA RUEDA 20 (operaciones que seguían abiertas al cierre de la rueda 20) ==
+Ganancia después de la 20 = cambio del valor de la operación entre el cierre de la rueda 20 y la salida final, en % del precio de compra y en R.
+  B (sin filtro): 1288 de 2396 operaciones siguieron por la regla (62% de las que llegaron vivas a la 20). Después de la 20: promedio +0.32% (+0.03 R), mediana -1.23%, ganaron más 39%, mejor +65.1%, peor -45.2%; ruedas extra mediana 20.
+  C (sin filtro): 1288 de 2396 operaciones siguieron por la regla (62% de las que llegaron vivas a la 20). Después de la 20: promedio +0.76% (+0.06 R), mediana -1.76%, ganaron más 35%, mejor +105.3%, peor -49.6%; ruedas extra mediana 24.
+  D (sin filtro): 294 de 2396 operaciones siguieron por la regla (14% de las que llegaron vivas a la 20). Después de la 20: promedio +1.15% (+0.05 R), mediana +1.36%, ganaron más 56%, mejor +65.1%, peor -45.2%; ruedas extra mediana 20.
+  E (sin filtro): 2049 de 2396 operaciones seguían abiertas después de la 20 (sin regla) (99% de las que llegaron vivas a la 20). Después de la 20: promedio +1.76% (+0.11 R), mediana -0.13%, ganaron más 49%, mejor +141.9%, peor -75.2%; ruedas extra mediana 40.
+  B (SPY>SMA200): 1136 de 2145 operaciones siguieron por la regla (62% de las que llegaron vivas a la 20). Después de la 20: promedio +0.45% (+0.03 R), mediana -1.03%, ganaron más 40%, mejor +65.1%, peor -45.2%; ruedas extra mediana 20.
+  C (SPY>SMA200): 1136 de 2145 operaciones siguieron por la regla (62% de las que llegaron vivas a la 20). Después de la 20: promedio +0.80% (+0.07 R), mediana -1.69%, ganaron más 36%, mejor +105.3%, peor -49.6%; ruedas extra mediana 25.
+  D (SPY>SMA200): 267 de 2145 operaciones siguieron por la regla (14% de las que llegaron vivas a la 20). Después de la 20: promedio +0.85% (+0.03 R), mediana +1.36%, ganaron más 56%, mejor +65.1%, peor -45.2%; ruedas extra mediana 20.
+  E (SPY>SMA200): 1829 de 2145 operaciones seguían abiertas después de la 20 (sin regla) (99% de las que llegaron vivas a la 20). Después de la 20: promedio +1.90% (+0.13 R), mediana -0.03%, ganaron más 50%, mejor +141.9%, peor -75.2%; ruedas extra mediana 40.
+  A (sin filtro): 2063 operaciones se cerraron por tiempo en la rueda 20; de ellas 61% con ganancia, promedio +4.09%.
+  A (SPY>SMA200): 1843 operaciones se cerraron por tiempo en la rueda 20; de ellas 60% con ganancia, promedio +4.08%.
+
+Nota: 'gana' en B/C = cierre de la rueda 20 por encima del precio de compra; en D = cierre de la rueda 20 en precio de compra + 1R o más. Al seguir, el stop pasa al precio de compra (si ya estaba ahí por la venta de la mitad, queda igual).
