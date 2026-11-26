@@ -1,0 +1,86 @@
+¿OTRO TOPE DE DÍAS U OTRO UMBRAL PARA LOS CÍRCULOS VERDES? Últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR. Sin filtro.
+Plan base: entrada en la apertura siguiente, stop inicial = mínimo de 20 ruedas, vende la mitad en el objetivo y mueve el stop al precio de compra. Costo 0.15% por lado. Stop antes que objetivo; gaps al open.
+Capital: 1% de riesgo por operación, sin apalancamiento (exposición máx. 100%). La rueda 1 es la de entrada. 'Si +XR sigue hasta la N' = al cierre de la rueda 20, si está en precio de compra + X×R o más, sigue con stop en el precio de compra hasta la rueda N; si no, cierra.
+VARIANTES PROBADAS EN ESTA CORRIDA: 14 (más E como referencia). Contando las pruebas anteriores de la regla de salida (9 planes + 5 versiones A–E + 7 por volatilidad), ya van más de 35 combinaciones.
+Marca '≈A' = diferencia de acumulado contra A menor a 15 puntos: puede ser casualidad.
+SPY comprar y mantener: acumulado +67.0%, caída máx. -24.5%.
+LÍMITES: sesgo de selección (con tantas variantes, la mejor casi siempre rinde menos en el futuro de lo que muestra acá); sesgo de supervivencia (lista de CEDEARs de hoy);
+las operaciones se superponen y no son independientes; los grupos de volatilidad tienen menos operaciones que el total.
+
+== ¿QUÉ % DE LAS OPERACIONES LLEGA A CADA UMBRAL DENTRO DE LAS PRIMERAS 20 RUEDAS (antes de tocar el stop inicial)? ==
+Grupo                   | +0,5R | +1,0R | +1,5R | +2,0R | ops
+Todas                   |   47% |   20% |    9% |    5% | 2396
+Baja (ATR % < 2%)       |   52% |   22% |    9% |    3% | 535
+Media (ATR % 2% a 4%)   |   45% |   17% |    8% |    4% | 1254
+Alta (ATR % > 4%)       |   48% |   25% |   12% |    8% | 607
+
+== TODAS LAS ACCIONES ==
+Variante                                      |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes | vs A
+A. Cierra todo en la 20 (mitad a +2R)         | 2396  |   940 |  +1.92% |  +0.66% |  53% | +0.10 |   20 |   +97.0% |  -21.1% |      105% |  57% |    -6.4% | 
+D. En la 20, si +1R sigue hasta la 40         | 2396  |   828 |  +2.06% |  +0.37% |  52% | +0.11 |   20 |  +110.7% |  -18.0% |       94% |  64% |    -6.4% |  +13.7 pp  ≈A
+1. Cierra todo en la 30                       | 2396  |   672 |  +2.01% |  +0.34% |  51% | +0.11 |   30 |   +93.0% |  -25.8% |       76% |  52% |    -9.2% |   -4.0 pp  ≈A
+1. Cierra todo en la 40                       | 2396  |   560 |  +2.07% |  -0.05% |  50% | +0.11 |   40 |   +41.4% |  -28.4% |       60% |  51% |    -9.8% |  -55.6 pp
+1. Cierra todo en la 50                       | 2396  |   480 |  +2.72% |  -0.25% |  50% | +0.15 |   50 |   +40.1% |  -26.3% |       50% |  54% |   -10.6% |  -56.9 pp
+2. En la 20, si +0,5R sigue hasta la 40       | 2396  |   758 |  +2.14% |  -0.30% |  48% | +0.11 |   20 |   +85.9% |  -22.9% |       84% |  59% |    -6.9% |  -11.0 pp  ≈A
+2. En la 20, si +1,5R sigue hasta la 40       | 2396  |   891 |  +1.90% |  +0.63% |  53% | +0.10 |   20 |  +100.5% |  -18.4% |       99% |  59% |    -6.6% |   +3.5 pp  ≈A
+2. En la 20, si +2R sigue hasta la 40         | 2396  |   918 |  +1.92% |  +0.66% |  53% | +0.10 |   20 |  +100.8% |  -19.6% |      102% |  61% |    -6.6% |   +3.9 pp  ≈A
+3. En la 20, si +1R sigue hasta la 30         | 2396  |   866 |  +2.00% |  +0.51% |  52% | +0.10 |   20 |   +72.8% |  -17.8% |       98% |  54% |    -7.0% |  -24.2 pp
+3. En la 20, si +1R sigue hasta la 50         | 2396  |   792 |  +2.10% |  +0.32% |  52% | +0.11 |   20 |  +103.4% |  -20.5% |       89% |  61% |    -6.4% |   +6.4 pp  ≈A
+4. A con mitad a +1R                          | 2396  |   947 |  +1.65% |  +0.83% |  54% | +0.08 |   20 |   +73.1% |  -22.9% |      105% |  56% |    -6.4% |  -23.9 pp
+4. D con mitad a +1R                          | 2396  |   838 |  +1.70% |  +0.83% |  54% | +0.09 |   20 |   +71.5% |  -18.7% |       95% |  64% |    -6.4% |  -25.5 pp
+5. A con mitad a +1,5R                        | 2396  |   942 |  +1.83% |  +0.67% |  53% | +0.10 |   20 |   +96.4% |  -20.3% |      105% |  57% |    -6.4% |   -0.6 pp  ≈A
+5. D con mitad a +1,5R                        | 2396  |   829 |  +1.89% |  +0.53% |  53% | +0.10 |   20 |   +99.9% |  -18.1% |       94% |  66% |    -6.4% |   +2.9 pp  ≈A
+Ref. E: sin límite (máx. 60)                  | 2396  |   429 |  +3.42% |  +0.51% |  51% | +0.19 |   60 |   +26.5% |  -27.9% |       45% |  54% |    -9.2% |  -70.5 pp
+
+== OPERACIONES QUE SIGUIERON DESPUÉS DE LA RUEDA 20 (variantes con regla) ==
+  D     : siguieron 294 de 2396 (12%); después de la 20: promedio +1.15%, mediana +1.36%, mejoraron 56%.
+  D05   : siguieron 638 de 2396 (27%); después de la 20: promedio +0.84%, mediana +0.43%, mejoraron 51%.
+  D15   : siguieron 123 de 2396 (5%); después de la 20: promedio -0.28%, mediana +0.28%, mejoraron 50%.
+  D20   : siguieron 67 de 2396 (3%); después de la 20: promedio +0.24%, mediana -0.17%, mejoraron 49%.
+  D1-30 : siguieron 294 de 2396 (12%); después de la 20: promedio +0.72%, mediana +0.11%, mejoraron 51%.
+  D1-50 : siguieron 294 de 2396 (12%); después de la 20: promedio +1.52%, mediana +0.50%, mejoraron 52%.
+  D-m1  : siguieron 288 de 2396 (12%); después de la 20: promedio +0.43%, mediana +0.32%, mejoraron 53%.
+  D-m15 : siguieron 293 de 2396 (12%); después de la 20: promedio +0.49%, mediana +0.56%, mejoraron 55%.
+
+== POR MITADES (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) ==
+Variante                                      | 1.ª acum. | R med |  c. MTM | mes+ || 2.ª acum. | R med |  c. MTM | mes+
+A. Cierra todo en la 20 (mitad a +2R)         |    +21.3% | +0.07 |  -21.1% |  48% ||    +62.4% | +0.12 |  -13.8% |  65%
+D. En la 20, si +1R sigue hasta la 40         |    +19.9% | +0.07 |  -18.0% |  58% ||    +66.3% | +0.14 |  -15.4% |  65%
+1. Cierra todo en la 30                       |     +5.9% | +0.10 |  -22.1% |  45% ||    +75.7% | +0.12 |  -25.8% |  58%
+1. Cierra todo en la 40                       |     +3.7% | +0.09 |  -28.4% |  48% ||    +43.1% | +0.13 |  -22.0% |  55%
+1. Cierra todo en la 50                       |    +14.2% | +0.11 |  -26.3% |  55% ||    +15.5% | +0.18 |  -25.3% |  48%
+2. En la 20, si +0,5R sigue hasta la 40       |    +13.9% | +0.09 |  -22.9% |  58% ||    +68.9% | +0.13 |  -17.5% |  65%
+2. En la 20, si +1,5R sigue hasta la 40       |    +20.4% | +0.07 |  -18.4% |  52% ||    +66.7% | +0.12 |  -15.2% |  61%
+2. En la 20, si +2R sigue hasta la 40         |    +18.8% | +0.07 |  -19.6% |  48% ||    +65.4% | +0.12 |  -14.4% |  71%
+3. En la 20, si +1R sigue hasta la 30         |    +17.7% | +0.07 |  -17.8% |  48% ||    +50.9% | +0.13 |  -14.7% |  58%
+3. En la 20, si +1R sigue hasta la 50         |     +8.9% | +0.07 |  -20.5% |  58% ||    +76.8% | +0.14 |  -15.1% |  58%
+4. A con mitad a +1R                          |    +12.0% | +0.05 |  -22.9% |  48% ||    +57.2% | +0.11 |  -11.2% |  58%
+4. D con mitad a +1R                          |    +10.7% | +0.05 |  -18.7% |  58% ||    +57.5% | +0.11 |  -14.1% |  68%
+5. A con mitad a +1,5R                        |    +20.3% | +0.06 |  -20.3% |  48% ||    +62.2% | +0.12 |  -11.7% |  61%
+5. D con mitad a +1,5R                        |    +17.8% | +0.06 |  -18.1% |  58% ||    +61.7% | +0.13 |  -14.9% |  65%
+Ref. E: sin límite (máx. 60)                  |     -8.4% | +0.14 |  -27.9% |  45% ||    +54.6% | +0.23 |  -17.5% |  55%
+  Puesto en la 1.ª mitad: A 1.º, D 4.º, T30 13.º, T40 14.º, T50 8.º, D05 9.º, D15 2.º, D20 5.º, D1-30 7.º, D1-50 12.º, A-m1 10.º, D-m1 11.º, A-m15 3.º, D-m15 6.º, E 15.º
+  Puesto en la 2.ª mitad: A 7.º, D 5.º, T30 2.º, T40 14.º, T50 15.º, D05 3.º, D15 4.º, D20 6.º, D1-30 13.º, D1-50 1.º, A-m1 11.º, D-m1 10.º, A-m15 8.º, D-m15 9.º, E 12.º
+  Mejores 3 en 5 años (sin contar E): D, D1-50, D20. Le ganan a A en las DOS mitades: ninguna.
+
+== POR VOLATILIDAD (A y las 3 mejores: D, D1-50, D20). Cada grupo con su propio capital. ==
+-- Baja (ATR % < 2%)
+Variante                                      |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes | vs A
+A. Cierra todo en la 20 (mitad a +2R)         |  535  |   354 |  +0.73% |  +0.56% |  54% | +0.08 |   20 |   +19.2% |  -11.1% |       73% |  52% |    -5.7% | 
+D. En la 20, si +1R sigue hasta la 40         |  535  |   336 |  +0.82% |  +0.32% |  53% | +0.09 |   20 |   +25.7% |  -11.5% |       67% |  52% |    -5.7% |   +6.5 pp  ≈A
+3. En la 20, si +1R sigue hasta la 50         |  535  |   329 |  +0.89% |  +0.31% |  52% | +0.10 |   20 |   +19.5% |  -11.8% |       65% |  51% |    -5.7% |   +0.4 pp  ≈A
+2. En la 20, si +2R sigue hasta la 40         |  535  |   349 |  +0.77% |  +0.56% |  54% | +0.09 |   20 |   +23.0% |  -11.1% |       71% |  52% |    -5.7% |   +3.9 pp  ≈A
+-- Media (ATR % 2% a 4%)
+Variante                                      |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes | vs A
+A. Cierra todo en la 20 (mitad a +2R)         | 1254  |   741 |  +0.98% |  +0.72% |  53% | +0.08 |   20 |   +55.5% |  -17.8% |       91% |  51% |    -7.2% | 
+D. En la 20, si +1R sigue hasta la 40         | 1254  |   675 |  +1.02% |  +0.42% |  52% | +0.08 |   20 |   +51.4% |  -17.9% |       83% |  57% |    -6.2% |   -4.1 pp  ≈A
+3. En la 20, si +1R sigue hasta la 50         | 1254  |   654 |  +1.04% |  +0.42% |  52% | +0.08 |   20 |   +55.2% |  -16.7% |       79% |  54% |    -6.2% |   -0.3 pp  ≈A
+2. En la 20, si +2R sigue hasta la 40         | 1254  |   719 |  +0.99% |  +0.72% |  53% | +0.08 |   20 |   +66.7% |  -17.3% |       88% |  59% |    -6.5% |  +11.2 pp  ≈A
+-- Alta (ATR % > 4%)
+Variante                                      |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes | vs A
+A. Cierra todo en la 20 (mitad a +2R)         |  607  |   554 |  +4.90% |  +0.67% |  52% | +0.17 |   20 |  +138.2% |  -21.2% |       39% |  54% |   -12.7% | 
+D. En la 20, si +1R sigue hasta la 40         |  607  |   540 |  +5.29% |  +0.29% |  51% | +0.18 |   20 |  +126.8% |  -20.3% |       38% |  49% |    -4.0% |  -11.3 pp  ≈A
+3. En la 20, si +1R sigue hasta la 50         |  607  |   531 |  +5.38% |  -0.04% |  50% | +0.18 |   20 |  +125.2% |  -20.0% |       38% |  51% |    -4.9% |  -13.0 pp  ≈A
+2. En la 20, si +2R sigue hasta la 40         |  607  |   552 |  +4.88% |  +0.67% |  52% | +0.17 |   20 |  +131.8% |  -20.8% |       39% |  56% |    -9.8% |   -6.3 pp  ≈A
+
+(* = menos de 200 operaciones: poco confiable.)
