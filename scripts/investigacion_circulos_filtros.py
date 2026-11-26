@@ -17,17 +17,17 @@ def nom(m):
 
 def plan_path(P, e, stop):
     """Igual que I.plan pero devuelve el valor de la operación (por unidad invertida, neto de costos) al cierre de cada rueda; el último valor es el realizado."""
-    ent = P["O"][e]; R = ent - stop; obj = ent + 2 * R; sc = stop; mitad = False; vm = 0.0; n = len(P["C"]); path = []
+    ent = P["O"][e]; R = ent - stop; obj = ent + 2 * R; sc = stop; mitad = False; vm = 0.0; n = len(P["C"]); path = []; hk = None
     for j in range(e, min(n, e + I.MAXR)):
         o, hi, lo, c = P["O"][j], P["H"][j], P["L"][j], P["C"][j]
         if lo <= sc:
             v = min(sc, o) / ent * K
-            path.append(0.5 * vm + 0.5 * v if mitad else v); return path
+            path.append(0.5 * vm + 0.5 * v if mitad else v); return path, ((hk, vm) if mitad else None)
         if not mitad and hi >= obj:
-            vm = max(obj, o) / ent * K; mitad = True; sc = ent
+            vm = max(obj, o) / ent * K; mitad = True; sc = ent; hk = j - e
         v = c / ent * K
         path.append(0.5 * vm + 0.5 * v if mitad else v)
-    return path
+    return path, ((hk, vm) if mitad else None)
 
 
 def trade(P, i, spy_ok, camino=False):
@@ -39,7 +39,7 @@ def trade(P, i, spy_ok, camino=False):
     flags = (1 if spy_ok[i] else 0) | (2 if P["sma50"][i] > P["sma200"][i] else 0) | (4 if P["atrp"][i] < 0.04 else 0)
     t = dict(f=P["f"][i], fe=P["f"][e], fx=P["f"][e + pl[3] - 1], riesgo=riesgo, ret=ret, rnet=ret / riesgo, fl=flags, anio=P["f"][i].year)
     if camino:
-        t["path"] = plan_path(P, e, stop); t["dts"] = list(P["f"][e:e + len(t["path"])])
+        t["path"], t["half"] = plan_path(P, e, stop); t["dts"] = list(P["f"][e:e + len(t["path"])])
         assert len(t["path"]) == pl[3] and abs(t["path"][-1] - 1 - ret) < 1e-9, (t["path"][-1] - 1, ret)
     return t
 
@@ -65,7 +65,7 @@ def sim(df, riesgo_op=0.01, tope=1.0):
         tam = min(riesgo_op / r.riesgo, tope - expo)
         if tam < 0.02: continue
         n += 1; expo += tam; heapq.heappush(ab, (r.fx, n, tam, eq * tam * r.ret))
-        if hasattr(r, "path"): tomadas.append((eq * tam, tam, r.path, r.dts))
+        if hasattr(r, "path"): tomadas.append((eq * tam, tam, r.path, r.dts, r.half))
     cerrar(None)
     por, prev = {}, 1.0
     for a in sorted({e[0].year for e in eventos}):
@@ -76,7 +76,7 @@ def sim(df, riesgo_op=0.01, tope=1.0):
 def mercado(res, dias):
     """Capital día a día valuando las operaciones abiertas a precio de mercado. Devuelve (caída máx., prom. abiertas, prom. abiertas en días con posiciones, máx. abiertas, exposición prom., exposición máx., fecha del mínimo)."""
     ev = res["eventos"]; extra, cnt, expo = {}, {}, {}
-    for usd, tam, path, dts in res["tomadas"]:
+    for usd, tam, path, dts, _ in res["tomadas"]:
         for k in range(len(dts) - 1):                    # el último día de la operación ya está realizado
             d = dts[k]; extra[d] = extra.get(d, 0.0) + usd * (path[k] - 1); cnt[d] = cnt.get(d, 0) + 1; expo[d] = expo.get(d, 0.0) + tam
     j, real, pico, dd, dmin, ser = 0, 1.0, 1.0, 0.0, None, []
@@ -87,6 +87,45 @@ def mercado(res, dias):
         ser.append(cnt.get(d, 0))
     ser = np.array(ser); ex = np.array([expo.get(d, 0.0) for d in dias])
     return dd, ser.mean(), ser[ser > 0].mean() if (ser > 0).any() else 0.0, int(ser.max()), ex.mean(), ex.max(), dmin
+
+
+def caja(res, dias):
+    """Flujo de caja de las operaciones tomadas: cuánto tardan en cerrar, cuánto capital vuelve a efectivo por mes y cuántos meses seguidos pasan sin ganancia."""
+    tom, ev = res["tomadas"], res["eventos"]
+    if not tom: return ["sin operaciones"]
+    dur = np.array([len(t[2]) for t in tom]); gan = np.array([t[2][-1] > 1 for t in tom]); mitad = np.array([t[4] is not None for t in tom])
+    ent_mes = {}
+    for usd, tam, path, dts, half in tom:
+        if half: ent_mes[dts[half[0]].strftime("%Y-%m")] = ent_mes.get(dts[half[0]].strftime("%Y-%m"), 0.0) + usd * 0.5 * half[1]
+        m = dts[-1].strftime("%Y-%m"); ent_mes[m] = ent_mes.get(m, 0.0) + usd * (path[-1] - (0.5 * half[1] if half else 0.0))
+    meses = pd.period_range(dias[0], dias[-1], freq="M")
+    def eq_en(d):
+        v = 1.0
+        for fx, e in ev:
+            if fx <= d: v = e
+            else: break
+        return v
+    inflow, pnl, cerr = [], [], []
+    for mp in meses:
+        ini_m, fin_m = mp.start_time - pd.Timedelta(days=1), mp.end_time
+        e0, e1 = eq_en(ini_m), eq_en(fin_m)
+        inflow.append(ent_mes.get(str(mp), 0.0) / e0); pnl.append(e1 / e0 - 1)
+        cerr.append(sum(1 for t in tom if str(t[3][-1].to_period("M")) == str(mp)))
+    inflow, pnl, cerr = np.array(inflow), np.array(pnl), np.array(cerr)
+    racha_m = mx = 0
+    for x in pnl:
+        racha_m = racha_m + 1 if x <= 0 else 0; mx = max(mx, racha_m)
+    cnt = {}
+    for usd, tam, path, dts, half in tom:
+        for d in dts[:-1]: cnt[d] = cnt.get(d, 0) + 1
+    vacio = [cnt.get(d, 0) == 0 for d in dias]; rv = mv = 0
+    for x in vacio:
+        rv = rv + 1 if x else 0; mv = max(mv, rv)
+    return [f"  Operaciones tomadas: {len(tom)}. Ruedas hasta cerrar: mediana {np.median(dur):.0f}, promedio {dur.mean():.1f}; cerradas en 5 ruedas o menos {100 * (dur <= 5).mean():.0f}%, en 10 o menos {100 * (dur <= 10).mean():.0f}%, en 20 o menos {100 * (dur <= 20).mean():.0f}%, llegaron al máximo de 60 ruedas {100 * (dur >= I.MAXR).mean():.0f}%.",
+            f"  Duración promedio: ganadoras {dur[gan].mean():.1f} ruedas, perdedoras {dur[~gan].mean():.1f} ruedas. Vendieron la mitad (llegaron a +2R): {100 * mitad.mean():.0f}% de las operaciones.",
+            f"  Capital que vuelve a efectivo por mes (% del capital; puede pasar de 100% porque la plata se vuelve a invertir): promedio {100 * inflow.mean():.0f}%, mediana {100 * np.median(inflow):.0f}%, mínimo {100 * inflow.min():.0f}%, máximo {100 * inflow.max():.0f}%.",
+            f"  Ganancia realizada por mes (% del capital, {len(meses)} meses): promedio {100 * pnl.mean():+.2f}%, mediana {100 * np.median(pnl):+.2f}%, peor {100 * pnl.min():+.1f}%, mejor {100 * pnl.max():+.1f}%; meses positivos {100 * (pnl > 0).mean():.0f}%, negativos {100 * (pnl < 0).mean():.0f}%.",
+            f"  Meses seguidos sin ganancia (≤ 0): máximo {mx}. Meses sin ninguna operación cerrada: {int((cerr == 0).sum())}. Días de rueda sin ninguna operación abierta: {100 * np.mean(vacio):.0f}% (la racha más larga fue de {mv} ruedas)."]
 
 
 def fila(df, dias=None):
@@ -127,7 +166,7 @@ def main(anios=5):
             t["s"] = s
             if P["verde"][i]: sig.append(dict(t, strong=bool(P["strong"][i])))
             if es_cruce: cruz.append(dict(t))
-            base.append({k: v for k, v in t.items() if k not in ("path", "dts")})
+            base.append({k: v for k, v in t.items() if k not in ("path", "dts", "half")})
     S, B, C = pd.DataFrame(sig), pd.DataFrame(base), pd.DataFrame(cruz)
     # versiones: (nombre, DataFrame, máscara de filtros)
     VER = [(nom(m), S, m) for m in [0, 1, 2, 4, 3, 5, 6, 7]] + [("CRUCE DORADO (sin círculo verde)", C, 0), ("CRUCE DORADO + SPY>SMA200", C, 1)]
@@ -179,6 +218,9 @@ def main(anios=5):
     for nombre, D, m in VER:
         mm = mercado(res[nombre], dias)
         L.append(f"{nombre:<44}| {mm[1]:>14.1f} | {mm[2]:>14.1f} | {mm[3]:>4} | {100 * mm[4]:>15.0f}% | {100 * mm[5]:>14.0f}% | {str(mm[6].date()) if mm[6] is not None else '—':>17}")
+    L += ["", "== FLUJO DE CAJA (qué tan rápido vuelve la plata a efectivo) =="]
+    for nombre in ["Sin filtro", "SPY>SMA200 + SMA50>SMA200", "SPY>SMA200 + SMA50>SMA200 + ATR%<4%", "CRUCE DORADO + SPY>SMA200"]:
+        L += [f"-- {nombre}"] + caja(res[nombre], dias)
     txt = "\n".join(L); open("data/investigacion_circulos_filtros.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
 
 
