@@ -10,8 +10,12 @@ HALVING = ["2012-11-28", "2016-07-09", "2020-05-11", "2024-04-20"]
 def cargar():
     import yfinance as yf
     t = ACT + ["^VIX", "^TNX", "^IRX", "DX-Y.NYB"]
-    d = yf.download(t, start="2000-01-01", auto_adjust=True, progress=False)["Close"]
-    return d.dropna(how="all")
+    import time
+    for intento in range(5):
+        d = yf.download(t, start="2000-01-01", auto_adjust=True, progress=False, threads=False)["Close"]
+        if all(c in d.columns and d[c].notna().sum() > 500 for c in t): return d.dropna(how="all")
+        print("faltan datos, reintento", intento + 1, [c for c in t if c not in d.columns or d[c].notna().sum() <= 500], flush=True); time.sleep(10)
+    raise SystemExit("No se pudieron bajar todos los datos")
 
 
 def pct(x): return "  n/d" if pd.isna(x) else f"{x * 100:+.1f}%".replace(".", ",")
