@@ -22,6 +22,6 @@ jobs:
         run: |
           git config user.name "datos-bot"
           git config user.email "datos-bot@users.noreply.github.com"
-          git add data/consulta_ultimas_strong.txt data/consulta_strong_ene_ago.txt data/consulta_strong_detalle.txt
+          git add data/consulta_ultimas_strong.txt data/consulta_strong_ene_ago.txt data/consulta_strong_detalle.txt data/consulta_strong_plan_d.txt
           git commit -m "Consulta últimas Strong $(date -u +%F)" || echo "sin cambios"
           git push origin HEAD:${GITHUB_REF_NAME}

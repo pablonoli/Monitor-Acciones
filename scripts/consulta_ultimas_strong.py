@@ -143,3 +143,60 @@ sal = ["LAS 10 MÁS GANADORAS Y LAS 10 MÁS PERDEDORAS (Strong, enero a agosto 2
 sal += ["=== TODAS, POR FECHA ==="] + [txt(d) + "\n" for d in det]
 open("data/consulta_strong_detalle.txt", "w").write("\n".join(sal) + "\n")
 print("\n".join(sal[:60]))
+
+
+# ---- Plan D: en la rueda 20, si va +1R o más, sigue hasta la rueda 40 ----
+def detalle_d(s, i_sig, stop):
+    df = datos[s].dropna(subset=["Open", "High", "Low", "Close"])
+    if i_sig + 1 >= len(df):
+        return None
+    f = lambda k: df.index[k].date().strftime("%d/%m")
+    e = float(df["Open"].iloc[i_sig + 1]); R = e - stop
+    if R <= 0:
+        return None
+    d = dict(compra=f(i_sig + 1), pc=e, mitad=None, sigue=False)
+    mitad, st, res, tope = False, stop, 0.0, i_sig + 20
+    k = i_sig + 1
+    while k < len(df):
+        o, h, lo, c = (float(df[col].iloc[k]) for col in ("Open", "High", "Low", "Close"))
+        if lo <= st:
+            sal = min(o, st)
+            res += (0.5 if mitad else 1.0) * (sal - e) / R
+            d.update(venta=f(k), pv=sal, ruedas=k - i_sig, como="tocó el stop" if not mitad else "volvió al precio de compra"); d["R"] = res; return d
+        if not mitad and h >= e + 2 * R:
+            res += 1.0; mitad = True; st = e; d["mitad"] = (f(k), e + 2 * R)
+        if k == tope:
+            if tope == i_sig + 20 and (c - e) / R >= 1:
+                tope = i_sig + 40; d["sigue"] = True
+            else:
+                res += (0.5 if mitad else 1.0) * (c - e) / R
+                d.update(venta=f(k), pv=c, ruedas=k - i_sig, como=f"cierre en la rueda {k - i_sig}"); d["R"] = res; return d
+        k += 1
+    d.update(venta="abierta", pv=float(df["Close"].iloc[-1]), ruedas=len(df) - 1 - i_sig, como="sigue abierta")
+    d["R"] = res + (0.5 if mitad else 1.0) * (d["pv"] - e) / R
+    return d
+
+comp = []
+for r, a in zip(per, [None] * len(per)):
+    df = datos[r["s"]].dropna(subset=["Open", "High", "Low", "Close"])
+    i = list(df.index.date).index(r["fecha"])
+    A = detalle(r["s"], i, r["stop"]); D = detalle_d(r["s"], i, r["stop"])
+    if A and D:
+        dist = (A["pc"] - r["stop"]) / A["pc"]
+        comp.append(dict(s=r["s"], senal=r["fecha"].strftime("%d/%m"), A=A, D=D, dist=dist))
+p = lambda x: f"{x*40000:+,.0f}".replace(",", ".")
+sig = [c for c in comp if c["D"]["sigue"]]
+out = ["PLAN A vs PLAN D en las Strong de enero a agosto 2026 ($40.000 de riesgo, sin costos)",
+       "Plan D: igual que A, pero si en la rueda 20 va +1R o más, sigue hasta la rueda 40 (o hasta el stop).", "",
+       f"Operaciones que siguieron hasta la 40: {len(sig)} de {len(comp)}", "",
+       "acción señal  compra          venta A               venta D                        A (%/pesos)        D (%/pesos)       diferencia"]
+for c in sig:
+    A, D = c["A"], c["D"]
+    out.append(f"{c['s']:<5} {c['senal']}  {A['compra']} a {A['pc']:.2f}  {A['venta']} a {A['pv']:.2f}   {D['venta']} a {D['pv']:.2f} ({D['como']})"
+               f"   {A['R']*c['dist']*100:+.1f}% {p(A['R'])}   {D['R']*c['dist']*100:+.1f}% {p(D['R'])}   {p(D['R']-A['R'])}")
+tA = sum(c["A"]["R"] for c in comp); tD = sum(c["D"]["R"] for c in comp)
+mej = sum(1 for c in sig if c["D"]["R"] > c["A"]["R"] + 1e-9)
+out += ["", f"De las {len(sig)} que siguieron: {mej} mejoraron y {len(sig) - mej} empeoraron.",
+        f"Total Plan A: {tA:+.1f}R = {p(tA)} pesos.   Total Plan D: {tD:+.1f}R = {p(tD)} pesos.   Diferencia: {p(tD - tA)}."]
+open("data/consulta_strong_plan_d.txt", "w").write("\n".join(out) + "\n")
+print("\n".join(out))
