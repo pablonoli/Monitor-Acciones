@@ -1,6 +1,8 @@
 """Baja de Yahoo Finance las velas diarias (apertura y cierre, ajustadas por splits) de SPY y de las acciones de data/tendencia_tickers.json
 y las guarda en data/tendencia_acciones.json para el dashboard de tendencia (tendencia/index.html).
 
+Además guarda "atr": {símbolo: [ATR de 14 ruedas en USD, mínimo de los últimos 20 mínimos diarios]} para la columna ATR % y el simulador de posición.
+
 Formato compacto: por cada símbolo, un texto con una vela por tramo separado por coma: "día.apertura.cierre", todo en base 36.
  - día: el primero es el día absoluto (días desde 1970); los demás, la diferencia con la vela anterior.
  - apertura: diferencia, en centavos, con el cierre anterior (la primera, el valor absoluto), en zigzag (negativos impares).
@@ -44,10 +46,21 @@ def codificar(df):
     return ",".join(toks), len(toks), prev_dia, prev_c
 
 
+def volatilidad(df):
+    """ATR de 14 ruedas (promedio de Wilder del rango verdadero) y mínimo de los últimos 20 mínimos diarios. Devuelve [atr, minimo20] en dólares o None."""
+    x = df[["High", "Low", "Close"]].dropna()
+    if len(x) < 40:
+        return None
+    cierre_ant = x["Close"].shift(1)
+    tr = pd.concat([x["High"] - x["Low"], (x["High"] - cierre_ant).abs(), (x["Low"] - cierre_ant).abs()], axis=1).max(axis=1)
+    atr = tr.iloc[1:].ewm(alpha=1 / 14, adjust=False).mean().iloc[-1]
+    return [round(float(atr), 3), round(float(x["Low"].iloc[-20:].min()), 2)]
+
+
 def limpiar(s, x):
     """Deja solo Open y Close completos. A veces Yahoo manda la vela del último día con el cierre vacío (todavía sin consolidar)
     aunque la rueda ya terminó: en ese caso se toma el último precio de ese día de las velas de 5 minutos."""
-    x = x[["Open", "Close"]]
+    x = x[["Open", "High", "Low", "Close"]]
     try:
         if len(x) and pd.isna(x["Close"].iloc[-1]):
             dia = pd.Timestamp(x.index[-1]).date(); ahora = dt.datetime.now(dt.timezone.utc)
@@ -101,10 +114,10 @@ def main():
     filtro = cfg["filtro"]
     acciones = [a for a in dict.fromkeys(favoritas + cfg.get("extras", [])) if a != filtro]
     simbolos = [filtro] + acciones
-    previo = {}
+    previo, previo_atr = {}, {}
     if os.path.exists(RUTA_SALIDA):
         try:
-            previo = json.load(open(RUTA_SALIDA)).get("t", {})
+            _p = json.load(open(RUTA_SALIDA)); previo, previo_atr = _p.get("t", {}), _p.get("atr", {})
         except Exception:
             previo = {}
     datos = {}
@@ -128,7 +141,7 @@ def main():
         sys.exit(f"No se pudo bajar {filtro}: no se guarda nada.")
     # Sin el pico de hoy: si el mercado todavía está abierto, la última vela no está completa.
     ahora = dt.datetime.now(dt.timezone.utc)
-    t, chk, fallas = {}, {}, []
+    t, chk, fallas, atr = {}, {}, [], {}
     for s in simbolos:
         if s in datos:
             x = datos[s]
@@ -137,8 +150,12 @@ def main():
                 x = x.iloc[:-1]
             t[s], n, d, c = codificar(x)
             chk[s] = [n, d, c]
+            v = volatilidad(x)
+            if v: atr[s] = v
+            elif s in previo_atr: atr[s] = previo_atr[s]
         elif s in previo:
             t[s] = previo[s]; fallas.append(s + " (se conservó lo anterior)")
+            if s in previo_atr: atr[s] = previo_atr[s]
         else:
             fallas.append(s + " (sin datos)")
     ultimo_dia = max(v[1] for v in chk.values())
@@ -148,7 +165,7 @@ def main():
         vix = [[i.strftime("%Y-%m-%d"), round(float(r["Close"]), 2), round(float(r["High"]), 2)] for i, r in h.iterrows()]
     except Exception as e:
         print("VIX no disponible:", e, file=sys.stderr)
-    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "t": t}
+    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "atr": atr, "t": t}
     with open(RUTA_SALIDA, "w") as f:
         json.dump(salida, f, separators=(",", ":"))
         f.write("\n")
