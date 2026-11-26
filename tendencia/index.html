@@ -233,6 +233,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="aviso" id="accAviso" hidden></div>
     <div class="veredicto" id="accHoy" hidden></div>
+    <div class="veredicto" id="accMiedo" hidden></div>
     <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
     <div class="sincro"><button type="button" id="miasSync">☁ Sincronizar mis compras</button> <span class="sub" id="miasMsg" role="status"></span></div>
     <div class="mibloque" id="miasTok" hidden><b>Conectar con GitHub (una sola vez)</b><span class="sub">Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.</span><div class="mfila"><input type="password" id="miasTokIn" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Token de GitHub"></div><div class="botfila"><button type="button" class="mini" id="miasTokOk">Guardar y sincronizar</button><button type="button" class="mini" id="miasTokNo">Cancelar</button></div></div>
@@ -1395,6 +1396,17 @@ function pintarAcc() {
   hoy.innerHTML = comprar.length || vender.length || mitad.length
     ? `<p><b>Hoy:</b> ${[comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : "", vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : "", mitad.length ? "vender la mitad de <b class='neg'>" + lista2(mitad) + "</b> (llegó a +20%)" : ""].filter(Boolean).join(" · ")}. Son las que cambiaron de estado en el último cierre.</p>${miasVender.length ? `<p>De <b>tus acciones</b>, la estrategia dice vender: <b class='neg'>${lista2(miasVender)}</b>.</p>` : ""}`
     : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${compr} de ${n} siguen comprados.</p>`;
+  { // miedo del mercado: VIX (cierre y máximo del día). Aviso si en la última rueda tocó más de 30
+    const el = $("accMiedo"), vx = accDatos.vix || [];
+    if (!vx.length) el.hidden = true;
+    else {
+      const [d, c, m] = vx[vx.length - 1], fd = x => x.split("-").reverse().slice(0, 2).join("/"), tocan = vx.filter(x => x[2] > 30), activo = m > 30;
+      el.hidden = false; el.className = "veredicto " + (activo ? "pos" : "");
+      el.innerHTML = activo
+        ? `<p><b>Miedo del mercado (VIX): zona de compra por miedo.</b> El ${fd(d)} el VIX llegó a <b>${fmt(m)}</b> durante el día y cerró en ${fmt(c)}. En las pruebas con datos históricos, estar comprado cuando el VIX toca más de 30 mejoró el resultado en NVDA, AMZN, MELI, AAPL, SPY y BTC; no en TSLA ni XOM. Ojo: antes de rebotar las caídas pueden ser grandes (en SPY, hasta -46%). Es un aviso, la decisión es tuya.</p>`
+        : `<p><b>Miedo del mercado (VIX):</b> el ${fd(d)} cerró en ${fmt(c)} (máximo del día ${fmt(m)}). Todavía no llegó a 30, así que no hay aviso de compra por miedo.${tocan.length ? ` Última vez que superó 30: ${fd(tocan[tocan.length - 1][0])}.` : ""}</p>`;
+    }
+  }
   const est = res.reduce((a, r) => a + 1 + r.e, 0) / n - 1, man = res.reduce((a, r) => a + 1 + r.m, 0) / n - 1;
   $("accStats").innerHTML = [[`${compr}/${n}`, "comprados"], [`${perm}/${n}`, "con permiso"], [pctT(est), "estrategia promedio desde ene 2024"], [pctT(man), "comprar y mantener promedio"]].map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join("");
   const nF = id => res.filter(r => accCumple(r, id)).length;

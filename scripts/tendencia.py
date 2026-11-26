@@ -142,7 +142,13 @@ def main():
         else:
             fallas.append(s + " (sin datos)")
     ultimo_dia = max(v[1] for v in chk.values())
-    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "t": t}
+    vix = []
+    try:   # miedo del mercado: cierre y máximo del día de las últimas ruedas (si falla, el resto se guarda igual)
+        h = yf.Ticker("^VIX").history(period="1mo", interval="1d", auto_adjust=False).dropna(subset=["Close", "High"]).tail(10)
+        vix = [[i.strftime("%Y-%m-%d"), round(float(r["Close"]), 2), round(float(r["High"]), 2)] for i, r in h.iterrows()]
+    except Exception as e:
+        print("VIX no disponible:", e, file=sys.stderr)
+    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "t": t}
     with open(RUTA_SALIDA, "w") as f:
         json.dump(salida, f, separators=(",", ":"))
         f.write("\n")
