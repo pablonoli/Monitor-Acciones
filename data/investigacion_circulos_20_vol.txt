@@ -1,0 +1,81 @@
+¿LA REGLA DE LAS 20 RUEDAS FUNCIONA IGUAL SEGÚN LA VOLATILIDAD? Últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR. Sin filtro.
+Plan base: entrada en la apertura siguiente, stop inicial = mínimo de 20 ruedas, mitad a +2R y stop al precio de compra. Costo 0.15% por lado. Stop antes que objetivo en la misma vela; gaps al open.
+Grupos por ATR % el día de la señal (el mismo que muestra el dashboard). Cada grupo se simula con su propio capital: 1% de riesgo por operación, sin apalancamiento (exposición máx. 100%).
+A = cierra todo en la rueda N. D = en la rueda N, si está en +1R o más sigue con stop en el precio de compra hasta la rueda 2N; si no, cierra. E = sin límite (máx. 60). La rueda 1 es la de entrada.
+Columnas: ops = señales del grupo (* = menos de 200: poco confiable); toma. = operaciones tomadas con el capital; dur. = mediana de ruedas; acum. = acumulado del capital;
+c. MTM = peor caída valuando las abiertas a mercado; efec./mes = capital que vuelve a efectivo por mes; mes+ = % de meses con ganancia realizada; peor mes = peor mes realizado.
+LÍMITES: se probaron varias combinaciones (3 grupos × 7 versiones) y se elige la mejor (sesgo de selección); la lista de CEDEARs es la de hoy (sesgo de supervivencia);
+cada grupo tiene menos operaciones que el total, así que sus resultados son menos firmes; las operaciones se superponen y no son independientes.
+
+== TAMAÑO DE CADA GRUPO ==
+Baja (ATR % < 2%)       :   535 señales en  66 acciones. Más señales: GLD (35), DIA (23), KO (18), BRK-B (17), COST (17), O (16), V (16), XLF (14). Distancia mediana al stop: 7.9%.
+Media (ATR % 2% a 4%)   :  1254 señales en 115 acciones. Más señales: TSM (32), ITUB (29), AMAT (26), LRCX (24), AVGO (22), CAT (22), C (21), LLY (21). Distancia mediana al stop: 13.4%.
+Alta (ATR % > 4%)       :   607 señales en  67 acciones. Más señales: IREN (31), HUT (28), HMY (27), HIMS (26), MSTR (25), COIN (24), HOOD (24), GGAL (23). Distancia mediana al stop: 26.1%.
+
+== ¿CUÁNTAS LLEGAN A +1R Y A +2R DENTRO DE LAS PRIMERAS 20 RUEDAS (antes de tocar el stop inicial)? ==
+Baja (ATR % < 2%)       : llegan a +1R   22% | llegan a +2R (venden la mitad)    3% | 535 operaciones
+Media (ATR % 2% a 4%)   : llegan a +1R   17% | llegan a +2R (venden la mitad)    4% | 1254 operaciones
+Alta (ATR % > 4%)       : llegan a +1R   25% | llegan a +2R (venden la mitad)    8% | 607 operaciones
+
+== GRUPO BAJA (ATR % < 2%) ==
+Versión                                       |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes
+A. Cierra todo en la rueda 20                 |  535  |   354 |  +0.73% |  +0.56% |  54% | +0.08 |   20 |   +19.2% |  -11.1% |       73% |  52% |    -5.7%
+D. En la 20: si está en +1R sigue hasta la 40 |  535  |   336 |  +0.82% |  +0.32% |  53% | +0.09 |   20 |   +25.7% |  -11.5% |       67% |  52% |    -5.7%
+E. Referencia: sin límite (máx. 60)           |  535  |   192 |  +1.67% |  +0.58% |  52% | +0.17 |   60 |   +36.4% |  -19.0% |       37% |  51% |    -6.3%
+-- probando otra rueda de decisión (10 y 30) --
+A. Cierra todo en la rueda 10                 |  535  |   448 |  +0.24% |  +0.11% |  53% | +0.02 |   10 |    -3.9% |  -14.8% |       97% |  43% |    -4.9%
+D. En la 10: si está en +1R sigue hasta la 20 |  535  |   442 |  +0.23% |  +0.10% |  52% | +0.02 |   10 |    -3.4% |  -14.6% |       95% |  44% |    -4.9%
+A. Cierra todo en la rueda 30                 |  535  |   279 |  +0.49% |  +0.13% |  50% | +0.06 |   30 |   +17.8% |  -15.8% |       56% |  48% |    -6.0%
+D. En la 30: si está en +1R sigue hasta la 60 |  535  |   255 |  +0.47% |  -0.12% |  49% | +0.05 |   30 |   +12.5% |  -17.9% |       50% |  48% |    -6.1%
+   D10: siguieron después de la 10 22 de 535 (4%); después de la 10 ganaron en promedio -0.08% (mediana +0.68%), mejoraron 59%.
+   D20: siguieron después de la 20 71 de 535 (13%); después de la 20 ganaron en promedio +0.67% (mediana +1.41%), mejoraron 63%.
+   D30: siguieron después de la 30 77 de 535 (14%); después de la 30 ganaron en promedio -0.09% (mediana -0.48%), mejoraron 48%.
+-- por mitades (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) --
+   A20 | 1.ª:  238  ops, acum.    +5.7%, R +0.04, c. MTM  -11.1%, mes+  48% || 2.ª:  297  ops, acum.   +12.0%, R +0.12, c. MTM   -9.1%, mes+  58%
+   D20 | 1.ª:  238  ops, acum.    +9.0%, R +0.07, c. MTM  -11.5%, mes+  52% || 2.ª:  297  ops, acum.   +17.3%, R +0.12, c. MTM   -9.5%, mes+  55%
+   E   | 1.ª:  238  ops, acum.    +2.7%, R +0.10, c. MTM  -19.0%, mes+  39% || 2.ª:  297  ops, acum.   +33.9%, R +0.22, c. MTM   -7.0%, mes+  55%
+   Orden por acumulado: 1.ª mitad D20 > A20 > E | 2.ª mitad E > D20 > A20
+
+== GRUPO MEDIA (ATR % 2% A 4%) ==
+Versión                                       |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes
+A. Cierra todo en la rueda 20                 | 1254  |   741 |  +0.98% |  +0.72% |  53% | +0.08 |   20 |   +55.5% |  -17.8% |       91% |  51% |    -7.2%
+D. En la 20: si está en +1R sigue hasta la 40 | 1254  |   675 |  +1.02% |  +0.42% |  52% | +0.08 |   20 |   +51.4% |  -17.9% |       83% |  57% |    -6.2%
+E. Referencia: sin límite (máx. 60)           | 1254  |   360 |  +2.34% |  +0.51% |  51% | +0.17 |   60 |   +29.1% |  -25.8% |       42% |  49% |    -7.2%
+-- probando otra rueda de decisión (10 y 30) --
+A. Cierra todo en la rueda 10                 | 1254  |  1029 |  +0.30% |  +0.03% |  50% | +0.02 |   10 |   +33.1% |  -18.9% |      132% |  54% |    -6.8%
+D. En la 10: si está en +1R sigue hasta la 20 | 1254  |  1008 |  +0.39% |  -0.01% |  50% | +0.02 |   10 |   +32.8% |  -19.1% |      128% |  56% |    -8.3%
+A. Cierra todo en la rueda 30                 | 1254  |   558 |  +1.50% |  +0.81% |  53% | +0.12 |   30 |   +73.6% |  -21.0% |       67% |  56% |   -10.4%
+D. En la 30: si está en +1R sigue hasta la 60 | 1254  |   490 |  +1.67% |  +0.41% |  51% | +0.13 |   30 |   +53.5% |  -20.0% |       59% |  48% |    -8.6%
+   D10: siguieron después de la 10 52 de 1254 (4%); después de la 10 ganaron en promedio +1.94% (mediana +1.71%), mejoraron 63%.
+   D20: siguieron después de la 20 130 de 1254 (10%); después de la 20 ganaron en promedio +0.41% (mediana +0.76%), mejoraron 53%.
+   D30: siguieron después de la 30 184 de 1254 (15%); después de la 30 ganaron en promedio +1.17% (mediana +0.20%), mejoraron 51%.
+-- por mitades (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) --
+   A20 | 1.ª:  575  ops, acum.   +25.6%, R +0.07, c. MTM  -16.7%, mes+  48% || 2.ª:  679  ops, acum.   +20.6%, R +0.08, c. MTM  -17.9%, mes+  52%
+   D20 | 1.ª:  575  ops, acum.   +23.0%, R +0.07, c. MTM  -15.1%, mes+  52% || 2.ª:  679  ops, acum.   +19.7%, R +0.08, c. MTM  -17.6%, mes+  58%
+   E   | 1.ª:  575  ops, acum.    +1.7%, R +0.16, c. MTM  -25.8%, mes+  39% || 2.ª:  679  ops, acum.   +17.5%, R +0.19, c. MTM  -16.1%, mes+  55%
+   Orden por acumulado: 1.ª mitad A20 > D20 > E | 2.ª mitad A20 > D20 > E
+
+== GRUPO ALTA (ATR % > 4%) ==
+Versión                                       |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes
+A. Cierra todo en la rueda 20                 |  607  |   554 |  +4.90% |  +0.67% |  52% | +0.17 |   20 |  +138.2% |  -21.2% |       39% |  54% |   -12.7%
+D. En la 20: si está en +1R sigue hasta la 40 |  607  |   540 |  +5.29% |  +0.29% |  51% | +0.18 |   20 |  +126.8% |  -20.3% |       38% |  49% |    -4.0%
+E. Referencia: sin límite (máx. 60)           |  607  |   421 |  +7.20% |  +0.47% |  51% | +0.25 |   60 |  +187.9% |  -25.4% |       30% |  57% |    -8.4%
+-- probando otra rueda de decisión (10 y 30) --
+A. Cierra todo en la rueda 10                 |  607  |   579 |  +2.19% |  +0.84% |  53% | +0.06 |   10 |   +41.6% |  -12.9% |       40% |  39% |    -5.3%
+D. En la 10: si está en +1R sigue hasta la 20 |  607  |   578 |  +2.87% |  +0.80% |  52% | +0.08 |   10 |   +58.7% |  -10.5% |       41% |  44% |    -5.3%
+A. Cierra todo en la rueda 30                 |  607  |   533 |  +4.42% |  -0.53% |  49% | +0.15 |   30 |  +114.5% |  -26.1% |       37% |  49% |    -6.1%
+D. En la 30: si está en +1R sigue hasta la 60 |  607  |   503 |  +4.89% |  -0.65% |  47% | +0.18 |   30 |  +124.0% |  -24.8% |       36% |  52% |    -5.5%
+   D10: siguieron después de la 10 34 de 607 (6%); después de la 10 ganaron en promedio +12.12% (mediana +12.93%), mejoraron 74%.
+   D20: siguieron después de la 20 93 de 607 (15%); después de la 20 ganaron en promedio +2.54% (mediana +2.84%), mejoraron 55%.
+   D30: siguieron después de la 30 103 de 607 (17%); después de la 30 ganaron en promedio +2.77% (mediana +0.59%), mejoraron 52%.
+-- por mitades (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) --
+   A20 | 1.ª:  222  ops, acum.   +26.9%, R +0.10, c. MTM  -12.0%, mes+  45% || 2.ª:  385  ops, acum.   +87.6%, R +0.20, c. MTM  -21.2%, mes+  58%
+   D20 | 1.ª:  222  ops, acum.   +17.1%, R +0.06, c. MTM  -12.7%, mes+  39% || 2.ª:  385  ops, acum.   +93.7%, R +0.25, c. MTM  -20.3%, mes+  52%
+   E   | 1.ª:  222  ops, acum.   +40.0%, R +0.15, c. MTM  -24.1%, mes+  48% || 2.ª:  385  ops, acum.   +95.0%, R +0.31, c. MTM  -25.4%, mes+  61%
+   Orden por acumulado: 1.ª mitad E > A20 > D20 | 2.ª mitad E > D20 > A20
+
+== RESUMEN: MEJOR VERSIÓN (A20, D20 o E) POR ACUMULADO EN 5 AÑOS ==
+Baja (ATR % < 2%)       : E
+Media (ATR % 2% a 4%)   : A20
+Alta (ATR % > 4%)       : E
+(* = grupo o mitad con menos de 200 operaciones: poco confiable.)
