@@ -168,6 +168,10 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
 .simr .f.dest { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; } .simr .f.dest > b { font-size: 16px; }
 .simav { margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--accent-bg); color: var(--accent-d); font-size: 13px; line-height: 1.45; }
 .simav.rojo { background: var(--short-bg); color: var(--short); }
+.simq { background: var(--long-bg); border-left: 5px solid var(--long); border-radius: 12px; padding: 12px 14px 4px; margin-bottom: 12px; }
+#ficha .simq p { margin: 0 0 9px; font-size: 15px; line-height: 1.45; } .simq b { color: var(--text); }
+#ficha .simav { margin: 0 0 10px; }
+.simdet { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 4px; } .simdet > summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 10px 0; color: var(--accent-d); }
 .det tr.mot td { padding-top: 0; font-size: 12px; line-height: 1.4; color: var(--muted); white-space: normal; text-align: left; } .det tr.mot b { color: var(--text); font-weight: 600; }
 .det .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px; }
 .pill.s { font-size: 12px; padding: 4px 9px; }
@@ -1574,26 +1578,33 @@ function abrirSim(s) {
   if (r.atr == null) { $("fichaB").innerHTML = `<p>Todavía no hay datos de ATR para ${s}. Se cargan con la próxima actualización diaria.</p>`; $("ficha").hidden = false; return; }
   simR = r; const alta = r.atrp > 0.04, cap = guardado("sim_capital", 10000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   const ccl = accDatos.ccl, ced = accDatos.cedear && accDatos.cedear[s], est = estimarRatio(r);
-  const avisoR = !est ? "Verificar ratio en el broker: no hay precio del CEDEAR en pesos" + (ccl ? "." : " ni dólar CCL.") : est.lejos ? `Verificar ratio en el broker: la cuenta dio ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })}, que no se parece a ningún ratio habitual (el más cercano es ${est.estandar}).` : "";
-  $("fichaB").innerHTML = `<p class="sub">Último cierre (${ult}): ${sU(r.precio)}. Volatilidad ${volNivel(r.atrp)[0].toLowerCase()}${alta ? ", por eso el riesgo sugerido es 0,5%" : ""}.</p>
+  simAvR = !est ? "Verificar ratio en el broker: no hay precio del CEDEAR en pesos" + (ccl ? "." : " ni dólar CCL.") : est.lejos ? `Verificar ratio en el broker: la cuenta dio ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })}, que no se parece a ningún ratio habitual (el más cercano es ${est.estandar}).` : "";
+  $("fichaB").innerHTML = `<div class="simq" id="simQue"></div><div id="simAv"></div>
+    <p class="sub" style="margin:0 0 10px">Último cierre (${ult}): ${sU(r.precio)}. Volatilidad ${volNivel(r.atrp)[0].toLowerCase()}${alta ? ", por eso el riesgo sugerido es 0,5%" : ""}.</p>
     <div class="simf">
       <label>Capital (USD)<input id="simCap" type="number" min="0" step="any" inputmode="decimal" value="${cap}"></label>
       <label>Riesgo por operación (%)<input id="simRie" type="number" min="0" step="any" inputmode="decimal" value="${alta ? 0.5 : 1}"></label>
       <label>Precio de entrada (USD)<input id="simEnt" type="number" min="0" step="any" inputmode="decimal" value="${r.precio.toFixed(2)}"></label>
       <label>Multiplicador de ATR<input id="simMul" type="number" min="0" step="any" inputmode="decimal" value="2.5"></label>
-      <label>Dólar CCL (pesos)<input id="simCcl" type="number" min="0" step="any" inputmode="decimal" value="${ccl ? ccl.v : ""}" placeholder="completalo"></label>
-      <label>Ratio CEDEAR<input id="simRat" type="number" min="0" step="any" inputmode="decimal" value="${est ? est.estandar : ""}" placeholder="completalo"></label>
       <label class="ancho">Calcular con<select id="simModo"><option value="atr">Stop sugerido (ATR)</option><option value="min">Stop amplio (mínimo de 20 ruedas)</option></select></label>
     </div>
-    <p class="sub" style="margin:-4px 0 10px">${ccl ? `Dólar CCL: ${sAR(ccl.v, 2)} al ${fechaCorta(ccl.f)} (${ccl.fuente || "dolarapi.com"}).` : "No hay dólar CCL cargado todavía: se baja con la actualización diaria."} ${ced ? `CEDEAR ${s}: ${sAR(ced[0], 2)} al ${fechaCorta(ced[1])} (Yahoo).` : `No encontré precio en pesos del CEDEAR de ${s} en Yahoo.`}${est ? ` Ratio estimado: ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })} → ${est.estandar}.` : ""}</p>
-    ${avisoR ? `<p class="simav">⚠ ${avisoR}</p>` : ""}<div class="simr" id="simRes"></div>`;
+    <details class="simdet"><summary>Ver detalle del cálculo</summary>
+      <div class="simf">
+        <label>Dólar CCL (pesos)<input id="simCcl" type="number" min="0" step="any" inputmode="decimal" value="${ccl ? ccl.v : ""}" placeholder="completalo"></label>
+        <label>Ratio CEDEAR<input id="simRat" type="number" min="0" step="any" inputmode="decimal" value="${est ? est.estandar : ""}" placeholder="completalo"></label>
+      </div>
+      <p class="sub" style="margin:-4px 0 10px">${ccl ? `Dólar CCL: ${sAR(ccl.v, 2)} al ${fechaCorta(ccl.f)} (${ccl.fuente || "dolarapi.com"}).` : "No hay dólar CCL cargado todavía: se baja con la actualización diaria."} ${ced ? `CEDEAR ${s}: ${sAR(ced[0], 2)} al ${fechaCorta(ced[1])} (Yahoo).` : `No encontré precio en pesos del CEDEAR de ${s} en Yahoo.`}${est ? ` Ratio estimado: ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })} → ${est.estandar}.` : ""}</p>
+      <div class="simr" id="simRes"></div>
+    </details>`;
   $("ficha").hidden = false; calcSim();
 }
+let simAvR = "";
 function calcSim() {
-  const r = simR, el = $("simRes"); if (!r || !el) return;
+  const r = simR, el = $("simRes"), que = $("simQue"), avEl = $("simAv"); if (!r || !el) return;
   const cap = numIn($("simCap").value), rie = numIn($("simRie").value), ent = numIn($("simEnt").value), mul = numIn($("simMul").value), modo = $("simModo").value;
   const ccl = numIn($("simCcl").value), rat = numIn($("simRat").value), ced = accDatos.cedear && accDatos.cedear[r.s], pc = ced ? ced[0] : null;
-  if (!(cap > 0 && rie > 0 && ent > 0 && mul > 0)) { el.innerHTML = `<p class="sub">Completá capital, riesgo, precio de entrada y multiplicador con números mayores a cero.</p>`; return; }
+  const avR = simAvR ? `<p class="simav">⚠ ${simAvR}</p>` : "";
+  if (!(cap > 0 && rie > 0 && ent > 0 && mul > 0)) { que.innerHTML = `<p>Completá capital, riesgo, precio de entrada y multiplicador con números mayores a cero.</p>`; avEl.innerHTML = avR; el.innerHTML = ""; return; }
   guardar("sim_capital", cap);
   const atr = r.atr, atrp = r.atrp, stopA = ent * (1 - mul * atrp), stopM = r.low20, dist = st => (ent - st) / ent;
   const okA = stopA > 0 && stopA < ent, okM = stopM > 0 && stopM < ent, stop = modo === "atr" ? stopA : stopM, ok = modo === "atr" ? okA : okM;
@@ -1601,28 +1612,38 @@ function calcSim() {
   let h = fila("ATR % (promedio de 14 ruedas)", `${sP(atrp)} <span class="volt ${volNivel(atrp)[1]}">${volNivel(atrp)[0]}</span>`) + fila("ATR en dólares (referencia)", sU(atr))
     + fila(`Stop sugerido (entrada × (1 − ${fmt(mul)} × ATR %))`, okA ? `${sU(stopA)} · −${sP(dist(stopA))}` : "no aplica", modo === "atr")
     + fila("Stop amplio (mínimo de 20 ruedas)", okM ? `${sU(stopM)} · −${sP(dist(stopM))}` : "queda sobre la entrada", modo === "min");
-  if (!ok) { el.innerHTML = h + `<p class="simav rojo">${modo === "atr" ? "Con ese multiplicador el stop queda en cero o negativo: probá con un multiplicador más chico." : "El mínimo de las últimas 20 ruedas está por encima del precio de entrada: no sirve como stop. Elegí el stop por ATR."}</p>`; return; }
+  if (!ok) {
+    que.innerHTML = `<p>${modo === "atr" ? "Con ese multiplicador el stop queda en cero o negativo: probá con un multiplicador más chico." : "El mínimo de las últimas 20 ruedas está por encima del precio de entrada: no sirve como stop. Elegí el stop por ATR."}</p>`;
+    avEl.innerHTML = avR; el.innerHTML = h; return;
+  }
   const rpa = ent - stop, riesgoUsd = cap * rie / 100, eq = riesgoUsd / rpa, obj = ent + 2 * rpa, av = [];
-  h += fila("Riesgo por acción (entrada − stop)", sU(rpa)) + fila("Riesgo a asumir", sU(riesgoUsd))
-    + fila("Acciones equivalentes", eq.toLocaleString("es-AR", { maximumFractionDigits: 3 }));
-  // CEDEAR: precio en pesos, CCL implícito y comparación con el CCL general
+  h += fila("Riesgo por acción (entrada − stop)", sU(rpa)) + fila("Riesgo a asumir", sU(riesgoUsd)) + fila("Acciones equivalentes", eq.toLocaleString("es-AR", { maximumFractionDigits: 3 }));
   if (pc && rat > 0) { const imp = pc * rat / r.precio; h += fila("CCL implícito del CEDEAR (precio × ratio / acción)", `${sAR(imp, 2)}${ccl > 0 ? ` · ${pctT(imp / ccl - 1)} vs CCL` : ""}`); }
+  let l1, l3, l4;
   if (rat > 0) {
-    const nC = Math.floor(eq * rat), montoAR = pc ? nC * pc : (ccl > 0 ? nC * ent * ccl / rat : null), montoUsd = pc ? (ccl > 0 ? montoAR / ccl : null) : nC / rat * ent, perd = nC / rat * rpa;
-    h += fila("Cantidad de CEDEARs", `<span style="font-size:16px">${nC.toLocaleString("es-AR")}</span>`)
-      + fila("Monto a invertir en pesos", montoAR != null ? sAR(montoAR) : "completá el dólar CCL")
+    const nC = Math.floor(eq * rat), montoAR = pc ? nC * pc : (ccl > 0 ? nC * ent * ccl / rat : null), montoUsd = pc ? (ccl > 0 ? montoAR / ccl : null) : nC / rat * ent, perd = nC / rat * rpa, mitad = Math.floor(nC / 2);
+    h += fila("Cantidad de CEDEARs", nC.toLocaleString("es-AR")) + fila("Monto a invertir en pesos", montoAR != null ? sAR(montoAR) : "completá el dólar CCL")
       + fila("Monto a invertir en USD", montoUsd != null ? `${sU(montoUsd)} · ${sP(montoUsd / cap)} del capital` : "completá el dólar CCL")
       + fila("Pérdida máxima real si toca el stop", `<span class="neg">−${sU(perd)}</span> · ${sP(perd / cap)} del capital`)
       + fila("Stop equivalente por CEDEAR (referencia)", ccl > 0 ? sAR(stop * ccl / rat, 2) : "completá el dólar CCL");
+    l1 = `<b>Comprar:</b> ${nC.toLocaleString("es-AR")} CEDEARs (≈ ${montoAR != null ? sAR(montoAR) : "completá el dólar CCL en el detalle"}).`;
+    l3 = `<b>Vender la mitad:</b> cuando la acción llegue a ${sU(obj)} ${mitad >= 1 ? `(vender ${mitad.toLocaleString("es-AR")} CEDEARs)` : "(con tan pocos CEDEARs no se puede dividir)"} y mover la alerta al precio de entrada (${sU(ent)}).`;
+    l4 = `<b>Pérdida máxima:</b> ${sU(perd)} (${sP(perd / cap)} del capital).`;
     if (nC < 1) av.push("Con ese capital y ese riesgo no alcanza para comprar ni un CEDEAR.");
     if (montoUsd != null) {
       if (montoUsd > cap) av.push(`El monto a invertir supera tu capital (${sP(montoUsd / cap)}): no te alcanza para comprar esa cantidad.`);
       else if (montoUsd > 0.25 * cap) av.push(`El monto a invertir es el ${sP(montoUsd / cap)} del capital, más del 25%: queda muy concentrado en una sola acción.`);
     }
-  } else h += `<p class="simav">Completá el ratio del CEDEAR (verificalo en tu broker) para calcular cantidad, montos y pérdida máxima.</p>`;
-  h += `<div class="f dest"><span>Objetivo para vender la mitad (entrada + 2 × riesgo)</span><b class="pos">${sU(obj)} · +${sP((obj - ent) / ent)}</b></div>`;
+  } else {
+    l1 = `<b>Comprar:</b> completá el ratio del CEDEAR (en «Ver detalle del cálculo»; verificalo en tu broker).`;
+    l3 = `<b>Vender la mitad:</b> cuando la acción llegue a ${sU(obj)} y mover la alerta al precio de entrada (${sU(ent)}).`;
+    l4 = `<b>Pérdida máxima:</b> ${sU(riesgoUsd)} (${sP(riesgoUsd / cap)} del capital) como máximo; el valor real depende de la cantidad de CEDEARs.`;
+  }
+  h += fila("Objetivo para vender la mitad (entrada + 2 × riesgo)", `<span class="pos">${sU(obj)} · +${sP((obj - ent) / ent)}</span>`);
   if (dist(stop) > 0.15) av.push(`El stop queda a ${sP(dist(stop))} de la entrada, más del 15%: es un stop muy lejano.`);
-  el.innerHTML = h + av.map(t => `<p class="simav">⚠ ${t}</p>`).join("") + `<p class="sub" style="margin:10px 0 0">El stop se controla sobre la acción en USD; el CEDEAR también se mueve con el dólar. Es una cuenta de referencia: no incluye comisiones ni saltos de precio (si abre muy por debajo del stop, la pérdida real puede ser mayor).</p>`;
+  que.innerHTML = `<p>${l1}</p><p><b>Stop:</b> poner una alerta cuando la acción llegue a ${sU(stop)}; si salta, vender todo.</p><p>${l3}</p><p>${l4}</p>`;
+  avEl.innerHTML = avR + av.map(t => `<p class="simav">⚠ ${t}</p>`).join("");
+  el.innerHTML = h + `<p class="sub" style="margin:10px 0 0">El stop se controla sobre la acción en USD; el CEDEAR también se mueve con el dólar. Es una cuenta de referencia: no incluye comisiones ni saltos de precio (si abre muy por debajo del stop, la pérdida real puede ser mayor).</p>`;
 }
 document.addEventListener("input", e => { if (e.target.closest && e.target.closest(".simf")) calcSim(); });
 document.addEventListener("change", e => { if (e.target.id === "simModo") calcSim(); });
