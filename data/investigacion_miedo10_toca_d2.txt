@@ -1,0 +1,13 @@
+CRUCE 50/200 CON Y SIN 'COMPRAR EL MIEDO' (VIX TOCA más de 30 durante el día, aunque cierre abajo). Datos hasta 2026-11-26. Demora de la compra: 2 día(s) tras la señal (1 = mismo cierre, 2 = cierre siguiente).
+
+Activo   Desde    Anual solo Anual+miedo  Caída solo Caída+miedo  Mantener Comp. solo Comp.+miedo
+AAPL     2000         +20,6%      +24,7%      -57,9%      -72,8%    +25,7%        73%         79%
+NVDA     2000         +25,7%      +34,1%      -71,0%      -79,5%    +32,0%        70%         77%
+TSLA     2010         +23,0%      +22,1%      -60,6%      -64,3%    +39,7%        58%         60%
+AMZN     2000         +13,9%      +22,1%      -63,1%      -68,9%    +16,4%        66%         71%
+JPM      2000          +6,1%       +7,0%      -50,5%      -67,7%    +10,4%        65%         74%
+KO       2000          +3,0%       +3,0%      -37,0%      -41,9%     +7,7%        68%         75%
+XOM      2000          +4,9%       +4,1%      -47,1%      -64,6%     +8,8%        61%         70%
+MELI     2007         +11,3%      +19,2%      -55,9%      -81,8%    +22,2%        65%         73%
+SPY      2000          +7,7%       +9,6%      -33,7%      -46,0%     +8,1%        71%         80%
+BTC-USD  2014         +46,6%      +51,5%      -66,3%      -66,8%    +50,2%        58%         63%
