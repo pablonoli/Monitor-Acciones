@@ -1,0 +1,30 @@
+name: Investigación círculos verdes, otro tope u otro umbral a las 20 ruedas
+on:
+  workflow_dispatch:
+  push:
+    branches: [investigacion-20-variantes]
+    paths:
+      - "scripts/investigacion_circulos_20_var.py"
+      - ".github/workflows/investigacion_circulos_20_var.yml"
+permissions:
+  contents: write
+concurrency:
+  group: investigacion-20-variantes
+  cancel-in-progress: false
+jobs:
+  investigar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install yfinance pandas numpy
+      - run: python scripts/investigacion_circulos_20_var.py 5
+      - name: Guardar resultado (solo en esta rama, nunca en main)
+        run: |
+          git config user.name "datos-bot"
+          git config user.email "datos-bot@users.noreply.github.com"
+          git add data/investigacion_circulos_20_var.txt
+          git commit -m "Investigación círculos: otro tope u otro umbral a las 20 ruedas $(date -u +%F)" || echo "sin cambios"
+          git push origin HEAD:${GITHUB_REF_NAME}
