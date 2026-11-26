@@ -1,0 +1,29 @@
+PLANES DE SALIDA MÁS CORTOS PARA LOS CÍRCULOS VERDES, últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR. Entrada: apertura siguiente. Stop inicial: mínimo de 20 ruedas. Costo 0.15% por lado.
+Capital: 1% de riesgo por operación, sin apalancamiento (exposición máx. 100%), se actualiza al cerrar. 'Efectivo/mes' = capital que vuelve a efectivo por mes (puede pasar de 100% porque se reinvierte). 'Meses sin ganancia' = racha máxima de meses seguidos con ganancia realizada ≤ 0.
+SPY comprar y mantener: acumulado +67.0%, caída máx. -24.5%.
+
+== SIN FILTRO ==
+Plan                                              |  ops |   prom. |    med. | gan. | R med |    acum. |   caída |  c. MTM | rued. |  ≤10 | efec./mes | gan./mes | med./mes | peor mes | mes+ | sin gan.
+Actual: mitad a +2R, stop a la entrada, máx. 60   |  429 |  +3.42% |  +0.51% |   51% | +0.19 |   +26.5% |  -24.7% |  -27.9% |    60 |   7% |       45% |   +0.47% |   +0.51% |    -9.2% |  54% |        5
+Igual, máx. 40 ruedas                             |  560 |  +2.07% |  -0.05% |   50% | +0.11 |   +41.4% |  -24.8% |  -28.4% |    40 |   6% |       60% |   +0.68% |   +0.04% |    -9.8% |  51% |        4
+Igual, máx. 20 ruedas                             |  940 |  +1.92% |  +0.66% |   53% | +0.10 |   +97.0% |  -18.1% |  -21.1% |    20 |   6% |      105% |   +1.21% |   +0.75% |    -6.4% |  57% |        4
+Igual, máx. 10 ruedas                             | 1401 |  +0.77% |  +0.19% |   51% | +0.03 |   +33.9% |  -19.9% |  -21.8% |    10 | 100% |      176% |   +0.56% |   +0.78% |    -7.9% |  52% |        4
+Stop que sube (mín. de 10 ruedas), máx. 60        | 1517 |  +0.51% |  -1.25% |   17% | +0.02 |   +48.0% |  -18.2% |  -22.0% |     3 |  77% |      196% |   +0.76% |   -0.50% |    -5.7% |  44% |        6
+Stop que sube (mín. de 5 ruedas), máx. 60         | 1822 |  +0.32% |  -1.15% |   22% | +0.01 |   +18.7% |  -18.2% |  -20.6% |     3 |  85% |      236% |   +0.33% |   -0.03% |    -6.5% |  49% |        6
+Todo a +1R (o stop), máx. 20                      | 1007 |  +1.36% |  +0.83% |   54% | +0.07 |   +53.8% |  -18.3% |  -20.5% |    20 |  14% |      115% |   +0.79% |   +0.87% |    -6.6% |  56% |        4
+Todo a +2R (o stop), máx. 20                      |  950 |  +1.85% |  +0.66% |   53% | +0.09 |   +89.0% |  -21.0% |  -23.4% |    20 |   7% |      107% |   +1.15% |   +1.43% |    -7.5% |  59% |        4
+Todo a +2R (o stop), máx. 40                      |  598 |  +2.02% |  -0.05% |   50% | +0.11 |   +39.6% |  -25.8% |  -29.1% |    40 |   7% |       65% |   +0.67% |   +0.59% |   -11.8% |  56% |        3
+
+== SPY>SMA200 + SMA50>SMA200 ==
+Plan                                              |  ops |   prom. |    med. | gan. | R med |    acum. |   caída |  c. MTM | rued. |  ≤10 | efec./mes | gan./mes | med./mes | peor mes | mes+ | sin gan.
+Actual: mitad a +2R, stop a la entrada, máx. 60   |  355 |  +3.77% |  +0.74% |   52% | +0.23 |   +74.2% |  -17.5% |  -23.7% |    60 |   6% |       37% |   +0.99% |   +0.00% |    -7.4% |  48% |       12
+Igual, máx. 40 ruedas                             |  430 |  +2.59% |  +0.23% |   51% | +0.15 |   +45.9% |  -19.0% |  -25.0% |    40 |   5% |       48% |   +0.70% |   +0.00% |    -7.0% |  48% |       10
+Igual, máx. 20 ruedas                             |  691 |  +2.34% |  +0.86% |   54% | +0.12 |   +85.3% |  -25.5% |  -28.3% |    20 |   5% |       84% |   +1.09% |   +0.00% |    -5.6% |  46% |       13
+Igual, máx. 10 ruedas                             | 1056 |  +0.77% |  +0.09% |   51% | +0.03 |    +6.7% |  -21.4% |  -22.5% |    10 | 100% |      136% |   +0.17% |   +0.00% |    -9.4% |  38% |       12
+Stop que sube (mín. de 10 ruedas), máx. 60        | 1121 |  +0.77% |  -1.28% |   18% | +0.03 |   +51.1% |  -13.7% |  -18.9% |     3 |  76% |      150% |   +0.77% |   +0.00% |    -5.5% |  39% |       14
+Stop que sube (mín. de 5 ruedas), máx. 60         | 1314 |  +0.51% |  -1.20% |   22% | +0.01 |   +16.9% |  -16.0% |  -19.8% |     3 |  84% |      176% |   +0.30% |   -0.04% |    -5.6% |  36% |       16
+Todo a +1R (o stop), máx. 20                      |  769 |  +1.73% |  +1.18% |   55% | +0.08 |   +65.8% |  -22.3% |  -25.1% |    20 |  15% |       92% |   +0.90% |   +0.00% |    -6.1% |  44% |       15
+Todo a +2R (o stop), máx. 20                      |  700 |  +2.23% |  +0.86% |   54% | +0.11 |   +74.1% |  -27.9% |  -30.4% |    20 |   6% |       85% |   +1.00% |   +0.00% |    -7.8% |  49% |       15
+Todo a +2R (o stop), máx. 40                      |  475 |  +2.47% |  +0.23% |   51% | +0.14 |   +28.9% |  -26.5% |  -29.5% |    40 |   7% |       53% |   +0.50% |   +0.00% |   -10.1% |  43% |       12
+
+rued. = mediana de ruedas hasta cerrar; ≤10 = % de operaciones cerradas en 10 ruedas o menos; caída = solo operaciones cerradas; c. MTM = valuando las abiertas a mercado.
