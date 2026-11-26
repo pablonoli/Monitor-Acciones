@@ -1,7 +1,7 @@
 """Baja de Yahoo Finance las velas diarias (apertura y cierre, ajustadas por splits) de SPY y de las acciones de data/tendencia_tickers.json
 y las guarda en data/tendencia_acciones.json para el dashboard de tendencia (tendencia/index.html).
 
-Además guarda "atr": {símbolo: [ATR de 14 ruedas en USD, mínimo de los últimos 20 mínimos diarios]} para la columna ATR % y el simulador de posición.
+Además guarda "atr": {símbolo: [ATR de 14 ruedas en USD, mínimo de los últimos 20 mínimos diarios, ATR % (promedio de rango verdadero / cierre del mismo día, 14 ruedas)]} para la columna ATR % y el simulador de posición.
 
 Formato compacto: por cada símbolo, un texto con una vela por tramo separado por coma: "día.apertura.cierre", todo en base 36.
  - día: el primero es el día absoluto (días desde 1970); los demás, la diferencia con la vela anterior.
@@ -47,14 +47,16 @@ def codificar(df):
 
 
 def volatilidad(df):
-    """ATR de 14 ruedas (promedio de Wilder del rango verdadero) y mínimo de los últimos 20 mínimos diarios. Devuelve [atr, minimo20] en dólares o None."""
+    """Devuelve [ATR de 14 ruedas en USD (promedio de Wilder), mínimo de los últimos 20 mínimos diarios, ATR %] o None.
+    ATR %: para cada una de las últimas 14 ruedas, rango verdadero / cierre de ESA misma rueda, y se promedian esos porcentajes (como fracción, 0.03 = 3%)."""
     x = df[["High", "Low", "Close"]].dropna()
     if len(x) < 40:
         return None
     cierre_ant = x["Close"].shift(1)
-    tr = pd.concat([x["High"] - x["Low"], (x["High"] - cierre_ant).abs(), (x["Low"] - cierre_ant).abs()], axis=1).max(axis=1)
-    atr = tr.iloc[1:].ewm(alpha=1 / 14, adjust=False).mean().iloc[-1]
-    return [round(float(atr), 3), round(float(x["Low"].iloc[-20:].min()), 2)]
+    tr = pd.concat([x["High"] - x["Low"], (x["High"] - cierre_ant).abs(), (x["Low"] - cierre_ant).abs()], axis=1).max(axis=1).iloc[1:]
+    atr = tr.ewm(alpha=1 / 14, adjust=False).mean().iloc[-1]
+    atrp = (tr / x["Close"].iloc[1:]).iloc[-14:].mean()
+    return [round(float(atr), 3), round(float(x["Low"].iloc[-20:].min()), 2), round(float(atrp), 5)]
 
 
 def limpiar(s, x):
