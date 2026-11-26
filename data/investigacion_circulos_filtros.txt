@@ -13,6 +13,9 @@ SPY>SMA200 + SMA50>SMA200                   |  1675 |  +3.77% |  +0.74% |   52% 
 SPY>SMA200 + ATR%<4%                        |  1600 |  +2.48% |  +0.70% |   52% | +0.20 |   20 |   287 |    +30.1% |  -10.3% |   -16.7%
 SMA50>SMA200 + ATR%<4%                      |  1357 |  +2.65% |  +0.86% |   53% | +0.21 |   20 |   341 |    +41.1% |  -18.5% |   -24.1%
 SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  1242 |  +2.84% |  +0.87% |   53% | +0.22 |   20 |   275 |    +60.0% |  -13.3% |   -19.5%
+-- entrada el día después del cruce de la SMA 50 sobre la SMA 200 (sin círculo verde), mismo plan --
+CRUCE DORADO (sin círculo verde)            |   442 |  +2.08% |  -1.51% |   45% | +0.16 |   20 |   275 |     -0.2% |  -22.6% |   -23.1%
+CRUCE DORADO + SPY>SMA200                   |   341 |  +2.85% |  -1.43% |   47% | +0.24 |   14 |   223 |     +3.3% |  -17.1% |   -15.9%
 SPY comprar y mantener (retorno total)      |     — |       — |       — |    — |     — |    — |     — |    +67.0% |  -24.5% |   -24.5%
 
 == LÍNEA DE BASE: cualquier acción, cualquier día, mismo plan y mismo filtro (sin círculo verde) ==
@@ -35,6 +38,8 @@ SPY>SMA200 + SMA50>SMA200                   |  +2.01 pp  (señal +3.77% vs base 
 SPY>SMA200 + ATR%<4%                        |  +1.33 pp  (señal +2.48% vs base +1.16%)
 SMA50>SMA200 + ATR%<4%                      |  +1.45 pp  (señal +2.65% vs base +1.20%)
 SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  +1.37 pp  (señal +2.84% vs base +1.47%)
+CRUCE DORADO (sin círculo verde)            |  +0.35 pp  (cruce +2.08% vs base SMA50>SMA200 +1.73%)
+CRUCE DORADO + SPY>SMA200                   |  +1.10 pp  (cruce +2.85% vs base SPY>SMA200 + SMA50>SMA200 +1.76%)
 
 == POR AÑO DE LA SEÑAL: cantidad de operaciones y promedio por operación (señal | base con el mismo filtro) ==
 -- Sin filtro
@@ -93,6 +98,20 @@ SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  +1.37 pp  (señal +2.84% vs base 
    2024            señal  397 ops   +3.17%, gan.  54%, R +0.25 | base  18366 ops   +2.02%
    2025            señal  249 ops   +6.52%, gan.  60%, R +0.48 | base  13098 ops   +2.74%
    2026 (parcial)  señal  275 ops   +0.99%, gan.  51%, R +0.08 | base  10663 ops   -0.63%
+-- CRUCE DORADO (sin círculo verde)
+   2021 (parcial)  cruce    7 ops   -1.39%, gan.  43%, R +0.41
+   2022            cruce   72 ops   -3.72%, gan.  32%, R -0.30
+   2023            cruce  121 ops   +2.77%, gan.  48%, R +0.25
+   2024            cruce   74 ops   +1.44%, gan.  46%, R +0.34
+   2025            cruce   99 ops   +7.12%, gan.  53%, R +0.31
+   2026 (parcial)  cruce   69 ops   +0.76%, gan.  42%, R +0.02
+-- CRUCE DORADO + SPY>SMA200
+   2021 (parcial)  cruce    7 ops   -1.39%, gan.  43%, R +0.41
+   2022            cruce    7 ops  -11.79%, gan.   0%, R -0.93
+   2023            cruce  101 ops   +2.80%, gan.  48%, R +0.28
+   2024            cruce   74 ops   +1.44%, gan.  46%, R +0.34
+   2025            cruce   88 ops   +8.24%, gan.  56%, R +0.40
+   2026 (parcial)  cruce   64 ops   -0.77%, gan.  41%, R -0.07
 
 == RETORNO DEL CAPITAL POR AÑO (1% de riesgo por operación, sin apalancamiento, por año de cierre de las operaciones; SPY: retorno total del año calendario) ==
 Versión                                           2021      2022      2023      2024      2025      2026
@@ -104,6 +123,8 @@ SPY>SMA200 + SMA50>SMA200                            —     -8.8%     -0.8%    
 SPY>SMA200 + ATR%<4%                                 —     -4.7%     +0.8%    +19.7%     +6.2%     +6.5%
 SMA50>SMA200 + ATR%<4%                               —     -5.3%     -7.4%    +21.2%    +16.6%    +13.9%
 SPY>SMA200 + SMA50>SMA200 + ATR%<4%                  —     -3.4%     +0.3%    +18.9%    +25.9%    +10.3%
+CRUCE DORADO (sin círculo verde)                 -1.6%    -15.2%    +14.5%     -0.2%     +3.4%     +1.2%
+CRUCE DORADO + SPY>SMA200                        -1.6%     +0.8%     +6.2%     -0.1%     +3.1%     -4.8%
 SPY comprar y mantener                           +3.8%    -18.2%    +26.2%    +24.9%    +17.7%     +5.9%
 
 == OPERACIONES ABIERTAS A LA VEZ y EXPOSICIÓN (días de rueda de la ventana: 1255) ==
@@ -116,3 +137,5 @@ SPY>SMA200 + SMA50>SMA200                   |           13.1 |           14.4 | 
 SPY>SMA200 + ATR%<4%                        |           10.5 |           11.6 |   17 |              83% |            100% |        2023-03-28
 SMA50>SMA200 + ATR%<4%                      |           12.5 |           12.5 |   18 |              93% |            100% |        2023-10-26
 SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |           10.2 |           11.1 |   16 |              79% |            100% |        2023-03-28
+CRUCE DORADO (sin círculo verde)            |            7.7 |            7.8 |   16 |              73% |            100% |        2022-12-28
+CRUCE DORADO + SPY>SMA200                   |            6.6 |            7.5 |   16 |              61% |            100% |        2025-04-08
