@@ -165,7 +165,7 @@ def main(anios=5):
     L.append(f"{'Versión':<44}| {'abiertas prom.':>14} | {'prom. con pos.':>14} | {'máx.':>4} | {'exposición prom.':>16} | {'exposición máx.':>15} | {'peor caída MTM el':>17}")
     for m in mascaras:
         mm = mercado(res[m], dias)
-        L.append(f"{nom(m):<44}| {mm[1]:>14.1f} | {mm[2]:>14.1f} | {mm[3]:>4} | {100 * mm[4]:>15.0f}% | {100 * mm[5]:>14.0f}% | {mm[6].date() if mm[6] is not None else '—':>17}")
+        L.append(f"{nom(m):<44}| {mm[1]:>14.1f} | {mm[2]:>14.1f} | {mm[3]:>4} | {100 * mm[4]:>15.0f}% | {100 * mm[5]:>14.0f}% | {str(mm[6].date()) if mm[6] is not None else '—':>17}")
     txt = "\n".join(L); open("data/investigacion_circulos_filtros.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
 
 
