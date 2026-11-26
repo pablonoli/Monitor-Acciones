@@ -1,0 +1,104 @@
+CÍRCULOS VERDES EN CEDEARs CON FILTROS, últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR. Plan con stop amplio (mín. 20 ruedas), mitad a +2R, stop a la entrada, máx. 60 ruedas. Costo 0.15% por lado.
+Límites: la lista de acciones es la de hoy (hay sesgo hacia las que sobrevivieron y subieron); las operaciones se ordenan por fecha de entrada y se suponen independientes (en la realidad se superponen).
+R = resultado neto / distancia al stop. Capital: cada operación arriesga 1% del capital actual (resultado = 1% × R), compuesto en orden de entrada.
+
+== SEÑALES VERDES CON CADA FILTRO ==
+Versión                                     |   ops |   prom. | mediana | gan. | R med | racha | acumulado | caída máx
+Sin filtro                                  |  2396 |  +3.42% |  +0.51% |   51% | +0.19 |   28 | +8284.7% |  -53.7%
+SPY>SMA200                                  |  2145 |  +3.52% |  +0.53% |   51% | +0.21 |   28 | +6822.4% |  -53.6%
+SMA50>SMA200                                |  1826 |  +3.88% |  +0.86% |   52% | +0.23 |   27 | +5385.8% |  -42.2%
+ATR%<4%                                     |  1789 |  +2.14% |  +0.53% |   51% | +0.17 |   20 | +1813.0% |  -44.5%
+SPY>SMA200 + SMA50>SMA200                   |  1675 |  +3.77% |  +0.74% |   52% | +0.23 |   27 | +3759.3% |  -42.2%
+SPY>SMA200 + ATR%<4%                        |  1600 |  +2.48% |  +0.70% |   52% | +0.20 |   20 | +1994.9% |  -42.5%
+SMA50>SMA200 + ATR%<4%                      |  1357 |  +2.65% |  +0.86% |   53% | +0.21 |   20 | +1421.4% |  -36.6%
+SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  1242 |  +2.84% |  +0.87% |   53% | +0.22 |   20 | +1322.8% |  -36.6%
+
+== LÍNEA DE BASE: cualquier acción, cualquier día, mismo plan y mismo filtro (sin círculo verde) ==
+Versión                                     |   ops |   prom. | mediana | gan. | R med 
+Sin filtro                                  | 144175 |  +1.36% |  -1.90% |   41% | +0.04
+SPY>SMA200                                  | 110840 |  +1.48% |  -1.79% |   41% | +0.07
+SMA50>SMA200                                | 86555 |  +1.73% |  -1.79% |   41% | +0.08
+ATR%<4%                                     | 110833 |  +0.79% |  -1.69% |   41% | +0.01
+SPY>SMA200 + SMA50>SMA200                   | 74266 |  +1.76% |  -1.74% |   42% | +0.09
+SPY>SMA200 + ATR%<4%                        | 89108 |  +1.16% |  -1.53% |   42% | +0.06
+SMA50>SMA200 + ATR%<4%                      | 68295 |  +1.20% |  -1.56% |   42% | +0.06
+SPY>SMA200 + SMA50>SMA200 + ATR%<4%         | 59255 |  +1.47% |  -1.44% |   43% | +0.09
+
+== VENTAJA = promedio de la señal − promedio de la base con el mismo filtro (puntos porcentuales) ==
+Sin filtro                                  |  +2.07 pp  (señal +3.42% vs base +1.36%)
+SPY>SMA200                                  |  +2.04 pp  (señal +3.52% vs base +1.48%)
+SMA50>SMA200                                |  +2.14 pp  (señal +3.88% vs base +1.73%)
+ATR%<4%                                     |  +1.35 pp  (señal +2.14% vs base +0.79%)
+SPY>SMA200 + SMA50>SMA200                   |  +2.01 pp  (señal +3.77% vs base +1.76%)
+SPY>SMA200 + ATR%<4%                        |  +1.33 pp  (señal +2.48% vs base +1.16%)
+SMA50>SMA200 + ATR%<4%                      |  +1.45 pp  (señal +2.65% vs base +1.20%)
+SPY>SMA200 + SMA50>SMA200 + ATR%<4%         |  +1.37 pp  (señal +2.84% vs base +1.47%)
+
+== POR AÑO DE LA SEÑAL: cantidad de operaciones y promedio por operación (señal | base con el mismo filtro) ==
+-- Sin filtro
+   2021 (parcial)  señal   35 ops   -7.54%, gan.  20%, R -0.41 | base   2780 ops   -2.12%
+   2022            señal  248 ops   -2.23%, gan.  42%, R -0.16 | base  27794 ops   -2.18%
+   2023            señal  490 ops   +3.15%, gan.  54%, R +0.23 | base  28589 ops   +2.69%
+   2024            señal  602 ops   +4.10%, gan.  53%, R +0.26 | base  29099 ops   +2.58%
+   2025            señal  479 ops   +7.18%, gan.  57%, R +0.39 | base  29372 ops   +3.58%
+   2026 (parcial)  señal  542 ops   +2.89%, gan.  48%, R +0.11 | base  26541 ops   +0.19%
+-- SPY>SMA200
+   2021 (parcial)  señal   35 ops   -7.54%, gan.  20%, R -0.41 | base   2780 ops   -2.12%
+   2022            señal   75 ops   -5.26%, gan.  31%, R -0.28 | base   4256 ops   -5.88%
+   2023            señal  455 ops   +2.95%, gan.  53%, R +0.21 | base  25668 ops   +2.30%
+   2024            señal  602 ops   +4.10%, gan.  53%, R +0.26 | base  29099 ops   +2.58%
+   2025            señal  446 ops   +7.47%, gan.  57%, R +0.41 | base  24581 ops   +2.86%
+   2026 (parcial)  señal  532 ops   +2.01%, gan.  48%, R +0.08 | base  24456 ops   -0.38%
+-- SMA50>SMA200
+   2021 (parcial)  señal   30 ops   -6.64%, gan.  23%, R -0.30 | base   1836 ops   -2.68%
+   2022            señal  141 ops   -1.44%, gan.  43%, R -0.10 | base   8979 ops   -2.58%
+   2023            señal  359 ops   +2.89%, gan.  52%, R +0.22 | base  18035 ops   +2.70%
+   2024            señal  512 ops   +4.47%, gan.  54%, R +0.27 | base  22265 ops   +2.95%
+   2025            señal  362 ops   +6.57%, gan.  58%, R +0.40 | base  18988 ops   +3.23%
+   2026 (parcial)  señal  422 ops   +4.21%, gan.  50%, R +0.18 | base  16452 ops   +0.16%
+-- ATR%<4%
+   2021 (parcial)  señal   30 ops   -5.50%, gan.  23%, R -0.30 | base   2083 ops   -1.07%
+   2022            señal  204 ops   -1.99%, gan.  42%, R -0.15 | base  18465 ops   -2.27%
+   2023            señal  369 ops   +2.78%, gan.  52%, R +0.22 | base  24503 ops   +2.03%
+   2024            señal  473 ops   +2.80%, gan.  53%, R +0.24 | base  24504 ops   +1.67%
+   2025            señal  355 ops   +5.57%, gan.  58%, R +0.40 | base  22777 ops   +2.07%
+   2026 (parcial)  señal  358 ops   +0.22%, gan.  49%, R +0.03 | base  18501 ops   -0.34%
+-- SPY>SMA200 + SMA50>SMA200
+   2021 (parcial)  señal   30 ops   -6.64%, gan.  23%, R -0.30 | base   1836 ops   -2.68%
+   2022            señal   49 ops   -6.00%, gan.  29%, R -0.28 | base   2146 ops   -5.23%
+   2023            señal  335 ops   +2.36%, gan.  51%, R +0.18 | base  16452 ops   +2.47%
+   2024            señal  512 ops   +4.47%, gan.  54%, R +0.27 | base  22265 ops   +2.95%
+   2025            señal  335 ops   +6.72%, gan.  58%, R +0.42 | base  16378 ops   +3.01%
+   2026 (parcial)  señal  414 ops   +3.58%, gan.  50%, R +0.15 | base  15189 ops   -0.58%
+-- SPY>SMA200 + ATR%<4%
+   2021 (parcial)  señal   30 ops   -5.50%, gan.  23%, R -0.30 | base   2083 ops   -1.07%
+   2022            señal   63 ops   -3.10%, gan.  33%, R -0.21 | base   3049 ops   -4.04%
+   2023            señal  344 ops   +2.69%, gan.  51%, R +0.20 | base  22161 ops   +1.82%
+   2024            señal  473 ops   +2.80%, gan.  53%, R +0.24 | base  24504 ops   +1.67%
+   2025            señal  336 ops   +5.87%, gan.  58%, R +0.42 | base  20228 ops   +2.24%
+   2026 (parcial)  señal  354 ops   +0.31%, gan.  50%, R +0.04 | base  17083 ops   -0.53%
+-- SMA50>SMA200 + ATR%<4%
+   2021 (parcial)  señal   25 ops   -4.01%, gan.  28%, R -0.16 | base   1366 ops   -1.82%
+   2022            señal  117 ops   -1.35%, gan.  44%, R -0.09 | base   7106 ops   -2.61%
+   2023            señal  275 ops   +2.63%, gan.  51%, R +0.21 | base  15434 ops   +2.28%
+   2024            señal  397 ops   +3.17%, gan.  54%, R +0.25 | base  18366 ops   +2.02%
+   2025            señal  264 ops   +6.19%, gan.  60%, R +0.45 | base  14497 ops   +2.43%
+   2026 (parcial)  señal  279 ops   +0.86%, gan.  51%, R +0.07 | base  11526 ops   -0.40%
+-- SPY>SMA200 + SMA50>SMA200 + ATR%<4%
+   2021 (parcial)  señal   25 ops   -4.01%, gan.  28%, R -0.16 | base   1366 ops   -1.82%
+   2022            señal   40 ops   -3.25%, gan.  32%, R -0.21 | base   1676 ops   -4.26%
+   2023            señal  256 ops   +2.35%, gan.  50%, R +0.18 | base  14086 ops   +2.15%
+   2024            señal  397 ops   +3.17%, gan.  54%, R +0.25 | base  18366 ops   +2.02%
+   2025            señal  249 ops   +6.52%, gan.  60%, R +0.48 | base  13098 ops   +2.74%
+   2026 (parcial)  señal  275 ops   +0.99%, gan.  51%, R +0.08 | base  10663 ops   -0.63%
+
+== ACUMULADO POR AÑO (1% de riesgo por operación) ==
+Versión                                           2021      2022      2023      2024      2025      2026
+Sin filtro                                      -13.5%    -33.4%   +191.2%   +354.6%   +513.8%    +79.1%
+SPY>SMA200                                      -13.5%    -19.1%   +146.5%   +354.6%   +496.3%    +48.1%
+SMA50>SMA200                                     -8.9%    -14.0%   +117.4%   +289.8%   +307.5%   +102.7%
+ATR%<4%                                          -8.9%    -26.6%   +120.5%   +197.1%   +296.9%    +10.1%
+SPY>SMA200 + SMA50>SMA200                        -8.9%    -13.3%    +79.1%   +289.8%   +291.2%    +78.8%
+SPY>SMA200 + ATR%<4%                             -8.9%    -12.8%    +95.3%   +197.1%   +299.7%    +13.7%
+SMA50>SMA200 + ATR%<4%                           -4.0%    -11.0%    +75.0%   +165.0%   +221.9%    +19.3%
+SPY>SMA200 + SMA50>SMA200 + ATR%<4%              -4.0%     -8.3%    +53.6%   +165.0%   +222.4%    +23.2%
