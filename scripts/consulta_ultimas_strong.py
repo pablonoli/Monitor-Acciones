@@ -57,26 +57,29 @@ def plan_a(s, i_sig, stop):
         peso = 0.5 if mitad else 1.0
         if lo <= st:
             sal = min(o, st)
-            return res + peso * (sal - e) / R, "stop" if not mitad else "mitad en +2R y resto al costo"
+            return (res + peso * (sal - e) / R, R / e), "stop" if not mitad else "mitad en +2R y resto al costo"
         if not mitad and h >= e + 2 * R:
             res += 0.5 * 2; mitad = True; st = e
         if k == i_sig + 20:
-            return res + (0.5 if mitad else 1.0) * (c - e) / R, "rueda 20" + (" (mitad en +2R)" if mitad else "")
-    return res + (0.5 if mitad else 1.0) * (float(df["Close"].iloc[-1]) - e) / R, "abierta"
+            return (res + (0.5 if mitad else 1.0) * (c - e) / R, R / e), "rueda 20" + (" (mitad en +2R)" if mitad else "")
+    return (res + (0.5 if mitad else 1.0) * (float(df["Close"].iloc[-1]) - e) / R, R / e), "abierta"
 lin = ["Señales Strong de enero a agosto 2026 (lista del dashboard). Resultado con Plan A, sin costos, en R (1R = el riesgo, $40.000 en tu ejemplo).",
        "Ojo: es cada señal por separado; con $4.000.000 no alcanza para tomarlas todas si caen juntas.", "",
-       "fecha       acción   Z     ATR%  opc7  resultado   cómo terminó"]
+       "fecha       acción   Z     ATR%  opc7  stop%   ganancia%  resultado  en pesos     cómo terminó"]
 tot = tot7 = 0; n7 = 0
 for r in per:
     df = datos[r["s"]].dropna(subset=["Open", "High", "Low", "Close"])
     i = list(df.index.date).index(r["fecha"])
-    res, como = plan_a(r["s"], i, r["stop"])
+    rr, como = plan_a(r["s"], i, r["stop"])
+    res, dist = rr if rr else (None, None)
+    pct = res * dist * 100 if res is not None else None
+    pesos = res * 40000 if res is not None else None
     o7 = r["atrp"] >= 0.02
     if res is not None:
         tot += res
         if o7: tot7 += res; n7 += 1
-    lin.append(f"{r['fecha']}  {r['s']:<6} {r['z']:>4.2f}  {r['atrp']*100:>4.1f}%  {'sí' if o7 else 'no':<4}  {('%+.2fR' % res) if res is not None else '-':>8}   {como}")
-lin += ["", f"Total: {len(per)} señales, suma {tot:+.1f}R. Solo opción 7 (ATR >= 2%): {n7} señales, suma {tot7:+.1f}R."]
+    lin.append(f"{r['fecha']}  {r['s']:<6} {r['z']:>4.2f}  {r['atrp']*100:>4.1f}%  {'sí' if o7 else 'no':<4}  {(dist*100 if dist else 0):>5.1f}%  {('%+.1f%%' % pct) if pct is not None else '-':>8}  {('%+.2fR' % res) if res is not None else '-':>8}  {('%+10.0f' % pesos) if pesos is not None else '-':>10}   {como}")
+lin += ["", "ganancia% = cuánto ganó o perdió la plata puesta en esa operación (con la venta de la mitad en +2R si pasó). stop% = distancia de la compra al stop.", "en pesos = con $4.000.000 y 1% de riesgo ($40.000 por operación).", f"Total: {len(per)} señales, suma {tot:+.1f}R. Solo opción 7 (ATR >= 2%): {n7} señales, suma {tot7:+.1f}R."]
 open("data/consulta_strong_ene_ago.txt", "w").write("\n".join(lin) + "\n")
 print("\n".join(lin))
 out = ["Últimas 25 señales Strong (lista del dashboard). Último dato: " + str(max(d.index[-1].date() for d in datos.values())), ""]
