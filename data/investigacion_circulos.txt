@@ -42,13 +42,13 @@ Señales verdes en la ventana: 255 (55 Strong) en 104 acciones. Señales de la �
   stop: 171 | abierta: 36 | tiempo: 35 | stop a la entrada: 13
 
 == POR MES DE LA SEÑAL ==
-  2026-05:  15 señales | a 20 ruedas: promedio  -3.17% | hasta hoy: promedio -26.63%
-  2026-06:  49 señales | a 20 ruedas: promedio  -5.45% | hasta hoy: promedio -23.10%
-  2026-07:  35 señales | a 20 ruedas: promedio  +0.39% | hasta hoy: promedio  -0.37%
-  2026-08:  44 señales | a 20 ruedas: promedio  -0.87% | hasta hoy: promedio -14.73%
-  2026-09:  22 señales | a 20 ruedas: promedio  -4.66% | hasta hoy: promedio -26.42%
-  2026-10:  52 señales | a 20 ruedas: promedio  -3.08% | hasta hoy: promedio  -3.94%
-  2026-11:  38 señales | a 20 ruedas: sin datos | hasta hoy: promedio  -3.60%
+  2026-05:  15 señales | a 20 ruedas: promedio  -3.17% | hasta hoy: promedio -26.63% || base a 20 ruedas: promedio  -1.74%
+  2026-06:  49 señales | a 20 ruedas: promedio  -5.45% | hasta hoy: promedio -23.10% || base a 20 ruedas: promedio  -1.08%
+  2026-07:  35 señales | a 20 ruedas: promedio  +0.39% | hasta hoy: promedio  -0.37% || base a 20 ruedas: promedio  +3.65%
+  2026-08:  44 señales | a 20 ruedas: promedio  -0.87% | hasta hoy: promedio -14.73% || base a 20 ruedas: promedio  -0.01%
+  2026-09:  22 señales | a 20 ruedas: promedio  -4.66% | hasta hoy: promedio -26.42% || base a 20 ruedas: promedio  -1.45%
+  2026-10:  52 señales | a 20 ruedas: promedio  -3.08% | hasta hoy: promedio  -3.94% || base a 20 ruedas: promedio  -6.63%
+  2026-11:  38 señales | a 20 ruedas: sin datos | hasta hoy: promedio  -3.60% || base a 20 ruedas: sin datos
 
 == LISTA DE SEÑALES (fecha, acción, tipo, entrada, a 10 ruedas, a 20 ruedas, hasta hoy, plan ATR) ==
   2026-05-26 AMAT   Verde  US$  461.22 |   +7.9% |  +27.3% |  -32.7% |  +11.4% (stop a la entrada)
