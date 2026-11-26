@@ -177,9 +177,25 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
 .simr .f.dest { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; } .simr .f.dest > b { font-size: 16px; }
 .simav { margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--accent-bg); color: var(--accent-d); font-size: 13px; line-height: 1.45; }
 .simav.rojo { background: var(--short-bg); color: var(--short); }
-.simq { background: var(--long-bg); border-left: 5px solid var(--long); border-radius: 12px; padding: 12px 14px 4px; margin-bottom: 12px; }
-#ficha .simq p { margin: 0 0 9px; font-size: 15px; line-height: 1.45; } .simq b { color: var(--text); }
-#ficha .simav { margin: 0 0 10px; }
+.simhd { font-size: 13px; color: var(--muted); margin: -4px 0 12px; } .simhd b { color: var(--text); font-weight: 600; }
+.simed { background: none; border: 0; padding: 0; min-height: 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--accent-d); text-decoration: underline; cursor: pointer; }
+#simEd { margin-bottom: 12px; padding: 12px 12px 2px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); } #simEd[hidden] { display: none; }
+.simcards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.sc { border-radius: 12px; padding: 12px; background: #efe9dc; min-width: 0; } .sc.rojo { background: var(--short-bg); } .sc.verde { background: var(--long-bg); }
+.sc .t { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); } .sc.rojo .t, .sc.rojo .g { color: var(--short); } .sc.verde .t, .sc.verde .g { color: var(--long); }
+.sc .g { font-family: var(--font-head); font-size: 20px; font-weight: 600; line-height: 1.2; margin: 4px 0 2px; overflow-wrap: anywhere; }
+.sc .sb { font-size: 12px; color: var(--muted); line-height: 1.35; } .sc.rojo .sb { color: #8a3a35; } .sc.verde .sb { color: #3f6e4b; } .sc .sb .w { color: var(--accent-d); font-weight: 600; }
+.simtit { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+.esc { margin-bottom: 16px; } .escl { position: relative; height: 18px; font-size: 12px; color: var(--muted); } .escl span { position: absolute; top: 0; white-space: nowrap; } .escl .mid { transform: translateX(-50%); color: var(--text); font-weight: 600; }
+.escb { display: flex; height: 12px; margin: 3px 0 5px; } .escb i { display: block; } .escb .r { background: #efc3be; border-left: 2px solid var(--short); } .escb .g { background: #b9dcc0; border-left: 2px solid var(--text); border-right: 2px solid var(--long); }
+.esck { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); gap: 8px; }
+.simopts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.opc { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); cursor: pointer; min-width: 0; font-size: 12px; color: var(--muted); }
+.opc .ot { color: var(--text); font-size: 12.5px; line-height: 1.25; padding-right: 14px; } .opc .od { color: var(--text); font-family: var(--font-num); font-size: 12.5px; font-weight: 500; } .opc .oc { line-height: 1.3; }
+.opc input { font: inherit; font-size: 14px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); width: 100%; min-width: 0; box-sizing: border-box; }
+.opc .tk { display: none; position: absolute; top: 8px; right: 9px; color: var(--accent); font-weight: 700; font-size: 13px; }
+.opc.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); } .opc.sel .tk { display: block; }
+.simchk { font-size: 13.5px; line-height: 1.4; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; } .simchk.ok { color: var(--long); font-weight: 500; padding-left: 0; } .simchk.warn { background: #fff1cc; color: #7a5200; } .simchk.bad { background: var(--short-bg); color: var(--short); }
 .simdet { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 4px; } .simdet > summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 10px 0; color: var(--accent-d); }
 .det tr.mot td { padding-top: 0; font-size: 12px; line-height: 1.4; color: var(--muted); white-space: normal; text-align: left; } .det tr.mot b { color: var(--text); font-weight: 600; }
 .det .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px; }
@@ -1605,81 +1621,131 @@ function estimarRatio(r) {
   for (const x of RATIOS) if (Math.abs(crudo - x) < Math.abs(crudo - best)) best = x;
   return { crudo, estandar: best, lejos: Math.abs(crudo - best) / best > 0.10 };
 }
+let simSel = "atr";
+const IC = { cart: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L19 8H6.2"/><circle cx="9" cy="19.5" r="1.2"/><circle cx="17" cy="19.5" r="1.2"/></svg>', bell: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>', meta: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>', escudo: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z"/></svg>' };
 function abrirSim(s) {
   const r = accRes.find(x => x.s === s); if (!r) return;
   $("fichaT").textContent = "Simular " + s;
   if (r.atr == null) { $("fichaB").innerHTML = `<p>Todavía no hay datos de ATR para ${s}. Se cargan con la próxima actualización diaria.</p>`; $("ficha").hidden = false; return; }
   simR = r; const alta = r.atrp > 0.04, cap = guardado("sim_capital", 10000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
-  const ccl = accDatos.ccl, ced = accDatos.cedear && accDatos.cedear[s], est = estimarRatio(r);
-  simAvR = !est ? "Verificar ratio en el broker: no hay precio del CEDEAR en pesos" + (ccl ? "." : " ni dólar CCL.") : est.lejos ? `Verificar ratio en el broker: la cuenta dio ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })}, que no se parece a ningún ratio habitual (el más cercano es ${est.estandar}).` : "";
-  $("fichaB").innerHTML = `<div class="simq" id="simQue"></div><div id="simAv"></div>
-    <p class="sub" style="margin:0 0 10px">Último cierre (${ult}): ${sU(r.precio)}. Volatilidad ${volNivel(r.atrp)[0].toLowerCase()}${alta ? ", por eso el riesgo sugerido es 0,5%" : ""}.</p>
-    <div class="simf">
-      <label>Capital (USD)<input id="simCap" type="number" min="0" step="any" inputmode="decimal" value="${cap}"></label>
-      <label>Riesgo por operación (%)<input id="simRie" type="number" min="0" step="any" inputmode="decimal" value="${alta ? 0.5 : 1}"></label>
-      <label>Precio de entrada (USD)<input id="simEnt" type="number" min="0" step="any" inputmode="decimal" value="${r.precio.toFixed(2)}"></label>
-      <label>Multiplicador de ATR<input id="simMul" type="number" min="0" step="any" inputmode="decimal" value="2.5"></label>
-      <label class="ancho">Calcular con<select id="simModo"><option value="atr">Stop sugerido (ATR)</option><option value="min">Stop amplio (mínimo de 20 ruedas)</option></select></label>
+  const ccl = accDatos.ccl, ced = accDatos.cedear && accDatos.cedear[s], est = estimarRatio(r), vn = volNivel(r.atrp);
+  simSel = ["atr", "min", "man"].includes(guardado("sim_stop", "atr")) ? guardado("sim_stop", "atr") : "atr";
+  const stopIni = r.precio * (1 - 2.5 * r.atrp);
+  $("fichaT").innerHTML = `Simular ${s} <span class="volt ${vn[1]}">Volatilidad ${vn[0].toLowerCase()} · ${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</span>`;
+  const inp = (id, et, v, ph) => `<label>${et}<input id="${id}" type="number" min="0" step="any" inputmode="decimal" value="${v}"${ph ? ` placeholder="${ph}"` : ""}></label>`;
+  $("fichaB").innerHTML = `<div id="simBox">
+    <div class="simhd"><span id="simHd"></span> · <button type="button" class="simed" id="simEdBtn" aria-expanded="false" aria-controls="simEd">Editar</button></div>
+    <div id="simEd" hidden><div class="simf">
+      ${inp("simCap", "Capital (USD)", cap)}${inp("simRie", "Riesgo por operación (%)", alta ? 0.5 : 1)}${inp("simEnt", "Precio de entrada (USD)", r.precio.toFixed(2))}${inp("simMul", "Multiplicador de ATR (stop y máximo)", 2.5)}
+      ${inp("simObj", "Objetivo (veces el riesgo)", 2)}${inp("simCcl", "Dólar CCL (pesos)", ccl ? ccl.v : "", "completalo")}${inp("simRat", "Ratio CEDEAR", est ? est.estandar : "", "completalo")}
+    </div></div>
+    <div class="simcards" id="simCards"></div>
+    <div class="simtit">Escalera de precios</div><div id="simEsc"></div>
+    <div class="simtit">Elegí el stop</div>
+    <div class="simopts" role="radiogroup" aria-label="Elegí el stop">
+      <div class="opc" role="radio" tabindex="0" data-m="atr"><span class="tk">✓</span><b class="ot">Por volatilidad (ATR)</b><span class="od" id="simOd_atr"></span><span class="oc" id="simOc_atr"></span></div>
+      <div class="opc" role="radio" tabindex="0" data-m="min"><span class="tk">✓</span><b class="ot">Amplio (mín. 20 ruedas)</b><span class="od" id="simOd_min"></span><span class="oc" id="simOc_min"></span></div>
+      <div class="opc" role="radio" tabindex="0" data-m="man"><span class="tk">✓</span><b class="ot">Manual</b><input id="simMan" type="number" min="0" step="any" inputmode="decimal" placeholder="Precio" value="${simSel === "man" ? stopIni.toFixed(2) : ""}" aria-label="Stop manual en USD"><span class="oc" id="simOc_man"></span></div>
     </div>
+    <div id="simChk" role="status"></div>
     <details class="simdet"><summary>Ver detalle del cálculo</summary>
-      <div class="simf">
-        <label>Dólar CCL (pesos)<input id="simCcl" type="number" min="0" step="any" inputmode="decimal" value="${ccl ? ccl.v : ""}" placeholder="completalo"></label>
-        <label>Ratio CEDEAR<input id="simRat" type="number" min="0" step="any" inputmode="decimal" value="${est ? est.estandar : ""}" placeholder="completalo"></label>
-      </div>
-      <p class="sub" style="margin:-4px 0 10px">${ccl ? `Dólar CCL: ${sAR(ccl.v, 2)} al ${fechaCorta(ccl.f)} (${ccl.fuente || "dolarapi.com"}).` : "No hay dólar CCL cargado todavía: se baja con la actualización diaria."} ${ced ? `CEDEAR ${s}: ${sAR(ced[0], 2)} al ${fechaCorta(ced[1])} (Yahoo).` : `No encontré precio en pesos del CEDEAR de ${s} en Yahoo.`}${est ? ` Ratio estimado: ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })} → ${est.estandar}.` : ""}</p>
+      <p class="sub" style="margin:0 0 8px">Último cierre (${ult}): ${sU(r.precio)}. Volatilidad ${vn[0].toLowerCase()}${alta ? ", por eso el riesgo sugerido es 0,5%" : ""}.</p>
+      <p class="sub" style="margin:0 0 10px">${ccl ? `Dólar CCL: ${sAR(ccl.v, 2)} al ${fechaCorta(ccl.f)} (${ccl.fuente || "dolarapi.com"}).` : "No hay dólar CCL cargado todavía: se baja con la actualización diaria."} ${ced ? `CEDEAR ${s}: ${sAR(ced[0], 2)} al ${fechaCorta(ced[1])} (Yahoo).` : `No encontré precio en pesos del CEDEAR de ${s} en Yahoo.`}${est ? ` Ratio estimado: ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })} → ${est.estandar}.` : ""}</p>
       <div class="simr" id="simRes"></div>
-    </details>`;
+    </details></div>`;
   $("ficha").hidden = false; calcSim();
 }
-let simAvR = "";
 function calcSim() {
-  const r = simR, el = $("simRes"), que = $("simQue"), avEl = $("simAv"); if (!r || !el) return;
-  const cap = numIn($("simCap").value), rie = numIn($("simRie").value), ent = numIn($("simEnt").value), mul = numIn($("simMul").value), modo = $("simModo").value;
+  const r = simR, el = $("simRes"); if (!r || !el) return;
+  const cap = numIn($("simCap").value), rie = numIn($("simRie").value), ent = numIn($("simEnt").value), mul = numIn($("simMul").value), objM = numIn($("simObj").value);
   const ccl = numIn($("simCcl").value), rat = numIn($("simRat").value), ced = accDatos.cedear && accDatos.cedear[r.s], pc = ced ? ced[0] : null;
-  const avR = simAvR ? `<p class="simav">⚠ ${simAvR}</p>` : "";
-  if (!(cap > 0 && rie > 0 && ent > 0 && mul > 0)) { que.innerHTML = `<p>Completá capital, riesgo, precio de entrada y multiplicador con números mayores a cero.</p>`; avEl.innerHTML = avR; el.innerHTML = ""; return; }
-  guardar("sim_capital", cap);
-  const atr = r.atr, atrp = r.atrp, stopA = ent * (1 - mul * atrp), stopM = r.low20, dist = st => (ent - st) / ent;
-  const okA = stopA > 0 && stopA < ent, okM = stopM > 0 && stopM < ent, stop = modo === "atr" ? stopA : stopM, ok = modo === "atr" ? okA : okM;
-  const fila = (t, v, usado) => `<div class="f${usado ? " usado" : ""}"><span>${t}</span><b>${v}</b></div>`;
-  let h = fila("ATR % (promedio de 14 ruedas)", `${sP(atrp)} <span class="volt ${volNivel(atrp)[1]}">${volNivel(atrp)[0]}</span>`) + fila("ATR en dólares (referencia)", sU(atr))
-    + fila(`Stop sugerido (entrada × (1 − ${fmt(mul)} × ATR %))`, okA ? `${sU(stopA)} · −${sP(dist(stopA))}` : "no aplica", modo === "atr")
-    + fila("Stop amplio (mínimo de 20 ruedas)", okM ? `${sU(stopM)} · −${sP(dist(stopM))}` : "queda sobre la entrada", modo === "min");
+  const cards = $("simCards"), esc = $("simEsc"), chk = $("simChk"), ok = cap > 0 && rie > 0 && ent > 0 && mul > 0 && objM > 0;
+  const nf = (x, d = 1) => x.toLocaleString("es-AR", { maximumFractionDigits: d });
+  $("simHd").innerHTML = `Capital US$ <b>${cap > 0 ? nf(cap, 0) : "—"}</b> · Riesgo <b>${rie > 0 ? nf(rie, 2) : "—"}%</b> · Entrada US$ <b>${ent > 0 ? fmt(ent) : "—"}</b>`;
+  const vacioOpc = () => ["atr", "min", "man"].forEach(k => { const d = $("simOd_" + k), c = $("simOc_" + k); if (d) d.textContent = ""; c.textContent = ""; });
+  const card = (cl, ic, t, g, sb) => `<div class="sc ${cl}"><div class="t">${ic}<span>${t}</span></div><div class="g">${g}</div><div class="sb">${sb}</div></div>`;
   if (!ok) {
-    que.innerHTML = `<p>${modo === "atr" ? "Con ese multiplicador el stop queda en cero o negativo: probá con un multiplicador más chico." : "El mínimo de las últimas 20 ruedas está por encima del precio de entrada: no sirve como stop. Elegí el stop por ATR."}</p>`;
-    avEl.innerHTML = avR; el.innerHTML = h; return;
+    cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "");
+    esc.innerHTML = ""; vacioOpc(); chk.className = "simchk bad"; chk.textContent = "✕ Completá capital, riesgo, entrada, multiplicador y objetivo con números mayores a cero."; el.innerHTML = ""; return;
   }
-  const rpa = ent - stop, riesgoUsd = cap * rie / 100, eq = riesgoUsd / rpa, obj = ent + 2 * rpa, av = [];
-  h += fila("Riesgo por acción (entrada − stop)", sU(rpa)) + fila("Riesgo a asumir", sU(riesgoUsd)) + fila("Acciones equivalentes", eq.toLocaleString("es-AR", { maximumFractionDigits: 3 }));
-  if (pc && rat > 0) { const imp = pc * rat / r.precio; h += fila("CCL implícito del CEDEAR (precio × ratio / acción)", `${sAR(imp, 2)}${ccl > 0 ? ` · ${pctT(imp / ccl - 1)} vs CCL` : ""}`); }
-  let l1, l3, l4;
+  guardar("sim_capital", cap);
+  const atrp = r.atrp, riesgoUsd = cap * rie / 100;
+  const stops = { atr: ent * (1 - mul * atrp), min: r.low20, man: numIn($("simMan").value) };
+  const O = {};
+  for (const k of ["atr", "min", "man"]) {
+    const st = stops[k], v = st > 0 && st < ent; const o = { st, v };
+    if (v) { o.dist = (ent - st) / ent; o.atrs = o.dist / atrp; o.rpa = ent - st; o.eq = riesgoUsd / o.rpa; o.nC = rat > 0 ? Math.floor(o.eq * rat) : null; }
+    O[k] = o;
+  }
+  let sel = simSel; if (!O[sel].v) sel = ["atr", "min", "man"].find(k => O[k].v) || sel;
+  document.querySelectorAll("#simBox .opc").forEach(c => { const on = c.dataset.m === sel; c.setAttribute("aria-checked", on); c.classList.toggle("sel", on); });
+  const nCtxt = o => o.nC != null ? `${o.nC.toLocaleString("es-AR")} CEDEARs` : "ratio pendiente";
+  for (const k of ["atr", "min"]) {
+    const o = O[k];
+    $("simOd_" + k).textContent = o.v ? `${fmt(o.st)} · −${sP(o.dist)}` : (k === "atr" ? "no aplica" : "queda sobre la entrada");
+    $("simOc_" + k).textContent = o.v ? `${nf(o.atrs)} ATR · ${nCtxt(o)}` : (k === "atr" ? "bajá el multiplicador" : "no sirve de stop");
+  }
+  { const o = O.man; $("simOc_man").textContent = o.v ? `−${sP(o.dist)} · ${nf(o.atrs)} ATR · ${nCtxt(o)}` : (isNaN(o.st) ? "escribí un precio" : "tiene que ser menor a la entrada"); }
+  const S = O[sel];
+  if (!S.v) {
+    cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "");
+    esc.innerHTML = ""; chk.className = "simchk bad"; chk.textContent = "✕ Ese stop no sirve: tiene que ser un precio positivo menor a la entrada."; el.innerHTML = ""; return;
+  }
+  const rpa = S.rpa, objP = ent + objM * rpa, dObj = (objP - ent) / ent;
+  let nC = null, montoAR = null, montoUsd = null, perd = riesgoUsd, mitad = 0;
   if (rat > 0) {
-    const nC = Math.floor(eq * rat), montoAR = pc ? nC * pc : (ccl > 0 ? nC * ent * ccl / rat : null), montoUsd = pc ? (ccl > 0 ? montoAR / ccl : null) : nC / rat * ent, perd = nC / rat * rpa, mitad = Math.floor(nC / 2);
-    h += fila("Cantidad de CEDEARs", nC.toLocaleString("es-AR")) + fila("Monto a invertir en pesos", montoAR != null ? sAR(montoAR) : "completá el dólar CCL")
-      + fila("Monto a invertir en USD", montoUsd != null ? `${sU(montoUsd)} · ${sP(montoUsd / cap)} del capital` : "completá el dólar CCL")
-      + fila("Pérdida máxima real si toca el stop", `<span class="neg">−${sU(perd)}</span> · ${sP(perd / cap)} del capital`)
-      + fila("Stop equivalente por CEDEAR (referencia)", ccl > 0 ? sAR(stop * ccl / rat, 2) : "completá el dólar CCL");
-    l1 = `<b>Comprar:</b> ${nC.toLocaleString("es-AR")} CEDEARs (≈ ${montoAR != null ? sAR(montoAR) : "completá el dólar CCL en el detalle"}).`;
-    l3 = `<b>Vender la mitad:</b> cuando la acción llegue a ${sU(obj)} ${mitad >= 1 ? `(vender ${mitad.toLocaleString("es-AR")} CEDEARs)` : "(con tan pocos CEDEARs no se puede dividir)"} y mover la alerta al precio de entrada (${sU(ent)}).`;
-    l4 = `<b>Pérdida máxima:</b> ${sU(perd)} (${sP(perd / cap)} del capital).`;
-    if (nC < 1) av.push("Con ese capital y ese riesgo no alcanza para comprar ni un CEDEAR.");
-    if (montoUsd != null) {
-      if (montoUsd > cap) av.push(`El monto a invertir supera tu capital (${sP(montoUsd / cap)}): no te alcanza para comprar esa cantidad.`);
-      else if (montoUsd > 0.25 * cap) av.push(`El monto a invertir es el ${sP(montoUsd / cap)} del capital, más del 25%: queda muy concentrado en una sola acción.`);
-    }
-  } else {
-    l1 = `<b>Comprar:</b> completá el ratio del CEDEAR (en «Ver detalle del cálculo»; verificalo en tu broker).`;
-    l3 = `<b>Vender la mitad:</b> cuando la acción llegue a ${sU(obj)} y mover la alerta al precio de entrada (${sU(ent)}).`;
-    l4 = `<b>Pérdida máxima:</b> ${sU(riesgoUsd)} (${sP(riesgoUsd / cap)} del capital) como máximo; el valor real depende de la cantidad de CEDEARs.`;
+    nC = S.nC; perd = nC / rat * rpa; mitad = Math.floor(nC / 2);
+    montoAR = pc ? nC * pc : (ccl > 0 ? nC * ent * ccl / rat : null);
+    montoUsd = pc ? (ccl > 0 ? montoAR / ccl : null) : nC / rat * ent;
   }
-  h += fila("Objetivo para vender la mitad (entrada + 2 × riesgo)", `<span class="pos">${sU(obj)} · +${sP((obj - ent) / ent)}</span>`);
-  if (dist(stop) > 0.15) av.push(`El stop queda a ${sP(dist(stop))} de la entrada, más del 15%: es un stop muy lejano.`);
-  que.innerHTML = `<p>${l1}</p><p><b>Stop:</b> poner una alerta cuando la acción llegue a ${sU(stop)}; si salta, vender todo.</p><p>${l3}</p><p>${l4}</p>`;
-  avEl.innerHTML = avR + av.map(t => `<p class="simav">⚠ ${t}</p>`).join("");
+  const conc = montoUsd != null && montoUsd > 0.25 * cap;
+  cards.innerHTML = card("", IC.cart, "Comprar", rat > 0 ? `${nC.toLocaleString("es-AR")} CEDEARs` : "—",
+      rat > 0 ? `${montoAR != null ? sAR(montoAR) : "falta el CCL"}${montoUsd != null ? ` · <span class="${conc ? "w" : ""}">${sP(montoUsd / cap)} del capital${montoUsd > cap ? " (supera tu capital)" : conc ? " (concentrado)" : ""}</span>` : ""}` : "completá el ratio en Editar")
+    + card("rojo", IC.bell, "Alerta de stop", sU(S.st), `−${sP(S.dist)} · si salta, vender todo`)
+    + card("verde", IC.meta, "Vender la mitad", sU(objP), `+${sP(dObj)} · ${rat > 0 ? (mitad >= 1 ? `vender ${mitad.toLocaleString("es-AR")}` : "no se puede dividir") + ", " : ""}stop a la entrada`)
+    + card("", IC.escudo, "Pérdida máxima", sU(perd), `${sP(perd / cap)} del capital${rat > 0 ? "" : " (como máximo)"}`);
+  const tot = rpa + objM * rpa, pe = 100 * rpa / tot;
+  esc.innerHTML = `<div class="esc"><div class="escl"><span style="left:0">Stop ${fmt(S.st)}</span><span class="mid" style="left:${Math.min(70, Math.max(30, pe))}%">Entrada ${fmt(ent)}</span><span style="right:0">Objetivo ${fmt(objP)}</span></div>
+    <div class="escb"><i class="r" style="flex:${rpa}"></i><i class="g" style="flex:${objM * rpa}"></i></div>
+    <div class="esck"><span>Arriesgás ${fmt(rpa)}</span><span>Buscás ${fmt(objM * rpa)} (${nf(objM)} a 1)</span></div></div>`;
+  // chequeo en una línea
+  let cl, tx;
+  const imp = rat > 0 && pc ? pc * rat / r.precio : null, dif = imp != null && ccl > 0 ? Math.abs(imp / ccl - 1) : null;
+  if (!(rat > 0)) { cl = "bad"; tx = "Falta el ratio del CEDEAR: completalo en Editar (verificalo en tu broker)."; }
+  else if (nC < 1) { cl = "bad"; tx = "Con este capital y riesgo no alcanza para un CEDEAR."; }
+  else if (dif != null && dif > 0.05) { cl = "bad"; tx = `Verificar ratio del CEDEAR: el CCL implícito difiere ${nf(100 * dif)}% del CCL.`; }
+  else if (S.atrs > mul + 1e-9) { cl = "bad"; tx = "Stop más lejos del máximo para su volatilidad: conviene saltear."; }
+  else if (S.atrs < 1) { cl = "warn"; tx = "Stop a menos de 1 ATR: demasiado cerca."; }
+  else { cl = "ok"; tx = `Stop entre 1 y ${nf(mul)} ATR, dentro del máximo para su volatilidad.`; }
+  chk.className = "simchk " + cl; chk.textContent = (cl === "ok" ? "✓ " : cl === "warn" ? "! " : "✕ ") + tx;
+  // detalle
+  const fila = (t, v, usado) => `<div class="f${usado ? " usado" : ""}"><span>${t}</span><b>${v}</b></div>`;
+  const eq = riesgoUsd / rpa, nom = { atr: "por volatilidad", min: "amplio", man: "manual" }[sel];
+  let h = fila("ATR % (promedio de 14 ruedas)", `${sP(atrp)} <span class="volt ${volNivel(atrp)[1]}">${volNivel(atrp)[0]}</span>`) + fila("ATR en dólares (referencia)", sU(r.atr))
+    + fila(`Stop por volatilidad (entrada × (1 − ${fmt(mul)} × ATR %))`, O.atr.v ? `${sU(O.atr.st)} · −${sP(O.atr.dist)}` : "no aplica", sel === "atr")
+    + fila("Stop amplio (mínimo de 20 ruedas)", O.min.v ? `${sU(O.min.st)} · −${sP(O.min.dist)}` : "queda sobre la entrada", sel === "min")
+    + fila("Stop manual", O.man.v ? `${sU(O.man.st)} · −${sP(O.man.dist)}` : "—", sel === "man")
+    + fila("Riesgo por acción (entrada − stop " + nom + ")", sU(rpa)) + fila("Riesgo a asumir", sU(riesgoUsd)) + fila("Acciones equivalentes", eq.toLocaleString("es-AR", { maximumFractionDigits: 3 }));
+  if (imp != null) h += fila("CCL implícito del CEDEAR (precio × ratio / acción)", `${sAR(imp, 2)}${ccl > 0 ? ` · ${pctT(imp / ccl - 1)} vs CCL` : ""}`);
+  if (rat > 0) h += fila("Cantidad de CEDEARs", nC.toLocaleString("es-AR")) + fila("Monto a invertir en pesos", montoAR != null ? sAR(montoAR) : "completá el dólar CCL")
+    + fila("Monto a invertir en USD", montoUsd != null ? `${sU(montoUsd)} · ${sP(montoUsd / cap)} del capital` : "completá el dólar CCL")
+    + fila("Pérdida máxima real si toca el stop", `<span class="neg">−${sU(perd)}</span> · ${sP(perd / cap)} del capital`)
+    + fila("Stop equivalente por CEDEAR (referencia)", ccl > 0 ? sAR(S.st * ccl / rat, 2) : "completá el dólar CCL");
+  h += fila(`Objetivo para vender la mitad (entrada + ${nf(objM)} × riesgo)`, `<span class="pos">${sU(objP)} · +${sP(dObj)}</span>`);
   el.innerHTML = h + `<p class="sub" style="margin:10px 0 0">El stop se controla sobre la acción en USD; el CEDEAR también se mueve con el dólar. Es una cuenta de referencia: no incluye comisiones ni saltos de precio (si abre muy por debajo del stop, la pérdida real puede ser mayor).</p>`;
 }
-document.addEventListener("input", e => { if (e.target.closest && e.target.closest(".simf")) calcSim(); });
-document.addEventListener("change", e => { if (e.target.id === "simModo") calcSim(); });
+function simElegir(m, foco) {
+  simSel = m; guardar("sim_stop", m);
+  if (m === "man" && !(numIn($("simMan").value) > 0)) { const e = numIn($("simEnt").value), mu = numIn($("simMul").value), a = simR.atrp, s0 = e * (1 - mu * a); $("simMan").value = (s0 > 0 && s0 < e ? s0 : e * 0.95).toFixed(2); }
+  calcSim(); if (m === "man" && foco) $("simMan").select();
+}
+document.addEventListener("input", e => { const t = e.target; if (!t.closest || !t.closest("#simBox")) return; if (t.id === "simMan" && simSel !== "man") { simSel = "man"; guardar("sim_stop", "man"); } calcSim(); });
+document.addEventListener("click", e => {
+  if (!e.target.closest || !e.target.closest("#simBox")) return;
+  const eb = e.target.closest("#simEdBtn"); if (eb) { const h = $("simEd").hidden; $("simEd").hidden = !h; eb.setAttribute("aria-expanded", h); return; }
+  const o = e.target.closest(".opc"); if (o) simElegir(o.dataset.m, e.target.id !== "simMan");
+});
+document.addEventListener("keydown", e => { const o = e.target.closest && e.target.closest(".opc"); if (o && e.target === o && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); simElegir(o.dataset.m, true); } });
 $("ficha").addEventListener("click", e => { if (e.target === $("ficha")) cerrarFicha(); });
 $("fichaX").addEventListener("click", cerrarFicha);
 document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarFicha(); });
