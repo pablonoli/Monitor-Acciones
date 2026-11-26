@@ -89,10 +89,10 @@ def mercado(res, dias):
     return dd, ser.mean(), ser[ser > 0].mean() if (ser > 0).any() else 0.0, int(ser.max()), ex.mean(), ex.max(), dmin
 
 
-def caja(res, dias):
-    """Flujo de caja de las operaciones tomadas: cuánto tardan en cerrar, cuánto capital vuelve a efectivo por mes y cuántos meses seguidos pasan sin ganancia."""
+def caja_datos(res, dias):
+    """Números del flujo de caja de las operaciones tomadas (ver caja)."""
     tom, ev = res["tomadas"], res["eventos"]
-    if not tom: return ["sin operaciones"]
+    if not tom: return None
     dur = np.array([len(t[2]) for t in tom]); gan = np.array([t[2][-1] > 1 for t in tom]); mitad = np.array([t[4] is not None for t in tom])
     ent_mes = {}
     for usd, tam, path, dts, half in tom:
@@ -121,11 +121,19 @@ def caja(res, dias):
     vacio = [cnt.get(d, 0) == 0 for d in dias]; rv = mv = 0
     for x in vacio:
         rv = rv + 1 if x else 0; mv = max(mv, rv)
-    return [f"  Operaciones tomadas: {len(tom)}. Ruedas hasta cerrar: mediana {np.median(dur):.0f}, promedio {dur.mean():.1f}; cerradas en 5 ruedas o menos {100 * (dur <= 5).mean():.0f}%, en 10 o menos {100 * (dur <= 10).mean():.0f}%, en 20 o menos {100 * (dur <= 20).mean():.0f}%, llegaron al máximo de 60 ruedas {100 * (dur >= I.MAXR).mean():.0f}%.",
+    return dict(n=len(tom), dur=dur, gan=gan, mitad=mitad, inflow=inflow, pnl=pnl, cerr=cerr, racha_m=mx, vacio=np.mean(vacio), racha_v=mv, meses=len(meses))
+
+
+def caja(res, dias):
+    """Flujo de caja de las operaciones tomadas: cuánto tardan en cerrar, cuánto capital vuelve a efectivo por mes y cuántos meses seguidos pasan sin ganancia."""
+    c = caja_datos(res, dias)
+    if c is None: return ["sin operaciones"]
+    dur, gan, mitad, inflow, pnl, cerr = c["dur"], c["gan"], c["mitad"], c["inflow"], c["pnl"], c["cerr"]
+    return [f"  Operaciones tomadas: {c['n']}. Ruedas hasta cerrar: mediana {np.median(dur):.0f}, promedio {dur.mean():.1f}; cerradas en 5 ruedas o menos {100 * (dur <= 5).mean():.0f}%, en 10 o menos {100 * (dur <= 10).mean():.0f}%, en 20 o menos {100 * (dur <= 20).mean():.0f}%, llegaron al máximo de 60 ruedas {100 * (dur >= I.MAXR).mean():.0f}%.",
             f"  Duración promedio: ganadoras {dur[gan].mean():.1f} ruedas, perdedoras {dur[~gan].mean():.1f} ruedas. Vendieron la mitad (llegaron a +2R): {100 * mitad.mean():.0f}% de las operaciones.",
             f"  Capital que vuelve a efectivo por mes (% del capital; puede pasar de 100% porque la plata se vuelve a invertir): promedio {100 * inflow.mean():.0f}%, mediana {100 * np.median(inflow):.0f}%, mínimo {100 * inflow.min():.0f}%, máximo {100 * inflow.max():.0f}%.",
-            f"  Ganancia realizada por mes (% del capital, {len(meses)} meses): promedio {100 * pnl.mean():+.2f}%, mediana {100 * np.median(pnl):+.2f}%, peor {100 * pnl.min():+.1f}%, mejor {100 * pnl.max():+.1f}%; meses positivos {100 * (pnl > 0).mean():.0f}%, negativos {100 * (pnl < 0).mean():.0f}%.",
-            f"  Meses seguidos sin ganancia (≤ 0): máximo {mx}. Meses sin ninguna operación cerrada: {int((cerr == 0).sum())}. Días de rueda sin ninguna operación abierta: {100 * np.mean(vacio):.0f}% (la racha más larga fue de {mv} ruedas)."]
+            f"  Ganancia realizada por mes (% del capital, {c['meses']} meses): promedio {100 * pnl.mean():+.2f}%, mediana {100 * np.median(pnl):+.2f}%, peor {100 * pnl.min():+.1f}%, mejor {100 * pnl.max():+.1f}%; meses positivos {100 * (pnl > 0).mean():.0f}%, negativos {100 * (pnl < 0).mean():.0f}%.",
+            f"  Meses seguidos sin ganancia (≤ 0): máximo {c['racha_m']}. Meses sin ninguna operación cerrada: {int((cerr == 0).sum())}. Días de rueda sin ninguna operación abierta: {100 * c['vacio']:.0f}% (la racha más larga fue de {c['racha_v']} ruedas)."]
 
 
 def fila(df, dias=None):
