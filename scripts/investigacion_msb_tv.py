@@ -102,7 +102,9 @@ def main(anios=5):
             if P["f"][i] < ini or np.isnan(P["atrp"][i]): continue
             atrp, z = float(P["atrp"][i]), float(Z[i]); e = i + 1; ent = P["O"][e]; stop = P["low20"][i]
             if P["verde"][i] and 0 < stop < ent:
-                f1 = fila(s, P, i, e, ent, stop, False, atrp, bool(P["strong"][i]), z); V["1"].append(f1)
+                f1 = fila(s, P, i, e, ent, stop, False, atrp, bool(P["strong"][i]), z)
+                prev = [j for j in msb_dias if j <= i]; f1["msb_atras"] = (i - max(prev)) if prev else None; f1["ent"] = float(ent); f1["stopp"] = float(stop)
+                V["1"].append(f1)
                 if any(j in msb_dias for j in range(i - 5, i + 1)): V["8"].append(f1)
                 R = P["C"][i] - stop
                 if not any(a <= i < b and P["C"][i] < bot <= P["C"][i] + 2 * R for a, b, bot in rojas): V["9"].append(f1)
@@ -180,6 +182,17 @@ def main(anios=5):
         L.append(f"{NOM[k]:<52}| {100 * xa['acu']:+8.1f}% | {xa['pmes']:>7.1f} | {xa['R']:+5.2f} | {100 * xa['mtm']:+6.1f}% || {100 * xb['acu']:+8.1f}% | {xb['pmes']:>7.1f} | {xb['R']:+5.2f} | {100 * xb['mtm']:+6.1f}%")
     ambas = [k for k in M1 if k != "1" and k in M2 and M1[k] > M1.get("1", 9) and M2[k] > M2.get("1", 9)]
     L.append(f"  Le ganan al círculo verde (1) en las DOS mitades: {', '.join(ambas) or 'ninguna'}.")
+    E = DF["1"]; E = E[E["f"] >= pd.Timestamp("2026-01-01")].sort_values("f")
+    co = E["msb_atras"].apply(lambda v: v is not None and not pd.isna(v) and v <= 5)
+    L2 = [f"CÍRCULOS VERDES DE 2026 Y SI COINCIDEN CON UN MSB+ DE TV (en el mismo día o hasta 5 días antes). Total {len(E)}, coinciden {int(co.sum())} ({100 * co.mean():.0f}%).",
+          "Resultado de cada señal por separado con Plan A, neto de costos; pesos = resultado en R x $40.000.", "",
+          f"{'fecha':<11}{'acción':<7}{'strong':<7}{'ATR%':>6}  {'MSB+':<22}{'compra':>9}{'stop':>9}{'result.%':>9}{'R':>7}{'pesos':>10}"]
+    for r, c_ in zip(E.itertuples(), co):
+        m = "no hay" if r.msb_atras is None or pd.isna(r.msb_atras) else ("mismo día" if r.msb_atras == 0 else f"{int(r.msb_atras)} días antes")
+        L2.append(f"{r.f.date()!s:<11}{r.s:<7}{'sí' if r.strong else 'no':<7}{100 * r.atrp:5.1f}%  {('SÍ  ' if c_ else 'no  ') + m:<22}{r.ent:>9.2f}{r.stopp:>9.2f}{100 * r.ret:>+8.1f}%{r.rnet:>+7.2f}{r.rnet * 40000:>+10,.0f}".replace(",", "."))
+    for nom, sub in (("Coinciden", E[co]), ("No coinciden", E[~co])):
+        if len(sub): L2.append(f"{nom}: {len(sub)} señales, resultado promedio {100 * sub['ret'].mean():+.2f}%, ganadoras {100 * (sub['ret'] > 0).mean():.0f}%, suma {sub['rnet'].sum():+.1f}R = " + f"{sub['rnet'].sum() * 40000:+,.0f}".replace(",", ".") + " pesos")
+    open("data/investigacion_msb_tv_2026.txt", "w", encoding="utf-8").write("\n".join(L2) + "\n")
     txt = "\n".join(L); open("data/investigacion_msb_tv.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
 
 
