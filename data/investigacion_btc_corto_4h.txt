@@ -1,0 +1,34 @@
+BTC VELAS DE 4h: ¿CORTO EN TENDENCIA BAJISTA? (cierre a las 20 velas = unos 3 días) Velas de 2024-01-01 a 27/11/2026 12:00 UTC (6370 velas).
+Hoy BTC cerró en 60.027 con media de 200 días en 71.872: tendencia BAJISTA.
+Días bajistas en la muestra: 39% del tiempo.
+Costo 0,07% por lado, sin tasa de financiamiento. Resultados en R por operación (1R = la pérdida si toca el stop).
+LÍMITES: un solo activo, un período (2024-2026) con pocos tramos bajistas largos; varias versiones probadas; el resultado puede ser casualidad.
+
+== RESULTADOS (2024 a hoy) ==
+Corto, solo en días bajistas (la idea)                   8 op. ·  75% ganadoras · promedio +0.234R · total    +1.9R · peor racha   -0.4R · stop medio 3.87%
+Corto, siempre (sin mirar la tendencia)                 30 op. ·  50% ganadoras · promedio +0.044R · total    +1.3R · peor racha   -4.7R · stop medio 3.91%
+Corto en días ALCISTAS (contra la tendencia)            22 op. ·  41% ganadoras · promedio -0.025R · total    -0.6R · peor racha   -4.7R · stop medio 3.93%
+Corto AL AZAR en días bajistas (base)                   64 op. ·  41% ganadoras · promedio -0.027R · total    -1.7R · peor racha   -9.5R · stop medio 2.27%
+Largo, solo en días alcistas                            20 op. ·  45% ganadoras · promedio +0.299R · total    +6.0R · peor racha   -2.6R · stop medio 3.71%
+Largo, en días bajistas (contra la tendencia)           16 op. ·  50% ganadoras · promedio +0.146R · total    +2.3R · peor racha   -2.1R · stop medio 4.04%
+
+== POR MITADES (antes y después del 14/06/2025) ==
+Corto, solo en días bajistas (la idea)               1.ª:    0 op., +0.000R prom., total   +0.0R · 2.ª:    8 op., +0.234R prom., total   +1.9R
+Corto, siempre (sin mirar la tendencia)              1.ª:   13 op., +0.003R prom., total   +0.0R · 2.ª:   17 op., +0.076R prom., total   +1.3R
+Corto en días ALCISTAS (contra la tendencia)         1.ª:   13 op., +0.003R prom., total   +0.0R · 2.ª:    9 op., -0.065R prom., total   -0.6R
+Corto AL AZAR en días bajistas (base)                1.ª:   16 op., -0.529R prom., total   -8.5R · 2.ª:   48 op., +0.141R prom., total   +6.8R
+Largo, solo en días alcistas                         1.ª:    9 op., +0.612R prom., total   +5.5R · 2.ª:   11 op., +0.043R prom., total   +0.5R
+Largo, en días bajistas (contra la tendencia)        1.ª:    4 op., +0.222R prom., total   +0.9R · 2.ª:   12 op., +0.121R prom., total   +1.4R
+
+== CORTO EN DÍAS BAJISTAS, POR AÑO ==
+2026: 8 op. · 75% ganadoras · total +1.9R
+
+== ÚLTIMAS SEÑALES DE CORTO (días bajistas) ==
+18/01 20:00 UTC · +1.07R
+27/04 12:00 UTC · +0.13R
+13/05 12:00 UTC · +0.16R
+22/05 16:00 UTC · -0.39R
+23/06 04:00 UTC · +0.90R
+24/07 12:00 UTC · +0.09R
+31/07 12:00 UTC · -0.33R
+11/08 12:00 UTC · +0.26R
