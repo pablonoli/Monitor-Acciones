@@ -1495,7 +1495,7 @@ function queHacer(r) {
     const z = cercania(r), pc = x => "+" + (100 * x).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
     if (!z) return ["", "Sin señal", ""];
     if (z.bajo) return ["bajo", "Bajo la media 200", ""];
-    return z.falta <= CERCA ? ["cerca", "Cerca " + pc(z.falta), "verde arriba de " + fmt(z.verde)] : ["lejos", "Lejos " + pc(z.falta), ""];
+    return z.falta <= CERCA ? ["cerca", "Cerca " + pc(z.falta), "tiene que cerrar arriba de " + fmt(z.verde)] : ["lejos", "Lejos " + pc(z.falta), ""];
   }
   const f = fCorta(r.sen[0]), sal = salidaTiempo(r.sen), hoy = (r.sen[7] || 0) === 0;
   if (opc7(r)) return hoy ? ["si", "Comprar en la apertura", `Strong del ${f}${sal ? " · cerrar todo el " + fCorta(sal[0]) : ""}`] : ["pasada", "Strong (entrada pasada)", `del ${f}: la compra era en la apertura siguiente${sal ? " · cerrar todo el " + fCorta(sal[0]) : ""}`];
