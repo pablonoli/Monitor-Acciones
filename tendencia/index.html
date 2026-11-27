@@ -234,9 +234,8 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
     <div class="sincro"><button type="button" id="miasSync">☁ Sincronizar mis compras</button> <span class="sub" id="miasMsg" role="status"></span></div>
     <div class="mibloque" id="miasTok" hidden><b>Conectar con GitHub (una sola vez)</b><span class="sub">Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.</span><div class="mfila"><input type="password" id="miasTokIn" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Token de GitHub"></div><div class="botfila"><button type="button" class="mini" id="miasTokOk">Guardar y sincronizar</button><button type="button" class="mini" id="miasTokNo">Cancelar</button></div></div>
     <details class="ajustes" id="rankDet">
-      <summary>Mayores ganancias y pérdidas de tu estrategia (desde 2024)</summary>
+      <summary>Mayores ganancias y pérdidas de tu estrategia (Strong con ATR de 2% o más, desde 2024)</summary>
       <div class="controles" role="group" aria-label="Año de la señal"><span class="sub">Año</span><div class="chips" id="rankAnio"></div></div>
-      <div class="controles" role="group" aria-label="Qué señales"><span class="sub">Señales</span><div class="chips" id="rankSen"><button type="button" data-v="regla">Tu regla (Strong, ATR 2% o más)</button><button type="button" data-v="todas">Todos los verdes</button></div></div>
       <div class="controles" role="group" aria-label="Qué mostrar"><span class="sub">Mostrar</span><div class="chips" id="rankTipo"><button type="button" data-v="gan">Mayores ganancias</button><button type="button" data-v="per">Mayores pérdidas</button></div></div>
       <div class="sub" id="rankRes" style="margin:6px 0 8px"></div>
       <div class="scroll"><table><thead><tr><th>N.º</th><th class="iz">Acción</th><th class="iz">Señal</th><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody id="rankCuerpo"></tbody></table></div>
@@ -1456,16 +1455,15 @@ function accCumple(r, f) {
   return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "operar" && opc7(r)) || (f === "mirar" && !!r.sen && !opc7(r)) || (f === "cerca3" && !r.sen && (z => !!z && !z.bajo && z.falta <= CERCA)(cercania(r))) || (f === "senal" && !!r.sen) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 // Ranking de operaciones de tu estrategia (historial "hist" de todas las acciones)
-let rank = { anio: guardado("rank_anio", "todos"), sen: guardado("rank_sen", "regla"), tipo: guardado("rank_tipo", "gan") };
+let rank = { anio: guardado("rank_anio", "todos"), tipo: guardado("rank_tipo", "gan") };
 function pintarRanking() {
   const H = accDatos && accDatos.hist; if (!H) { $("rankRes").textContent = "El historial se calcula con la próxima actualización diaria."; return; }
   const todas = Object.entries(H).flatMap(([s, L]) => L.map(o => ({ s, o }))).filter(x => x.o[10] !== "abierta");
   const anios = [...new Set(todas.map(x => x.o[0].slice(0, 4)))].sort();
   if (rank.anio !== "todos" && !anios.includes(rank.anio)) rank.anio = "todos";
   $("rankAnio").innerHTML = ["todos", ...anios].map(a => `<button type="button" data-v="${a}" aria-pressed="${a === rank.anio}">${a === "todos" ? "Todos" : a}</button>`).join("");
-  document.querySelectorAll("#rankSen button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === rank.sen));
   document.querySelectorAll("#rankTipo button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === rank.tipo));
-  const L = todas.filter(x => (rank.anio === "todos" || x.o[0].startsWith(rank.anio)) && (rank.sen === "todas" || (x.o[1] && x.o[2] >= 0.02)));
+  const L = todas.filter(x => (rank.anio === "todos" || x.o[0].startsWith(rank.anio)) && x.o[1] && x.o[2] >= 0.02);
   const cap = Math.max(1, +$("capital").value || 4000), usd = R => (R >= 0 ? "+" : "−") + "US$ " + Math.abs(R * cap * 0.01).toLocaleString("es-AR", { maximumFractionDigits: 0 });
   const pc = x => (x >= 0 ? "+" : "−") + Math.abs(100 * x).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
   if (!L.length) { $("rankRes").textContent = "No hay operaciones con ese filtro."; $("rankCuerpo").innerHTML = ""; return; }
@@ -1560,14 +1558,15 @@ const COMO = { stop: "tocó el stop", costo: "mitad en +2R, resto al precio de c
 function histRegla(r) {
   const H = accDatos.hist && accDatos.hist[r.s];
   if (!H) return `<div class="histr"><b>Tu estrategia en ${r.s}</b><p class="sub">El historial se calcula con la próxima actualización diaria.</p></div>`;
-  const regla = H.filter(o => o[1] && o[2] >= 0.02), pc = x => (x >= 0 ? "+" : "−") + Math.abs(100 * x).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
-  const res = L => L.length ? `${L.length} ${L.length === 1 ? "operación" : "operaciones"}, promedio <b class="${L.reduce((a, o) => a + o[8], 0) >= 0 ? "pos" : "neg"}">${pc(L.reduce((a, o) => a + o[8], 0) / L.length)}</b>, ${Math.round(100 * L.filter(o => o[8] > 0).length / L.length)}% ganadoras, total ${L.reduce((a, o) => a + o[9], 0).toLocaleString("es-AR", { maximumFractionDigits: 1 })}R` : "ninguna";
-  const filas = H.slice().reverse().map(o => { const ok = o[1] && o[2] >= 0.02;
-    return `<tr${ok ? ' class="regla"' : ""}><td class="iz">${fCorta(o[0])}/${o[0].slice(2, 4)}<br><span class="vsen${o[1] ? " fuerte" : ""}" style="font-size:10.5px;padding:1px 7px">${o[1] ? "Strong" : "Verde"}</span>${ok ? ' <span class="sub pos">✓ tu regla</span>' : ""}</td><td class="iz">${fCorta(o[3])}<br><span class="num">${fmt(o[4])}</span></td><td class="iz">${o[6] ? fCorta(o[6]) : "hoy"}<br><span class="num">${fmt(o[7])}</span><br><span class="sub">${COMO[o[10]] || o[10]}</span></td><td class="num ${o[8] >= 0 ? "pos" : "neg"}">${pc(o[8])}<br><span class="sub">${o[9] >= 0 ? "+" : ""}${o[9].toLocaleString("es-AR", { maximumFractionDigits: 2 })}R</span></td></tr>`; }).join("");
+  const L = H.filter(o => o[1] && o[2] >= 0.02), pc = x => (x >= 0 ? "+" : "−") + Math.abs(100 * x).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+  const cap = Math.max(1, +$("capital").value || 4000), usd = R => (R >= 0 ? "+" : "−") + "US$ " + Math.abs(R * cap * 0.01).toLocaleString("es-AR", { maximumFractionDigits: 0 });
+  if (!L.length) return `<div class="histr"><b>Tu estrategia en ${r.s} (desde enero 2024)</b><p class="sub" style="margin-top:6px">No dio ninguna Strong con ATR de 2% o más desde enero 2024.</p></div>`;
+  const cerr = L.filter(o => o[10] !== "abierta"), prom = cerr.length ? cerr.reduce((a, o) => a + o[8], 0) / cerr.length : 0, totR = cerr.reduce((a, o) => a + o[9], 0);
+  const filas = L.slice().reverse().map(o => `<tr><td class="iz">${fCorta(o[0])}/${o[0].slice(2, 4)}</td><td class="iz">${fCorta(o[3])}<br><span class="num">${fmt(o[4])}</span></td><td class="iz">${o[6] ? fCorta(o[6]) : "hoy"}<br><span class="num">${fmt(o[7])}</span><br><span class="sub">${COMO[o[10]] || o[10]}</span></td><td class="num ${o[8] >= 0 ? "pos" : "neg"}">${pc(o[8])}<br><span class="sub">${usd(o[9])}</span></td></tr>`).join("");
   return `<div class="histr"><b>Tu estrategia en ${r.s} (desde enero 2024)</b>
-    <p class="sub" style="margin:6px 0 2px"><b>Tu regla</b> (Strong con ATR de 2% o más): ${res(regla)}.</p>
-    <p class="sub" style="margin:0 0 8px">Todos los círculos verdes: ${res(H)}.</p>
-    ${H.length ? `<div class="scroll"><table><thead><tr><th class="iz">Señal</th><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${filas}</tbody></table></div><p class="sub" style="margin:6px 0 0;font-size:11.5px">Cada señal operada con el plan: compra en la apertura siguiente, stop en el mínimo de 20 ruedas, mitad en +2R y cierre en la rueda 20. Incluye 0,15% de costo por compra y por venta. R = resultado medido en lo que se arriesgaba (1R = la pérdida si tocaba el stop). </p>` : `<p class="sub">No dio círculos verdes desde enero 2024.</p>`}
+    <p class="sub" style="margin:6px 0 8px">${cerr.length ? `${cerr.length} ${cerr.length === 1 ? "operación cerrada" : "operaciones cerradas"}, ${Math.round(100 * cerr.filter(o => o[8] > 0).length / cerr.length)}% ganadoras, promedio <b class="${prom >= 0 ? "pos" : "neg"}">${pc(prom)}</b>, total <b class="${totR >= 0 ? "pos" : "neg"}">${usd(totR)}</b>.` : "Una operación abierta."}</p>
+    <div class="scroll"><table><thead><tr><th class="iz">Señal Strong</th><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${filas}</tbody></table></div>
+    <p class="sub" style="margin:6px 0 0;font-size:11.5px">Cada Strong con ATR de 2% o más operada con el plan: compra en la apertura siguiente, stop en el mínimo de 20 ruedas, mitad en +2R y cierre en la rueda 20. Incluye 0,15% de costo por lado. Los US$ son con tu capital y 1% de riesgo.</p>
   </div>`;
 }
 // Gráfico del detalle con tu regla: precio, medias 50 y 200, techo de 20 ruedas, precio para dar señal y el día del círculo verde
@@ -1684,7 +1683,7 @@ function detalleAcc(r) {
     <div>${datosAcc(r)}${miBloque(r)}${histRegla(r)}</div>
   </div></td></tr>`;
 }
-["rankAnio", "rankSen", "rankTipo"].forEach(id => $(id).addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (!b) return; const k = { rankAnio: "anio", rankSen: "sen", rankTipo: "tipo" }[id]; rank[k] = b.dataset.v; guardar("rank_" + k, rank[k]); pintarRanking(); }));
+["rankAnio", "rankTipo"].forEach(id => $(id).addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (!b) return; const k = { rankAnio: "anio", rankTipo: "tipo" }[id]; rank[k] = b.dataset.v; guardar("rank_" + k, rank[k]); pintarRanking(); }));
 $("rankCuerpo").addEventListener("click", e => { const f = e.target.closest("tr.rk"); if (!f) return; accFiltro = "todas"; accBusca = ""; $("accBusca").value = ""; accAbierta = f.dataset.s; pintarAcc(); const fila = document.querySelector(`#accTabla tr.fila[data-s="${f.dataset.s}"]`); if (fila) fila.scrollIntoView({ block: "center", behavior: "smooth" }); });
 $("capital").addEventListener("change", () => { if (accDatos) pintarRanking(); });
 async function cargarAcc() {
