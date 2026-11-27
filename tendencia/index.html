@@ -159,6 +159,10 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
 .volt { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; margin-left: 6px; vertical-align: 1px; }
 .vsen { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 99px; background: var(--long-bg); color: var(--long); border: 1px solid var(--long); white-space: nowrap; }
 .vsen.fuerte { background: var(--long); color: #fff; }
+.hacer { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
+.hacer.si { background: var(--long); color: #fff; } .hacer.pasada { background: var(--long-bg); color: var(--long); border: 1px solid var(--long); } .hacer.mirar { background: var(--chip); color: var(--muted); }
+.datos { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 13px; margin-bottom: 14px; padding: 12px; border-radius: 10px; background: var(--chip); } .datos > span:nth-child(odd) { color: var(--muted); }
+.simhacer { font-size: 13.5px; line-height: 1.4; padding: 8px 10px; border-radius: 8px; margin: -4px 0 12px; } .simhacer.si { background: var(--long-bg); color: var(--long); font-weight: 600; } .simhacer.no { background: var(--chip); color: var(--muted); }
 .fotros button.c-verde { color: var(--long); font-weight: 700; }
 #senHoy { border-left: 5px solid var(--long); background: var(--long-bg); border-radius: 14px; padding: 12px 16px; margin: 0 0 14px; }
 #senHoy.vacio { border-left-color: var(--line); background: var(--panel); }
@@ -298,8 +302,7 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
     <div class="scroll">
       <table id="accTabla">
         <thead><tr>
-          <th class="iz" data-k="s">Símbolo</th><th class="iz" data-k="est">Hoy</th><th class="iz" data-k="perm">Permiso</th><th data-k="gap">Medias</th>
-          <th data-k="tend">Tendencia (6 meses)</th><th data-k="precio">Último cierre</th><th data-k="atr">ATR %</th><th class="iz" data-k="senal">Señal</th><th data-k="techo">Techo 20 ruedas</th><th data-k="actual">Compra actual</th><th data-k="e">Estrategia</th><th data-k="m">Comprar y mantener</th><th data-k="n">Operaciones</th><th>Simular</th>
+          <th class="iz" data-k="s">Símbolo</th><th class="iz" data-k="senal">Qué hacer</th><th data-k="precio">Último cierre</th><th>Simular</th>
         </tr></thead>
         <tbody id="accCuerpo"></tbody>
       </table>
@@ -1274,7 +1277,8 @@ let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), a
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
-let accOrd = guardado("acc_ord", { k: "est", asc: true });
+let accOrd = guardado("acc_ord", { k: "senal", asc: false });
+if (!["s", "senal", "precio"].includes(accOrd.k)) accOrd = { k: "senal", asc: false };   // las demás columnas pasaron al detalle de la fila
 const ACC_EST = { "50_200": { rapida: 50, lenta: 200, nombre: "50/200", sma: true }, "auto": { rapida: 50, lenta: 200, nombre: "automática", sma: true } };
 let accEst = ACC_EST[guardado("acc_est", "auto")] ? guardado("acc_est", "auto") : "auto";
 let accN = [50, 100, 150, 200].includes(guardado("acc_n", 200)) ? guardado("acc_n", 200) : 200;
@@ -1469,6 +1473,31 @@ function celdaSenal(r) {
   const sal = salidaTiempo(r.sen);
   return `<td class="iz"><span class="vsen${st ? " fuerte" : ""}">${st ? "Verde Strong" : "Verde"}</span><br><span class="sub">${fCorta(f)} · zona ${fmt(zmax)}–${fmt(zmin)}</span>${sal ? `<br><span class="sub">cerrar todo el ${fCorta(sal[0])} · quedan ${sal[1]} ruedas</span>` : ""}</td>`;
 }
+// Tu regla (opción 7 de la prueba de 5 años): se opera solo el círculo verde Strong con ATR % de 2% o más.
+const opc7 = r => !!(r.sen && r.sen[1] && r.atrp != null && r.atrp >= 0.02);
+// [clase, texto principal, detalle] de lo que corresponde hacer con la acción según la regla
+function queHacer(r) {
+  if (!r.sen) return ["", "Sin señal", ""];
+  const f = fCorta(r.sen[0]), sal = salidaTiempo(r.sen), hoy = (r.sen[7] || 0) === 0;
+  if (opc7(r)) return hoy ? ["si", "Comprar en la apertura", `Strong del ${f}${sal ? " · cerrar todo el " + fCorta(sal[0]) : ""}`] : ["pasada", "Strong (entrada pasada)", `del ${f}: la compra era en la apertura siguiente${sal ? " · cerrar todo el " + fCorta(sal[0]) : ""}`];
+  return ["mirar", "Mirar, no operar", r.sen[1] ? `Strong con volatilidad baja del ${f}` : `verde común del ${f}`];
+}
+function celdaHacer(r) {
+  const [cl, tx, sb] = queHacer(r);
+  return cl ? `<td class="iz"><span class="hacer ${cl}">${tx}</span>${sb ? `<br><span class="sub">${sb}</span>` : ""}</td>` : `<td class="iz sub">${tx}</td>`;
+}
+// Datos que antes eran columnas: ahora se ven al tocar la fila
+function datosAcc(r) {
+  const it = [];
+  if (r.sen) { const sal = salidaTiempo(r.sen); it.push(["Señal", `${r.sen[1] ? "Verde Strong" : "Verde"} del ${fCorta(r.sen[0])} · zona ${fmt(r.sen[4])}–${fmt(r.sen[5])}${sal ? ` · cerrar todo el ${fCorta(sal[0])} (quedan ${sal[1]} ruedas)` : ""}`]); }
+  if (r.atrp != null) it.push(["ATR %", `${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% (volatilidad ${volNivel(r.atrp)[0].toLowerCase()})`]);
+  if (r.techo) { const d = r.techo / r.precio - 1; it.push(["Techo 20 ruedas", `${fmt(r.techo)} · ${d < 0.0005 ? "en el cierre" : "a " + (100 * d).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% sobre el cierre"}`]); }
+  it.push(["Estrategia de medias", `${accPillTxt(r)} · permiso ${r.permisoOk ? "sí" : "no"} · ${r.rango ? "rango " + Math.round(100 * r.pos) + "%" : "medias " + (r.mediasOk ? "+" : "−") + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "%"}`]);
+  it.push(["Tendencia (6 meses)", `${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} ${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%`]);
+  if (r.t.abierta) it.push(["Compra actual", `${pctT(r.t.actual)} desde ${fmt(r.t.abierta.precio)}`]);
+  it.push(["Desde enero 2024", `estrategia ${pctT(r.e)} · comprar y mantener ${pctT(r.m)} · ${r.n} operaciones`]);
+  return `<div class="datos">${it.map(([a, b]) => `<span>${a}</span><span>${b}</span>`).join("")}</div>`;
+}
 function celdaTecho(r) {
   if (!r.techo) return `<td class="num sub">—</td>`;
   const d = r.techo / r.precio - 1;
@@ -1487,19 +1516,16 @@ function pintarFilasAcc() {
   const q = accBusca.trim().toUpperCase();
   let filas = accRes.filter(r => accCumple(r, accFiltro) && (!q || r.s.includes(q)));
   const k = accOrd.k, dir = accOrd.asc ? 1 : -1;
-  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, tend: r => r.dir * r.ef, precio: r => r.precio, atr: r => r.atrp ?? -1, senal: r => r.sen ? (r.sen[1] ? 2 : 1) * 1e6 + Date.parse(r.sen[0]) / 1e6 : 0, techo: r => r.techo ? r.techo / r.precio - 1 : 9, actual: r => r.t.abierta ? r.t.actual : -9, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
+  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, tend: r => r.dir * r.ef, precio: r => r.precio, atr: r => r.atrp ?? -1, senal: r => r.sen ? (opc7(r) ? 3 : r.sen[1] ? 2 : 1) * 1e6 + Date.parse(r.sen[0]) / 1e6 : 0, techo: r => r.techo ? r.techo / r.precio - 1 : 9, actual: r => r.t.abierta ? r.t.actual : -9, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
   filas.sort((a, b) => { const x = clave(a), y = clave(b); return (x < y ? -1 : x > y ? 1 : 0) * dir || (a.s < b.s ? -1 : 1); });
   document.querySelectorAll("#accTabla th[data-k]").forEach(th => { th.classList.toggle("ord", th.dataset.k === k); th.classList.toggle("asc", th.dataset.k === k && accOrd.asc); });
   const pc = x => `<td class="num ${x >= 0 ? "pos" : "neg"}">${pctT(x)}</td>`;
   $("accCuerpo").innerHTML = filas.map(r => {
     const abierta = accAbierta === r.s;
     return `<tr class="fila${abierta ? " abierta" : ""}" data-s="${r.s}" tabindex="0" aria-expanded="${abierta}">
-      <td class="iz sim"><button type="button" class="mia" data-mia="${r.s}" aria-pressed="${!!accMias[r.s]}" aria-label="${accMias[r.s] ? "Es una acción que compré" : "Marcar que compré " + r.s}" title="${accMias[r.s] ? "Mi compra" : "Marcar que la compré (con el precio de hoy)"}">${accMias[r.s] ? "✓" : ""}</button>${r.s}${accMias[r.s] ? `<br><span class="sub ${r.precio >= accMias[r.s].p ? "pos" : "neg"}" style="font-weight:600">mía ${pctT(r.precio / accMias[r.s].p - 1)}</span>` : ""}${r.rango ? ' <span class="pill AVISO" style="font-size:11px;padding:1px 6px">↔ rango</span>' : ""}</td><td class="iz"><span class="${accPillCls(r)}">${accPillTxt(r)}</span>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? ` <span class="alerta" title="Esta acción ya tuvo ${r.stopsRec} stop(s) en los últimos 3 meses y sigue cerca del piso de su rango">⚠ ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} reciente${r.stopsRec > 1 ? "s" : ""}</span>` : ""}</td>
-      <td class="iz"><span class="chip ${r.permisoOk ? "si" : "no"}">${r.permisoOk ? "✓" : "✕"}</span></td>
-      ${r.rango ? `<td class="num">Rango ${Math.round(100 * r.pos)}%</td>` : `<td class="num ${r.mediasOk ? "pos" : "neg"}">${r.mediasOk ? "+" : "−"}${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</td>`}
-      <td class="${r.dir > 0 ? "pos" : "neg"}" style="font-weight:600">${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} <span class="num sub">${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%</span>${r.por && r.rango ? `<br><span class="sub">en rango, en ${(100 * r.pos).toLocaleString("es-AR", { maximumFractionDigits: 0 })}% de la banda (compra bajo 20%)</span>` : r.por ? `<br><span class="sub">las medias están a ${(100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% de cruzar${r.faltan ? " (" + (r.faltan === 1 ? "1 rueda" : "unas " + r.faltan + " ruedas") + " al ritmo actual)" : ""}</span>` : accCumple(r, "naciente") ? `<br><span class="sub">${r.bloqueada ? "salió de un rango: espera un cruce nuevo" : r.rango ? "está en rango: espera zona de compra" : !r.mediasOk ? "las medias están a " + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% de cruzar" : "sin señal de compra todavía"}</span>` : ""}</td><td class="num">${fmt(r.precio)}</td><td class="num">${r.atrp != null ? `${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% <span class="volt ${volNivel(r.atrp)[1]}">${volNivel(r.atrp)[0]}</span>` : `<span class="sub">—</span>`}</td>${celdaSenal(r)}${celdaTecho(r)}${r.t.abierta ? `<td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}<br><span class="sub">desde ${fmt(r.t.abierta.precio)}</span></td>` : `<td class="num sub">—</td>`}${pc(r.e)}${pc(r.m)}<td class="num">${r.n}</td><td><button type="button" class="simb" data-sim="${r.s}" aria-label="Simular una compra de ${r.s}">Simular</button></td></tr>` + (abierta ? detalleAcc(r) : "");
-  }).join("") || `<tr><td class="iz" colspan="14">No hay acciones para mostrar con ese filtro.</td></tr>`;
-  $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. Tocá una fila para ver su gráfico. Los resultados incluyen 0,15% de costo por compra y por venta; la columna «Medias» es cuánto está la rápida arriba (+) o debajo (−) de la lenta. «Tendencia» mide cuánto avanzó el precio en 6 meses respecto de todo lo que se movió en el camino: fuerte (10% o más) es una tendencia limpia, débil (menos de 5%) es una acción de costado. El cruce de medias funciona mejor en las fuertes. «Señal» marca los círculos verdes de las últimas 5 ruedas (ruptura del máximo de las 20 ruedas anteriores con momentum fuerte y por encima de la media de 200; «Strong» si además el volumen es más de 1,5 veces el promedio), con la fecha y la zona (máximo y mínimo de la vela anterior a la ruptura). «Techo 20 ruedas» es el máximo de las últimas 20 ruedas: el precio donde conviene poner la alerta en Webull, y a qué distancia está del último cierre. «ATR %» es cuánto se movió la acción por día, en promedio de las últimas 14 ruedas (el rango de cada día sobre el cierre de ese mismo día): baja (menos de 2%), media (2% a 4%) o alta (más de 4%).`;
+      <td class="iz sim"><button type="button" class="mia" data-mia="${r.s}" aria-pressed="${!!accMias[r.s]}" aria-label="${accMias[r.s] ? "Es una acción que compré" : "Marcar que compré " + r.s}" title="${accMias[r.s] ? "Mi compra" : "Marcar que la compré (con el precio de hoy)"}">${accMias[r.s] ? "✓" : ""}</button>${r.s}${accMias[r.s] ? `<br><span class="sub ${r.precio >= accMias[r.s].p ? "pos" : "neg"}" style="font-weight:600">mía ${pctT(r.precio / accMias[r.s].p - 1)}</span>` : ""}</td>${celdaHacer(r)}<td class="num">${fmt(r.precio)}</td><td><button type="button" class="simb" data-sim="${r.s}" aria-label="Simular una compra de ${r.s}">Simular</button></td></tr>` + (abierta ? detalleAcc(r) : "");
+  }).join("") || `<tr><td class="iz" colspan="4">No hay acciones para mostrar con ese filtro.</td></tr>`;
+  $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. «Qué hacer» sigue tu regla: se opera solo el círculo verde Strong con ATR de 2% o más, comprando en la apertura siguiente a la señal (stop en el mínimo de 20 ruedas, mitad en +2R, cerrar todo en la rueda 20). Las demás señales verdes quedan para mirar. Tocá una fila para ver el gráfico y el resto de los datos (señal, ATR, techo, estrategia de medias, tendencia); con Simular calculás cuántos CEDEARs comprar.`;
   if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); ajustarDetalle(); if (r && cv) graficoTend(cv, r.t, accN, r.rango ? "rango" : true, 501); }
 }
 // Por qué se compró o vendió en cada operación: se mira la rueda anterior a la ejecución (la señal sale al cierre y se ejecuta en la apertura siguiente).
@@ -1566,10 +1592,10 @@ function detalleAcc(r) {
   const ops = r.ops.slice(-5).reverse().map(o => { accFichas.push({ t: `Operación ${o.r >= 0 ? "ganada" : "perdida"} ${pctT(o.r)}`, c: o.entrada, pc: o.pIn, cm: motivoOp(r, o.entrada, true, o, true), v: o.salida, pv: o.pOut, vm: motivoOp(r, o.salida, false, o, true) }); return `<tr class="opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(o.entrada)}<br><span class="num">${fmt(o.pIn)}</span></td><td class="iz">${fechaT(o.salida)}<br><span class="num">${fmt(o.pOut)}</span>${(o.parciales || []).map(x => `<br><span class="sub">½ el ${fechaT(x.t)} a ${fmt(x.precio)}</span>`).join("")}</td><td class="num ${o.r >= 0 ? "pos" : "neg"}">${pctT(o.r)}${flecha}</td></tr>`; }).join("");
   let ab = "";
   if (r.t.abierta) { accFichas.push({ t: `Operación abierta ${pctT(r.t.actual)}`, c: r.t.abierta.t, pc: r.t.abierta.precio, cm: motivoOp(r, r.t.abierta.t, true, null, true), ab: true }); ab = `<tr class="abierta opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta${(r.t.abierta.parciales || []).map(x => `<br><span class="sub">½ vendida el ${fechaT(x.t)} a ${fmt(x.precio)} (+20%)</span>`).join("")}</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}${flecha}</td></tr>`; }
-  return `<tr class="det"><td colspan="14"><div class="cols">
+  return `<tr class="det"><td colspan="4"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}: precio de 2 años, operaciones y señal de hoy"></canvas>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span><span><i class="v" style="background:var(--long);border-color:var(--long)"></i>Operación ganada</span><span><i class="v" style="background:var(--short);border-color:var(--short)"></i>perdida</span><span>Barra rayada: varias operaciones seguidas</span></div></div>
-    <div>${r.det ? paso("¿Está en rango? (se mira 2 años)", r.det.corto ? "Todavía no hay 2 años de historia para evaluarlo: se opera por tendencia (cruce 50/200)." : `${r.det.vj >= 3 ? "✓" : "✕"} <b>Rebota entre piso y techo:</b> en 2 años el precio tuvo un piso de ${fmt(r.det.piso)}, un techo de ${fmt(r.det.techo)} y un promedio de ${fmt(r.det.media)}. La banda se divide en una zona de abajo (hasta ${fmt(r.det.piso + 0.2 * (r.det.techo - r.det.piso))}) y una zona de arriba (desde ${fmt(r.det.techo - 0.2 * (r.det.techo - r.det.piso))}): cada una es el 20% del ancho entre piso y techo (el mismo 20% de la compra). Fue ${r.det.vj} ${r.det.vj === 1 ? "vez" : "veces"} de una zona a la otra (hacen falta 3 o más).<br>${Math.abs(r.det.mov) < 0.25 ? "✓" : "✕"} <b>No tiene rumbo:</b> hace 2 años valía ${fmt(r.det.p0)} y hoy ${fmt(r.det.p1)}: cambió ${pctT(r.det.mov)}. Para ser rango tiene que haber cambiado menos de 25% (para arriba o para abajo) respecto de lo que valía hace 2 años.<br>${r.det.pend < 0.3 ? "✓" : "✕"} <b>Sin subida ni bajada fuerte de fondo:</b> si se traza una línea recta que acompañe al precio de los 2 años, esa línea ${r.det.incl >= 0 ? "sube" : "baja"} ${Math.abs(r.det.incl * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%. Esa ${r.det.incl >= 0 ? "subida" : "bajada"} es chica comparada con lo que el precio se mueve para arriba y para abajo: equivale al ${Math.round(100 * r.det.pend)}% de ese vaivén. Tiene que ser menos de 30%; si fuera más, el precio estaría en una ${r.det.incl >= 0 ? "subida" : "bajada"} sostenida y no en un rango.<br>${r.det.ok ? "<b>Está en rango:</b> se opera comprando abajo y vendiendo arriba." : r.rango ? "<b>Sigue en rango:</b> hoy alguna condición está un poco afuera, pero ya estaba en rango y solo sale si se pasa de límites más amplios (cambio de más de 35%, inclinación de más de 45% o menos de 2 viajes). Así no cambia de estrategia por un solo día." : "<b>No está en rango:</b> se opera por tendencia (cruce 50/200)."}`, r.rango) : ""}${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60% o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
+    <div>${datosAcc(r)}${r.det ? paso("¿Está en rango? (se mira 2 años)", r.det.corto ? "Todavía no hay 2 años de historia para evaluarlo: se opera por tendencia (cruce 50/200)." : `${r.det.vj >= 3 ? "✓" : "✕"} <b>Rebota entre piso y techo:</b> en 2 años el precio tuvo un piso de ${fmt(r.det.piso)}, un techo de ${fmt(r.det.techo)} y un promedio de ${fmt(r.det.media)}. La banda se divide en una zona de abajo (hasta ${fmt(r.det.piso + 0.2 * (r.det.techo - r.det.piso))}) y una zona de arriba (desde ${fmt(r.det.techo - 0.2 * (r.det.techo - r.det.piso))}): cada una es el 20% del ancho entre piso y techo (el mismo 20% de la compra). Fue ${r.det.vj} ${r.det.vj === 1 ? "vez" : "veces"} de una zona a la otra (hacen falta 3 o más).<br>${Math.abs(r.det.mov) < 0.25 ? "✓" : "✕"} <b>No tiene rumbo:</b> hace 2 años valía ${fmt(r.det.p0)} y hoy ${fmt(r.det.p1)}: cambió ${pctT(r.det.mov)}. Para ser rango tiene que haber cambiado menos de 25% (para arriba o para abajo) respecto de lo que valía hace 2 años.<br>${r.det.pend < 0.3 ? "✓" : "✕"} <b>Sin subida ni bajada fuerte de fondo:</b> si se traza una línea recta que acompañe al precio de los 2 años, esa línea ${r.det.incl >= 0 ? "sube" : "baja"} ${Math.abs(r.det.incl * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%. Esa ${r.det.incl >= 0 ? "subida" : "bajada"} es chica comparada con lo que el precio se mueve para arriba y para abajo: equivale al ${Math.round(100 * r.det.pend)}% de ese vaivén. Tiene que ser menos de 30%; si fuera más, el precio estaría en una ${r.det.incl >= 0 ? "subida" : "bajada"} sostenida y no en un rango.<br>${r.det.ok ? "<b>Está en rango:</b> se opera comprando abajo y vendiendo arriba." : r.rango ? "<b>Sigue en rango:</b> hoy alguna condición está un poco afuera, pero ya estaba en rango y solo sale si se pasa de límites más amplios (cambio de más de 35%, inclinación de más de 45% o menos de 2 viajes). Así no cambia de estrategia por un solo día." : "<b>No está en rango:</b> se opera por tendencia (cruce 50/200)."}`, r.rango) : ""}${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60% o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
       ${miBloque(r)}<div class="sub" style="margin-top:10px;font-size:12px;color:var(--muted)">Tocá una operación para ver por qué se compró y se vendió.</div><div class="scroll"><table style="margin-top:4px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
   </div></td></tr>`;
 }
@@ -1631,29 +1657,32 @@ function abrirSim(s) {
   const r = accRes.find(x => x.s === s); if (!r) return;
   $("fichaT").textContent = "Simular " + s;
   if (r.atr == null) { $("fichaB").innerHTML = `<p>Todavía no hay datos de ATR para ${s}. Se cargan con la próxima actualización diaria.</p>`; $("ficha").hidden = false; return; }
-  simR = r; const alta = r.atrp > 0.04, cap = guardado("sim_capital", 10000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
+  simR = r; const alta = r.atrp > 0.04, cap = guardado("sim_cap_v2", false) ? guardado("sim_capital", 4000) : (guardar("sim_capital", 4000), guardar("sim_cap_v2", true), 4000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   const ccl = accDatos.ccl, ced = accDatos.cedear && accDatos.cedear[s], est = estimarRatio(r), vn = volNivel(r.atrp);
+  if (!guardado("sim_stop_v2", false)) { guardar("sim_stop", "min"); guardar("sim_stop_v2", true); }   // una sola vez: vuelve al amplio aunque antes se haya elegido otro
   simSel = ["atr", "min", "man"].includes(guardado("sim_stop", "min")) ? guardado("sim_stop", "min") : "min";   // por defecto el amplio (mín. 20 ruedas), que es el que se probó
   const stopIni = r.precio * (1 - 2.5 * r.atrp);
   $("fichaT").innerHTML = `Simular ${s} <span class="volt ${vn[1]}">Volatilidad ${vn[0].toLowerCase()} · ${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</span>`;
   const inp = (id, et, v, ph) => `<label>${et}<input id="${id}" type="number" min="0" step="any" inputmode="decimal" value="${v}"${ph ? ` placeholder="${ph}"` : ""}></label>`;
+  const qh = queHacer(r), qTxt = qh[0] === "si" ? "Strong con volatilidad de 2% o más: según tu regla, se opera. Comprá en la apertura de la próxima rueda." : qh[0] === "pasada" ? `Strong ${qh[2]}.` : qh[0] === "mirar" ? `${qh[2][0].toUpperCase() + qh[2].slice(1)}: según tu regla, no se opera.` : "Sin señal: según tu regla, no se opera.";
   $("fichaB").innerHTML = `<div id="simBox">
+    <div class="simhacer ${qh[0] === "si" || qh[0] === "pasada" ? "si" : "no"}">${qTxt}</div>
     <div class="simhd"><span id="simHd"></span> · <button type="button" class="simed" id="simEdBtn" aria-expanded="false" aria-controls="simEd">Editar</button></div>
     <div id="simEd" hidden><div class="simf">
-      ${inp("simCap", "Capital (USD)", cap)}${inp("simRie", "Riesgo por operación (%)", alta ? 0.5 : 1)}${inp("simEnt", "Precio de entrada (USD)", r.precio.toFixed(2))}${inp("simMul", "Multiplicador de ATR (stop y máximo)", 2.5)}
+      ${inp("simCap", "Capital (USD)", cap)}${inp("simRie", "Riesgo por operación (%)", 1)}${inp("simEnt", "Precio de entrada (USD)", r.precio.toFixed(2))}${inp("simMul", "Multiplicador de ATR (stop y máximo)", 2.5)}
       ${inp("simObj", "Objetivo (veces el riesgo)", 2)}${inp("simCcl", "Dólar CCL (pesos)", ccl ? ccl.v : "", "completalo")}${inp("simRat", "Ratio CEDEAR", est ? est.estandar : "", "completalo")}
     </div></div>
     <div class="simcards" id="simCards"></div>
     <div class="simtit">Escalera de precios</div><div id="simEsc"></div>
     <div class="simtit">Elegí el stop</div>
     <div class="simopts" role="radiogroup" aria-label="Elegí el stop">
+      <div class="opc" role="radio" tabindex="0" data-m="min"><span class="tk">✓</span><b class="ot">Amplio (mín. 20 ruedas) · el probado</b><span class="od" id="simOd_min"></span><span class="oc" id="simOc_min"></span></div>
       <div class="opc" role="radio" tabindex="0" data-m="atr"><span class="tk">✓</span><b class="ot">Por volatilidad (ATR)</b><span class="od" id="simOd_atr"></span><span class="oc" id="simOc_atr"></span></div>
-      <div class="opc" role="radio" tabindex="0" data-m="min"><span class="tk">✓</span><b class="ot">Amplio (mín. 20 ruedas)</b><span class="od" id="simOd_min"></span><span class="oc" id="simOc_min"></span></div>
       <div class="opc" role="radio" tabindex="0" data-m="man"><span class="tk">✓</span><b class="ot">Manual</b><input id="simMan" type="number" min="0" step="any" inputmode="decimal" placeholder="Precio" value="${simSel === "man" ? stopIni.toFixed(2) : ""}" aria-label="Stop manual en USD"><span class="oc" id="simOc_man"></span></div>
     </div>
     <div id="simChk" role="status"></div>
     <details class="simdet"><summary>Ver detalle del cálculo</summary>
-      <p class="sub" style="margin:0 0 8px">Último cierre (${ult}): ${sU(r.precio)}. Volatilidad ${vn[0].toLowerCase()}${alta ? ", por eso el riesgo sugerido es 0,5%" : ""}.</p>
+      <p class="sub" style="margin:0 0 8px">Último cierre (${ult}): ${sU(r.precio)}. Volatilidad ${vn[0].toLowerCase()}.</p>
       <p class="sub" style="margin:0 0 10px">${ccl ? `Dólar CCL: ${sAR(ccl.v, 2)} al ${fechaCorta(ccl.f)} (${ccl.fuente || "dolarapi.com"}).` : "No hay dólar CCL cargado todavía: se baja con la actualización diaria."} ${ced ? `CEDEAR ${s}: ${sAR(ced[0], 2)} al ${fechaCorta(ced[1])} (Yahoo).` : `No encontré precio en pesos del CEDEAR de ${s} en Yahoo.`}${est ? ` Ratio estimado: ${est.crudo.toLocaleString("es-AR", { maximumFractionDigits: 1 })} → ${est.estandar}.` : ""}</p>
       <div class="simr" id="simRes"></div>
     </details></div>`;
@@ -1665,7 +1694,7 @@ function calcSim() {
   const ccl = numIn($("simCcl").value), rat = numIn($("simRat").value), ced = accDatos.cedear && accDatos.cedear[r.s], pc = ced ? ced[0] : null;
   const cards = $("simCards"), esc = $("simEsc"), chk = $("simChk"), ok = cap > 0 && rie > 0 && ent > 0 && mul > 0 && objM > 0;
   const nf = (x, d = 1) => x.toLocaleString("es-AR", { maximumFractionDigits: d });
-  $("simHd").innerHTML = `Capital US$ <b>${cap > 0 ? nf(cap, 0) : "—"}</b> · Riesgo <b>${rie > 0 ? nf(rie, 2) : "—"}%</b> · Entrada US$ <b>${ent > 0 ? fmt(ent) : "—"}</b>`;
+  $("simHd").innerHTML = `Capital US$ <b>${cap > 0 ? nf(cap, 0) : "—"}</b> · Riesgo <b>${rie > 0 ? nf(rie, 2) : "—"}%</b> · Entrada US$ <b>${ent > 0 ? fmt(ent) : "—"}</b> (estimada con el último cierre: la compra real es en la apertura)`;
   const vacioOpc = () => ["atr", "min", "man"].forEach(k => { const d = $("simOd_" + k), c = $("simOc_" + k); if (d) d.textContent = ""; c.textContent = ""; });
   const card = (cl, ic, t, g, sb) => `<div class="sc ${cl}"><div class="t">${ic}<span>${t}</span></div><div class="g">${g}</div><div class="sb">${sb}</div></div>`;
   if (!ok) {
@@ -1721,7 +1750,9 @@ function calcSim() {
   if (!(rat > 0)) { cl = "bad"; tx = "Falta el ratio del CEDEAR: completalo en Editar (verificalo en tu broker)."; }
   else if (nC < 1) { cl = "bad"; tx = "Con este capital y riesgo no alcanza para un CEDEAR."; }
   else if (dif != null && dif > 0.05) { cl = "bad"; tx = `Verificar ratio del CEDEAR: el CCL implícito difiere ${nf(100 * dif)}% del CCL.`; }
-  else if (S.atrs > mul + 1e-9) { cl = "bad"; tx = "Stop más lejos del máximo para su volatilidad: conviene saltear."; }
+  else if (simSel === "min") { cl = "ok"; tx = "Stop amplio (mínimo de 20 ruedas): es el que se probó en 5 años."; }
+  else if (simSel === "atr") { cl = "warn"; tx = "Stop por volatilidad: en la prueba de 5 años rindió menos que el amplio (+79% contra +115%) y saltó 4 veces más seguido."; }
+  else if (S.atrs > mul + 1e-9) { cl = "warn"; tx = "Stop más lejos que el máximo por volatilidad (aviso, no bloquea)."; }
   else if (S.atrs < 1) { cl = "warn"; tx = "Stop a menos de 1 ATR: demasiado cerca."; }
   else { cl = "ok"; tx = `Stop entre 1 y ${nf(mul)} ATR, dentro del máximo para su volatilidad.`; }
   chk.className = "simchk " + cl; chk.textContent = (cl === "ok" ? "✓ " : cl === "warn" ? "! " : "✕ ") + tx;
