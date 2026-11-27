@@ -1,0 +1,48 @@
+¿EL MSB+ DE TRADINGVIEW LE GANA AL CÍRCULO VERDE? Últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR.
+Salida igual para todas (Plan A): mitad a +2R y stop al precio de compra, cierre de todo en la rueda 20. Costo 0,15% por lado.
+Entradas 1-4, 8, 9: apertura del día siguiente, stop en el mínimo de 20 ruedas. Entradas 5-7: orden límite en el techo de la caja durante 20 ruedas, stop debajo de la caja.
+Capital: 1% de riesgo por operación, exposición máx. 100%, posición máx. 25% del capital. Si no hay plata libre, la señal se saltea.
+Indicador de TV interpretado con tu configuración: ZigZag 9, Fib Factor 0.33, Strong = cuerpo de la vela >= 0,7 ATR. Es una reconstrucción: el código real puede diferir.
+Retroceso a la caja: de 1872 MSB+, el precio volvió a la caja en 536 (29%); en 1309 no volvió en 20 ruedas y en 27 la caja se rompió sin dar entrada.
+Marca '≈base' = diferencia de acumulado contra la 1 menor a 15 puntos: puede ser casualidad. 9 versiones probadas.
+SPY comprar y mantener: acumulado +67.0%, caída máx. -24.5%.
+LÍMITES: sesgo de selección (varias versiones), sesgo de supervivencia (lista de CEDEARs de hoy), operaciones superpuestas, reconstrucción del indicador de TV.
+
+== RESULTADOS (5 años) ==
+Versión                                             | señales | toma. | por mes |   prom. | gan. | R med |    acum. |  c. MTM | peor mes | vs base
+1. Círculo verde (tu sistema, base)                 |    2396 |   940 |    15.4 |  +1.82% |  53% | +0.09 |   +98.4% |  -20.5% |    -6.4% | 
+2. MSB+ de TV, sin filtro de tendencia              |    1870 |   827 |    13.6 |  +1.33% |  52% | +0.05 |   +41.9% |  -20.2% |   -11.5% |  -56.5 pp
+3. MSB+ de TV + arriba de la SMA 200                |    1588 |   778 |    12.8 |  +1.51% |  52% | +0.08 |   +61.6% |  -19.4% |   -12.6% |  -36.8 pp
+4. MSB+ de TV solo cambio de tendencia + SMA 200    |     578 |   460 |     7.5 |  +1.32% |  57% | +0.10 |   +51.5% |  -19.2% |    -9.4% |  -46.9 pp
+5. Retroceso a la caja verde, sin filtro            |     536 |   448 |     7.3 |  -0.16% |  35% | -0.15 |   -23.0% |  -25.9% |    -8.4% | -121.4 pp
+6. Retroceso a la caja verde + SMA 200              |     450 |   378 |     6.2 |  +0.13% |  36% | -0.08 |    -9.9% |  -20.4% |    -8.4% | -108.3 pp
+7. Retroceso a caja Strong + SMA 200                |     165 |   161 |     2.6 |  +0.82% |  43% | +0.05 |    +9.6% |  -10.3% |    -6.3% |  -88.8 pp
+8. Círculo verde + MSB+ en las últimas 5 ruedas     |     817 |   603 |     9.9 |  +2.35% |  56% | +0.13 |  +105.6% |  -12.4% |    -5.7% |   +7.2 pp  ≈base
+9. Círculo verde sin caja roja dentro de 2R arriba  |    2105 |   904 |    14.8 |  +1.65% |  52% | +0.08 |   +92.4% |  -17.8% |    -6.6% |   -6.0 pp  ≈base
+señales = todas las que aparecieron; toma. = las que entraron con el capital disponible; R med = resultado promedio medido en riesgos.
+
+== RETORNO DEL CAPITAL POR AÑO ==
+Versión                                                   2021      2022      2023      2024      2025      2026
+1. Círculo verde (tu sistema, base)                      +0.4%     -5.8%    +16.7%    +27.0%    +12.4%    +26.0%
+2. MSB+ de TV, sin filtro de tendencia                   -1.4%     -6.1%    +16.2%     +9.1%     -0.8%    +21.8%
+3. MSB+ de TV + arriba de la SMA 200                     -1.4%     -5.5%    +18.5%    +22.9%     +5.5%    +12.9%
+4. MSB+ de TV solo cambio de tendencia + SMA 200         -1.8%     +1.9%    +14.5%    +19.5%     +4.7%     +5.7%
+5. Retroceso a la caja verde, sin filtro                 -1.8%    -10.4%     -2.6%     +1.8%     -4.2%     -7.8%
+6. Retroceso a la caja verde + SMA 200                   -1.8%     -7.3%     +0.1%     +3.6%     -0.8%     -3.7%
+7. Retroceso a caja Strong + SMA 200                     -2.0%     -3.1%     -0.4%     -0.1%     +3.3%    +12.4%
+8. Círculo verde + MSB+ en las últimas 5 ruedas          -1.0%     +2.7%    +20.0%    +22.8%    +14.2%    +20.2%
+9. Círculo verde sin caja roja dentro de 2R arriba       +0.4%     -3.9%     +8.2%    +36.9%     +9.1%    +23.2%
+SPY comprar y mantener                                   +3.8%    -18.2%    +26.2%    +24.9%    +17.7%     +5.9%
+
+== POR MITADES (señales hasta 2024-05-26 | desde 2024-05-26) ==
+Versión                                             | 1.ª acum. | por mes | R med |  c. MTM || 2.ª acum. | por mes | R med |  c. MTM
+1. Círculo verde (tu sistema, base)                 |    +22.2% |    14.0 | +0.05 |  -20.5% ||    +62.4% |    15.9 | +0.12 |  -13.8%
+2. MSB+ de TV, sin filtro de tendencia              |    +18.0% |    12.5 | +0.05 |  -19.4% ||    +15.4% |    14.2 | +0.05 |  -20.2%
+3. MSB+ de TV + arriba de la SMA 200                |    +28.7% |    11.4 | +0.08 |  -16.5% ||    +27.0% |    13.6 | +0.08 |  -19.4%
+4. MSB+ de TV solo cambio de tendencia + SMA 200    |    +25.1% |     6.3 | +0.12 |   -5.6% ||    +21.2% |     8.5 | +0.09 |  -19.2%
+5. Retroceso a la caja verde, sin filtro            |    -16.9% |     6.3 | -0.21 |  -21.8% ||     -7.4% |     8.2 | -0.09 |  -20.5%
+6. Retroceso a la caja verde + SMA 200              |    -10.9% |     4.9 | -0.16 |  -18.5% ||     +1.2% |     7.3 | -0.02 |  -20.4%
+7. Retroceso a caja Strong + SMA 200                |     -7.0% |     1.9 | -0.19 |   -9.5% ||    +17.9% |     3.3 | +0.18 |  -10.3%
+8. Círculo verde + MSB+ en las últimas 5 ruedas     |    +29.0% |     8.4 | +0.10 |   -8.4% ||    +59.4% |    11.0 | +0.16 |  -12.4%
+9. Círculo verde sin caja roja dentro de 2R arriba  |    +17.2% |    13.3 | +0.04 |  -17.8% ||    +57.8% |    15.4 | +0.11 |  -15.8%
+  Le ganan al círculo verde (1) en las DOS mitades: ninguna.
