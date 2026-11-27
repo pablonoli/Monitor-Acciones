@@ -105,6 +105,8 @@ canvas { width: 100%; height: 190px; display: block; }
 .leyenda i.p { background: var(--text); } .leyenda i.r { background: var(--accent); } .leyenda i.l { background: var(--blue); }
 .leyenda i.m { height: 0; border-top: 2px dashed var(--muted); border-radius: 0; } .leyenda i.v { height: 10px; width: 10px; background: var(--long-bg); border: 1px solid var(--long); }
 .paso { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.histr { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); } .histr table { margin-top: 4px; } .histr tr.regla td { background: var(--long-bg); }
+details.otra { margin-top: 14px; border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; } details.otra > summary { cursor: pointer; font-size: 13px; color: var(--muted); }
 .paso b { font-size: 15px; } .paso .sub { display: block; }
 .chip { font-size: 14px; font-weight: 600; border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
 .chip.si { color: var(--long); background: var(--long-bg); } .chip.no { color: var(--short); background: var(--short-bg); }
@@ -1011,7 +1013,8 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, 
   const corte = xs => xs.slice(-N);
   const closes = t.w.slice(0, t.f.length).map(k => k.close);
   const cl = corte(closes), f = corte(t.f), sl = corte(t.sl), sen = corte(t.sen), sm = corte(smaSerie(closes, n200));
-  const todos = banda ? [...cl, ...f.filter(isFinite), ...sl.filter(isFinite)] : [...cl, ...f, ...sl, ...sm.filter(isFinite)], lo = Math.min(...todos), hi = Math.max(...todos);
+  const extra = [t.techo20, t.cierreNec].filter(v => v > 0);
+  const todos = banda ? [...cl, ...f.filter(isFinite), ...sl.filter(isFinite)] : [...cl, ...f.filter(isFinite), ...sl.filter(isFinite), ...sm.filter(isFinite), ...extra], lo0 = Math.min(...todos), hi0 = Math.max(...todos), mg = extra.length ? 0.06 * (hi0 - lo0) : 0, lo = lo0, hi = hi0 + mg;
   const hp = banda ? HC : h - 18;   // alto del gráfico; abajo queda lugar para las fechas
   const X = i => 6 + i * (w - 12) / (N - 1), Y = v => 8 + (hi - v) * (hp - 16) / (hi - lo || 1);
   g.fillStyle = col("--long-bg");
@@ -1088,6 +1091,10 @@ function graficoTend(cv, t, n200 = tendTf === "1d" ? 200 : 1200, banda = false, 
     });
     g.textAlign = "left";
   }
+  const juntos = t.cierreNec > 0 && t.techo20 > 0 && Math.abs(Y(t.cierreNec) - Y(t.techo20)) <= 14;
+  if (t.techo20 > 0) { g.beginPath(); g.moveTo(0, Y(t.techo20)); g.lineTo(w, Y(t.techo20)); g.setLineDash([4, 3]); g.strokeStyle = col("--long"); g.lineWidth = 1.2; g.stroke(); g.setLineDash([]); etiquetas.push(["techo 20 ruedas " + fmt(t.techo20) + (juntos ? " · tiene que cerrar arriba de " + fmt(t.cierreNec) : ""), 2, Y(Math.max(t.techo20, juntos ? t.cierreNec : 0)) - 10, col("--long")]); }
+  if (t.cierreNec > 0 && !juntos) { g.beginPath(); g.moveTo(w * 0.55, Y(t.cierreNec)); g.lineTo(w, Y(t.cierreNec)); g.setLineDash([2, 3]); g.strokeStyle = col("--long"); g.lineWidth = 1.2; g.stroke(); g.setLineDash([]); etiquetas.push(["tiene que cerrar arriba de " + fmt(t.cierreNec), w * 0.55, Y(t.cierreNec) - 10, col("--long")]); }
+  if (t.marca) { const k = tsN.findIndex(x => x >= t.marca); if (k >= 0) { g.beginPath(); g.arc(X(k), Y(cl[k]), 6, 0, 7); g.fillStyle = col("--long"); g.fill(); g.strokeStyle = "#fff"; g.lineWidth = 2; g.stroke(); } }
   etiquetas.forEach(([tx, x, y, c]) => pill(tx, x, y, c));
   if (hover !== null && hover >= 0 && hover < N) {   // línea vertical + cartel con la fecha y el precio de ese día (y la operación en curso ese día, si hay)
     const x = X(hover), y = Y(cl[hover]);
@@ -1505,19 +1512,33 @@ function celdaHacer(r) {
   const [cl, tx, sb] = queHacer(r);
   return cl ? `<td class="iz"><span class="hacer ${cl}">${tx}</span>${sb ? `<br><span class="sub">${sb}</span>` : ""}</td>` : `<td class="iz sub">${tx}</td>`;
 }
+// Tu estrategia en esta acción: cada círculo verde desde enero 2024 operado con el plan (lo calcula el script diario, en "hist")
+const COMO = { stop: "tocó el stop", costo: "mitad en +2R, resto al precio de compra", r20: "cierre en la rueda 20", r20m: "mitad en +2R, resto en la rueda 20", abierta: "sigue abierta" };
+function histRegla(r) {
+  const H = accDatos.hist && accDatos.hist[r.s];
+  if (!H) return `<div class="histr"><b>Tu estrategia en ${r.s}</b><p class="sub">El historial se calcula con la próxima actualización diaria.</p></div>`;
+  const regla = H.filter(o => o[1] && o[2] >= 0.02), pc = x => (x >= 0 ? "+" : "−") + Math.abs(100 * x).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+  const res = L => L.length ? `${L.length} ${L.length === 1 ? "operación" : "operaciones"}, promedio <b class="${L.reduce((a, o) => a + o[8], 0) >= 0 ? "pos" : "neg"}">${pc(L.reduce((a, o) => a + o[8], 0) / L.length)}</b>, ${Math.round(100 * L.filter(o => o[8] > 0).length / L.length)}% ganadoras, total ${L.reduce((a, o) => a + o[9], 0).toLocaleString("es-AR", { maximumFractionDigits: 1 })}R` : "ninguna";
+  const filas = H.slice().reverse().slice(0, 8).map(o => { const ok = o[1] && o[2] >= 0.02;
+    return `<tr${ok ? ' class="regla"' : ""}><td class="iz">${fCorta(o[0])}/${o[0].slice(2, 4)}<br><span class="vsen${o[1] ? " fuerte" : ""}" style="font-size:10.5px;padding:1px 7px">${o[1] ? "Strong" : "Verde"}</span>${ok ? ' <span class="sub pos">✓ tu regla</span>' : ""}</td><td class="iz">${fCorta(o[3])}<br><span class="num">${fmt(o[4])}</span></td><td class="iz">${o[6] ? fCorta(o[6]) : "hoy"}<br><span class="num">${fmt(o[7])}</span><br><span class="sub">${COMO[o[10]] || o[10]}</span></td><td class="num ${o[8] >= 0 ? "pos" : "neg"}">${pc(o[8])}<br><span class="sub">${o[9] >= 0 ? "+" : ""}${o[9].toLocaleString("es-AR", { maximumFractionDigits: 2 })}R</span></td></tr>`; }).join("");
+  return `<div class="histr"><b>Tu estrategia en ${r.s} (desde enero 2024)</b>
+    <p class="sub" style="margin:6px 0 2px"><b>Tu regla</b> (Strong con ATR de 2% o más): ${res(regla)}.</p>
+    <p class="sub" style="margin:0 0 8px">Todos los círculos verdes: ${res(H)}.</p>
+    ${H.length ? `<div class="scroll"><table><thead><tr><th class="iz">Señal</th><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${filas}</tbody></table></div><p class="sub" style="margin:6px 0 0;font-size:11.5px">Cada señal operada con el plan: compra en la apertura siguiente, stop en el mínimo de 20 ruedas, mitad en +2R y cierre en la rueda 20. Incluye 0,15% de costo por compra y por venta. R = resultado medido en lo que se arriesgaba (1R = la pérdida si tocaba el stop). ${H.length > 8 ? "Se muestran las 8 más recientes." : ""}</p>` : `<p class="sub">No dio círculos verdes desde enero 2024.</p>`}
+  </div>`;
+}
+// Gráfico del detalle con tu regla: precio, medias 50 y 200, techo de 20 ruedas, precio para dar señal y el día del círculo verde
+function tSimple(r) { const z = !r.sen && cercania(r); return { ...r.t, sen: [], ops: [], abierta: null, techo20: r.techo, cierreNec: z && !z.bajo && z.falta <= CERCA ? z.verde : null, marca: r.sen ? Date.parse(r.sen[0] + "T20:00:00Z") - 86400000 : null }; }
+function dibujarDetalle(cv, r) { cv.style.height = "260px"; graficoTend(cv, tSimple(r), 100000, false, 501); }
 // Datos que antes eran columnas: ahora se ven al tocar la fila
 function datosAcc(r) {
   const it = [];
   if (r.sen) { const sal = salidaTiempo(r.sen); it.push(["Señal", `${r.sen[1] ? "Verde Strong" : "Verde"} del ${fCorta(r.sen[0])} · zona ${fmt(r.sen[4])}–${fmt(r.sen[5])}${sal ? ` · cerrar todo el ${fCorta(sal[0])} (quedan ${sal[1]} ruedas)` : ""}`]); }
   { const z = !r.sen && cercania(r);
     if (z) it.push(["Para dar compra", z.bajo ? `está ${(100 * -z.debajo).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% debajo de su media 200 (${fmt(z.sma)}): no puede dar compra hasta superarla`
-      : `verde si cierra arriba de ${fmt(z.verde)} (+${(100 * z.falta).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%) · Strong arriba de ${fmt(z.strong)} (+${(100 * z.faltaS).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%) y con volumen 1,5 veces el promedio${r.atrp != null && r.atrp < 0.02 ? " · ATR bajo: aunque dé Strong, no entra en tu regla" : ""}`]); }
+      : `tiene que cerrar arriba de ${fmt(z.verde)} (+${(100 * z.falta).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%) · Strong arriba de ${fmt(z.strong)} (+${(100 * z.faltaS).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%) y con volumen 1,5 veces el promedio${r.atrp != null && r.atrp < 0.02 ? " · ATR bajo: aunque dé Strong, no entra en tu regla" : ""}`]); }
   if (r.atrp != null) it.push(["ATR %", `${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% (volatilidad ${volNivel(r.atrp)[0].toLowerCase()})`]);
   if (r.techo) { const d = r.techo / r.precio - 1; it.push(["Techo 20 ruedas", `${fmt(r.techo)} · ${d < 0.0005 ? "en el cierre" : "a " + (100 * d).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% sobre el cierre"}`]); }
-  it.push(["Estrategia de medias", `${accPillTxt(r)} · permiso ${r.permisoOk ? "sí" : "no"} · ${r.rango ? "rango " + Math.round(100 * r.pos) + "%" : "medias " + (r.mediasOk ? "+" : "−") + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "%"}`]);
-  it.push(["Tendencia (6 meses)", `${r.ef >= EF_FUERTE ? "Fuerte" : r.ef >= EF_MEDIA ? "Media" : "Débil"} ${r.dir > 0 ? "▲" : "▼"} ${(100 * r.ef).toLocaleString("es-AR", { maximumFractionDigits: 0 })}%`]);
-  if (r.t.abierta) it.push(["Compra actual", `${pctT(r.t.actual)} desde ${fmt(r.t.abierta.precio)}`]);
-  it.push(["Desde enero 2024", `estrategia ${pctT(r.e)} · comprar y mantener ${pctT(r.m)} · ${r.n} operaciones`]);
   return `<div class="datos">${it.map(([a, b]) => `<span>${a}</span><span>${b}</span>`).join("")}</div>`;
 }
 function celdaTecho(r) {
@@ -1548,7 +1569,7 @@ function pintarFilasAcc() {
       <td class="iz sim"><button type="button" class="mia" data-mia="${r.s}" aria-pressed="${!!accMias[r.s]}" aria-label="${accMias[r.s] ? "Es una acción que compré" : "Marcar que compré " + r.s}" title="${accMias[r.s] ? "Mi compra" : "Marcar que la compré (con el precio de hoy)"}">${accMias[r.s] ? "✓" : ""}</button>${r.s}${accMias[r.s] ? `<br><span class="sub ${r.precio >= accMias[r.s].p ? "pos" : "neg"}" style="font-weight:600">mía ${pctT(r.precio / accMias[r.s].p - 1)}</span>` : ""}</td>${celdaHacer(r)}<td class="num">${fmt(r.precio)}</td><td><button type="button" class="simb" data-sim="${r.s}" aria-label="Simular una compra de ${r.s}">Simular</button></td></tr>` + (abierta ? detalleAcc(r) : "");
   }).join("") || `<tr><td class="iz" colspan="4">No hay acciones para mostrar con ese filtro.</td></tr>`;
   $("accPie").textContent = `${filas.length} de ${accRes.length} acciones. «Qué hacer» sigue tu regla: se opera solo el círculo verde Strong con ATR de 2% o más, comprando en la apertura siguiente a la señal (stop en el mínimo de 20 ruedas, mitad en +2R, cerrar todo en la rueda 20). Las demás señales verdes quedan para mirar. Tocá una fila para ver el gráfico y el resto de los datos (señal, ATR, techo, estrategia de medias, tendencia); con Simular calculás cuántos CEDEARs comprar.`;
-  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); ajustarDetalle(); if (r && cv) graficoTend(cv, r.t, accN, r.rango ? "rango" : true, 501); }
+  if (accAbierta) { const r = accRes.find(x => x.s === accAbierta), cv = document.querySelector("#accTabla canvas"); ajustarDetalle(); if (r && cv) dibujarDetalle(cv, r); }
 }
 // Por qué se compró o vendió en cada operación: se mira la rueda anterior a la ejecución (la señal sale al cierre y se ejecuta en la apertura siguiente).
 function motivoOp(r, ms, compra, o, cp) {
@@ -1616,9 +1637,8 @@ function detalleAcc(r) {
   if (r.t.abierta) { accFichas.push({ t: `Operación abierta ${pctT(r.t.actual)}`, c: r.t.abierta.t, pc: r.t.abierta.precio, cm: motivoOp(r, r.t.abierta.t, true, null, true), ab: true }); ab = `<tr class="abierta opf" tabindex="0" data-f="${accFichas.length - 1}"><td class="iz">${fechaT(r.t.abierta.t)}<br><span class="num">${fmt(r.t.abierta.precio)}</span></td><td class="iz">Abierta${(r.t.abierta.parciales || []).map(x => `<br><span class="sub">½ vendida el ${fechaT(x.t)} a ${fmt(x.precio)} (+20%)</span>`).join("")}</td><td class="num ${r.t.actual >= 0 ? "pos" : "neg"}">${pctT(r.t.actual)}${flecha}</td></tr>`; }
   return `<tr class="det"><td colspan="4"><div class="cols">
     <div><canvas role="img" aria-label="Gráfico de ${r.s}: precio de 2 años, operaciones y señal de hoy"></canvas>
-      <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span><span><i class="v" style="background:var(--long);border-color:var(--long)"></i>Operación ganada</span><span><i class="v" style="background:var(--short);border-color:var(--short)"></i>perdida</span><span>Barra rayada: varias operaciones seguidas</span></div></div>
-    <div>${datosAcc(r)}${r.det ? paso("¿Está en rango? (se mira 2 años)", r.det.corto ? "Todavía no hay 2 años de historia para evaluarlo: se opera por tendencia (cruce 50/200)." : `${r.det.vj >= 3 ? "✓" : "✕"} <b>Rebota entre piso y techo:</b> en 2 años el precio tuvo un piso de ${fmt(r.det.piso)}, un techo de ${fmt(r.det.techo)} y un promedio de ${fmt(r.det.media)}. La banda se divide en una zona de abajo (hasta ${fmt(r.det.piso + 0.2 * (r.det.techo - r.det.piso))}) y una zona de arriba (desde ${fmt(r.det.techo - 0.2 * (r.det.techo - r.det.piso))}): cada una es el 20% del ancho entre piso y techo (el mismo 20% de la compra). Fue ${r.det.vj} ${r.det.vj === 1 ? "vez" : "veces"} de una zona a la otra (hacen falta 3 o más).<br>${Math.abs(r.det.mov) < 0.25 ? "✓" : "✕"} <b>No tiene rumbo:</b> hace 2 años valía ${fmt(r.det.p0)} y hoy ${fmt(r.det.p1)}: cambió ${pctT(r.det.mov)}. Para ser rango tiene que haber cambiado menos de 25% (para arriba o para abajo) respecto de lo que valía hace 2 años.<br>${r.det.pend < 0.3 ? "✓" : "✕"} <b>Sin subida ni bajada fuerte de fondo:</b> si se traza una línea recta que acompañe al precio de los 2 años, esa línea ${r.det.incl >= 0 ? "sube" : "baja"} ${Math.abs(r.det.incl * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%. Esa ${r.det.incl >= 0 ? "subida" : "bajada"} es chica comparada con lo que el precio se mueve para arriba y para abajo: equivale al ${Math.round(100 * r.det.pend)}% de ese vaivén. Tiene que ser menos de 30%; si fuera más, el precio estaría en una ${r.det.incl >= 0 ? "subida" : "bajada"} sostenida y no en un rango.<br>${r.det.ok ? "<b>Está en rango:</b> se opera comprando abajo y vendiendo arriba." : r.rango ? "<b>Sigue en rango:</b> hoy alguna condición está un poco afuera, pero ya estaba en rango y solo sale si se pasa de límites más amplios (cambio de más de 35%, inclinación de más de 45% o menos de 2 viajes). Así no cambia de estrategia por un solo día." : "<b>No está en rango:</b> se opera por tendencia (cruce 50/200)."}`, r.rango) : ""}${r.rango ? paso("Ubicación en el rango de 6 meses", `Está en el ${Math.round(100 * r.pos)}% de su rango (0% es el mínimo de 6 meses, 100% el máximo). Compra por debajo de 20%; vende al llegar a 60% o si cae 8% desde la compra (en ese caso espera 10 ruedas antes de volver a comprar).`, r.pos < 0.2 || r.comprado) : paso("1 · Permiso del filtro", permTxt, r.permisoOk) + paso("2 · Cruce de medias", medTxt, r.mediasOk)}<div class="concl">${concl}</div>${r.stopsRec && (r.pos < 0.3 || r.comprado) ? `<div class="aviso" style="margin-top:8px">⚠ En los últimos 3 meses esta acción tuvo ${r.stopsRec} stop${r.stopsRec > 1 ? "s" : ""} (venta por caída de 8% o más) y sigue en el piso de su rango. Puede estar en una caída sostenida: pensá dos veces antes de volver a comprar.</div>` : ""}
-      ${miBloque(r)}<div class="sub" style="margin-top:10px;font-size:12px;color:var(--muted)">Tocá una operación para ver por qué se compró y se vendió.</div><div class="scroll"><table style="margin-top:4px"><thead><tr><th class="iz">Compra</th><th class="iz">Venta</th><th>Resultado</th></tr></thead><tbody>${ab}${ops || (ab ? "" : `<tr><td class="iz" colspan="3">Sin operaciones desde enero 2024.</td></tr>`)}</tbody></table></div></div>
+      <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media 50</span><span><i class="l"></i>Media 200</span><span><i class="m" style="border-top-color:var(--long)"></i>Techo 20 ruedas</span><span><i class="v" style="background:var(--long);border-radius:50%"></i>Círculo verde</span></div></div>
+    <div>${datosAcc(r)}${miBloque(r)}${histRegla(r)}</div>
   </div></td></tr>`;
 }
 async function cargarAcc() {
@@ -1813,7 +1833,7 @@ $("accCuerpo").addEventListener("change", e => {
   guardarMias(); pintarAcc();
 });
 $("accCuerpo").addEventListener("keydown", e => { if (e.target.closest("button.mia, button.mini, button.simb, input")) return; if (e.key === "Enter" || e.key === " ") { const op = e.target.closest("tr.opf"); if (op) { e.preventDefault(); abrirFicha(+op.dataset.f); return; } e.preventDefault(); accAlternar(e.target.closest("tr.fila")); } });
-window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); ajustarDetalle(); if (cv && r) graficoTend(cv, r.t, accN, r.rango ? "rango" : true, 501); });
+window.addEventListener("resize", () => { const cv = document.querySelector("#accTabla canvas"), r = accAbierta && accRes.find(x => x.s === accAbierta); ajustarDetalle(); if (cv && r) dibujarDetalle(cv, r); });
 // Mis compras sincronizadas entre dispositivos: se guardan en data/mis_compras.json del repositorio (mismo token que las favoritas del Monitor P/E).
 // Leer no necesita token (repositorio público); guardar sí. Solo se guarda símbolo, precio y fecha.
 const REPO_M = "pablonoli/Monitor-Acciones", MIAS_API = `https://api.github.com/repos/${REPO_M}/contents/data/mis_compras.json`;
