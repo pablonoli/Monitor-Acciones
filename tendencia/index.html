@@ -82,7 +82,9 @@ label.campo { max-width: 100%; } label.campo select { min-width: 0; max-width: 1
 .hstats > div { background: var(--hero-chip); border-radius: 14px; padding: 16px 20px; min-width: 110px; }
 .hstats b { display: block; font-family: var(--font-num); font-size: 32px; font-weight: 600; line-height: 1.2; }
 .hstats span { font-size: 13px; color: var(--hero-kick); }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; align-items: start; }
+.tcard details.tdet > summary { cursor: pointer; font-size: 13px; color: var(--accent-d); font-weight: 600; } .tcard details.tdet[open] { display: flex; flex-direction: column; gap: 14px; }
+#cripto { margin-top: 28px; } #cripto + .hero { margin-top: 12px; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .card.LONG { border: 2px solid var(--long); padding: 23px; }
 .card.dest { border: 2px solid var(--accent); padding: 23px; }
@@ -214,17 +216,56 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
 <body>
 <div class="wrap">
   <div class="barra">
-    <div class="marca">Tendencia diaria</div>
-    <a class="sub" href="#acc" style="color:var(--accent-d);font-weight:600">Acciones del S&amp;P 500 ↓</a>
+    <div class="marca">Monitor de señales</div>
+    <a class="sub" href="#cripto" style="color:var(--accent-d);font-weight:600">Cripto ↓</a>
     <div class="controles">
-      <label class="campo" for="tendTf">Versión <select id="tendTf"><option value="1d">Velas diarias (medias de 10 y 30)</option><option value="4h">Velas de 4 horas (medias de 50 y 200)</option></select></label>
-      <label class="campo" for="tendModo">Filtro <select id="tendModo"><option value="o">BTC o propio</option><option value="btc">Solo BTC</option><option value="ninguno">Sin filtro</option></select></label>
-      <label class="campo" for="capital">Capital (US$) <input type="number" id="capital" value="1000" min="1" step="100"></label>
-      <button id="btnSonido" type="button">Activar sonido</button>
+      <label class="campo" for="capital">Capital (US$) <input type="number" id="capital" value="4000" min="1" step="100"></label>
+      <span class="sub">Lo usan el simulador de CEDEARs y la parte de cripto.</span>
     </div>
   </div>
 
-  <div id="senHoy" hidden></div>
+  <section class="panel" id="acc">
+    <h2>CEDEARs: círculos verdes</h2>
+    <div class="sub" id="accSub">Bajando los datos…</div>
+    <div class="aviso" id="accAviso" hidden></div>
+    <div class="veredicto" id="accHoy" hidden></div>
+    <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
+    <div class="sincro"><button type="button" id="miasSync">☁ Sincronizar mis compras</button> <span class="sub" id="miasMsg" role="status"></span></div>
+    <div class="mibloque" id="miasTok" hidden><b>Conectar con GitHub (una sola vez)</b><span class="sub">Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.</span><div class="mfila"><input type="password" id="miasTokIn" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Token de GitHub"></div><div class="botfila"><button type="button" class="mini" id="miasTokOk">Guardar y sincronizar</button><button type="button" class="mini" id="miasTokNo">Cancelar</button></div></div>
+    <details class="ajustes" id="accAjustes">
+      <summary>Otra estrategia (cruce de medias), ajustes y miedo del mercado</summary>
+      <div class="controles">
+      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="auto" selected>Automática: si al comprar la acción está en rango usa la regla de rango; si no, el cruce 50/200 (compra y vende con la misma regla)</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option></select></label>
+      <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
+      <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
+      </div>
+      <div class="sub" id="accFiltroTxt"></div>
+      <div class="veredicto" id="accMiedo" hidden></div>
+      <div class="veredicto" id="accComp" hidden></div>
+      <div class="mini" id="accStats"></div>
+    </details>
+    <div class="controles">
+      <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
+    </div>
+    <div class="scroll">
+      <table id="accTabla">
+        <thead><tr>
+          <th class="iz" data-k="s">Símbolo</th><th class="iz" data-k="senal">Qué hacer</th><th data-k="precio">Último cierre</th><th>Simular</th>
+        </tr></thead>
+        <tbody id="accCuerpo"></tbody>
+      </table>
+    </div>
+    <div class="ley" id="accPie"></div>
+  </section>
+
+  <section class="panel cripto" id="cripto">
+    <h2>Cripto: cruce 10/30 con filtro BTC o propio</h2>
+    <div class="controles">
+      <label class="campo" for="tendTf">Versión <select id="tendTf"><option value="1d">Velas diarias (medias de 10 y 30)</option><option value="4h">Velas de 4 horas (medias de 50 y 200)</option></select></label>
+      <label class="campo" for="tendModo">Filtro <select id="tendModo"><option value="o">BTC o propio</option><option value="btc">Solo BTC</option><option value="ninguno">Sin filtro</option></select></label>
+      <button id="btnSonido" type="button">Activar sonido</button>
+    </div>
+  </section>
 
   <section class="hero" id="tend" aria-live="polite">
     <div class="hcol">
@@ -278,40 +319,8 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
     </details>
   </section>
 
-  <section class="panel" id="acc">
-    <h2>Acciones del S&amp;P 500: ¿confirman la tendencia?</h2>
-    <div class="sub" id="accSub">Bajando los datos…</div>
-    <div class="aviso" id="accAviso" hidden></div>
-    <div class="veredicto" id="accHoy" hidden></div>
-    <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
-    <div class="sincro"><button type="button" id="miasSync">☁ Sincronizar mis compras</button> <span class="sub" id="miasMsg" role="status"></span></div>
-    <div class="mibloque" id="miasTok" hidden><b>Conectar con GitHub (una sola vez)</b><span class="sub">Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.</span><div class="mfila"><input type="password" id="miasTokIn" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Token de GitHub"></div><div class="botfila"><button type="button" class="mini" id="miasTokOk">Guardar y sincronizar</button><button type="button" class="mini" id="miasTokNo">Cancelar</button></div></div>
-    <details class="ajustes" id="accAjustes">
-      <summary>Otra estrategia (cruce de medias), ajustes y miedo del mercado</summary>
-      <div class="controles">
-      <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="auto" selected>Automática: si al comprar la acción está en rango usa la regla de rango; si no, el cruce 50/200 (compra y vende con la misma regla)</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option></select></label>
-      <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
-      <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
-      </div>
-      <div class="sub" id="accFiltroTxt"></div>
-      <div class="veredicto" id="accMiedo" hidden></div>
-      <div class="veredicto" id="accComp" hidden></div>
-      <div class="mini" id="accStats"></div>
-    </details>
-    <div class="controles">
-      <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
-    </div>
-    <div class="scroll">
-      <table id="accTabla">
-        <thead><tr>
-          <th class="iz" data-k="s">Símbolo</th><th class="iz" data-k="senal">Qué hacer</th><th data-k="precio">Último cierre</th><th>Simular</th>
-        </tr></thead>
-        <tbody id="accCuerpo"></tbody>
-      </table>
-    </div>
-    <div class="ley" id="accPie"></div>
-  </section>
 
+  <div id="senHoy" hidden></div>
   <details class="como">
     <summary>Cómo funciona</summary>
     <p>Se compra cuando la media rápida del precio cruza por arriba de la lenta, y se vende todo cuando vuelve a cruzar para abajo. Además hace falta permiso del filtro. Con "BTC o propio" (el elegido) hay permiso si BTC está arriba de su promedio de 200 días o si el propio activo está arriba del suyo; si los dos están abajo, no se compra. Con "Solo BTC" únicamente cuenta BTC. Solo compra, sin apalancamiento: no hace falta operar futuros. El capital se reparte en partes iguales entre los activos seleccionados.</p>
@@ -850,7 +859,7 @@ const ACTIVOS_T = [
     nota: "Historia: cotización de la acción en Yahoo Finance (desde 2023, ajustada por el desdoblamiento de 2024) hasta el 17/11/2026. Los días hábiles siguientes salen de un contrato de Hyperliquid que sigue a la acción. En la versión de 4 horas solo hay datos desde diciembre 2025." },
   { id: "ETH", simbolo: "ETHUSDT", fuente: "binance", nombre: "ETH / USDT" },
 ];
-let tendSel = guardado("tend_activos", ["BTC", "SOL", "HYPE", "MSTR"]).filter(id => ACTIVOS_T.some(a => a.id === id));
+let tendSel = guardado("tend_activos", ["BTC", "SOL", "HYPE"]).filter(id => id !== "MSTR" && ACTIVOS_T.some(a => a.id === id));   // MSTR se opera como CEDEAR, con el círculo verde
 let tendOrden = guardado("tend_orden", "fecha");
 let tendAnio = guardado("tend_anio", "todos");
 let accMias = guardado("acc_mias", {});   // mis compras: { símbolo: { p: precio, t: "AAAA-MM-DD" } } (se guardan solo en este navegador)
@@ -900,7 +909,7 @@ async function datosActivo(a, tf, completo, cfg) {
   return { cerradas, enCurso: ultimas.find(k => k.cierre >= ahora) || null };
 }
 function crearChips() {
-  $("tendChips").innerHTML = ACTIVOS_T.map(a => `<button type="button" data-id="${a.id}" aria-pressed="${tendSel.includes(a.id)}">${a.id}<span class="fuente">${a.fuente === "binance" ? "Binance" : "Hyperliquid"}</span></button>`).join("");
+  $("tendChips").innerHTML = ACTIVOS_T.filter(a => a.id !== "MSTR").map(a => `<button type="button" data-id="${a.id}" aria-pressed="${tendSel.includes(a.id)}">${a.id}<span class="fuente">${a.fuente === "binance" ? "Binance" : "Hyperliquid"}</span></button>`).join("");
 }
 let tendTf = TEND[guardado("tend_tf", "1d")] ? guardado("tend_tf", "1d") : "1d";
 let tendModo = ["o", "btc", "ninguno"].includes(guardado("tend_modo", "o")) ? guardado("tend_modo", "o") : "o";
@@ -916,13 +925,14 @@ function crearTend() {
         <div class="nom"><h2>${a.id}</h2><span class="price num" data-k="precio">—</span><span class="var num" data-k="var"></span></div>
         <span class="pill" data-k="pill">…</span>
       </div>
+      <div class="concl" data-k="estado">Cargando…</div>
+      <details class="tdet"><summary>Ver gráfico y detalle</summary>
       <div class="rangoT" role="group" aria-label="Cuánto tiempo mostrar en el gráfico">${["corto", "2a"].map(r => `<button type="button" data-r="${r}" aria-pressed="${r === tendRango}">${txRangoT(r)}</button>`).join("")}</div>
       <canvas data-k="graf" role="img" aria-label="Gráfico de ${a.nombre}: precio, media rápida, media lenta y media de 200 días"></canvas>
       <div class="ley">El precio de arriba es el de ahora; el permiso y el cruce se deciden con el último cierre.</div>
       <div class="leyenda"><span><i class="p"></i>Precio</span><span><i class="r"></i>Media rápida</span><span><i class="l"></i>Media lenta</span><span><i class="m"></i>Media de 200 días (el permiso)</span><span><i class="v"></i>Comprado</span></div>
       ${a.nota ? `<div class="ley">${a.nota}</div>` : ""}
       <div data-k="pasos"></div>
-      <div class="concl" data-k="estado">Cargando…</div>
       <div class="cerca" data-k="cerca" hidden>El más cerca de comprar: falta el cruce de medias</div>
       <div class="motivo" data-k="desde"></div>
       <details>
@@ -932,7 +942,9 @@ function crearTend() {
           <tbody data-k="ops"></tbody>
         </table></div>
       </details>
+      </details>
     </article>`).join("");
+  document.querySelectorAll("#tendGrid details.tdet").forEach(d => d.addEventListener("toggle", () => { const cv = d.querySelector('[data-k="graf"]'); if (d.open && cv && cv.__p) graficoTend(cv, ...cv.__p); }));
 }
 const ultimosT = {};
 const paso = (nombre, txt, ok) => `<div class="paso"><div><b>${nombre}</b><span class="sub">${txt}</span></div><span class="chip ${ok ? "si" : "no"}">${ok ? "✓ Sí" : "✕ No"}</span></div>`;
@@ -1261,7 +1273,8 @@ $("btnSonido").addEventListener("click", () => {
   } catch (e) { sonido = false; }
   $("btnSonido").textContent = sonido ? "Sonido activado" : "Activar sonido";
 });
-$("capital").value = guardado("senales_capital", 1000);
+if (!guardado("cap_unico_v1", false)) { guardar("senales_capital", 4000); guardar("cap_unico_v1", true); }
+$("capital").value = guardado("senales_capital", 4000);
 $("capital").addEventListener("change", () => { guardar("senales_capital", +$("capital").value || 1000); actualizarTend(false); });
 
 window.addEventListener("resize", () => Object.entries(ultimosT).forEach(([id, t]) => { const c = $("t-" + id); if (c) graficoTend(c.querySelector('[data-k="graf"]'), t); }));
@@ -1546,7 +1559,7 @@ function celdaTecho(r) {
   const d = r.techo / r.precio - 1;
   return `<td class="num">${fmt(r.techo)}<br><span class="sub">${d < 0.0005 ? "en el cierre" : "a " + (100 * d).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% sobre el cierre"}</span></td>`;
 }
-function pintarSenHoy() {
+function pintarSenHoy() { $("senHoy").hidden = true; return;
   const el = $("senHoy"); if (!accDatos || !accDatos.ultimo) { el.hidden = true; return; }
   const hoy = accRes.filter(r => r.sen && r.sen[0] === accDatos.ultimo).sort((a, b) => b.sen[1] - a.sen[1] || (a.s < b.s ? -1 : 1));
   const fd = accDatos.ultimo.split("-").reverse().join("/");
@@ -1699,7 +1712,7 @@ function abrirSim(s) {
   const r = accRes.find(x => x.s === s); if (!r) return;
   $("fichaT").textContent = "Simular " + s;
   if (r.atr == null) { $("fichaB").innerHTML = `<p>Todavía no hay datos de ATR para ${s}. Se cargan con la próxima actualización diaria.</p>`; $("ficha").hidden = false; return; }
-  simR = r; const alta = r.atrp > 0.04, cap = guardado("sim_cap_v2", false) ? guardado("sim_capital", 4000) : (guardar("sim_capital", 4000), guardar("sim_cap_v2", true), 4000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
+  simR = r; const alta = r.atrp > 0.04, cap = Math.max(1, +$("capital").value || 4000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   const ccl = accDatos.ccl, ced = accDatos.cedear && accDatos.cedear[s], est = estimarRatio(r), vn = volNivel(r.atrp);
   if (!guardado("sim_stop_v2", false)) { guardar("sim_stop", "min"); guardar("sim_stop_v2", true); }   // una sola vez: vuelve al amplio aunque antes se haya elegido otro
   simSel = guardado("sim_stop", "min") === "man" ? "man" : "min";   // solo amplio (el probado) o manual   // por defecto el amplio (mín. 20 ruedas), que es el que se probó
@@ -1742,7 +1755,7 @@ function calcSim() {
     cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "") + card("ancho", IC.reloj, "Cerrar todo", "—", "");
     esc.innerHTML = ""; vacioOpc(); chk.className = "simchk bad"; chk.textContent = "✕ Completá capital, riesgo, entrada, multiplicador y objetivo con números mayores a cero."; el.innerHTML = ""; return;
   }
-  guardar("sim_capital", cap);
+  if (cap > 0 && +$("capital").value !== cap) { $("capital").value = cap; guardar("senales_capital", cap); }   // cambiar el capital en el simulador cambia el capital de todo
   const atrp = r.atrp, riesgoUsd = cap * rie / 100;
   const stops = { atr: ent * (1 - mul * atrp), min: r.low20, man: numIn($("simMan").value) };
   const O = {};
