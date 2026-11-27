@@ -9,7 +9,7 @@ Costo 0,07% por lado (comisión de futuros + deslizamiento); no incluye la tasa 
 Se saltean las señales con el stop a menos de 0,4% o a más de 5% de la entrada (para todas las versiones, también la de azar).
 Resultados en R (1R = lo que se arriesga hasta el stop). Base de comparación: cortos al azar con el mismo plan en los días bajistas.
 Resultado: data/investigacion_btc_corto_15m.txt"""
-import json, time, urllib.request
+import json, sys, time, urllib.request
 import numpy as np, pandas as pd
 
 COSTO = 0.0007
@@ -78,15 +78,16 @@ def resumen(df, nombre):
             f"peor racha {dd:+6.1f}R · stop medio {100 * df['riesgo'].mean():.2f}%")
 
 
-def main():
-    x = bajar("15m", "2023-09-01"); d = bajar("1d", "2023-01-01")
+def main(iv="15m"):
+    x = bajar(iv, "2023-09-01"); d = bajar("1d", "2023-01-01")
     sma = d["c"].rolling(200).mean(); baj_d = (d["c"] < sma).shift(1)   # tendencia de ayer
     dia = x.index.normalize(); bajista = baj_d.reindex(dia).fillna(False).values.astype(bool); alcista = ~bajista & ~np.isnan(sma.shift(1).reindex(dia).values)
     x = x[x.index >= "2024-01-01"]; bajista = bajista[-len(x):]; alcista = alcista[-len(x):]
     sc, sl = senales(x, "corto"), senales(x, "largo"); todo = np.ones(len(x), bool)
     corte = x.index[len(x) // 2]
     hoy_baj = bool(d["c"].iloc[-1] < sma.iloc[-1])
-    L = [f"BTC 15 MINUTOS: ¿CORTO EN TENDENCIA BAJISTA? Velas de {x.index[0].date()} a {x.index[-1]:%d/%m/%Y %H:%M} UTC ({len(x)} velas).",
+    HORAS = {"15m": "5 horas", "1h": "20 horas", "4h": "unos 3 días"}
+    L = [f"BTC VELAS DE {iv}: ¿CORTO EN TENDENCIA BAJISTA? (cierre a las 20 velas = {HORAS.get(iv, '20 velas')}) Velas de {x.index[0].date()} a {x.index[-1]:%d/%m/%Y %H:%M} UTC ({len(x)} velas).",
          f"Hoy BTC cerró en {d['c'].iloc[-1]:,.0f} con media de 200 días en {sma.iloc[-1]:,.0f}: tendencia {'BAJISTA' if hoy_baj else 'ALCISTA'}.".replace(",", "."),
          f"Días bajistas en la muestra: {100 * bajista.mean():.0f}% del tiempo.",
          "Costo 0,07% por lado, sin tasa de financiamiento. Resultados en R por operación (1R = la pérdida si toca el stop).",
@@ -113,8 +114,8 @@ def main():
     for a, g in df.groupby(df["t"].dt.year): L.append(f"{a}: {len(g)} op. · {100 * (g['r'] > 0).mean():.0f}% ganadoras · total {g['r'].sum():+.1f}R")
     L += ["", "== ÚLTIMAS SEÑALES DE CORTO (días bajistas) =="]
     for _, f in df.tail(8).iterrows(): L.append(f"{f['t']:%d/%m %H:%M} UTC · {f['r']:+.2f}R")
-    txt = "\n".join(L); open("data/investigacion_btc_corto_15m.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
+    txt = "\n".join(L); open(f"data/investigacion_btc_corto_{iv}.txt", "w", encoding="utf-8").write(txt + "\n"); print(txt)
 
 
 if __name__ == "__main__":
-    main()
+    for iv in (sys.argv[1:] or ["15m"]): main(iv)

@@ -17,11 +17,11 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install pandas numpy
-      - run: python scripts/investigacion_btc_corto_15m.py
+      - run: python scripts/investigacion_btc_corto_15m.py 1h 4h
       - name: Guardar resultado (solo en esta rama, nunca en main)
         run: |
           git config user.name "datos-bot"
           git config user.email "datos-bot@users.noreply.github.com"
-          git add data/investigacion_btc_corto_15m.txt
+          git add data/investigacion_btc_corto_*.txt
           git commit -m "Investigación BTC corto 15m $(date -u +%F)" || echo "sin cambios"
           git push origin HEAD:${GITHUB_REF_NAME}
