@@ -193,7 +193,7 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
 .esc { margin-bottom: 16px; } .escl { position: relative; height: 18px; font-size: 12px; color: var(--muted); } .escl span { position: absolute; top: 0; white-space: nowrap; } .escl .mid { transform: translateX(-50%); color: var(--text); font-weight: 600; }
 .escb { display: flex; height: 12px; margin: 3px 0 5px; } .escb i { display: block; } .escb .r { background: #efc3be; border-left: 2px solid var(--short); } .escb .g { background: #b9dcc0; border-left: 2px solid var(--text); border-right: 2px solid var(--long); }
 .esck { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); gap: 8px; }
-.simopts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.simopts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
 .opc { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); cursor: pointer; min-width: 0; font-size: 12px; color: var(--muted); }
 .opc .ot { color: var(--text); font-size: 12.5px; line-height: 1.25; padding-right: 14px; } .opc .od { color: var(--text); font-family: var(--font-num); font-size: 12.5px; font-weight: 500; } .opc .oc { line-height: 1.3; }
 .opc input { font: inherit; font-size: 14px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); width: 100%; min-width: 0; box-sizing: border-box; }
@@ -281,24 +281,24 @@ button.simb { font-size: 13px; padding: 6px 12px; min-height: 32px; white-space:
     <div class="sub" id="accSub">Bajando los datos…</div>
     <div class="aviso" id="accAviso" hidden></div>
     <div class="veredicto" id="accHoy" hidden></div>
-    <div class="veredicto" id="accMiedo" hidden></div>
     <div role="group" aria-label="Qué mostrar" id="accFiltros"></div>
     <div class="sincro"><button type="button" id="miasSync">☁ Sincronizar mis compras</button> <span class="sub" id="miasMsg" role="status"></span></div>
     <div class="mibloque" id="miasTok" hidden><b>Conectar con GitHub (una sola vez)</b><span class="sub">Pegá tu token de GitHub (permiso Contents: lectura y escritura, solo sobre Monitor-Acciones). Se guarda solo en este navegador.</span><div class="mfila"><input type="password" id="miasTokIn" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Token de GitHub"></div><div class="botfila"><button type="button" class="mini" id="miasTokOk">Guardar y sincronizar</button><button type="button" class="mini" id="miasTokNo">Cancelar</button></div></div>
     <details class="ajustes" id="accAjustes">
-      <summary>Ajustes y resultados de la estrategia</summary>
+      <summary>Otra estrategia (cruce de medias), ajustes y miedo del mercado</summary>
       <div class="controles">
       <label class="campo" for="accEst">Estrategia <select id="accEst"><option value="auto" selected>Automática: si al comprar la acción está en rango usa la regla de rango; si no, el cruce 50/200 (compra y vende con la misma regla)</option><option value="50_200">Cruce 50/200 simple (tendencia, meses)</option></select></label>
       <label class="campo" for="accModo">Filtro <select id="accModo"><option value="o">SPY o propio</option><option value="spy">Solo SPY</option><option value="ninguno">Sin filtro</option></select></label>
       <label class="campo" for="accN">Promedio del filtro <select id="accN"><option value="50">50 días</option><option value="100">100 días</option><option value="150">150 días</option><option value="200">200 días</option></select></label>
       </div>
+      <div class="sub" id="accFiltroTxt"></div>
+      <div class="veredicto" id="accMiedo" hidden></div>
       <div class="veredicto" id="accComp" hidden></div>
       <div class="mini" id="accStats"></div>
     </details>
     <div class="controles">
       <input type="search" id="accBusca" placeholder="Buscar símbolo" aria-label="Buscar símbolo" autocomplete="off">
     </div>
-    <div class="sub" id="accFiltroTxt"></div>
     <div class="scroll">
       <table id="accTabla">
         <thead><tr>
@@ -1272,8 +1272,9 @@ function eficiencia(bars) {
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
 const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["mias", "Mis acciones"], ["senal", "Con señal verde"]];
-const ACC_TARJ = [["comprar", "Comprar hoy", ""], ["vender", "Vender hoy", "c-vender"], ["por", "A punto de comprar", "c-por"], ["fuerte", "Tendencia fuerte ▲", ""]], ACC_OTROS = [["todas", "Todas"], ["senal", "● Con señal verde", "c-verde"], ["mias", "Mis acciones"], ["comprado", "Comprados"], ["rango", "En rango ↔"]];
+const ACC_TARJ = [["operar", "Operar (Strong, ATR 2% o más)", ""], ["mirar", "Para mirar (verde común)", "c-por"], ["mias", "Mis acciones", ""]], ACC_OTROS = [["todas", "Todas"], ["senal", "● Con señal verde", "c-verde"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
+if (!["todas", "senal", "operar", "mirar", "mias"].includes(accFiltro)) accFiltro = "todas";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
@@ -1422,7 +1423,7 @@ function haciaCruce(bars) {
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.parcialYa ? "VENDER ½" : r.mitad ? "COMPRADO ½" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : (r.venderYa || r.parcialYa) ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "senal" && !!r.sen) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "operar" && opc7(r)) || (f === "mirar" && !!r.sen && !opc7(r)) || (f === "senal" && !!r.sen) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
@@ -1440,10 +1441,10 @@ function pintarAcc() {
     $("accFiltroTxt").innerHTML = `Mercado (${accDatos.filtro}): cerró en ${fmt(mercado.precio)}, ${pctT(Math.abs(dif)).replace("+", "")} ${dif >= 0 ? "arriba" : "debajo"} de su promedio de ${accN} días (${fmt(mercado.media)}). `
       + (mercado.arriba ? `<b class="pos">Todas las acciones tienen permiso para comprar.</b>` : accModo === "o" ? `Cada acción tiene permiso solo si está arriba de su propio promedio.` : `<b class="neg">Ninguna acción tiene permiso hasta que ${accDatos.filtro} vuelva a pasar ese promedio.</b>`);
   } else $("accFiltroTxt").textContent = "Sin filtro: cada acción sigue solo su propio cruce de medias.";
-  const hoy = $("accHoy"); hoy.hidden = false; hoy.className = "veredicto " + (comprar.length || vender.length || mitad.length ? "pos" : "");
-  hoy.innerHTML = comprar.length || vender.length || mitad.length
-    ? `<p><b>Hoy:</b> ${[comprar.length ? "comprar <b class='pos'>" + lista2(comprar) + "</b>" : "", vender.length ? "vender <b class='neg'>" + lista2(vender) + "</b>" : "", mitad.length ? "vender la mitad de <b class='neg'>" + lista2(mitad) + "</b> (llegó a +20%)" : ""].filter(Boolean).join(" · ")}. Son las que cambiaron de estado en el último cierre.</p>${miasVender.length ? `<p>De <b>tus acciones</b>, la estrategia dice vender: <b class='neg'>${lista2(miasVender)}</b>.</p>` : ""}`
-    : `<p><b>Hoy:</b> sin compras ni ventas nuevas. ${compr} de ${n} siguen comprados.</p>`;
+  const hoy = $("accHoy"); hoy.hidden = false;
+  { const op = res.filter(r => opc7(r) && (r.sen[7] || 0) === 0).map(r => r.s), pas = res.filter(r => opc7(r) && (r.sen[7] || 0) > 0).map(r => r.s), mi = res.filter(r => r.sen && !opc7(r)).map(r => r.s);
+    hoy.className = "veredicto " + (op.length ? "pos" : "");
+    hoy.innerHTML = `<p><b>Hoy:</b> ${op.length ? `comprar en la apertura <b class='pos'>${lista2(op)}</b> (Strong con ATR de 2% o más). Usá Simular para ver cuántos CEDEARs.` : "ninguna señal para operar según tu regla."}${pas.length ? ` Strong de días anteriores (la entrada ya pasó): ${lista2(pas)}.` : ""}${mi.length ? ` Para mirar, sin operar: ${lista2(mi)}.` : ""}</p>`; }
   { // miedo del mercado: VIX (cierre y máximo del día). Aviso si en la última rueda tocó más de 30
     const el = $("accMiedo"), vx = (accDatos.vix || []).filter(x => !accDatos.ultimo || x[0] <= accDatos.ultimo);
     if (!vx.length) el.hidden = true;
@@ -1651,7 +1652,7 @@ function estimarRatio(r) {
   for (const x of RATIOS) if (Math.abs(crudo - x) < Math.abs(crudo - best)) best = x;
   return { crudo, estandar: best, lejos: Math.abs(crudo - best) / best > 0.10 };
 }
-let simSel = "atr";
+let simSel = "min";
 const IC = { cart: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L19 8H6.2"/><circle cx="9" cy="19.5" r="1.2"/><circle cx="17" cy="19.5" r="1.2"/></svg>', bell: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>', meta: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>', reloj: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', escudo: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z"/></svg>' };
 function abrirSim(s) {
   const r = accRes.find(x => x.s === s); if (!r) return;
@@ -1660,7 +1661,7 @@ function abrirSim(s) {
   simR = r; const alta = r.atrp > 0.04, cap = guardado("sim_cap_v2", false) ? guardado("sim_capital", 4000) : (guardar("sim_capital", 4000), guardar("sim_cap_v2", true), 4000), ult = accDatos.ultimo ? accDatos.ultimo.split("-").reverse().join("/") : "";
   const ccl = accDatos.ccl, ced = accDatos.cedear && accDatos.cedear[s], est = estimarRatio(r), vn = volNivel(r.atrp);
   if (!guardado("sim_stop_v2", false)) { guardar("sim_stop", "min"); guardar("sim_stop_v2", true); }   // una sola vez: vuelve al amplio aunque antes se haya elegido otro
-  simSel = ["atr", "min", "man"].includes(guardado("sim_stop", "min")) ? guardado("sim_stop", "min") : "min";   // por defecto el amplio (mín. 20 ruedas), que es el que se probó
+  simSel = guardado("sim_stop", "min") === "man" ? "man" : "min";   // solo amplio (el probado) o manual   // por defecto el amplio (mín. 20 ruedas), que es el que se probó
   const stopIni = r.precio * (1 - 2.5 * r.atrp);
   $("fichaT").innerHTML = `Simular ${s} <span class="volt ${vn[1]}">Volatilidad ${vn[0].toLowerCase()} · ${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%</span>`;
   const inp = (id, et, v, ph) => `<label>${et}<input id="${id}" type="number" min="0" step="any" inputmode="decimal" value="${v}"${ph ? ` placeholder="${ph}"` : ""}></label>`;
@@ -1669,16 +1670,15 @@ function abrirSim(s) {
     <div class="simhacer ${qh[0] === "si" || qh[0] === "pasada" ? "si" : "no"}">${qTxt}</div>
     <div class="simhd"><span id="simHd"></span> · <button type="button" class="simed" id="simEdBtn" aria-expanded="false" aria-controls="simEd">Editar</button></div>
     <div id="simEd" hidden><div class="simf">
-      ${inp("simCap", "Capital (USD)", cap)}${inp("simRie", "Riesgo por operación (%)", 1)}${inp("simEnt", "Precio de entrada (USD)", r.precio.toFixed(2))}${inp("simMul", "Multiplicador de ATR (stop y máximo)", 2.5)}
+      ${inp("simCap", "Capital (USD)", cap)}${inp("simRie", "Riesgo por operación (%)", 1)}${inp("simEnt", "Precio de entrada (USD)", r.precio.toFixed(2))}<input id="simMul" type="hidden" value="2.5">
       ${inp("simObj", "Objetivo (veces el riesgo)", 2)}${inp("simCcl", "Dólar CCL (pesos)", ccl ? ccl.v : "", "completalo")}${inp("simRat", "Ratio CEDEAR", est ? est.estandar : "", "completalo")}
     </div></div>
     <div class="simcards" id="simCards"></div>
     <div class="simtit">Escalera de precios</div><div id="simEsc"></div>
     <div class="simtit">Elegí el stop</div>
     <div class="simopts" role="radiogroup" aria-label="Elegí el stop">
-      <div class="opc" role="radio" tabindex="0" data-m="min"><span class="tk">✓</span><b class="ot">Amplio (mín. 20 ruedas) · el probado</b><span class="od" id="simOd_min"></span><span class="oc" id="simOc_min"></span></div>
-      <div class="opc" role="radio" tabindex="0" data-m="atr"><span class="tk">✓</span><b class="ot">Por volatilidad (ATR)</b><span class="od" id="simOd_atr"></span><span class="oc" id="simOc_atr"></span></div>
-      <div class="opc" role="radio" tabindex="0" data-m="man"><span class="tk">✓</span><b class="ot">Manual</b><input id="simMan" type="number" min="0" step="any" inputmode="decimal" placeholder="Precio" value="${simSel === "man" ? stopIni.toFixed(2) : ""}" aria-label="Stop manual en USD"><span class="oc" id="simOc_man"></span></div>
+      <div class="opc" role="radio" tabindex="0" data-m="min"><span class="tk">✓</span><b class="ot">Amplio (mín. 20 ruedas) · el de tu plan</b><span class="od" id="simOd_min"></span><span class="oc" id="simOc_min"></span></div>
+      <div class="opc" role="radio" tabindex="0" data-m="man"><span class="tk">✓</span><b class="ot">Manual</b><input id="simMan" type="number" min="0" step="any" inputmode="decimal" placeholder="Precio" value="" aria-label="Stop manual en USD"><span class="oc" id="simOc_man"></span></div>
     </div>
     <div id="simChk" role="status"></div>
     <details class="simdet"><summary>Ver detalle del cálculo</summary>
@@ -1695,7 +1695,7 @@ function calcSim() {
   const cards = $("simCards"), esc = $("simEsc"), chk = $("simChk"), ok = cap > 0 && rie > 0 && ent > 0 && mul > 0 && objM > 0;
   const nf = (x, d = 1) => x.toLocaleString("es-AR", { maximumFractionDigits: d });
   $("simHd").innerHTML = `Capital US$ <b>${cap > 0 ? nf(cap, 0) : "—"}</b> · Riesgo <b>${rie > 0 ? nf(rie, 2) : "—"}%</b> · Entrada US$ <b>${ent > 0 ? fmt(ent) : "—"}</b> (estimada con el último cierre: la compra real es en la apertura)`;
-  const vacioOpc = () => ["atr", "min", "man"].forEach(k => { const d = $("simOd_" + k), c = $("simOc_" + k); if (d) d.textContent = ""; c.textContent = ""; });
+  const vacioOpc = () => ["min", "man"].forEach(k => { const d = $("simOd_" + k), c = $("simOc_" + k); if (d) d.textContent = ""; if (c) c.textContent = ""; });
   const card = (cl, ic, t, g, sb) => `<div class="sc ${cl}"><div class="t">${ic}<span>${t}</span></div><div class="g">${g}</div><div class="sb">${sb}</div></div>`;
   if (!ok) {
     cards.innerHTML = card("", IC.cart, "Comprar", "—", "") + card("rojo", IC.bell, "Alerta de stop", "—", "") + card("verde", IC.meta, "Vender la mitad", "—", "") + card("", IC.escudo, "Pérdida máxima", "—", "") + card("ancho", IC.reloj, "Cerrar todo", "—", "");
@@ -1710,10 +1710,10 @@ function calcSim() {
     if (v) { o.dist = (ent - st) / ent; o.atrs = o.dist / atrp; o.rpa = ent - st; o.eq = riesgoUsd / o.rpa; o.nC = rat > 0 ? Math.floor(o.eq * rat) : null; }
     O[k] = o;
   }
-  let sel = simSel; if (!O[sel].v) sel = ["atr", "min", "man"].find(k => O[k].v) || sel;
+  let sel = simSel; if (!O[sel].v) sel = ["min", "man"].find(k => O[k].v) || sel;
   document.querySelectorAll("#simBox .opc").forEach(c => { const on = c.dataset.m === sel; c.setAttribute("aria-checked", on); c.classList.toggle("sel", on); });
   const nCtxt = o => o.nC != null ? `${o.nC.toLocaleString("es-AR")} CEDEARs` : "ratio pendiente";
-  for (const k of ["atr", "min"]) {
+  for (const k of ["min"]) {
     const o = O[k];
     $("simOd_" + k).textContent = o.v ? `${fmt(o.st)} · −${sP(o.dist)}` : (k === "atr" ? "no aplica" : "queda sobre la entrada");
     $("simOc_" + k).textContent = o.v ? `${nf(o.atrs)} ATR · ${nCtxt(o)}` : (k === "atr" ? "bajá el multiplicador" : "no sirve de stop");
@@ -1751,16 +1751,13 @@ function calcSim() {
   else if (nC < 1) { cl = "bad"; tx = "Con este capital y riesgo no alcanza para un CEDEAR."; }
   else if (dif != null && dif > 0.05) { cl = "bad"; tx = `Verificar ratio del CEDEAR: el CCL implícito difiere ${nf(100 * dif)}% del CCL.`; }
   else if (simSel === "min") { cl = "ok"; tx = "Stop amplio (mínimo de 20 ruedas): es el que se probó en 5 años."; }
-  else if (simSel === "atr") { cl = "warn"; tx = "Stop por volatilidad: en la prueba de 5 años rindió menos que el amplio (+79% contra +115%) y saltó 4 veces más seguido."; }
-  else if (S.atrs > mul + 1e-9) { cl = "warn"; tx = "Stop más lejos que el máximo por volatilidad (aviso, no bloquea)."; }
-  else if (S.atrs < 1) { cl = "warn"; tx = "Stop a menos de 1 ATR: demasiado cerca."; }
-  else { cl = "ok"; tx = `Stop entre 1 y ${nf(mul)} ATR, dentro del máximo para su volatilidad.`; }
+  else if (S.atrs < 1) { cl = "warn"; tx = "Stop manual a menos de 1 ATR: demasiado cerca, el ruido normal lo puede sacar."; }
+  else { cl = "warn"; tx = "Stop manual: tu plan usa el amplio (mínimo de 20 ruedas), que es el que se probó."; }
   chk.className = "simchk " + cl; chk.textContent = (cl === "ok" ? "✓ " : cl === "warn" ? "! " : "✕ ") + tx;
   // detalle
   const fila = (t, v, usado) => `<div class="f${usado ? " usado" : ""}"><span>${t}</span><b>${v}</b></div>`;
   const eq = riesgoUsd / rpa, nom = { atr: "por volatilidad", min: "amplio", man: "manual" }[sel];
   let h = fila("ATR % (promedio de 14 ruedas)", `${sP(atrp)} <span class="volt ${volNivel(atrp)[1]}">${volNivel(atrp)[0]}</span>`) + fila("ATR en dólares (referencia)", sU(r.atr))
-    + fila(`Stop por volatilidad (entrada × (1 − ${fmt(mul)} × ATR %))`, O.atr.v ? `${sU(O.atr.st)} · −${sP(O.atr.dist)}` : "no aplica", sel === "atr")
     + fila("Stop amplio (mínimo de 20 ruedas)", O.min.v ? `${sU(O.min.st)} · −${sP(O.min.dist)}` : "queda sobre la entrada", sel === "min")
     + fila("Stop manual", O.man.v ? `${sU(O.man.st)} · −${sP(O.man.dist)}` : "—", sel === "man")
     + fila("Riesgo por acción (entrada − stop " + nom + ")", sU(rpa)) + fila("Riesgo a asumir", sU(riesgoUsd)) + fila("Acciones equivalentes", eq.toLocaleString("es-AR", { maximumFractionDigits: 3 }));
@@ -1775,7 +1772,7 @@ function calcSim() {
 }
 function simElegir(m, foco) {
   simSel = m; guardar("sim_stop", m);
-  if (m === "man" && !(numIn($("simMan").value) > 0)) { const e = numIn($("simEnt").value), mu = numIn($("simMul").value), a = simR.atrp, s0 = e * (1 - mu * a); $("simMan").value = (s0 > 0 && s0 < e ? s0 : e * 0.95).toFixed(2); }
+  if (m === "man" && !(numIn($("simMan").value) > 0)) { const e = numIn($("simEnt").value), s0 = simR.low20; $("simMan").value = (s0 > 0 && s0 < e ? s0 : e * 0.95).toFixed(2); }
   calcSim(); if (m === "man" && foco) $("simMan").select();
 }
 document.addEventListener("input", e => { const t = e.target; if (!t.closest || !t.closest("#simBox")) return; if (t.id === "simMan" && simSel !== "man") { simSel = "man"; guardar("sim_stop", "man"); } calcSim(); });
