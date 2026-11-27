@@ -13,6 +13,12 @@ Además guarda "tec": {símbolo: máximo de las últimas 20 ruedas (con la de ho
  - fecha de cierre = salida por tiempo del plan: se entra en la apertura de la rueda siguiente a la señal y se cierra todo al cierre de la rueda 20 contando la de entrada
    (o sea, 20 ruedas después de la señal), salteando fines de semana y feriados de la bolsa de EE. UU.
 
+Además guarda "hist": {símbolo: [[fecha de la señal, strong (0/1), ATR % del día de la señal, fecha de compra, precio de compra, stop, fecha de venta (o null si sigue abierta),
+precio promedio de venta, resultado neto (fracción, con 0,15% de costo por lado), resultado en R, cómo terminó], ...]} con cada círculo verde desde enero 2024 operado con el plan:
+compra en la apertura siguiente, stop en el mínimo de 20 ruedas del día de la señal, mitad a +2R y stop al precio de compra, cierre de todo en la rueda 20
+(stop antes que objetivo en la misma vela; si abre debajo del stop, sale en la apertura). Cómo terminó: "stop", "costo" (mitad en +2R y el resto al precio de compra),
+"r20" (cierre en la rueda 20), "r20m" (mitad en +2R y el resto en la rueda 20) o "abierta" (valuada al último cierre).
+
 Formato compacto: por cada símbolo, un texto con una vela por tramo separado por coma: "día.apertura.cierre", todo en base 36.
  - día: el primero es el día absoluto (días desde 1970); los demás, la diferencia con la vela anterior.
  - apertura: diferencia, en centavos, con el cierre anterior (la primera, el valor absoluto), en zigzag (negativos impares).
@@ -112,6 +118,52 @@ def senal_verde(df, ruedas=5):
             return techo20, [fs, int(bool(strong.iloc[i])), round(float(c.iloc[i]), 2), round(float(techo.iloc[i]), 2),
                              round(float(h.iloc[i - 1]), 2), round(float(x["Low"].iloc[i - 1]), 2), round(float(z.iloc[i]), 2), atras, fecha_cierre(fs)]
     return techo20, None
+
+
+HIST_DESDE = pd.Timestamp("2024-01-01")
+COSTO = 0.0015
+
+
+def historial_plan(df):
+    """Cada círculo verde desde HIST_DESDE, operado con el plan (ver la descripción del módulo)."""
+    x = df[["Open", "High", "Low", "Close", "Volume"]].dropna(subset=["Open", "High", "Low", "Close"])
+    if len(x) < 210:
+        return []
+    o, h, l, c, v = (x[k] for k in ("Open", "High", "Low", "Close", "Volume"))
+    techo = h.shift(1).rolling(20).max()
+    mom = c.diff(); z = (mom - mom.rolling(50).mean()) / mom.rolling(50).std(ddof=0)
+    verde = (c > techo) & (c.shift(1) <= techo.shift(1)) & (z > 1.5) & (c > c.rolling(200).mean())
+    strong = verde & (z > 2.5) & (v > 1.5 * v.rolling(20).mean())
+    tr = pd.concat([h - l, (h - c.shift(1)).abs(), (l - c.shift(1)).abs()], axis=1).max(axis=1)
+    atrp = (tr / c).rolling(14).mean(); low20 = l.rolling(20).min()
+    O, H, L, C, idx, n = o.values, h.values, l.values, c.values, x.index, len(x)
+    f = lambda k: pd.Timestamp(idx[k]).date().isoformat()
+    out = []
+    for i in range(len(x)):
+        if not bool(verde.iloc[i]) or pd.Timestamp(idx[i]) < HIST_DESDE:
+            continue
+        e = i + 1
+        if e >= n:
+            continue   # la compra es mañana: todavía no hay operación
+        ent, stop = float(O[e]), float(low20.iloc[i])
+        if not (0 < stop < ent):
+            continue
+        R = ent - stop; obj = ent + 2 * R; sc = stop; mitad = None; fin = None
+        for j in range(e, min(n, e + 20)):
+            if L[j] <= sc:
+                fin = (j, min(sc, float(O[j])), "costo" if mitad else "stop"); break
+            if mitad is None and H[j] >= obj:
+                mitad = max(obj, float(O[j])); sc = ent
+            if j == e + 19:
+                fin = (j, float(C[j]), "r20m" if mitad else "r20")
+        if fin is None:
+            fin = (n - 1, float(C[-1]), "abierta")
+        j, px, como = fin
+        venta = 0.5 * mitad + 0.5 * px if mitad else px
+        neto = venta * (1 - COSTO) / (ent * (1 + COSTO)) - 1
+        out.append([f(i), int(bool(strong.iloc[i])), round(float(atrp.iloc[i]), 4), f(e), round(ent, 2), round(stop, 2), None if como == "abierta" else f(j),
+                    round(venta, 2), round(neto, 4), round((venta - ent) / R, 2), como])
+    return out
 
 
 def bajar_ccl(previo):
@@ -214,10 +266,10 @@ def main():
     filtro = cfg["filtro"]
     acciones = [a for a in dict.fromkeys(favoritas + cfg.get("extras", [])) if a != filtro]
     simbolos = [filtro] + acciones
-    previo, previo_atr, previo_ccl, previo_ced = {}, {}, None, {}
+    previo, previo_atr, previo_ccl, previo_ced, previo_hist = {}, {}, None, {}, {}
     if os.path.exists(RUTA_SALIDA):
         try:
-            _p = json.load(open(RUTA_SALIDA)); previo, previo_atr, previo_ccl, previo_ced = _p.get("t", {}), _p.get("atr", {}), _p.get("ccl"), _p.get("cedear", {})
+            _p = json.load(open(RUTA_SALIDA)); previo, previo_atr, previo_ccl, previo_ced, previo_hist = _p.get("t", {}), _p.get("atr", {}), _p.get("ccl"), _p.get("cedear", {}), _p.get("hist", {})
         except Exception:
             previo = {}
     datos = {}
@@ -241,7 +293,7 @@ def main():
         sys.exit(f"No se pudo bajar {filtro}: no se guarda nada.")
     # Sin el pico de hoy: si el mercado todavía está abierto, la última vela no está completa.
     ahora = dt.datetime.now(dt.timezone.utc)
-    t, chk, fallas, atr, tec, sen = {}, {}, [], {}, {}, {}
+    t, chk, fallas, atr, tec, sen, hist = {}, {}, [], {}, {}, {}, {}
     for s in simbolos:
         if s in datos:
             x = datos[s]
@@ -257,12 +309,18 @@ def main():
                     if sv[1]: sen[s] = sv[1]
             except Exception as e:
                 print(s, "señal no calculada:", e, file=sys.stderr)
+            try:
+                hist[s] = historial_plan(x)
+            except Exception as e:
+                print(s, "historial no calculado:", e, file=sys.stderr)
+                if s in previo_hist: hist[s] = previo_hist[s]
             v = volatilidad(x)
             if v: atr[s] = v
             elif s in previo_atr: atr[s] = previo_atr[s]
         elif s in previo:
             t[s] = previo[s]; fallas.append(s + " (se conservó lo anterior)")
             if s in previo_atr: atr[s] = previo_atr[s]
+            if s in previo_hist: hist[s] = previo_hist[s]
         else:
             fallas.append(s + " (sin datos)")
     ultimo_dia = max(v[1] for v in chk.values())
@@ -277,7 +335,7 @@ def main():
         cedear = bajar_cedears([a for a in acciones if a in t], previo_ced)
     except Exception as e:
         print("CEDEARs no disponibles:", e, file=sys.stderr); cedear = previo_ced
-    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "atr": atr, "ccl": ccl, "cedear": cedear, "tec": tec, "sen": sen, "t": t}
+    salida = {"gen": ahora.strftime("%Y-%m-%dT%H:%M:%SZ"), "filtro": filtro, "ultimo": (EPOCH + dt.timedelta(days=ultimo_dia)).isoformat(), "def": [x for x in cfg.get("defensivas", []) if x in t], "vix": vix, "atr": atr, "ccl": ccl, "cedear": cedear, "tec": tec, "sen": sen, "hist": hist, "t": t}
     with open(RUTA_SALIDA, "w") as f:
         json.dump(salida, f, separators=(",", ":"))
         f.write("\n")
