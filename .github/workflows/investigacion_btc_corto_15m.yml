@@ -1,0 +1,27 @@
+name: Investigación BTC corto 15 minutos
+on:
+  workflow_dispatch:
+  push:
+    branches: [investigacion-btc-corto-15m]
+    paths:
+      - "scripts/investigacion_btc_corto_15m.py"
+      - ".github/workflows/investigacion_btc_corto_15m.yml"
+permissions:
+  contents: write
+jobs:
+  investigar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pandas numpy
+      - run: python scripts/investigacion_btc_corto_15m.py
+      - name: Guardar resultado (solo en esta rama, nunca en main)
+        run: |
+          git config user.name "datos-bot"
+          git config user.email "datos-bot@users.noreply.github.com"
+          git add data/investigacion_btc_corto_15m.txt
+          git commit -m "Investigación BTC corto 15m $(date -u +%F)" || echo "sin cambios"
+          git push origin HEAD:${GITHUB_REF_NAME}
