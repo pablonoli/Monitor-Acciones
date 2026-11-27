@@ -1,0 +1,35 @@
+CRIPTO: CRUCE 10/30 CONTRA CÍRCULO VERDE. 2021-11-27 a 2026-11-27. Monedas: BTC (desde 2019-01-01), SOL (desde 2020-04-10), HYPE (desde 2024-11-29).
+Costo 0,15% por compra y por venta. Una operación a la vez por moneda. Plan del círculo: stop en el mínimo de 20 días, mitad en +2R, cierre en el día 20.
+LÍMITES: solo 3 monedas (HYPE con muy poca historia): pocas operaciones, el resultado puede ser casualidad; lista elegida hoy; 3 estrategias probadas.
+
+== POR MONEDA (cada una con todo su capital en cada operación) ==
+BTC: comprar y mantener +12% (caída máx. -73%)
+   Cruce 10/30 (el actual)      acumulado    +221% · caída máx.   -26% ·  18 op. ·  44% ganadoras · promedio   +7.9% · mediana   -1.8%
+   Círculo verde (todos)        acumulado      +7% · caída máx.   -29% ·  20 op. ·  40% ganadoras · promedio   +1.0% · mediana   -2.6%
+   Tu regla (Strong + ATR 2%)   acumulado     +51% · caída máx.   -22% ·  10 op. ·  60% ganadoras · promedio   +4.8% · mediana   +3.0%
+SOL: comprar y mantener -62% (caída máx. -96%)
+   Cruce 10/30 (el actual)      acumulado    +270% · caída máx.   -53% ·  22 op. ·  41% ganadoras · promedio  +14.0% · mediana   -3.4%
+   Círculo verde (todos)        acumulado    +252% · caída máx.   -46% ·  14 op. ·  50% ganadoras · promedio  +12.9% · mediana   +6.7%
+   Tu regla (Strong + ATR 2%)   acumulado     +90% · caída máx.   -44% ·   9 op. ·  44% ganadoras · promedio  +10.8% · mediana   -3.1%
+HYPE: comprar y mantener +987% (caída máx. -68%)
+   Cruce 10/30 (el actual)      acumulado     +15% · caída máx.   -56% ·  10 op. ·  30% ganadoras · promedio   +6.8% · mediana  -11.7%
+   Círculo verde (todos)        acumulado     -30% · caída máx.   -35% ·   7 op. ·  14% ganadoras · promedio   -4.3% · mediana   -6.7%
+   Tu regla (Strong + ATR 2%)   acumulado      +2% · caída máx.   -19% ·   2 op. ·  50% ganadoras · promedio   +2.6% · mediana   +2.6%
+
+== LAS TRES JUNTAS (porción: 1/3 del capital por moneda; HYPE en efectivo hasta que existe) ==
+   Comprar y mantener las 3           acumulado    +312% · caída máx.   -58%
+   Cruce 10/30 (el actual) · porción  acumulado    +169% · caída máx.   -39%
+   Círculo verde (todos) · porción    acumulado     +77% · caída máx.   -39%
+   Tu regla (Strong + ATR 2%) · porción acumulado     +48% · caída máx.   -22%
+   Círculo verde (todos) · riesgo 1%  acumulado      +7% · caída máx.    -6%  (con US$ 4.000: +295)
+   Tu regla (Strong + ATR 2%) · riesgo 1% acumulado      +9% · caída máx.    -2%  (con US$ 4.000: +352)
+
+== POR MITADES, las tres juntas en porción (operaciones que empiezan antes y después del 2024-05-26) ==
+   Cruce 10/30 (el actual)      1.ª mitad   +164% (caída  -23%) · 2.ª mitad    +12% (caída  -35%)
+   Círculo verde (todos)        1.ª mitad   +124% (caída  -12%) · 2.ª mitad    -20% (caída  -33%)
+   Tu regla (Strong + ATR 2%)   1.ª mitad    +29% (caída  -10%) · 2.ª mitad    +16% (caída  -16%)
+
+== OPERACIONES POR AÑO (las tres monedas) ==
+   Cruce 10/30 (el actual)      2021: 1 · 2023: 11 · 2024: 15 · 2025: 18 · 2026: 5
+   Círculo verde (todos)        2023: 12 · 2024: 11 · 2025: 8 · 2026: 10
+   Tu regla (Strong + ATR 2%)   2023: 6 · 2024: 6 · 2025: 3 · 2026: 6
