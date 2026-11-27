@@ -18,13 +18,15 @@ def num(x, dec=2):
 
 def cuerpo(fecha, filas, atr):
     out = [f"Rupturas alcistas válidas del **{f(fecha)}** (cierre diario sobre el máximo de las 20 ruedas anteriores, con momentum fuerte y por encima de la SMA 200).", "",
-           "| Acción | Cierre | Strong | Zona (máx. – mín. de la vela anterior) | ATR % | Stop amplio (mín. 20 ruedas) |", "|---|---|---|---|---|---|"]
+           "**Plan:** comprar en la apertura siguiente · stop en el mínimo de 20 ruedas · vender la mitad a +2R y llevar el stop a la entrada · **cerrar todo al cierre de la rueda 20** (columna «Cerrar todo»), aunque no haya tocado ni el stop ni el objetivo.", "",
+           "| Acción | Cierre | Strong | Zona (máx. – mín. de la vela anterior) | ATR % | Stop amplio (mín. 20 ruedas) | Cerrar todo (rueda 20) |", "|---|---|---|---|---|---|---|"]
     for s, v in filas:
         a = atr.get(s)
         atrp = f"{num(100 * a[2], 1)}%" if a and len(a) > 2 else "—"
         stop = f"US$ {num(a[1])} (−{num(100 * (1 - a[1] / v[2]), 1)}%)" if a and a[1] and a[1] < v[2] else "—"
-        out.append(f"| **{s}** | US$ {num(v[2])} | {'Sí' if v[1] else 'No'} | US$ {num(v[4])} – US$ {num(v[5])} | {atrp} | {stop} |")
-    out += ["", "Strong = Z-score mayor a 2,5 y volumen mayor a 1,5 veces el promedio de 20 ruedas. El stop amplio es el mínimo de las últimas 20 ruedas al día de la actualización.",
+        cierre = f"{f(v[8])}" if len(v) > 8 and v[8] else "—"
+        out.append(f"| **{s}** | US$ {num(v[2])} | {'Sí' if v[1] else 'No'} | US$ {num(v[4])} – US$ {num(v[5])} | {atrp} | {stop} | {cierre} |")
+    out += ["", "Strong = Z-score mayor a 2,5 y volumen mayor a 1,5 veces el promedio de 20 ruedas. El stop amplio es el mínimo de las últimas 20 ruedas al día de la actualización. «Cerrar todo» = 20 ruedas hábiles después de la señal (la de entrada cuenta como la 1), salteando fines de semana y feriados de la bolsa de EE. UU.",
             "Aviso automático de «Tendencia acciones». Es una señal técnica, no una recomendación."]
     return "\n".join(out)
 

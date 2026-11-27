@@ -5,11 +5,13 @@ Además guarda "atr": {símbolo: [ATR de 14 ruedas en USD, mínimo de los últim
 
 Además guarda "ccl" (dólar contado con liquidación, dolarapi.com) y "cedear" ({símbolo: [último cierre en pesos del CEDEAR en BYMA vía Yahoo (ticker .BA), fecha]}) para el simulador.
 
-Además guarda "tec": {símbolo: máximo de las últimas 20 ruedas (con la de hoy), para poner alertas de precio} y "sen": {símbolo: [fecha, strong (0/1), cierre, techo roto, zona máx., zona mín., Z-score, ruedas atrás]} con el último «círculo verde»
+Además guarda "tec": {símbolo: máximo de las últimas 20 ruedas (con la de hoy), para poner alertas de precio} y "sen": {símbolo: [fecha, strong (0/1), cierre, techo roto, zona máx., zona mín., Z-score, ruedas atrás, fecha de cierre]} con el último «círculo verde»
 (ruptura alcista válida) de las últimas 5 ruedas. Reglas, con velas diarias:
  - techo = máximo de las 20 ruedas anteriores (sin la de hoy); momentum = cierre − cierre de ayer; Z = (momentum − promedio de 50) / desvío de 50 ruedas (población);
  - ruptura = cierre > techo, cierre de ayer ≤ techo de ayer y Z > 1,5; verde = ruptura con el cierre sobre la SMA 200;
  - strong = verde con Z > 2,5 y volumen > 1,5 × promedio de volumen de 20 ruedas (con la de hoy); zona = máximo y mínimo de la vela anterior a la ruptura.
+ - fecha de cierre = salida por tiempo del plan: se entra en la apertura de la rueda siguiente a la señal y se cierra todo al cierre de la rueda 20 contando la de entrada
+   (o sea, 20 ruedas después de la señal), salteando fines de semana y feriados de la bolsa de EE. UU.
 
 Formato compacto: por cada símbolo, un texto con una vela por tramo separado por coma: "día.apertura.cierre", todo en base 36.
  - día: el primero es el día absoluto (días desde 1970); los demás, la diferencia con la vela anterior.
@@ -19,12 +21,32 @@ Si un símbolo falla, se conserva lo que ya estaba guardado de ese símbolo. Si 
 import json, os, sys, time, datetime as dt
 import pandas as pd
 import yfinance as yf
+from pandas.tseries.holiday import (AbstractHolidayCalendar, Holiday, GoodFriday, USLaborDay, USMartinLutherKingJr, USMemorialDay,
+                                    USPresidentsDay, USThanksgivingDay, nearest_workday, sunday_to_monday)
+from pandas.tseries.offsets import CustomBusinessDay
 
 INICIO = "2023-01-01"      # hacen falta ~200 días antes de enero de 2024 para la media del permiso
 RUTA_TICKERS = "data/tendencia_tickers.json"
 RUTA_SALIDA = "data/tendencia_acciones.json"
 LOTE = 20
 EPOCH = dt.date(1970, 1, 1)
+RUEDAS_TOPE = 20           # salida por tiempo: cerrar todo al cierre de la rueda 20 desde la entrada
+
+
+class FeriadosNYSE(AbstractHolidayCalendar):
+    """Feriados de la bolsa de Nueva York (aproximación suficiente para estimar la fecha de cierre)."""
+    rules = [Holiday("Año nuevo", month=1, day=1, observance=sunday_to_monday), USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+             Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+             Holiday("Independencia", month=7, day=4, observance=nearest_workday), USLaborDay, USThanksgivingDay,
+             Holiday("Navidad", month=12, day=25, observance=nearest_workday)]
+
+
+RUEDA = CustomBusinessDay(calendar=FeriadosNYSE())
+
+
+def fecha_cierre(fecha_senal):
+    """Fecha (ISO) del cierre de la rueda 20 contando desde la entrada (apertura siguiente a la señal) = 20 ruedas hábiles después de la señal."""
+    return (pd.Timestamp(fecha_senal) + RUEDAS_TOPE * RUEDA).date().isoformat()
 
 
 def zz(n):
@@ -69,7 +91,7 @@ def volatilidad(df):
 
 def senal_verde(df, ruedas=5):
     """Devuelve (techo de las últimas 20 ruedas con la de hoy, señal) con la señal más reciente de las últimas `ruedas` ruedas, o None.
-    señal = [fecha ISO, strong 0/1, cierre, techo roto, zona máx., zona mín., Z-score, ruedas atrás (0 = hoy)]."""
+    señal = [fecha ISO, strong 0/1, cierre, techo roto, zona máx., zona mín., Z-score, ruedas atrás (0 = hoy), fecha de cierre (rueda 20)]."""
     x = df[["High", "Low", "Close", "Volume"]].copy()
     x = x.dropna(subset=["High", "Low", "Close"])
     if len(x) < 205:
@@ -86,8 +108,9 @@ def senal_verde(df, ruedas=5):
     for atras in range(ruedas):
         i = len(x) - 1 - atras
         if bool(verde.iloc[i]):
-            return techo20, [pd.Timestamp(x.index[i]).date().isoformat(), int(bool(strong.iloc[i])), round(float(c.iloc[i]), 2), round(float(techo.iloc[i]), 2),
-                             round(float(h.iloc[i - 1]), 2), round(float(x["Low"].iloc[i - 1]), 2), round(float(z.iloc[i]), 2), atras]
+            fs = pd.Timestamp(x.index[i]).date().isoformat()
+            return techo20, [fs, int(bool(strong.iloc[i])), round(float(c.iloc[i]), 2), round(float(techo.iloc[i]), 2),
+                             round(float(h.iloc[i - 1]), 2), round(float(x["Low"].iloc[i - 1]), 2), round(float(z.iloc[i]), 2), atras, fecha_cierre(fs)]
     return techo20, None
 
 
