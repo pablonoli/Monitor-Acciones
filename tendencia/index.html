@@ -160,7 +160,7 @@ input[type="search"]:focus-visible { outline: 2px solid var(--accent); outline-o
 .vsen { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 99px; background: var(--long-bg); color: var(--long); border: 1px solid var(--long); white-space: nowrap; }
 .vsen.fuerte { background: var(--long); color: #fff; }
 .hacer { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
-.hacer.si { background: var(--long); color: #fff; } .hacer.pasada { background: var(--long-bg); color: var(--long); border: 1px solid var(--long); } .hacer.mirar { background: var(--chip); color: var(--muted); }
+.hacer.si { background: var(--long); color: #fff; } .hacer.pasada { background: var(--long-bg); color: var(--long); border: 1px solid var(--long); } .hacer.mirar, .hacer.lejos, .hacer.bajo { background: var(--chip); color: var(--muted); } .hacer.lejos, .hacer.bajo { font-weight: 600; } .hacer.cerca { background: var(--long-bg); color: var(--long); }
 .datos { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 13px; margin-bottom: 14px; padding: 12px; border-radius: 10px; background: var(--chip); } .datos > span:nth-child(odd) { color: var(--muted); }
 .simhacer { font-size: 13.5px; line-height: 1.4; padding: 8px 10px; border-radius: 8px; margin: -4px 0 12px; } .simhacer.si { background: var(--long-bg); color: var(--long); font-weight: 600; } .simhacer.no { background: var(--chip); color: var(--muted); }
 .fotros button.c-verde { color: var(--long); font-weight: 700; }
@@ -1272,9 +1272,9 @@ function eficiencia(bars) {
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
 const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["mias", "Mis acciones"], ["senal", "Con señal verde"]];
-const ACC_TARJ = [["operar", "Operar (Strong, ATR 2% o más)", ""], ["mirar", "Para mirar (verde común)", "c-por"], ["mias", "Mis acciones", ""]], ACC_OTROS = [["todas", "Todas"], ["senal", "● Con señal verde", "c-verde"]];
+const ACC_TARJ = [["operar", "Operar (Strong, ATR 2% o más)", ""], ["mirar", "Para mirar (verde común)", "c-por"], ["cerca3", "Cerca de comprar (3% o menos)", ""], ["mias", "Mis acciones", ""]], ACC_OTROS = [["todas", "Todas"], ["senal", "● Con señal verde", "c-verde"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
-if (!["todas", "senal", "operar", "mirar", "mias"].includes(accFiltro)) accFiltro = "todas";
+if (!["todas", "senal", "operar", "mirar", "cerca3", "mias"].includes(accFiltro)) accFiltro = "todas";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
@@ -1423,7 +1423,7 @@ function haciaCruce(bars) {
 const accPillTxt = r => r.comprarYa ? "COMPRAR" : r.venderYa ? "VENDER" : r.parcialYa ? "VENDER ½" : r.mitad ? "COMPRADO ½" : r.comprado ? "COMPRADO" : r.cerca ? "CERCA" : "AFUERA";
 const accPillCls = r => "pill s" + (r.comprado ? " LONG" : (r.venderYa || r.parcialYa) ? " AVISO" : r.cerca ? " cer" : "");
 function accCumple(r, f) {
-  return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "operar" && opc7(r)) || (f === "mirar" && !!r.sen && !opc7(r)) || (f === "senal" && !!r.sen) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
+  return f === "todas" || (f === "mias" && !!accMias[r.s]) || (f === "operar" && opc7(r)) || (f === "mirar" && !!r.sen && !opc7(r)) || (f === "cerca3" && !r.sen && (z => !!z && !z.bajo && z.falta <= CERCA)(cercania(r))) || (f === "senal" && !!r.sen) || (f === "comprar" && r.comprarYa) || (f === "vender" && (r.venderYa || r.parcialYa)) || (f === "comprado" && r.comprado) || (f === "cerca" && r.cerca) || (f === "por" && r.por) || (f === "fuerte" && r.dir > 0 && r.ef >= EF_FUERTE) || (f === "naciente" && r.dir > 0 && r.ef >= EF_FUERTE && !r.comprado && !r.venderYa) || (f === "rango" && r.rango) || (f === "afuera" && !r.comprado && !r.venderYa);
 }
 function pintarAcc() {
   if (!accDatos) return;
@@ -1476,9 +1476,27 @@ function celdaSenal(r) {
 }
 // Tu regla (opción 7 de la prueba de 5 años): se opera solo el círculo verde Strong con ATR % de 2% o más.
 const opc7 = r => !!(r.sen && r.sen[1] && r.atrp != null && r.atrp >= 0.02);
+// Qué tan cerca está de dar círculo verde: precio de cierre que necesita (techo de 20 ruedas y suba con Z > 1,5), y si está bajo la media 200.
+const CERCA = 0.03;
+function cercania(r) {
+  if (r.__cerca !== undefined) return r.__cerca;
+  const c = r.bars.map(b => b.close), n = c.length; r.__cerca = null;
+  if (n < 205 || !r.techo) return null;
+  const sma = c.slice(-200).reduce((a, x) => a + x, 0) / 200, ult = c[n - 1];
+  const dif = []; for (let k = n - 49; k < n; k++) dif.push(c[k] - c[k - 1]);
+  const zDe = p => { const m = [...dif, p - ult], med = m.reduce((a, x) => a + x, 0) / 50, sd = Math.sqrt(m.reduce((a, x) => a + (x - med) ** 2, 0) / 50); return sd > 0 ? (m[49] - med) / sd : 0; };
+  const precioZ = zt => { let lo = ult, hi = ult * 1.6; for (let k = 0; k < 60; k++) { const mid = (lo + hi) / 2; if (zDe(mid) > zt) hi = mid; else lo = mid; } return hi; };
+  const verde = Math.max(r.techo + 0.01, precioZ(1.5)), strong = Math.max(r.techo + 0.01, precioZ(2.5));
+  return r.__cerca = { sma, bajo: ult <= sma, debajo: ult / sma - 1, verde, strong, falta: verde / ult - 1, faltaS: strong / ult - 1 };
+}
 // [clase, texto principal, detalle] de lo que corresponde hacer con la acción según la regla
 function queHacer(r) {
-  if (!r.sen) return ["", "Sin señal", ""];
+  if (!r.sen) {
+    const z = cercania(r), pc = x => "+" + (100 * x).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+    if (!z) return ["", "Sin señal", ""];
+    if (z.bajo) return ["bajo", "Bajo la media 200", ""];
+    return z.falta <= CERCA ? ["cerca", "Cerca " + pc(z.falta), "verde arriba de " + fmt(z.verde)] : ["lejos", "Lejos " + pc(z.falta), ""];
+  }
   const f = fCorta(r.sen[0]), sal = salidaTiempo(r.sen), hoy = (r.sen[7] || 0) === 0;
   if (opc7(r)) return hoy ? ["si", "Comprar en la apertura", `Strong del ${f}${sal ? " · cerrar todo el " + fCorta(sal[0]) : ""}`] : ["pasada", "Strong (entrada pasada)", `del ${f}: la compra era en la apertura siguiente${sal ? " · cerrar todo el " + fCorta(sal[0]) : ""}`];
   return ["mirar", "Mirar, no operar", r.sen[1] ? `Strong con volatilidad baja del ${f}` : `verde común del ${f}`];
@@ -1491,6 +1509,9 @@ function celdaHacer(r) {
 function datosAcc(r) {
   const it = [];
   if (r.sen) { const sal = salidaTiempo(r.sen); it.push(["Señal", `${r.sen[1] ? "Verde Strong" : "Verde"} del ${fCorta(r.sen[0])} · zona ${fmt(r.sen[4])}–${fmt(r.sen[5])}${sal ? ` · cerrar todo el ${fCorta(sal[0])} (quedan ${sal[1]} ruedas)` : ""}`]); }
+  { const z = !r.sen && cercania(r);
+    if (z) it.push(["Para dar compra", z.bajo ? `está ${(100 * -z.debajo).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% debajo de su media 200 (${fmt(z.sma)}): no puede dar compra hasta superarla`
+      : `verde si cierra arriba de ${fmt(z.verde)} (+${(100 * z.falta).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%) · Strong arriba de ${fmt(z.strong)} (+${(100 * z.faltaS).toLocaleString("es-AR", { maximumFractionDigits: 1 })}%) y con volumen 1,5 veces el promedio${r.atrp != null && r.atrp < 0.02 ? " · ATR bajo: aunque dé Strong, no entra en tu regla" : ""}`]); }
   if (r.atrp != null) it.push(["ATR %", `${(100 * r.atrp).toLocaleString("es-AR", { maximumFractionDigits: 1 })}% (volatilidad ${volNivel(r.atrp)[0].toLowerCase()})`]);
   if (r.techo) { const d = r.techo / r.precio - 1; it.push(["Techo 20 ruedas", `${fmt(r.techo)} · ${d < 0.0005 ? "en el cierre" : "a " + (100 * d).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "% sobre el cierre"}`]); }
   it.push(["Estrategia de medias", `${accPillTxt(r)} · permiso ${r.permisoOk ? "sí" : "no"} · ${r.rango ? "rango " + Math.round(100 * r.pos) + "%" : "medias " + (r.mediasOk ? "+" : "−") + (100 * r.gap).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "%"}`]);
@@ -1517,7 +1538,7 @@ function pintarFilasAcc() {
   const q = accBusca.trim().toUpperCase();
   let filas = accRes.filter(r => accCumple(r, accFiltro) && (!q || r.s.includes(q)));
   const k = accOrd.k, dir = accOrd.asc ? 1 : -1;
-  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, tend: r => r.dir * r.ef, precio: r => r.precio, atr: r => r.atrp ?? -1, senal: r => r.sen ? (opc7(r) ? 3 : r.sen[1] ? 2 : 1) * 1e6 + Date.parse(r.sen[0]) / 1e6 : 0, techo: r => r.techo ? r.techo / r.precio - 1 : 9, actual: r => r.t.abierta ? r.t.actual : -9, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
+  const clave = { s: r => r.s, est: r => r.est * 10 + Math.min(r.gap, 9.99), perm: r => (r.permisoOk ? 0 : 1) * 10 + r.est, gap: r => (r.mediasOk ? 1 : -1) * r.gap, tend: r => r.dir * r.ef, precio: r => r.precio, atr: r => r.atrp ?? -1, senal: r => { if (r.sen) return (opc7(r) ? 3 : r.sen[1] ? 2 : 1) * 1e6 + Date.parse(r.sen[0]) / 1e6; const z = cercania(r); return !z || z.bajo ? 0 : (z.falta <= CERCA ? 5e5 : 4e5) - 1e3 * z.falta; }, techo: r => r.techo ? r.techo / r.precio - 1 : 9, actual: r => r.t.abierta ? r.t.actual : -9, e: r => r.e, m: r => r.m, n: r => r.n }[k] || (r => r.est);
   filas.sort((a, b) => { const x = clave(a), y = clave(b); return (x < y ? -1 : x > y ? 1 : 0) * dir || (a.s < b.s ? -1 : 1); });
   document.querySelectorAll("#accTabla th[data-k]").forEach(th => { th.classList.toggle("ord", th.dataset.k === k); th.classList.toggle("asc", th.dataset.k === k && accOrd.asc); });
   const pc = x => `<td class="num ${x >= 0 ? "pos" : "neg"}">${pctT(x)}</td>`;
