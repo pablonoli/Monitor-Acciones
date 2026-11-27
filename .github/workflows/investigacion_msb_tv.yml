@@ -1,0 +1,30 @@
+name: Investigación MSB+ de TradingView contra el círculo verde
+on:
+  workflow_dispatch:
+  push:
+    branches: [investigacion-msb-tv]
+    paths:
+      - "scripts/investigacion_msb_tv.py"
+      - ".github/workflows/investigacion_msb_tv.yml"
+permissions:
+  contents: write
+concurrency:
+  group: investigacion-msb-tv
+  cancel-in-progress: false
+jobs:
+  investigar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install yfinance pandas numpy
+      - run: python scripts/investigacion_msb_tv.py 5
+      - name: Guardar resultado (solo en esta rama, nunca en main)
+        run: |
+          git config user.name "datos-bot"
+          git config user.email "datos-bot@users.noreply.github.com"
+          git add data/investigacion_msb_tv.txt
+          git commit -m "Investigación círculos: MSB+ de TV contra círculo verde $(date -u +%F)" || echo "sin cambios"
+          git push origin HEAD:${GITHUB_REF_NAME}
