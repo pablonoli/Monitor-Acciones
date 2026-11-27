@@ -1,0 +1,23 @@
+STOP POR VOLATILIDAD CONTRA STOP AMPLIO. Últimos 5 años (2021-11-25 a 2026-11-25). 122 acciones con CEDEAR. Plan A.
+Stop por volatilidad = entrada x (1 - k x ATR %), con ATR % del día de la señal (igual que el simulador). Amplio = mínimo de las últimas 20 ruedas.
+Capital: 1% de riesgo por operación, exposición máx. 100%, posición máx. 25% del capital. Costo 0,15% por lado.
+SPY comprar y mantener: acumulado +67.0%, caída máx. -24.5%.
+Marca '≈base' = diferencia de acumulado contra el stop amplio menor a 15 puntos: puede ser casualidad. 8 versiones probadas.
+LÍMITES: sesgo de selección, sesgo de supervivencia (lista de hoy), operaciones superpuestas.
+
+== TODOS LOS CÍRCULOS VERDES ==
+Stop                                      | dist. media | toma. | por mes |   prom. | gan. | stop% | R med |    acum. |  c. MTM | 1.ª mitad | 2.ª mitad | vs amplio
+Amplio: mínimo de 20 ruedas               |       16.2% |   940 |    15.4 |  +1.82% |  53% |   14% | +0.09 |   +98.4% |  -20.5% |    +22.2% |    +62.4% | 
+Volatilidad 1,5 ATR                       |        5.1% |   602 |     9.9 |  +0.42% |  39% |   57% | +0.03 |   +32.3% |  -36.3% |     -3.5% |    +44.4% |  -66.2 pp
+Volatilidad 2,0 ATR                       |        6.8% |   645 |    10.6 |  +0.54% |  44% |   49% | +0.06 |   +20.8% |  -31.9% |     +9.2% |    +11.0% |  -77.6 pp
+Volatilidad 2,5 ATR (el del simulador)    |        8.5% |   677 |    11.1 |  +0.96% |  48% |   38% | +0.10 |   +67.9% |  -26.1% |     +7.0% |    +51.9% |  -30.5 pp
+dist. media = distancia promedio de la entrada al stop; stop% = operaciones que terminaron tocando el stop inicial (−1R); R med = resultado promedio en riesgos.
+
+== OPCIÓN 7: STRONG + ATR >= 2% ==
+Stop                                      | dist. media | toma. | por mes |   prom. | gan. | stop% | R med |    acum. |  c. MTM | 1.ª mitad | 2.ª mitad | vs amplio
+Amplio: mínimo de 20 ruedas               |       19.5% |   515 |     8.4 |  +3.47% |  52% |    8% | +0.16 |  +115.4% |  -14.9% |    +41.9% |    +51.8% | 
+Volatilidad 1,5 ATR                       |        6.1% |   375 |     6.1 |  +1.57% |  42% |   53% | +0.16 |   +67.4% |  -21.1% |    +42.8% |    +16.9% |  -48.0 pp
+Volatilidad 2,0 ATR                       |        8.1% |   391 |     6.4 |  +2.16% |  48% |   41% | +0.19 |   +73.5% |  -22.7% |    +53.2% |    +13.2% |  -41.9 pp
+Volatilidad 2,5 ATR (el del simulador)    |       10.1% |   418 |     6.9 |  +2.60% |  50% |   30% | +0.17 |   +79.0% |  -20.6% |    +52.0% |    +17.7% |  -36.4 pp
+dist. media = distancia promedio de la entrada al stop; stop% = operaciones que terminaron tocando el stop inicial (−1R); R med = resultado promedio en riesgos.
+
