@@ -1,0 +1,54 @@
+¿LAS DEFENSIVAS SE MUEVEN MENOS EN 20 RUEDAS? Últimos 5 años (2021-11-27 a 2026-11-27). Sin filtro.
+Defensivas (20): KO, PEP, PG, JNJ, MO, WMT, VZ, T, MCD, HSY, PFE, O, ABBV, MRK, ABT, NEE, COST, AMGN, UNH, ABEV.
+Resto (102 acciones con CEDEAR): todas las demás de la lista.
+Plan base: entrada en la apertura siguiente, stop inicial = mínimo de 20 ruedas, mitad a +2R y stop al precio de compra. Costo 0.15% por lado. Capital con 1% de riesgo por operación, exposición máx. 100%, cada grupo con su propio capital.
+LÍMITES: se probaron varias combinaciones y se elige la mejor (sesgo de selección); la lista de CEDEARs es la de hoy (sesgo de supervivencia); las defensivas son pocas (20) y sus señales también;
+las operaciones se superponen y no son independientes; la división defensivas/resto es una clasificación mía por sector, no la lista 'def' del dashboard.
+
+== 1) ¿CUÁNTO SE MUEVEN EN 20 RUEDAS? (todas las ruedas de los últimos años, no solo las señales) ==
+ATR % = rango diario típico. |ret 20| = movimiento absoluto del cierre a 20 ruedas (mediana y percentil 75). ≥10% = % de veces que el cierre se movió 10% o más. Sube máx. y baja máx. = mayor suba y mayor baja dentro de las 20 ruedas (mediana). Sube ≥10% = % de veces que en algún momento subió 10% o más.
+Grupo                             |  ruedas | ATR % | |r20| med |   p75 | ≥10% | sube máx. | baja máx. | sube≥10%
+Defensivas (todas las ruedas)     |   24700 |  1.9% |  4.1% |  7.1% |  11% |  +4.1% |   -3.8% |  14%
+Resto (todas las ruedas)          |  122014 |  3.0% |  6.6% | 12.1% |  33% |  +6.8% |   -5.8% |  35%
+Defensivas (solo días de señal)   |     329 |  2.0% |  4.4% |  7.4% |  13% |  +4.4% |   -3.7% |  16%
+Resto (solo días de señal)        |    2026 |  3.1% |  6.6% | 12.7% |  36% |  +6.8% |   -5.6% |  35%
+
+== 2) SEÑALES Y ¿CUÁNTAS LLEGAN A +1R Y +2R EN 20 RUEDAS? ==
+Defensivas :   341 señales en  20 acciones. ATR % mediano 2.0%, distancia mediana al stop 9.1%, llegan a +1R 17%, a +2R 2%. Más señales: AMGN (26), COST (23), KO (22), MRK (22), WMT (22), ABBV (21), ABEV (17), HSY (17).
+Resto      :  2055 señales en 102 acciones. ATR % mediano 3.1%, distancia mediana al stop 14.7%, llegan a +1R 21%, a +2R 5%. Más señales: MU (40), GLD (36), SLV (36), TSM (36), AMAT (35), LRCX (32), WDC (32), HMY (31).
+De las señales de defensivas, el 52% cae en el grupo de ATR % menor a 2%; del resto, el 17%.
+
+== 3) RESULTADOS: DEFENSIVAS ==
+Versión                                       |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes
+A. Cierra todo en la rueda 20                 |  341  |   287 |  +0.37% |  +0.56% |  52% | +0.06 |   20 |   +13.2% |  -11.6% |       57% |  38% |    -5.7%
+D. En la 20: si está en +1R sigue hasta la 40 |  341  |   259 |  +0.19% |  -0.05% |  50% | +0.04 |   20 |   +12.5% |  -14.6% |       53% |  44% |    -5.0%
+E. Referencia: sin límite (máx. 60)           |  341  |   191 |  -0.03% |  -0.64% |  48% | +0.00 |   60 |   +26.0% |  -13.7% |       37% |  39% |    -4.1%
+A. Cierra todo en la rueda 30                 |  341  |   240 |  -0.15% |  +0.02% |  50% | +0.01 |   30 |   +10.1% |  -17.7% |       48% |  38% |    -5.5%
+A. Cierra todo en la rueda 40                 |  341  |   216 |  -0.20% |  -0.33% |  48% | -0.01 |   40 |   +19.5% |  -18.2% |       43% |  41% |    -4.2%
+   D20: siguieron 41 de 341 (12%); después de la 20 ganaron en promedio -1.54% (mediana -0.54%), mejoraron 46%.
+-- por mitades (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) --
+   A20 | 1.ª:  140* ops, acum.    +3.7%, R -0.01, c. MTM  -10.6% || 2.ª:  201  ops, acum.   +10.3%, R +0.11, c. MTM  -11.6%
+   D20 | 1.ª:  140* ops, acum.    +5.9%, R -0.02, c. MTM  -10.3% || 2.ª:  201  ops, acum.    +7.6%, R +0.08, c. MTM  -13.3%
+   E   | 1.ª:  140* ops, acum.    +8.5%, R -0.14, c. MTM  -13.2% || 2.ª:  201  ops, acum.   +19.9%, R +0.11, c. MTM  -12.2%
+   A30 | 1.ª:  140* ops, acum.    +4.1%, R -0.08, c. MTM  -12.1% || 2.ª:  201  ops, acum.    +8.4%, R +0.07, c. MTM  -15.0%
+   A40 | 1.ª:  140* ops, acum.    +8.0%, R -0.10, c. MTM  -12.0% || 2.ª:  201  ops, acum.   +11.3%, R +0.06, c. MTM  -13.8%
+   Orden por acumulado: 1.ª mitad E > A40 > D20 > A30 > A20 | 2.ª mitad E > A40 > A20 > A30 > D20
+
+== 3) RESULTADOS: RESTO ==
+Versión                                       |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes
+A. Cierra todo en la rueda 20                 | 2055  |   913 |  +2.18% |  +0.67% |  53% | +0.11 |   20 |   +84.1% |  -24.1% |       99% |  52% |    -6.9%
+D. En la 20: si está en +1R sigue hasta la 40 | 2055  |   825 |  +2.38% |  +0.41% |  52% | +0.12 |   20 |   +81.3% |  -22.9% |       90% |  56% |    -6.0%
+E. Referencia: sin límite (máx. 60)           | 2055  |   433 |  +4.03% |  +0.86% |  52% | +0.23 |   60 |   +60.9% |  -29.7% |       45% |  56% |   -10.3%
+A. Cierra todo en la rueda 30                 | 2055  |   692 |  +2.39% |  +0.45% |  51% | +0.13 |   30 |   +88.6% |  -29.1% |       72% |  51% |   -11.1%
+A. Cierra todo en la rueda 40                 | 2055  |   577 |  +2.47% |  +0.17% |  50% | +0.14 |   40 |   +13.8% |  -36.2% |       58% |  48% |   -11.6%
+   D20: siguieron 253 de 2055 (12%); después de la 20 ganaron en promedio +1.59% (mediana +1.79%), mejoraron 58%.
+-- por mitades (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) --
+   A20 | 1.ª:  894  ops, acum.    +6.5%, R +0.08, c. MTM  -24.1% || 2.ª: 1161  ops, acum.   +80.2%, R +0.13, c. MTM  -19.1%
+   D20 | 1.ª:  894  ops, acum.   +12.1%, R +0.08, c. MTM  -20.1% || 2.ª: 1161  ops, acum.   +76.2%, R +0.15, c. MTM  -22.9%
+   E   | 1.ª:  894  ops, acum.    +1.6%, R +0.19, c. MTM  -29.7% || 2.ª: 1161  ops, acum.   +64.5%, R +0.26, c. MTM  -18.8%
+   A30 | 1.ª:  894  ops, acum.    +0.6%, R +0.12, c. MTM  -29.1% || 2.ª: 1161  ops, acum.   +88.1%, R +0.14, c. MTM  -28.9%
+   A40 | 1.ª:  894  ops, acum.    -8.8%, R +0.13, c. MTM  -36.2% || 2.ª: 1161  ops, acum.   +24.2%, R +0.14, c. MTM  -33.8%
+   Orden por acumulado: 1.ª mitad D20 > A20 > E > A30 > A40 | 2.ª mitad A30 > A20 > D20 > E > A40
+
+Referencia: SPY comprar y mantener en el mismo período: +67.6% (caída máxima -24.5%).
+(* = grupo o mitad con menos de 200 operaciones: poco confiable.)
