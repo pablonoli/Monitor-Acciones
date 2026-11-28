@@ -1,4 +1,4 @@
-"""Abre un issue en el repositorio cuando aparece un «círculo verde» nuevo (ver scripts/tendencia.py).
+"""Abre un issue en el repositorio cuando aparece un «círculo verde» Strong con ATR % de 2% o más (la regla de operar; los verdes comunes no se avisan) (ver scripts/tendencia.py).
 Lee data/tendencia_acciones.json ("sen", "atr", "ultimo") y recuerda lo ya avisado en data/senales_avisadas.json.
  - Una señal se avisa una sola vez. Las de un mismo día van juntas en un solo issue.
  - La primera vez (si el archivo de avisos no existe) las señales de días anteriores se marcan como avisadas sin abrir issue; solo se avisa la del último día.
@@ -56,6 +56,9 @@ def main():
     for s, v in sen.items():
         k = f"{s}|{v[0]}"
         if k in av:
+            continue
+        a = atr.get(s)
+        if not (v[1] and a and len(a) > 2 and a[2] >= 0.02):   # solo tu regla: Strong con ATR % de 2% o más
             continue
         if primera and v[0] < ultimo:
             av.add(k); continue

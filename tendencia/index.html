@@ -1301,9 +1301,9 @@ function eficiencia(bars) {
   return { ef: rec ? Math.abs(c[c.length - 1] - c[0]) / rec : 0, dir: Math.sign(c[c.length - 1] - c[0]) };
 }
 const ACC_FILTROS = [["todas", "Todas"], ["comprar", "Comprar hoy"], ["vender", "Vender hoy"], ["comprado", "Comprados"], ["por", "A punto de comprar"], ["fuerte", "Tendencia fuerte ▲"], ["rango", "En rango ↔"], ["mias", "Mis acciones"], ["senal", "Con señal verde"]];
-const ACC_TARJ = [["operar", "Operar (Strong, ATR 2% o más)", ""], ["mirar", "Para mirar (verde común)", "c-por"], ["cerca3", "Cerca de comprar (3% o menos)", ""], ["mias", "Mis acciones", ""]], ACC_OTROS = [["todas", "Todas"], ["senal", "● Con señal verde", "c-verde"]];
+const ACC_TARJ = [["operar", "Operar (Strong, ATR 2% o más)", ""], ["cerca3", "Cerca de comprar (3% o menos)", ""], ["mias", "Mis acciones", ""]], ACC_OTROS = [["todas", "Todas"], ["senal", "● Con señal verde", "c-verde"]];
 let accDatos = null, accRes = [], accFiltro = guardado("acc_filtro", "todas"), accAbierta = null, accBusca = "";
-if (!["todas", "senal", "operar", "mirar", "cerca3", "mias"].includes(accFiltro)) accFiltro = "todas";
+if (!["todas", "senal", "operar", "cerca3", "mias"].includes(accFiltro)) accFiltro = "todas";
 let accModo = ["o", "spy", "ninguno"].includes(guardado("acc_modo", "ninguno")) ? guardado("acc_modo", "ninguno") : "ninguno";
 const AVISO_RED = "No pude bajar los precios. Revisá la conexión.";
 const NOMBRE_ACC = { o: 'SPY o propio', spy: 'solo SPY', ninguno: 'sin filtro' };
@@ -1429,7 +1429,7 @@ function calcularAcc(modoF = accModo, n = accN, estr = accEst) {
     const bloqueada = auto && !comprado && !!(bars.__autoBloq || [])[bars.length - 1];
     const modoAct = auto ? (bars.__autoModo || [])[bars.length - 1] || "" : "", usaRango = modoAct === "R";
     res.push({ s, t, parcialYa: !!t.parcialYa, mitad: t.fraccion > 0 && t.fraccion < 1, propio, rango, modoAct, usaRango, bloqueada, por, faltan: hc.faltan, det: auto ? enRangoInfo(bars, bars.length - 1) : null, pos, stopsRec, comprado, comprarYa, venderYa, permisoOk, mediasOk, gap, cerca, est,
-      ...eficiencia(bars), precio: bars[bars.length - 1].close, atr: d.atr && d.atr[s] ? d.atr[s][0] : null, low20: d.atr && d.atr[s] ? d.atr[s][1] : null, atrp: d.atr && d.atr[s] ? (d.atr[s][2] ?? d.atr[s][0] / bars[bars.length - 1].close) : null, sen: d.sen && d.sen[s] ? d.sen[s] : null, techo: d.tec && d.tec[s] ? d.tec[s] : null, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
+      ...eficiencia(bars), precio: bars[bars.length - 1].close, atr: d.atr && d.atr[s] ? d.atr[s][0] : null, low20: d.atr && d.atr[s] ? d.atr[s][1] : null, atrp: d.atr && d.atr[s] ? (d.atr[s][2] ?? d.atr[s][0] / bars[bars.length - 1].close) : null, sen: d.sen && d.sen[s] && d.sen[s][1] && ((d.atr && d.atr[s] ? (d.atr[s][2] ?? d.atr[s][0] / bars[bars.length - 1].close) : 0) >= 0.02) ? d.sen[s] : null, techo: d.tec && d.tec[s] ? d.tec[s] : null, e: r.estrategia, m: r.mantener, n: r.ops.length, ops: t.ops, bars });
   }
   return { res, mercado, spy };
 }
@@ -1491,7 +1491,7 @@ function pintarAcc() {
   const hoy = $("accHoy"); hoy.hidden = false;
   { const op = res.filter(r => opc7(r) && (r.sen[7] || 0) === 0).map(r => r.s), pas = res.filter(r => opc7(r) && (r.sen[7] || 0) > 0).map(r => r.s), mi = res.filter(r => r.sen && !opc7(r)).map(r => r.s);
     hoy.className = "veredicto " + (op.length ? "pos" : "");
-    hoy.innerHTML = `<p><b>Hoy:</b> ${op.length ? `comprar en la apertura <b class='pos'>${lista2(op)}</b> (Strong con ATR de 2% o más). Usá Simular para ver cuántos CEDEARs.` : "ninguna señal para operar según tu regla."}${pas.length ? ` Strong de días anteriores (la entrada ya pasó): ${lista2(pas)}.` : ""}${mi.length ? ` Para mirar, sin operar: ${lista2(mi)}.` : ""}</p>`; }
+    hoy.innerHTML = `<p><b>Hoy:</b> ${op.length ? `comprar en la apertura <b class='pos'>${lista2(op)}</b> (Strong con ATR de 2% o más). Usá Simular para ver cuántos CEDEARs.` : "ninguna señal para operar según tu regla."}${pas.length ? ` Strong de días anteriores (la entrada ya pasó): ${lista2(pas)}.` : ""}</p>`; }
   { // miedo del mercado: VIX (cierre y máximo del día). Aviso si en la última rueda tocó más de 30
     const el = $("accMiedo"), vx = (accDatos.vix || []).filter(x => !accDatos.ultimo || x[0] <= accDatos.ultimo);
     if (!vx.length) el.hidden = true;
