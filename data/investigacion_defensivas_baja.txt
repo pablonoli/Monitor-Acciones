@@ -1,0 +1,48 @@
+¿LAS DEFENSIVAS RINDEN MEJOR 'COMPRANDO LA BAJA'? Últimos 5 años (2021-11-27 a 2026-11-27). 122 acciones con CEDEAR, 20 defensivas.
+Defensivas: KO, PEP, PG, JNJ, MO, WMT, VZ, T, MCD, HSY, PFE, O, ABBV, MRK, ABT, NEE, COST, AMGN, UNH, ABEV.
+Entradas (solo con el cierre sobre su media de 200 ruedas; se compra en la apertura siguiente): RSI = RSI 14 cruza por debajo de 35; CAIDA = Cae 5% o más desde el máximo de 20 ruedas.
+Salidas (stop a 2.5 ATR bajo la entrada; máximo 20 ruedas): REBOTE = Sale al superar su media de 10 ruedas; OBJ = Sale al tocar +2 ATR (objetivo a +2.0 ATR).
+Costo 0.15% por lado. Stop antes que objetivo en la misma vela; gaps al open. Capital con 1% de riesgo por operación, exposición máx. 100%, cada grupo con su capital. No se abre otra operación en la misma acción mientras la anterior sigue abierta.
+Referencia: círculo verde con plan A (cierra a las 20 ruedas) en las mismas acciones. Se probaron 4 versiones de 'comprar la baja' (sesgo de selección: la mejor suele rendir menos hacia adelante).
+LÍMITES: lista de CEDEARs de hoy (sesgo de supervivencia); las defensivas son pocas y sus señales también (* = menos de 200 operaciones: poco confiable); las operaciones se superponen y no son independientes; la clasificación de defensivas es mía por sector.
+
+== RESULTADOS: DEFENSIVAS ==
+Versión                                       |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes
+Círculo verde, plan A (referencia)            |  341  |   287 |  +0.37% |  +0.56% |  52% | +0.06 |   20 |   +13.2% |  -11.6% |       57% |  38% |    -5.7%
+RSI: RSI 14 cruza por debajo de 3 | REBOTE    |  115* |   115 |  +0.15% |  +1.13% |  68% | +0.02 |    5 |    +1.7% |   -7.6% |       40% |  43% |    -5.5%
+RSI: RSI 14 cruza por debajo de 3 | OBJ       |  104* |   103 |  +0.17% |  +2.50% |  60% | +0.04 |    7 |    +6.5% |   -5.3% |       36% |  39% |    -4.2%
+CAIDA: Cae 5% o más desde el máximo | REBOTE  |  481  |   458 |  -0.28% |  +0.59% |  59% | -0.07 |    5 |   -19.9% |  -29.4% |      142% |  41% |    -5.7%
+CAIDA: Cae 5% o más desde el máximo | OBJ     |  394  |   351 |  -0.20% |  +1.88% |  53% | -0.06 |    9 |    -6.1% |  -26.5% |      108% |  52% |    -6.0%
+   Cómo terminan las operaciones (stop / objetivo / rebote / tiempo):
+   RSI+REBOTE: stop 23%, objetivo 0%, rebote 77%, tiempo 0%; duración mediana 5 ruedas
+   RSI+OBJ: stop 31%, objetivo 53%, rebote 0%, tiempo 16%; duración mediana 7 ruedas
+   CAIDA+REBOTE: stop 23%, objetivo 0%, rebote 77%, tiempo 0%; duración mediana 5 ruedas
+   CAIDA+OBJ: stop 37%, objetivo 48%, rebote 0%, tiempo 15%; duración mediana 9 ruedas
+-- por mitades (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) --
+   verde A       | 1.ª:  140* ops, acum.    +3.7%, R -0.01, c. MTM  -10.6% || 2.ª:  201  ops, acum.   +10.3%, R +0.11, c. MTM  -11.6%
+   RSI+REBOTE    | 1.ª:   60* ops, acum.    +1.2%, R +0.02, c. MTM   -6.1% || 2.ª:   55* ops, acum.    +0.5%, R +0.01, c. MTM   -7.6%
+   RSI+OBJ       | 1.ª:   54* ops, acum.    +1.0%, R +0.01, c. MTM   -4.7% || 2.ª:   50* ops, acum.    +5.5%, R +0.08, c. MTM   -5.3%
+   CAIDA+REBOTE  | 1.ª:  189* ops, acum.   -20.2%, R -0.14, c. MTM  -23.1% || 2.ª:  292  ops, acum.    -0.5%, R -0.02, c. MTM  -15.4%
+   CAIDA+OBJ     | 1.ª:  157* ops, acum.   -19.7%, R -0.21, c. MTM  -26.5% || 2.ª:  237  ops, acum.   +16.2%, R +0.03, c. MTM  -12.9%
+
+== RESULTADOS: RESTO ==
+Versión                                       |   ops | toma. |   prom. |    med. | gan. | R med | dur. |    acum. |  c. MTM | efec./mes | mes+ | peor mes
+Círculo verde, plan A (referencia)            | 2055  |   913 |  +2.18% |  +0.67% |  53% | +0.11 |   20 |   +84.1% |  -24.1% |       99% |  52% |    -6.9%
+RSI: RSI 14 cruza por debajo de 3 | REBOTE    |  565  |   451 |  +0.49% |  +1.23% |  63% | +0.02 |    6 |    -6.0% |  -26.8% |      107% |  52% |    -6.7%
+RSI: RSI 14 cruza por debajo de 3 | OBJ       |  528  |   408 |  +0.23% |  +2.64% |  56% | +0.02 |    8 |   -12.5% |  -30.7% |       92% |  49% |    -9.8%
+CAIDA: Cae 5% o más desde el máximo | REBOTE  | 3840  |  2197 |  -0.01% |  +0.94% |  62% | -0.00 |    3 |   -30.6% |  -36.8% |      414% |  51% |   -14.6%
+CAIDA: Cae 5% o más desde el máximo | OBJ     | 2780  |  1141 |  +0.47% |  +3.27% |  58% | +0.04 |    9 |    +0.3% |  -42.7% |      202% |  51% |   -13.4%
+   Cómo terminan las operaciones (stop / objetivo / rebote / tiempo):
+   RSI+REBOTE: stop 24%, objetivo 0%, rebote 76%, tiempo 1%; duración mediana 6 ruedas
+   RSI+OBJ: stop 35%, objetivo 53%, rebote 0%, tiempo 12%; duración mediana 8 ruedas
+   CAIDA+REBOTE: stop 18%, objetivo 0%, rebote 82%, tiempo 0%; duración mediana 3 ruedas
+   CAIDA+OBJ: stop 34%, objetivo 52%, rebote 0%, tiempo 14%; duración mediana 9 ruedas
+-- por mitades (señales hasta 2024-05-26 | desde 2024-05-26; el capital vuelve a empezar en cada mitad) --
+   verde A       | 1.ª:  894  ops, acum.    +6.5%, R +0.08, c. MTM  -24.1% || 2.ª: 1161  ops, acum.   +80.2%, R +0.13, c. MTM  -19.1%
+   RSI+REBOTE    | 1.ª:  253  ops, acum.   -11.4%, R +0.01, c. MTM  -26.0% || 2.ª:  312  ops, acum.    +6.1%, R +0.04, c. MTM  -17.5%
+   RSI+OBJ       | 1.ª:  237  ops, acum.   -15.2%, R +0.05, c. MTM  -30.7% || 2.ª:  291  ops, acum.    +3.6%, R -0.01, c. MTM  -17.0%
+   CAIDA+REBOTE  | 1.ª: 1641  ops, acum.   -11.9%, R -0.01, c. MTM  -34.2% || 2.ª: 2199  ops, acum.   -22.1%, R -0.00, c. MTM  -31.9%
+   CAIDA+OBJ     | 1.ª: 1195  ops, acum.   -23.1%, R +0.02, c. MTM  -42.7% || 2.ª: 1585  ops, acum.   +32.5%, R +0.05, c. MTM  -27.8%
+
+Referencia: SPY comprar y mantener en el mismo período: +67.6% (caída máxima -24.5%).
+Marca de casualidad: una diferencia de acumulado menor a 15 puntos contra la referencia puede ser casualidad.
