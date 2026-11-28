@@ -1,0 +1,33 @@
+TOPE DE POSICIONES ABIERTAS CON TODOS LOS CEDEARS. Últimos 5 años (2021-11-27 a 2026-11-27). 363 acciones bajadas, 241 nuevas contra las 122 de antes.
+Plan A (cierra todo en la rueda 20): entrada en la apertura siguiente, stop inicial = mínimo de 20 ruedas, mitad a +2R y stop al precio de compra. Costo 0,15% por lado. 1% de riesgo por operación, exposición máx. 100%.
+Con tope de N abiertas, si ya hay N posiciones abiertas la señal se saltea. Entre las señales del mismo día entra primero la de mayor Z.
+SPY comprar y mantener: acumulado +67.6%, caída máx. -24.5%. Se probaron 20 combinaciones (sesgo de selección: la mejor suele rendir menos hacia adelante). Diferencia menor a 15 pp = puede ser casualidad.
+'acum./caída' = puntos de resultado por cada punto de caída máxima (valuando las abiertas a mercado): cuanto más alto, mejor relación.
+LÍMITES: lista de CEDEARs de hoy (sesgo de supervivencia); las operaciones se superponen y no son independientes.
+
+== RESULTADOS (5 años) ==
+Conjunto | filtro | tope                              | señales | toma. | por mes | abiertas |   prom. | gan. | R med |    acum. |  c. MTM | acum./caída | mes+ | peor mes | 1.ª mitad | 2.ª mitad
+TODAS | ATR 2% o más | sin tope                       |    4900 |  1220 |    20.0 |     17.5 |  +1.98% |  53% | +0.08 |  +113.6% |  -30.8% |         3.7 |  59% |   -10.0% |    +14.1% |    +75.9%
+TODAS | ATR 2% o más | máx. 15                        |    4900 |   987 |    16.2 |     14.1 |  +2.37% |  54% | +0.10 |  +125.0% |  -27.6% |         4.5 |  59% |    -9.9% |    +35.6% |    +69.1%
+TODAS | ATR 2% o más | máx. 12                        |    4900 |   808 |    13.2 |     11.5 |  +2.42% |  53% | +0.08 |   +78.2% |  -25.7% |         3.0 |  61% |    -9.6% |    +19.5% |    +37.3%
+TODAS | ATR 2% o más | máx. 10                        |    4900 |   679 |    11.1 |      9.7 |  +2.49% |  54% | +0.08 |   +61.9% |  -23.9% |         2.6 |  59% |    -7.2% |    +12.4% |    +34.4%
+TODAS | ATR 2% o más | máx. 8                         |    4900 |   545 |     8.9 |      7.8 |  +3.13% |  56% | +0.11 |   +74.9% |  -19.0% |         3.9 |  61% |    -5.1% |    +15.0% |    +27.2%
+
+TODAS | Strong + ATR 2% o más | sin tope              |    1464 |   899 |    14.7 |     13.1 |  +2.26% |  54% | +0.11 |  +123.2% |  -28.9% |         4.3 |  61% |   -11.5% |    +93.8% |    +20.8%
+TODAS | Strong + ATR 2% o más | máx. 15               |    1464 |   780 |    12.8 |     11.3 |  +2.19% |  53% | +0.10 |  +109.3% |  -22.3% |         4.9 |  57% |   -11.4% |    +73.9% |    +23.5%
+TODAS | Strong + ATR 2% o más | máx. 12               |    1464 |   662 |    10.9 |      9.7 |  +1.97% |  53% | +0.10 |   +82.8% |  -16.0% |         5.2 |  54% |    -8.1% |    +48.9% |    +25.6%
+TODAS | Strong + ATR 2% o más | máx. 10               |    1464 |   568 |     9.3 |      8.3 |  +2.37% |  52% | +0.11 |   +80.9% |  -14.7% |         5.5 |  59% |    -5.3% |    +43.5% |    +25.3%
+TODAS | Strong + ATR 2% o más | máx. 8                |    1464 |   465 |     7.6 |      6.8 |  +2.83% |  55% | +0.13 |   +79.4% |  -12.6% |         6.3 |  56% |    -4.3% |    +33.1% |    +30.8%
+
+Las 122 de antes | ATR 2% o más | sin tope            |    1861 |   956 |    15.7 |     13.7 |  +2.60% |  54% | +0.13 |  +183.1% |  -24.9% |         7.4 |  62% |    -7.8% |    +44.9% |    +96.4%
+Las 122 de antes | ATR 2% o más | máx. 15             |    1861 |   855 |    14.0 |     12.3 |  +2.52% |  54% | +0.13 |  +161.0% |  -24.1% |         6.7 |  56% |    -6.9% |    +46.9% |    +83.0%
+Las 122 de antes | ATR 2% o más | máx. 12             |    1861 |   723 |    11.9 |     10.3 |  +2.02% |  54% | +0.11 |  +100.6% |  -21.8% |         4.6 |  59% |    -6.6% |    +34.9% |    +49.2%
+Las 122 de antes | ATR 2% o más | máx. 10             |    1861 |   615 |    10.1 |      8.8 |  +2.38% |  55% | +0.13 |  +104.2% |  -21.6% |         4.8 |  57% |    -6.4% |    +38.4% |    +43.9%
+Las 122 de antes | ATR 2% o más | máx. 8              |    1861 |   504 |     8.3 |      7.2 |  +2.25% |  54% | +0.12 |   +76.8% |  -21.6% |         3.6 |  59% |    -6.4% |    +24.1% |    +43.1%
+
+Las 122 de antes | Strong + ATR 2% o más | sin tope   |     563 |   516 |     8.5 |      7.5 |  +3.36% |  53% | +0.16 |  +112.1% |  -14.5% |         7.7 |  61% |    -6.2% |    +43.6% |    +47.6%
+Las 122 de antes | Strong + ATR 2% o más | máx. 15    |     563 |   490 |     8.0 |      7.1 |  +2.84% |  51% | +0.14 |   +87.5% |  -13.1% |         6.7 |  59% |    -6.2% |    +37.1% |    +35.8%
+Las 122 de antes | Strong + ATR 2% o más | máx. 12    |     563 |   450 |     7.4 |      6.5 |  +2.75% |  52% | +0.14 |   +81.7% |  -12.6% |         6.5 |  59% |    -6.2% |    +38.7% |    +30.2%
+Las 122 de antes | Strong + ATR 2% o más | máx. 10    |     563 |   409 |     6.7 |      5.9 |  +2.65% |  52% | +0.14 |   +72.0% |  -12.0% |         6.0 |  57% |    -6.4% |    +35.8% |    +25.9%
+Las 122 de antes | Strong + ATR 2% o más | máx. 8     |     563 |   359 |     5.9 |      5.2 |  +2.54% |  52% | +0.14 |   +59.7% |  -11.1% |         5.4 |  54% |    -4.5% |    +31.8% |    +20.4%
+
