@@ -1,0 +1,57 @@
+LA ESTRATEGIA CON TODOS LOS CEDEARS. Últimos 5 años (2021-11-27 a 2026-11-27). 363 acciones bajadas, 241 nuevas contra las 122 de antes.
+Plan A (cierra todo en la rueda 20): entrada en la apertura siguiente, stop inicial = mínimo de 20 ruedas, mitad a +2R y stop al precio de compra. Costo 0,15% por lado. 1% de riesgo por operación, exposición máx. 100% (si no hay plata libre, la señal se saltea).
+Orden de elección cuando hay más señales que lugar: 'alfab.' = alfabético (como en las pruebas anteriores, arbitrario); 'Z' = la de mayor Z primero.
+SPY comprar y mantener: acumulado +67.6%, caída máx. -24.5%. Se probaron 24 combinaciones: la mejor suele rendir menos hacia adelante (sesgo de selección). Diferencia menor a 15 pp = puede ser casualidad.
+LÍMITES: lista de CEDEARs de hoy (sesgo de supervivencia, más fuerte en las nuevas: muchas son acciones o ETFs que subieron mucho); las operaciones se superponen y no son independientes. Z y ATR % se miden el día de la señal.
+
+== RESULTADOS (5 años) ==
+Conjunto | filtro | orden                                     | señales | toma. | por mes | abiertas |   prom. | gan. | R med |    acum. |  c. MTM | mes+ | peor mes | 1.ª mitad | 2.ª mitad
+Las 122 de antes | todas las señales | alfab.                 |    2396 |   940 |    15.4 |     13.3 |  +1.84% |  53% | +0.09 |  +100.1% |  -20.1% |  57% |    -6.4% |    +22.8% |    +62.9%
+Las 122 de antes | todas las señales | Z                      |    2396 |   948 |    15.5 |     13.5 |  +2.43% |  52% | +0.11 |  +137.7% |  -21.0% |  57% |    -7.3% |    +41.1% |    +65.5%
+Las 122 de antes | ATR 2% o más | alfab.                      |    1861 |   944 |    15.5 |     13.5 |  +2.43% |  54% | +0.13 |  +178.3% |  -23.7% |  61% |    -7.9% |    +41.1% |    +98.8%
+Las 122 de antes | ATR 2% o más | Z                           |    1861 |   956 |    15.7 |     13.7 |  +2.60% |  54% | +0.13 |  +183.1% |  -24.9% |  62% |    -7.8% |    +44.9% |    +96.4%
+Las 122 de antes | solo Strong | alfab.                       |     653 |   527 |     8.6 |      7.6 |  +2.70% |  51% | +0.13 |   +84.7% |  -15.1% |  57% |    -6.4% |    +43.5% |    +28.7%
+Las 122 de antes | solo Strong | Z                            |     653 |   533 |     8.7 |      7.7 |  +2.64% |  51% | +0.13 |   +87.3% |  -15.1% |  57% |    -6.4% |    +45.4% |    +28.8%
+Las 122 de antes | Strong + ATR 2% o más | alfab.             |     563 |   515 |     8.4 |      7.5 |  +3.48% |  52% | +0.16 |  +116.0% |  -14.9% |  62% |    -6.2% |    +41.9% |    +52.2%
+Las 122 de antes | Strong + ATR 2% o más | Z                  |     563 |   516 |     8.5 |      7.5 |  +3.36% |  53% | +0.16 |  +112.1% |  -14.5% |  61% |    -6.2% |    +43.6% |    +47.6%
+
+TODAS (nuevas + antes) | todas las señales | alfab.           |    6589 |  1106 |    18.1 |     15.7 |  +2.07% |  53% | +0.09 |  +124.8% |  -29.4% |  61% |   -12.9% |    +15.2% |   +110.0%
+TODAS (nuevas + antes) | todas las señales | Z                |    6589 |  1182 |    19.4 |     16.9 |  +2.09% |  53% | +0.09 |  +132.2% |  -26.2% |  59% |   -10.2% |    +30.1% |    +81.5%
+TODAS (nuevas + antes) | ATR 2% o más | alfab.                |    4900 |  1177 |    19.3 |     16.8 |  +2.20% |  54% | +0.09 |  +150.7% |  -32.9% |  61% |   -13.3% |    +14.0% |   +118.2%
+TODAS (nuevas + antes) | ATR 2% o más | Z                     |    4900 |  1220 |    20.0 |     17.5 |  +1.98% |  53% | +0.08 |  +113.6% |  -30.8% |  59% |   -10.0% |    +14.1% |    +75.9%
+TODAS (nuevas + antes) | solo Strong | alfab.                 |    1695 |   862 |    14.1 |     12.4 |  +1.87% |  53% | +0.09 |  +103.3% |  -26.6% |  57% |   -11.7% |    +64.4% |    +28.4%
+TODAS (nuevas + antes) | solo Strong | Z                      |    1695 |   874 |    14.3 |     12.6 |  +1.90% |  52% | +0.09 |   +95.2% |  -26.9% |  54% |   -11.7% |    +70.9% |    +20.9%
+TODAS (nuevas + antes) | Strong + ATR 2% o más | alfab.       |    1464 |   889 |    14.6 |     12.9 |  +2.57% |  55% | +0.12 |  +150.2% |  -28.2% |  61% |   -11.0% |    +93.1% |    +33.8%
+TODAS (nuevas + antes) | Strong + ATR 2% o más | Z            |    1464 |   899 |    14.7 |     13.1 |  +2.26% |  54% | +0.11 |  +123.2% |  -28.9% |  61% |   -11.5% |    +93.8% |    +20.8%
+
+Solo las nuevas | todas las señales | alfab.                  |    4193 |  1040 |    17.0 |     14.7 |  +1.02% |  50% | +0.04 |   +45.4% |  -31.6% |  56% |   -12.9% |     -1.9% |    +45.1%
+Solo las nuevas | todas las señales | Z                       |    4193 |  1075 |    17.6 |     15.3 |  +1.13% |  50% | +0.03 |   +24.2% |  -29.6% |  57% |   -12.3% |     +8.8% |    +17.8%
+Solo las nuevas | ATR 2% o más | alfab.                       |    3039 |  1115 |    18.3 |     15.8 |  +1.32% |  51% | +0.05 |   +51.4% |  -30.7% |  57% |   -12.9% |     +9.3% |    +34.7%
+Solo las nuevas | ATR 2% o más | Z                            |    3039 |  1124 |    18.4 |     16.0 |  +1.37% |  51% | +0.03 |   +40.1% |  -30.8% |  54% |   -12.3% |    +12.3% |    +26.6%
+Solo las nuevas | solo Strong | alfab.                        |    1042 |   682 |    11.2 |      9.9 |  +1.39% |  52% | +0.06 |   +44.1% |  -20.4% |  54% |    -8.1% |    +25.4% |    +20.8%
+Solo las nuevas | solo Strong | Z                             |    1042 |   692 |    11.3 |     10.0 |  +1.59% |  52% | +0.07 |   +50.2% |  -20.9% |  54% |    -7.3% |    +31.5% |    +19.8%
+Solo las nuevas | Strong + ATR 2% o más | alfab.              |     901 |   696 |    11.4 |     10.1 |  +1.53% |  52% | +0.06 |   +47.1% |  -19.5% |  51% |    -7.4% |    +25.7% |    +17.0%
+Solo las nuevas | Strong + ATR 2% o más | Z                   |     901 |   702 |    11.5 |     10.2 |  +1.34% |  51% | +0.05 |   +42.5% |  -21.0% |  52% |    -6.6% |    +23.6% |    +15.3%
+
+== LAS SEÑALES NUEVAS: ¿CUÁNTAS HAY Y QUÉ ACCIONES MÁS APARECEN? ==
+Señales de las acciones nuevas: 4193 (contra 2396 de las 122 de antes). Con ATR 2% o más: 3039. Strong con ATR 2% o más: 901.
+Más señales entre las nuevas: CCJ (33), GFI (33), MUFG (33), IBKR (31), VRTX (31), IBN (30), ANET (29), ASTS (29), RIO (29), RKLB (29), CCL (28), GLW (28), MFG (28), ANF (27), GE (27)
+
+== LAS NUEVAS CON MEJOR Y PEOR RESULTADO (ATR 2% o más; operaciones sueltas, sin capital; mínimo 8 señales) ==
+  FMCC    14 señales, R medio +1.07, ganadoras  79%, promedio +24.78%
+  FNMA    17 señales, R medio +0.65, ganadoras  53%, promedio +16.02%
+  RGTI    21 señales, R medio +0.65, ganadoras  57%, promedio +31.16%
+  ANF     27 señales, R medio +0.59, ganadoras  70%, promedio +11.48%
+  RKLB    29 señales, R medio +0.56, ganadoras  79%, promedio +18.26%
+  LAC      8 señales, R medio +0.49, ganadoras  12%, promedio  -3.77%
+  OKLO    16 señales, R medio +0.48, ganadoras  44%, promedio +20.27%
+  ALAB    11 señales, R medio +0.42, ganadoras  73%, promedio +16.12%
+  SNAP    11 señales, R medio -0.35, ganadoras  27%, promedio  -5.19%
+  HPQ     12 señales, R medio -0.39, ganadoras  25%, promedio  -5.66%
+  TLN     10 señales, R medio -0.40, ganadoras  40%, promedio  -5.80%
+  E        8 señales, R medio -0.40, ganadoras  25%, promedio  -3.72%
+  PAGS    18 señales, R medio -0.46, ganadoras  28%, promedio  -7.95%
+  PINS    17 señales, R medio -0.46, ganadoras  35%, promedio  -6.12%
+  NTES    19 señales, R medio -0.47, ganadoras  32%, promedio  -5.66%
+  ACN     12 señales, R medio -0.49, ganadoras  17%, promedio  -5.59%
+(Mejor y peor por acción son resultados con pocas señales: no sirven para elegir acciones, solo para ver dispersión.)
