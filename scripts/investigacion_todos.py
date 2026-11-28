@@ -54,7 +54,7 @@ def main(anios=5):
                 nom = f"{cn} | {fn} | {on}"
                 if x is None: L.append(f"{nom:<62}| sin operaciones"); continue
                 ha = f"{100 * xa['acu']:+8.1f}%" if xa else f"{'—':>9}"; hb = f"{100 * xb['acu']:+8.1f}%" if xb else f"{'—':>9}"
-                L.append(f"{nom:<62}| {x['sen']:>7} | {x['tom']:>5} | {x['pmes']:>7.1f} | {x['abiertas']:>8.1f} | {100 * x['prom']:+6.2f}% | {100 * x['gan']:3.0f}% | {x['R']:+5.2f} | {100 * x['acum']:+7.1f}% | {100 * x['mtm']:+6.1f}% | {100 * x['mesp']:3.0f}% | {100 * x['peor']:+7.1f}% | {ha} | {hb}")
+                L.append(f"{nom:<62}| {x['sen']:>7} | {x['tom']:>5} | {x['pmes']:>7.1f} | {x['abiertas']:>8.1f} | {100 * x['prom']:+6.2f}% | {100 * x['gan']:3.0f}% | {x['R']:+5.2f} | {100 * x['acu']:+7.1f}% | {100 * x['mtm']:+6.1f}% | {100 * x['mesp']:3.0f}% | {100 * x['peor']:+7.1f}% | {ha} | {hb}")
         L.append("")
     L.append("== LAS SEÑALES NUEVAS: ¿CUÁNTAS HAY Y QUÉ ACCIONES MÁS APARECEN? ==")
     nv = S[S["nuevo"]]; L.append(f"Señales de las acciones nuevas: {len(nv)} (contra {int((~S['nuevo']).sum())} de las 122 de antes). Con ATR 2% o más: {int((nv['atrp'] >= 0.02).sum())}. Strong con ATR 2% o más: {int((nv['strong'] & (nv['atrp'] >= 0.02)).sum())}.")
